@@ -4,8 +4,13 @@
 
 import getpass
 import shelve
+import sys
 from datetime import datetime
+from modules import access
 from modules.absolyte_path_module import USERS_PATH
+
+
+DETAIL_LOG = []
 
 
 class User():
@@ -28,12 +33,16 @@ class User():
     def bump_log(self, action):
         """Bump log information to user log"""
         current_time = datetime.now().replace(microsecond=0)
-        log = self.login + ' ' + action
-        self.log[current_time] = log
+        self.log[current_time] = self.login + ' ' + action
 
     def clean_log(self):
         """Clean log information"""
-        self.log = {}
+        confirm = input("Are you shure to clean log? Y/n: ")
+        if confirm.lower() == 'y':
+            self.log = {}
+            print("\033[91m log - deleted. \033[0m")
+        else:
+            print("\nYou skip deletion.\n")
 
     def print_log(self):
         """Print user log file"""
@@ -58,6 +67,13 @@ class User():
         return (
             "User - {}\nlogin:   {}\npassword: {}\naccess level: {}\n".format(
                 self.name, self.login, self.password, self.access))
+
+
+def create_log(current_user, user_choise):
+    """Create detailed log for action"""
+    log = access.LOG_LIST[user_choise] + ' ' + ''.join(DETAIL_LOG)
+    current_user.bump_log(log)
+    del DETAIL_LOG[:]
 
 
 def show_all_logs():
@@ -117,7 +133,9 @@ def create_new_user():
     user_access = choose_access()
     users_base[user_login] = User(user_name, user_access,
                                   user_login, user_password)
-    print("\nUser '{}' created\n".format(user_name))
+    output = "\033[92m User '{}' created. \033[0m".format(user_name)
+    print(output)
+    DETAIL_LOG.append(output)
     users_base.close()
 
 
@@ -129,13 +147,14 @@ def choose_access():
     while True:
         choose = input("Choose access by number: ")
         if check_is_it_number_in_range(choose, len(access_list)-1):
-            access = access_list[int(choose)]
+            chosen_access = access_list[int(choose)]
             break
-    return access
+    return chosen_access
 
 
 def check_is_it_number_in_range(user_input, list_range):
     """Check is input a number in current range."""
+    check_number = None
     if user_input.isdigit():
         check_number = int(user_input) in range(list_range+1)
         if not check_number:
@@ -165,7 +184,9 @@ def confirm_deletion(action):
         "Are you shure to delete '{}'? Y/n: ".format(action))
     if confirm.lower() == 'y':
         confirm = True
-        print("\n'{}' - deleted.\n".format(action))
+        output = "\033[91m '{}' - deleted. \033[0m".format(action)
+        print(output)
+        DETAIL_LOG.append(output)
     else:
         confirm = False
         print("\nYou skip deletion.\n")

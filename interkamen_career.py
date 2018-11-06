@@ -3,6 +3,7 @@
 This program provides control of all data and statistic of Career Interkamen.
 """
 
+import sys
 import shelve
 from modules import users, access
 from modules.absolyte_path_module import USERS_PATH
@@ -15,8 +16,9 @@ def print_menu():
         print("[{}] - {}".format(key, PROGRAM_MENU[key]))
 
 
-def sync_current_user():
+def loged_and_sync_current_user(user_action):
     """Bump CURRENT_USER log to database"""
+    users.create_log(CURRENT_USER, user_action)
     with shelve.open(USERS_PATH) as users_base:
         users_base[CURRENT_USER.login] = CURRENT_USER
 
@@ -26,13 +28,10 @@ if __name__ == '__main__':
     CURRENT_USER = None
     while CURRENT_USER is None:
         CURRENT_USER = users.try_to_enter_program()
-    CURRENT_USER.bump_log('enter in program')
+    loged_and_sync_current_user('enter')
 
-    OPTIONS_LIST = access.create_options_list(
-        CURRENT_USER.get_access(), CURRENT_USER)
+    OPTIONS_LIST = access.create_options_list(CURRENT_USER)
     OPTIONS_LIST['м'] = (print_menu, )
-
-    LOG_LIST = access.LOG_LIST
 
     PROGRAM_MENU = access.create_menu_list(CURRENT_USER.get_access())
     print_menu()
@@ -44,8 +43,10 @@ if __name__ == '__main__':
         if USER_CHOISE not in OPTIONS_LIST:
             print("Нет такого варианта.")
             continue
-        CURRENT_USER.bump_log(LOG_LIST[USER_CHOISE])
+        elif USER_CHOISE == 'в':
+            loged_and_sync_current_user(USER_CHOISE)
+            sys.exit()
+
         for action in OPTIONS_LIST[USER_CHOISE]:
             action()
-
-        sync_current_user()
+        loged_and_sync_current_user(USER_CHOISE)

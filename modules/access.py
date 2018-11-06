@@ -1,13 +1,24 @@
 #!usr/bin/env python3
 """This module give to program choise tree and meny depend on user access"""
 
-import sys
 from modules import users
 
+LOG_LIST = {'enter': '\033[94m enter in program \033[0m',
+            'c': 'create new user',
+            'd': 'delete user',
+            's': 'show all users',
+            'п': 'change password',
+            'l': 'show logs',
+            'a': 'show all users logs',
+            'w': 'delete logs from all useers',
+            'в': '\033[94m exit program \033[0m',
+            'p': 'clean log of current user',
+            'м': 'Показать меню программы'}
 
-def create_options_list(access, current_user):
+
+def create_options_list(current_user):
     """Create list of options depend on user access"""
-    basic_options = {'в': (sys.exit, ),
+    basic_options = {'в': None,
                      'п': (current_user.change_password, )}
     mechanic_options = {}
     master_options = {}
@@ -26,7 +37,7 @@ def create_options_list(access, current_user):
     access_list = {'admin': admin_options,
                    'master': master_options,
                    'mechanic': mechanic_options}
-    options_list = access_list[access]
+    options_list = access_list[current_user.get_access()]
     return options_list
 
 
@@ -42,7 +53,8 @@ def create_menu_list(access):
                   'l': 'show logs',
                   'a': 'show all users logs',
                   'w': 'delete logs from all useers',
-                  'p': 'clean log of current user'}
+                  'p': 'clean log of current user',
+                  'z': '----------------------------'}
 
     for key in admin_menu:
         admin_menu[key] = '\033[91m' + admin_menu[key] + '\033[0m'
@@ -56,15 +68,3 @@ def create_menu_list(access):
                    'mechanic': mechanic_menu}
     menu_list = access_list[access]
     return menu_list
-
-
-LOG_LIST = {'c': 'create new user',
-            'd': 'delete user',
-            's': 'show all users',
-            'п': 'change password',
-            'l': 'show logs',
-            'a': 'show all users logs',
-            'w': 'delete logs from all useers',
-            'в': 'exit program',
-            'p': 'clean log of current user',
-            'м': 'Показать меню программы'}
