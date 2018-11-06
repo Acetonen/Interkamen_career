@@ -1,6 +1,9 @@
 #!usr/bin/env python3
 """
 This program provides control of all data and statistic of Career Interkamen.
+
+Functions: print_menu()
+           loged_and_sync_current_user(user_action)
 """
 
 import sys

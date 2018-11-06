@@ -1,17 +1,24 @@
 #!usr/bin/env python3
-"""This module give to program choise tree and meny depend on user access"""
+"""
+This module give to program choise tree and meny depend on user access.
+
+Functions: create_options_list(current_user)
+           create_menu_list(access)
+
+Constants: LOG_LIST
+"""
 
 from modules import users
 
 LOG_LIST = {'enter': '\033[94m enter in program \033[0m',
+            'в': '\033[93m exit program \033[0m',
             'c': 'create new user',
             'd': 'delete user',
             's': 'show all users',
             'п': 'change password',
-            'l': 'show logs',
+            'l': 'search in logs',
             'a': 'show all users logs',
             'w': 'delete logs from all useers',
-            'в': '\033[94m exit program \033[0m',
             'p': 'clean log of current user',
             'м': 'Показать меню программы'}
 
@@ -25,7 +32,7 @@ def create_options_list(current_user):
     admin_options = {'c': (users.create_new_user, ),
                      'd': (users.delete_user, ),
                      's': (users.show_all_users, ),
-                     'l': (current_user.print_log, ),
+                     'l': (users.search_in_logs, ),
                      'a': (users.show_all_logs, ),
                      'w': (users.delete_all_logs, current_user.clean_log),
                      'p': (current_user.clean_log, )}
@@ -50,7 +57,7 @@ def create_menu_list(access):
     admin_menu = {'c': 'create new user',
                   'd': 'delete user',
                   's': 'show all users',
-                  'l': 'show logs',
+                  'l': 'search in logs',
                   'a': 'show all users logs',
                   'w': 'delete logs from all useers',
                   'p': 'clean log of current user',

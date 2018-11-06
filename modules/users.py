@@ -9,7 +9,9 @@ Classes: User: get_name(self)
                print_log(self, action)
                change_password(self)
 
-Functions: create_log(current_user, user_choise)
+Functions: search_in_logs(): choose_item()
+                             search_logs_by_item(search_item)
+           create_log(current_user, user_choise)
            show_all_logs()
            delete_all_logs()
            try_to_enter_program()
@@ -19,6 +21,8 @@ Functions: create_log(current_user, user_choise)
            delete_user()
            confirm_deletion(action)
            show_all_users()
+
+Constants: DETAIL_LOG
 """
 
 
@@ -86,6 +90,35 @@ class User():
         return (
             "User - {}\nlogin:   {}\npassword: {}\naccess level: {}\n".format(
                 self.name, self.login, self.password, self.access))
+
+
+def search_in_logs():
+    """Search in logs."""
+
+    def choose_item():
+        """Chose item for search"""
+        search_list = [value for key, value in access_options.LOG_LIST.items()]
+        for index, option in enumerate(search_list, 1):
+            print("[{}] - {}".format(index, option))
+        choose = input("\nInput action to search:  ")
+        if check_is_it_number_in_range(choose, len(search_list)):
+            item = search_list[int(choose)-1]
+        return item
+
+    def search_logs_by_item(search_item):
+        """Search particular information from logs."""
+        print(search_item)
+        search_list = {}
+        users_base = shelve.open(USERS_PATH)
+        for user in users_base:
+            for log in users_base[user].log:
+                if search_item in users_base[user].log[log]:
+                    search_list[log] = users_base[user].log[log]
+        users_base.close()
+        for log in sorted(search_list):
+            print(log, search_list[log])
+
+    search_logs_by_item(choose_item())
 
 
 def create_log(current_user, user_choise):
