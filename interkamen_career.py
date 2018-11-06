@@ -27,7 +27,6 @@ def loged_and_sync_current_user(user_action):
 
 
 if __name__ == '__main__':
-
     CURRENT_USER = None
     while CURRENT_USER is None:
         CURRENT_USER = users.try_to_enter_program()

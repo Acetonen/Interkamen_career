@@ -13,7 +13,7 @@ from modules import users
 LOG_LIST = {'enter': '\033[94m enter in program \033[0m',
             'в': '\033[93m exit program \033[0m',
             'c': 'create new user',
-            'd': 'delete user',
+            'e': 'edit user',
             's': 'show all users',
             'п': 'change password',
             'l': 'search in logs',
@@ -30,7 +30,7 @@ def create_options_list(current_user):
     mechanic_options = {}
     master_options = {}
     admin_options = {'c': (users.create_new_user, ),
-                     'd': (users.delete_user, ),
+                     'e': (users.edit_user, ),
                      's': (users.show_all_users, ),
                      'l': (users.search_in_logs, ),
                      'a': (users.show_all_logs, ),
@@ -55,7 +55,7 @@ def create_menu_list(access):
     mechanic_menu = {}
     master_menu = {}
     admin_menu = {'c': 'create new user',
-                  'd': 'delete user',
+                  'e': 'edit user',
                   's': 'show all users',
                   'l': 'search in logs',
                   'a': 'show all users logs',

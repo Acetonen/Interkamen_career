@@ -121,6 +121,100 @@ def search_in_logs():
     search_logs_by_item(choose_item())
 
 
+def edit_user():
+    """Change user parametrs."""
+
+    def change_user_access():
+        """Change_user_access"""
+        new_accesse = choose_access()
+        temp_user.access = new_accesse
+
+    def change_user_namee():
+        """Change user name"""
+        new_name = input("Input new user name: ")
+        temp_user.name = new_name
+
+    def change_user_password():
+        """Change user password"""
+        new_password = input("Input new user password: ")
+        temp_user.password = new_password
+
+    def delete_user():
+        """Delete user from database"""
+        if confirm_deletion(choosen_user):
+            users_base.pop(choosen_user, None)
+            users_base.close()
+        nonlocal temp_user
+        temp_user = None
+
+    users_base = shelve.open(USERS_PATH)
+    for index, login in enumerate(sorted(users_base), 1):
+        print("[{}] {}".format(index, login))
+    choose = input("Input number of user to edit: ")
+    if check_is_it_number_in_range(choose, len(users_base)):
+        choosen_user = sorted(users_base)[int(choose)-1]
+
+    while choose:
+        temp_user = users_base[choosen_user]
+        print()
+        print(users_base[choosen_user])
+        action_name_list = {'a': 'change user access',
+                            'n': 'change user name',
+                            'p': 'change user password',
+                            'd': 'delete user',
+                            'x': 'exit edition'}
+        action_list = {'a': change_user_access,
+                       'n': change_user_namee,
+                       'p': change_user_password,
+                       'd': delete_user,
+                       'x': 'break'}
+        for action in sorted(action_list):
+            print("[{}] {}".format(action, action_name_list[action]))
+
+        choosen_action = input("Choose action: ")
+        print()
+        if choosen_action == 'x':
+            break
+        action_list[choosen_action]()
+        if not temp_user:
+            break
+        users_base[choosen_user] = temp_user
+    users_base.close()
+
+
+def create_new_user():
+    """Create new user and save him in databese"""
+    users_base = shelve.open(USERS_PATH)
+    user_name = input("Input username: ")
+    while True:
+        user_login = input("Input login: ")
+        if user_login in users_base:
+            print("Login alredy exist, try enother.")
+        else:
+            break
+    user_password = input("Input password: ")
+    user_access = choose_access()
+    users_base[user_login] = User(user_name, user_access,
+                                  user_login, user_password)
+    output = "\033[92m User '{}' created. \033[0m".format(user_name)
+    print(output)
+    DETAIL_LOG.append(output)
+    users_base.close()
+
+
+def choose_access():
+    """Choosing access from access list"""
+    access_list = ['', 'admin', 'master', 'mechanics']
+    for index, name in enumerate(access_list[1:], 1):
+        print("[{}] {}".format(index, name))
+    while True:
+        choose = input("Choose access by number: ")
+        if check_is_it_number_in_range(choose, len(access_list)-1):
+            chosen_access = access_list[int(choose)]
+            break
+    return chosen_access
+
+
 def create_log(current_user, user_choise):
     """Create detailed log for action"""
     log = access_options.LOG_LIST[user_choise] + ' ' + ''.join(DETAIL_LOG)
@@ -171,39 +265,6 @@ def try_to_enter_program():
     return user_in
 
 
-def create_new_user():
-    """Create new user and save him in databese"""
-    users_base = shelve.open(USERS_PATH)
-    user_name = input("Input username: ")
-    while True:
-        user_login = input("Input login: ")
-        if user_login in users_base:
-            print("Login alredy exist, try enother.")
-        else:
-            break
-    user_password = input("Input password: ")
-    user_access = choose_access()
-    users_base[user_login] = User(user_name, user_access,
-                                  user_login, user_password)
-    output = "\033[92m User '{}' created. \033[0m".format(user_name)
-    print(output)
-    DETAIL_LOG.append(output)
-    users_base.close()
-
-
-def choose_access():
-    """Choosing access from access list"""
-    access_list = ['', 'admin', 'master', 'mechanics']
-    for index, name in enumerate(access_list[1:], 1):
-        print("[{}] {}".format(index, name))
-    while True:
-        choose = input("Choose access by number: ")
-        if check_is_it_number_in_range(choose, len(access_list)-1):
-            chosen_access = access_list[int(choose)]
-            break
-    return chosen_access
-
-
 def check_is_it_number_in_range(user_input, list_range):
     """Check is input a number in current range."""
     check_number = None
@@ -214,20 +275,6 @@ def check_is_it_number_in_range(user_input, list_range):
     else:
         print("\nYou must input NUMBER.\n")
     return check_number
-
-
-def delete_user():
-    """Delete user from database"""
-    users_base = shelve.open(USERS_PATH)
-    print("Users in base: ")
-    for index, login in enumerate(sorted(users_base), 1):
-        print("[{}] {}".format(index, login))
-    choose = input("Input number of user to delete: ")
-    if check_is_it_number_in_range(choose, len(users_base)):
-        choosen_user = sorted(users_base)[int(choose)-1]
-        if confirm_deletion(choosen_user):
-            users_base.pop(choosen_user, None)
-    users_base.close()
 
 
 def confirm_deletion(action):
@@ -247,6 +294,6 @@ def confirm_deletion(action):
 
 def show_all_users():
     """Showing all users in base"""
-    with shelve.open('data/users_base') as base:
+    with shelve.open(USERS_PATH) as base:
         for login in base:
             print(base[login])
