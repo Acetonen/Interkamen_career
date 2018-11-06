@@ -9,11 +9,10 @@ Classes: User: get_name(self)
                print_log(self, action)
                change_password(self)
 
-Functions: search_in_logs(): choose_item()
-                             search_logs_by_item(search_item)
-           create_log(current_user, user_choise)
-           show_all_logs()
-           delete_all_logs()
+Functions: edit_user(): change_user_access()
+                        change_user_name()
+                        change_user_password()
+                        delete_user()
            try_to_enter_program()
            create_new_user()
            choose_access()
@@ -29,7 +28,6 @@ Constants: DETAIL_LOG
 import getpass
 import shelve
 from datetime import datetime
-from modules import access_options
 from modules.absolyte_path_module import USERS_PATH
 
 
@@ -92,35 +90,6 @@ class User():
                 self.name, self.login, self.password, self.access))
 
 
-def search_in_logs():
-    """Search in logs."""
-
-    def choose_item():
-        """Chose item for search"""
-        search_list = [value for key, value in access_options.LOG_LIST.items()]
-        for index, option in enumerate(search_list, 1):
-            print("[{}] - {}".format(index, option))
-        choose = input("\nInput action to search:  ")
-        if check_is_it_number_in_range(choose, len(search_list)):
-            item = search_list[int(choose)-1]
-        return item
-
-    def search_logs_by_item(search_item):
-        """Search particular information from logs."""
-        print(search_item)
-        search_list = {}
-        users_base = shelve.open(USERS_PATH)
-        for user in users_base:
-            for log in users_base[user].log:
-                if search_item in users_base[user].log[log]:
-                    search_list[log] = users_base[user].log[log]
-        users_base.close()
-        for log in sorted(search_list):
-            print(log, search_list[log])
-
-    search_logs_by_item(choose_item())
-
-
 def edit_user():
     """Change user parametrs."""
 
@@ -129,7 +98,7 @@ def edit_user():
         new_accesse = choose_access()
         temp_user.access = new_accesse
 
-    def change_user_namee():
+    def change_user_name():
         """Change user name"""
         new_name = input("Input new user name: ")
         temp_user.name = new_name
@@ -164,7 +133,7 @@ def edit_user():
                             'd': 'delete user',
                             'x': 'exit edition'}
         action_list = {'a': change_user_access,
-                       'n': change_user_namee,
+                       'n': change_user_name,
                        'p': change_user_password,
                        'd': delete_user,
                        'x': 'break'}
@@ -180,6 +149,13 @@ def edit_user():
             break
         users_base[choosen_user] = temp_user
     users_base.close()
+
+
+def show_all_users():
+    """Showing all users in base"""
+    with shelve.open(USERS_PATH) as base:
+        for login in base:
+            print(base[login])
 
 
 def create_new_user():
@@ -213,35 +189,6 @@ def choose_access():
             chosen_access = access_list[int(choose)]
             break
     return chosen_access
-
-
-def create_log(current_user, user_choise):
-    """Create detailed log for action"""
-    log = access_options.LOG_LIST[user_choise] + ' ' + ''.join(DETAIL_LOG)
-    current_user.bump_log(log)
-    del DETAIL_LOG[:]
-
-
-def show_all_logs():
-    """show_all_logs"""
-    log_list = {}
-    with shelve.open(USERS_PATH) as users_base:
-        for user in users_base:
-            for log in users_base[user].log:
-                log_list.update(users_base[user].log)
-    for log in sorted(log_list):
-        print(log, log_list[log])
-
-
-def delete_all_logs():
-    """delete logs for all users"""
-    if confirm_deletion('all logs'):
-        users_base = shelve.open(USERS_PATH)
-        for user in users_base:
-            temp_user = users_base[user]
-            temp_user.clean_log()
-            users_base[user] = temp_user
-        users_base.close()
 
 
 def try_to_enter_program():
@@ -290,10 +237,3 @@ def confirm_deletion(action):
         confirm = False
         print("\nYou skip deletion.\n")
     return confirm
-
-
-def show_all_users():
-    """Showing all users in base"""
-    with shelve.open(USERS_PATH) as base:
-        for login in base:
-            print(base[login])

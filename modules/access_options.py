@@ -8,7 +8,7 @@ Functions: create_options_list(current_user)
 Constants: LOG_LIST
 """
 
-from modules import users
+from modules import users, logs
 
 LOG_LIST = {'enter': '\033[94m enter in program \033[0m',
             'в': '\033[93m exit program \033[0m',
@@ -32,8 +32,8 @@ def create_options_list(current_user):
     admin_options = {'c': (users.create_new_user, ),
                      'e': (users.edit_user, ),
                      's': (users.show_all_users, ),
-                     'l': (users.search_in_logs, ),
-                     'a': (users.show_all_logs, ),
+                     'l': (logs.search_in_logs, ),
+                     'a': (logs.show_all_logs, ),
                      'w': (users.delete_all_logs, current_user.clean_log),
                      'p': (current_user.clean_log, )}
 
