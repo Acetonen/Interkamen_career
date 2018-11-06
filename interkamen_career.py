@@ -5,7 +5,7 @@ This program provides control of all data and statistic of Career Interkamen.
 
 import sys
 import shelve
-from modules import users, access
+from modules import users, access_options
 from modules.absolyte_path_module import USERS_PATH
 
 
@@ -30,10 +30,10 @@ if __name__ == '__main__':
         CURRENT_USER = users.try_to_enter_program()
     loged_and_sync_current_user('enter')
 
-    OPTIONS_LIST = access.create_options_list(CURRENT_USER)
+    OPTIONS_LIST = access_options.create_options_list(CURRENT_USER)
     OPTIONS_LIST['м'] = (print_menu, )
 
-    PROGRAM_MENU = access.create_menu_list(CURRENT_USER.get_access())
+    PROGRAM_MENU = access_options.create_menu_list(CURRENT_USER.get_access())
     print_menu()
 
     while True:

@@ -1,12 +1,31 @@
 #!usr/bin/env python3
-"""This module work with user class and access."""
+"""
+This module work with User class and access.
+
+Classes: User: get_name(self)
+               get_access(self)
+               bump_log(self)
+               clean_log(self)
+               print_log(self, action)
+               change_password(self)
+
+Functions: create_log(current_user, user_choise)
+           show_all_logs()
+           delete_all_logs()
+           try_to_enter_program()
+           create_new_user()
+           choose_access()
+           check_is_it_number_in_range(user_input, list_range)
+           delete_user()
+           confirm_deletion(action)
+           show_all_users()
+"""
 
 
 import getpass
 import shelve
-import sys
 from datetime import datetime
-from modules import access
+from modules import access_options
 from modules.absolyte_path_module import USERS_PATH
 
 
@@ -71,7 +90,7 @@ class User():
 
 def create_log(current_user, user_choise):
     """Create detailed log for action"""
-    log = access.LOG_LIST[user_choise] + ' ' + ''.join(DETAIL_LOG)
+    log = access_options.LOG_LIST[user_choise] + ' ' + ''.join(DETAIL_LOG)
     current_user.bump_log(log)
     del DETAIL_LOG[:]
 
