@@ -17,9 +17,10 @@ Functions: edit_user(): change_user_access()
            create_new_user()
            choose_access()
            check_is_it_number_in_range(user_input, list_range)
-           delete_user()
            confirm_deletion(action)
            show_all_users()
+           choose_user_from_base()
+           check_only_admin()
 
 Constants: DETAIL_LOG
 """
@@ -28,6 +29,7 @@ Constants: DETAIL_LOG
 import getpass
 import shelve
 from datetime import datetime
+from modules import access_options
 from modules.absolyte_path_module import USERS_PATH
 
 
@@ -97,33 +99,35 @@ def edit_user():
         """Change_user_access"""
         new_accesse = choose_access()
         temp_user.access = new_accesse
+        DETAIL_LOG.append(' change access')
 
     def change_user_name():
         """Change user name"""
         new_name = input("Input new user name: ")
         temp_user.name = new_name
+        DETAIL_LOG.append(' change name')
 
     def change_user_password():
         """Change user password"""
         new_password = input("Input new user password: ")
         temp_user.password = new_password
+        DETAIL_LOG.append(' change password')
 
     def delete_user():
         """Delete user from database"""
-        if confirm_deletion(choosen_user):
+        if check_only_admin():
+            print("If 'admin' user alone you can't delete him.")
+        elif confirm_deletion(choosen_user):
             users_base.pop(choosen_user, None)
             users_base.close()
         nonlocal temp_user
         temp_user = None
 
+    choosen_user = choose_user_from_base()
+    if choosen_user:
+        DETAIL_LOG.append(choosen_user)
     users_base = shelve.open(USERS_PATH)
-    for index, login in enumerate(sorted(users_base), 1):
-        print("[{}] {}".format(index, login))
-    choose = input("Input number of user to edit: ")
-    if check_is_it_number_in_range(choose, len(users_base)):
-        choosen_user = sorted(users_base)[int(choose)-1]
-
-    while choose:
+    while choosen_user:
         temp_user = users_base[choosen_user]
         print()
         print(users_base[choosen_user])
@@ -142,7 +146,7 @@ def edit_user():
 
         choosen_action = input("Choose action: ")
         print()
-        if choosen_action == 'x':
+        if choosen_action in ['x', '']:
             break
         action_list[choosen_action]()
         if not temp_user:
@@ -151,11 +155,25 @@ def edit_user():
     users_base.close()
 
 
+def choose_user_from_base():
+    """Chose user from user base"""
+    users_base = shelve.open(USERS_PATH)
+    for index, login in enumerate(sorted(users_base), 1):
+        print("[{}] {}".format(index, login))
+    choose = input("Input number of user to edit: ")
+    if check_is_it_number_in_range(choose, len(users_base)):
+        user = sorted(users_base)[int(choose)-1]
+    else:
+        user = None
+    users_base.close()
+    return user
+
+
 def show_all_users():
     """Showing all users in base"""
-    with shelve.open(USERS_PATH) as base:
-        for login in base:
-            print(base[login])
+    with shelve.open(USERS_PATH) as users_base:
+        for login in users_base:
+            print(users_base[login])
 
 
 def create_new_user():
@@ -180,7 +198,7 @@ def create_new_user():
 
 def choose_access():
     """Choosing access from access list"""
-    access_list = ['', 'admin', 'master', 'mechanics']
+    access_list = access_options.ACCESS_LIST
     for index, name in enumerate(access_list[1:], 1):
         print("[{}] {}".format(index, name))
     while True:
@@ -237,3 +255,16 @@ def confirm_deletion(action):
         confirm = False
         print("\nYou skip deletion.\n")
     return confirm
+
+
+def check_only_admin():
+    """Check if admin user only one in base"""
+    check = False
+    admin_counter = 0
+    with shelve.open(USERS_PATH) as users_base:
+        for login in users_base:
+            if users_base[login].access == 'admin':
+                admin_counter += 1
+    if admin_counter == 1:
+        check = True
+    return check

@@ -10,7 +10,9 @@ Constants: LOG_LIST
 
 from modules import users, logs
 
-LOG_LIST = {'enter': '\033[94m enter in program \033[0m',
+ACCESS_LIST = ['', 'admin', 'master', 'mechanics']
+
+LOG_LIST = {'enter': '\033[94m enter program \033[0m',
             'в': '\033[93m exit program \033[0m',
             'c': 'create new user',
             'e': 'edit user',
@@ -18,6 +20,7 @@ LOG_LIST = {'enter': '\033[94m enter in program \033[0m',
             'п': 'change password',
             'l': 'search in logs',
             'a': 'show all users logs',
+            'u': 'show particular user logs',
             'w': 'delete logs from all useers',
             'p': 'clean log of current user',
             'м': 'Показать меню программы'}
@@ -34,7 +37,8 @@ def create_options_list(current_user):
                      's': (users.show_all_users, ),
                      'l': (logs.search_in_logs, ),
                      'a': (logs.show_all_logs, ),
-                     'w': (users.delete_all_logs, current_user.clean_log),
+                     'u': (logs.show_particular_user_logs, ),
+                     'w': (logs.delete_all_logs, current_user.clean_log),
                      'p': (current_user.clean_log, )}
 
     mechanic_options.update(basic_options)
@@ -59,6 +63,7 @@ def create_menu_list(access):
                   's': 'show all users',
                   'l': 'search in logs',
                   'a': 'show all users logs',
+                  'u': 'show particular user logs',
                   'w': 'delete logs from all useers',
                   'p': 'clean log of current user',
                   'z': '----------------------------'}

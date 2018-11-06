@@ -4,6 +4,7 @@ This module provide working with program logs
 
 Functions: search_in_logs(): choose_item()
                              search_logs_by_item(search_item)
+           show_particular_user_logs()
            show_all_logs()
            create_log(current_user, user_choise)
 """
@@ -70,3 +71,10 @@ def delete_all_logs():
             temp_user.clean_log()
             users_base[user] = temp_user
         users_base.close()
+
+
+def show_particular_user_logs():
+    """Show logs list of current user"""
+    user = users.choose_user_from_base()
+    with shelve.open(USERS_PATH) as users_base:
+        users_base[user].print_log()

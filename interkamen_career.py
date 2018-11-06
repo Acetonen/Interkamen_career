@@ -8,7 +8,7 @@ Functions: print_menu()
 
 import sys
 import shelve
-from modules import users, access_options
+from modules import users, access_options, logs
 from modules.absolyte_path_module import USERS_PATH
 
 
@@ -21,7 +21,7 @@ def print_menu():
 
 def loged_and_sync_current_user(user_action):
     """Bump CURRENT_USER log to database"""
-    users.create_log(CURRENT_USER, user_action)
+    logs.create_log(CURRENT_USER, user_action)
     with shelve.open(USERS_PATH) as users_base:
         users_base[CURRENT_USER.login] = CURRENT_USER
 
