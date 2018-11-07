@@ -1,5 +1,16 @@
 #!usr/bin/env python3
-"""This class provides to work with all logs."""
+"""
+This class provides to work with all logs.
+Classes: Logs: 'add_read_temp_file_log',
+               'check_number_in_range',
+               'choose_item',
+               'confirm_deletion',
+               'create_log',
+               'delete_all_logs',
+               'search_in_logs',
+               'search_logs_by_item',
+               'show_all_logs'
+"""
 
 import shelve
 import os

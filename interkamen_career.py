@@ -2,8 +2,8 @@
 """
 This program provides control of all data and statistic of Career Interkamen.
 
-Functions: print_menu()
-           loged_and_sync_current_user(user_action)
+Functions: 'print_menu'
+           'make_log'
 """
 
 import sys
@@ -19,10 +19,9 @@ def print_menu():
         print("[{}] - {}".format(key, PROGRAM_MENU[key]))
 
 
-def loged_and_sync_current_user(user_action):
+def make_log(user_action):
     """Bump CURRENT_USER log to database"""
     Logs().create_log(CURRENT_USER['login'], user_action)
-    Users().sync_user(CURRENT_USER)
 
 
 if __name__ == '__main__':
@@ -30,11 +29,11 @@ if __name__ == '__main__':
     CURRENT_USER = None
     while CURRENT_USER is None:
         CURRENT_USER = Users().try_to_enter_program()
-    loged_and_sync_current_user('enter')
+    make_log('enter')
 
     ACTIONS_LIST = Accesse(CURRENT_USER['accesse']).get_actions_list()
     ACTIONS_LIST['м'] = print_menu
-
+    ACTIONS_WITH_INPUT = Accesse(CURRENT_USER['accesse']).get_input_actions()
     PROGRAM_MENU = Accesse(CURRENT_USER['accesse']).get_menue_list()
     print_menu()
 
@@ -46,8 +45,11 @@ if __name__ == '__main__':
             print("Нет такого варианта.")
             continue
         elif USER_CHOISE == 'в':
-            loged_and_sync_current_user(USER_CHOISE)
+            make_log(USER_CHOISE)
             sys.exit()
-
-        ACTIONS_LIST[USER_CHOISE]()
-        loged_and_sync_current_user(USER_CHOISE)
+        elif USER_CHOISE in ACTIONS_WITH_INPUT:
+            ACTIONS_LIST[USER_CHOISE](CURRENT_USER)
+        else:
+            ACTIONS_LIST[USER_CHOISE]()
+        CURRENT_USER = Users().sync_user(CURRENT_USER['login'])
+        make_log(USER_CHOISE)

@@ -95,6 +95,9 @@ class Users:
 
             choosen_action = input("Choose action: ")
             print()
+            if choosen_action not in user_list:
+                print("\nNo such option.\n")
+                continue
             if choosen_action in ['x', '']:
                 break
             user_deleted = user_list[choosen_action](temp_user)
@@ -160,6 +163,8 @@ class Users:
             repeat_password = getpass.getpass("Повторите новый пароль: ")
             if new_password == repeat_password:
                 user['password'] = new_password
+                with shelve.open(self.data_file) as base:
+                    base[user['login']] = user
                 print("Новый пароль сохранен.")
                 self.save_log_to_temp_file(' change password')
             else:
@@ -212,10 +217,10 @@ class Users:
             print("\nYou must input NUMBER.\n")
         return check_number
 
-    def sync_user(self, user):
+    def sync_user(self, user_login):
         """Sync current user with base"""
         with shelve.open(self.data_file) as users_base:
-            users_base[user['login']] = user
+            return users_base[user_login]
 
     def print_all_users(self):
         """Print all users from base"""
@@ -226,8 +231,8 @@ class Users:
     @classmethod
     def print_user(cls, user):
         """Print one user"""
-        print("name:{name} login:{login} \
-password:{password} accesse:{accesse}".format(**user))
+        print("name:{name}\nlogin:{login}\n\
+password:{password}\naccesse:{accesse}\n".format(**user))
 
     @classmethod
     def save_log_to_temp_file(cls, log):

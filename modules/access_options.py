@@ -5,6 +5,7 @@ This module give to program choise tree and meny depend on user access.
 Classes: Accesse: 'create_list',
                   'get_menue_list',
                   'get_actions_list'
+                  'get_actions_with_input'
 """
 
 from modules.log_class import Logs
@@ -47,6 +48,7 @@ class Accesse:
 
         self.menue_list = self.create_list(accesse, menue_options)
         self.actions_list = self.create_list(accesse, action_options)
+        self.actions_that_need_input = ['п']
 
     @classmethod
     def create_list(cls, accesse, options_list):
@@ -66,3 +68,9 @@ class Accesse:
     def get_actions_list(self):
         """Give menue list"""
         return self.actions_list
+
+    def get_input_actions(self):
+        """Give menue list"""
+        actions = [
+            x for x in self.actions_that_need_input if x in self.actions_list]
+        return actions
