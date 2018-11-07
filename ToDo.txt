@@ -1,1 +1,5 @@
-TODO: 2. Database recovery copy reminred.
+TODO: Database recovery copy reminder.
+TODO: Separate log base.
+TODO: Secure shelve.
+TODO: All functions outputs = lists
+TODO: Move shelve handling to class level 

@@ -2,81 +2,67 @@
 """
 This module give to program choise tree and meny depend on user access.
 
-Functions: create_options_list(current_user)
-           create_menu_list(access)
-
-Constants: LOG_LIST
+Classes: Accesse: 'create_list',
+                  'get_menue_list',
+                  'get_actions_list'
 """
 
-from modules import users, logs
-
-ACCESS_LIST = ['', 'admin', 'master', 'mechanics']
-
-LOG_LIST = {'enter': '\033[94m enter program \033[0m',
-            'в': '\033[93m exit program \033[0m',
-            'c': 'create new user',
-            'e': 'edit user',
-            's': 'show all users',
-            'п': 'change password',
-            'l': 'search in logs',
-            'a': 'show all users logs',
-            'u': 'show particular user logs',
-            'w': 'delete logs from all useers',
-            'p': 'clean log of current user',
-            'м': 'Показать меню программы'}
+from modules.log_class import Logs
+from modules.users import Users
 
 
-def create_options_list(current_user):
-    """Create list of options depend on user access"""
-    basic_options = {'в': None,
-                     'п': (current_user.change_password, )}
-    mechanic_options = {}
-    master_options = {}
-    admin_options = {'c': (users.create_new_user, ),
-                     'e': (users.edit_user, ),
-                     's': (users.show_all_users, ),
-                     'l': (logs.search_in_logs, ),
-                     'a': (logs.show_all_logs, ),
-                     'u': (logs.show_particular_user_logs, ),
-                     'w': (logs.delete_all_logs, current_user.clean_log),
-                     'p': (current_user.clean_log, )}
+class Accesse:
+    """Give to program 'choise tree' and 'meny' depend on user access"""
+    def __init__(self, accesse):
 
-    mechanic_options.update(basic_options)
-    master_options.update(basic_options)
-    admin_options.update(master_options)
-    admin_options.update(mechanic_options)
-    access_list = {'admin': admin_options,
-                   'master': master_options,
-                   'mechanic': mechanic_options}
-    options_list = access_list[current_user.get_access()]
-    return options_list
+        action_options = {
+            'basic': {'в': None,
+                      'п': Users().change_user_password},
+            'mechanic': {},
+            'master': {},
+            'admin': {'c': Users().create_new_user,
+                      'e': Users().edit_user,
+                      's': Users().print_all_users,
+                      'l': Logs().search_in_logs,
+                      'a': Logs().show_all_logs,
+                      'w': Logs().delete_all_logs}}
 
+        menue_options = {
+            'basic': {'в': 'Выйти из программы',
+                      'п': 'Поменять пароль'},
+            'mechanic': {},
+            'master': {},
+            'admin': {'c': 'create new user',
+                      'e': 'edit user',
+                      's': 'show all users',
+                      'l': 'search in logs',
+                      'a': 'show all users logs',
+                      'w': 'delete logs from all useers',
+                      'z': '----------------------------'}}
 
-def create_menu_list(access):
-    """Create list of menu depend on user access"""
-    basic_menu = {'в': 'Выйти из программы',
-                  'п': 'Поменять пароль'}
-    mechanic_menu = {}
-    master_menu = {}
-    admin_menu = {'c': 'create new user',
-                  'e': 'edit user',
-                  's': 'show all users',
-                  'l': 'search in logs',
-                  'a': 'show all users logs',
-                  'u': 'show particular user logs',
-                  'w': 'delete logs from all useers',
-                  'p': 'clean log of current user',
-                  'z': '----------------------------'}
+        # Make admin menu red.
+        for key in menue_options['admin']:
+            menue_options['admin'][key] = (
+                '\033[91m' + menue_options['admin'][key] + '\033[0m')
 
-    for key in admin_menu:
-        admin_menu[key] = '\033[91m' + admin_menu[key] + '\033[0m'
+        self.menue_list = self.create_list(accesse, menue_options)
+        self.actions_list = self.create_list(accesse, action_options)
 
-    mechanic_menu.update(basic_menu)
-    master_menu.update(basic_menu)
-    admin_menu.update(master_menu)
-    admin_menu.update(mechanic_menu)
-    access_list = {'admin': admin_menu,
-                   'master': master_menu,
-                   'mechanic': mechanic_menu}
-    menu_list = access_list[access]
-    return menu_list
+    @classmethod
+    def create_list(cls, accesse, options_list):
+        """Create accesse and options menues"""
+        options_list['mechanic'].update(options_list['basic'])
+        options_list['master'].update(options_list['basic'])
+        options_list['admin'].update(options_list['master'])
+        options_list['admin'].update(options_list['mechanic'])
+
+        options_list.pop('basic', None)
+        return options_list[accesse]
+
+    def get_menue_list(self):
+        """Give menue list"""
+        return self.menue_list
+
+    def get_actions_list(self):
+        """Give menue list"""
+        return self.actions_list

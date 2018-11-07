@@ -7,9 +7,9 @@ Functions: print_menu()
 """
 
 import sys
-import shelve
-from modules import users, access_options, logs
-from modules.absolyte_path_module import USERS_PATH
+from modules.access_options import Accesse
+from modules.users import Users
+from modules.log_class import Logs
 
 
 def print_menu():
@@ -21,34 +21,33 @@ def print_menu():
 
 def loged_and_sync_current_user(user_action):
     """Bump CURRENT_USER log to database"""
-    logs.create_log(CURRENT_USER, user_action)
-    with shelve.open(USERS_PATH) as users_base:
-        users_base[CURRENT_USER.login] = CURRENT_USER
+    Logs().create_log(CURRENT_USER['login'], user_action)
+    Users().sync_user(CURRENT_USER)
 
 
 if __name__ == '__main__':
+
     CURRENT_USER = None
     while CURRENT_USER is None:
-        CURRENT_USER = users.try_to_enter_program()
+        CURRENT_USER = Users().try_to_enter_program()
     loged_and_sync_current_user('enter')
 
-    OPTIONS_LIST = access_options.create_options_list(CURRENT_USER)
-    OPTIONS_LIST['м'] = (print_menu, )
+    ACTIONS_LIST = Accesse(CURRENT_USER['accesse']).get_actions_list()
+    ACTIONS_LIST['м'] = print_menu
 
-    PROGRAM_MENU = access_options.create_menu_list(CURRENT_USER.get_access())
+    PROGRAM_MENU = Accesse(CURRENT_USER['accesse']).get_menue_list()
     print_menu()
 
     while True:
         USER_CHOISE = input("\n[м] - Показать меню программы"
                             "\nВыберете действие:\n")
         print()
-        if USER_CHOISE not in OPTIONS_LIST:
+        if USER_CHOISE not in ACTIONS_LIST:
             print("Нет такого варианта.")
             continue
         elif USER_CHOISE == 'в':
             loged_and_sync_current_user(USER_CHOISE)
             sys.exit()
 
-        for action in OPTIONS_LIST[USER_CHOISE]:
-            action()
+        ACTIONS_LIST[USER_CHOISE]()
         loged_and_sync_current_user(USER_CHOISE)
