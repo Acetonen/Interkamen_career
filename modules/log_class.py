@@ -28,14 +28,14 @@ class Logs:
         self.access_list = ['', 'admin', 'master', 'mechanics']
         self.log_list = {'enter': '\033[94m enter program \033[0m',
                          'в': '\033[93m exit program \033[0m',
-                         'c': 'create new user',
-                         'e': 'edit user',
-                         's': 'show all users',
-                         'п': 'change password',
-                         'l': 'search in logs',
-                         'a': 'show all users logs',
-                         'w': 'delete logs from all useers',
-                         'м': 'Показать меню программы'}
+                         'c': ' create new user',
+                         'e': ' edit user ',
+                         's': ' show all users',
+                         'п': '',
+                         'l': ' search in logs',
+                         'a': ' show all users logs',
+                         'w': ' delete logs from all useers',
+                         'м': ' show program menu'}
 
         self.search_list = [value for key, value in self.log_list.items()]
         self.search_list.extend(Users().get_all_users_list())
@@ -109,8 +109,8 @@ class Logs:
     def delete_all_logs(self):
         """delete logs for all users"""
         if self.confirm_deletion('all logs'):
-            with shelve.open(self.data_file) as logs_base:
-                logs_base.clear()
+            logs_base = shelve.open(self.data_file, flag='n')
+            logs_base.close()
 
     @classmethod
     def confirm_deletion(cls, logs):

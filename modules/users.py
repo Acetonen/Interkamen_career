@@ -29,10 +29,11 @@ from modules.absolyte_path_module import AbsolytePath
 
 class Users:
     """Users warking with program."""
-    def __init__(self, data_file=AbsolytePath('users_base')):
+    def __init__(self,
+                 data_file=AbsolytePath('users_base')):
 
         self.data_file = data_file.get_absolyte_path()
-        self.access_list = ['', 'admin', 'master', 'mechanics']
+        self.access_list = ['', 'admin', 'boss', 'master', 'mechanics']
         with shelve.open(self.data_file) as users_base:
             self.all_users_list = [user for user in users_base]
 
@@ -166,7 +167,7 @@ class Users:
                 with shelve.open(self.data_file) as base:
                     base[user['login']] = user
                 print("Новый пароль сохранен.")
-                self.save_log_to_temp_file(' change password')
+                self.save_log_to_temp_file('change password')
             else:
                 print("Введенные пароли не совпадают.")
         else:
