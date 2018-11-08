@@ -31,7 +31,7 @@ class Accesse:
             'г': '<-- [Главное меню]'
             }
 
-        self.sub_menues = {
+        self.sub_menus = {
             '\033[91m--> [log menu]\033[0m': {
                 's': 'search in logs',
                 'd': 'delete logs from all users',
@@ -69,7 +69,7 @@ class Accesse:
 
     @classmethod
     def create_list(cls, accesse, options_list):
-        """Create accesse and options menues"""
+        """Create accesse and options menus"""
         options_list['mechanic'].update(options_list['basic'])
         options_list['master'].update(options_list['basic'])
         options_list['boss'].update(options_list['master'])
@@ -81,9 +81,9 @@ class Accesse:
 
     def get_sub_menu(self, sub_menu_name):
         """Return submenu"""
-        self.sub_menues[sub_menu_name].update(
+        self.sub_menus[sub_menu_name].update(
             self.sub_standart_options.items())
-        return self.sub_menues[sub_menu_name]
+        return self.sub_menus[sub_menu_name]
 
     def get_menu_dict(self):
         """Give menue list"""

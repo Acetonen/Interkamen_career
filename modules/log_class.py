@@ -1,7 +1,7 @@
 #!usr/bin/env python3
 """
 This class provides to work with all logs.
-Classes: Logs: 'add_read_temp_file_log',
+Classes: Logs: 'upload_read_temp_file_log',
                'check_number_in_range',
                'choose_item',
                'confirm_deletion',
@@ -25,7 +25,6 @@ class Logs:
 
         self.data_file = data_file.get_absolyte_path()
         self.log_constructor = []
-        self.access_list = ['', 'admin', 'master', 'mechanics']
         self.log_list = {
             'enter': '\033[94m enter program \033[0m',
             'в': '\033[93m exit program \033[0m',
@@ -44,12 +43,12 @@ class Logs:
             current_time = str(datetime.now().replace(microsecond=0))
             self.log_constructor.append(user_login)  # User login
             self.log_constructor.append(self.log_list[user_action])
-            self.add_read_temp_file_log()
+            self.upload_read_temp_file_log()
             with shelve.open(self.data_file) as logs_base:
                 logs_base[current_time] = self.log_constructor
             self.log_constructor = self.log_constructor[:]
 
-    def add_read_temp_file_log(self):
+    def upload_read_temp_file_log(self):
         """Read detailed user log from temp file"""
         file_path = AbsolytePath('log.tmp').get_absolyte_path()
         if os.path.exists(file_path):

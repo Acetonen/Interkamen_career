@@ -29,8 +29,7 @@ from modules.absolyte_path_module import AbsolytePath
 
 class Users:
     """Users warking with program."""
-    def __init__(self,
-                 data_file=AbsolytePath('users_base')):
+    def __init__(self, data_file=AbsolytePath('users_base')):
 
         self.data_file = data_file.get_absolyte_path()
         self.access_list = ['', 'admin', 'boss', 'master', 'mechanics']
