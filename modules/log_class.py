@@ -26,29 +26,28 @@ class Logs:
         self.data_file = data_file.get_absolyte_path()
         self.log_constructor = []
         self.access_list = ['', 'admin', 'master', 'mechanics']
-        self.log_list = {'enter': '\033[94m enter program \033[0m',
-                         'в': '\033[93m exit program \033[0m',
-                         'c': ' create new user',
-                         'e': ' edit user ',
-                         's': ' show all users',
-                         'п': '',
-                         'l': ' search in logs',
-                         'a': ' show all users logs',
-                         'w': ' delete logs from all useers',
-                         'м': ' show program menu'}
+        self.log_list = {
+            'enter': '\033[94m enter program \033[0m',
+            'в': '\033[93m exit program \033[0m',
+            'c': ' create new user',
+            'e': ' edit user ',
+            's': ' search in logs',
+            'd': ' delete logs from all useers'
+            }
 
         self.search_list = [value for key, value in self.log_list.items()]
         self.search_list.extend(Users().get_all_users_list())
 
     def create_log(self, user_login, user_action):
         """Create detailed log for action"""
-        current_time = str(datetime.now().replace(microsecond=0))
-        self.log_constructor.append(user_login)  # User login
-        self.log_constructor.append(self.log_list[user_action])  # User action
-        self.add_read_temp_file_log()
-        with shelve.open(self.data_file) as logs_base:
-            logs_base[current_time] = self.log_constructor
-        self.log_constructor = self.log_constructor[:]
+        if user_action in self.log_list:  # User action
+            current_time = str(datetime.now().replace(microsecond=0))
+            self.log_constructor.append(user_login)  # User login
+            self.log_constructor.append(self.log_list[user_action])
+            self.add_read_temp_file_log()
+            with shelve.open(self.data_file) as logs_base:
+                logs_base[current_time] = self.log_constructor
+            self.log_constructor = self.log_constructor[:]
 
     def add_read_temp_file_log(self):
         """Read detailed user log from temp file"""

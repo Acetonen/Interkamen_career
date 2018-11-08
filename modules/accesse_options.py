@@ -17,36 +17,48 @@ class Accesse:
     """Give to program 'choise tree' and 'meny' depend on user access"""
     def __init__(self, accesse='mechanic'):
 
-        self.actions = {'в': 'exit program',
-                        'п': Users().change_user_password,
-                        'c': Users().create_new_user,
-                        'e': Users().edit_user,
-                        'p': Users().print_all_users,
-                        's': Logs().search_in_logs,
-                        'a': Logs().show_all_logs,
-                        'd': Logs().delete_all_logs,
-                        'l': '--> log menu',
-                        'г': '<-- Главное меню'}
+        self.actions = {
+            'в': 'exit program',
+            'п': lambda arg: Users().change_user_password(arg),
+            'c': lambda *arg: Users().create_new_user(),
+            'e': lambda *arg: Users().edit_user(),
+            'p': lambda *arg: Users().print_all_users(),
+            's': lambda *arg: Logs().search_in_logs(),
+            'a': lambda *arg: Logs().show_all_logs(),
+            'd': lambda *arg: Logs().delete_all_logs(),
+            'u': '--> [users menu]',
+            'l': '--> [log menu]',
+            'г': '<-- [Главное меню]'
+            }
 
         self.sub_menues = {
-            '\033[91m--> log menu\033[0m': {
+            '\033[91m--> [log menu]\033[0m': {
                 's': 'search in logs',
                 'd': 'delete logs from all users',
-                'a': 'show all users logs',
-                'в': 'Выйти из программы',
-                'г': '<-- Главное меню'}}
+                'a': 'show all users logs'},
+            '\033[91m--> [users menu]\033[0m': {
+                'c': 'create new user',
+                'e': 'edit user',
+                'p': 'show all users'}
+            }
+
+        self.sub_standart_options = {
+            'в': 'Выйти из программы',
+            'м': 'Показать меню программы',
+            'г': '<-- [Главное меню]'
+            }
 
         self.menu_options = {
             'basic': {'в': 'Выйти из программы',
-                      'п': 'Поменять пароль'},
+                      'п': 'Поменять пароль',
+                      'м': 'Показать меню программы'},
             'mechanic': {},
             'master': {},
             'boss': {},
-            'admin': {'c': 'create new user',
-                      'e': 'edit user',
-                      's': 'show all users',
-                      'l': '--> log menu',
-                      'z': '-----------------'}}
+            'admin': {'u': '--> [users menu]',
+                      'l': '--> [log menu]',
+                      'z': '-----------------'}
+            }
 
         # Make admin menu red.
         for key in self.menu_options['admin']:
@@ -54,7 +66,6 @@ class Accesse:
                 '\033[91m' + self.menu_options['admin'][key] + '\033[0m')
 
         self.menu_list = self.create_list(accesse, self.menu_options)
-        self.actions_that_need_input = ['п']
 
     @classmethod
     def create_list(cls, accesse, options_list):
@@ -70,6 +81,8 @@ class Accesse:
 
     def get_sub_menu(self, sub_menu_name):
         """Return submenu"""
+        self.sub_menues[sub_menu_name].update(
+            self.sub_standart_options.items())
         return self.sub_menues[sub_menu_name]
 
     def get_menu_dict(self):
@@ -81,9 +94,3 @@ class Accesse:
         actions_list = {key: action for (key, action) in self.actions.items()
                         if key in menu_list}
         return actions_list
-
-    def get_input_actions(self, menu_list):
-        """Give menue list"""
-        actions = self.get_actions_dict(menu_list)
-        inp_actions = [x for x in self.actions_that_need_input if x in actions]
-        return inp_actions
