@@ -21,12 +21,14 @@ class Accesse:
 
         self.sub_menus = OrderedDict
         self.sub_menus = {
+            '--> [TEST]': {},
             '\033[91m--> [log_menu] \033[0m': {
                 'search in logs': lambda *arg: Logs().search_in_logs(),
                 'delete all logs': lambda *arg: Logs().delete_all_logs(),
                 'show all logs': lambda *arg: Logs().show_all_logs(),
                 },
             '\033[91m--> [users_menu] \033[0m': {
+                '--> [TEST]': 'test menu',
                 'create new user': lambda *arg: Users().create_new_user(),
                 'edit user': lambda *arg: Users().edit_user(),
                 'show all users': lambda *arg: Users().show_all_users()
@@ -39,7 +41,7 @@ class Accesse:
             }
 
         self.sub_standart_options = {
-            '<-- [Главное меню]': 'возврат в главное меню',
+            '<-- [Предыдущее меню]': 'menu before',
             '\033[93mВыйти из программы\033[0m': 'exit program',
             }
 

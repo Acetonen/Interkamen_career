@@ -37,11 +37,9 @@ def print_menu():
         print("[{}] - {}".format(index, item))
 
 
-def get_main_or_sub_menu(choise_exst):
+def get_main_or_sub_menu(sub_menu):
     """create main or sub-menu"""
-    if choise_exst:
-        choise_exst = int(choise_exst)
-        sub_menu = MENU_LIST[choise_exst][0]
+    if sub_menu:
         program_menu = Accesse(USR_ACS).get_sub_menu(sub_menu)
     else:
         program_menu = Accesse(USR_ACS).get_menu_dict()
@@ -70,6 +68,7 @@ if __name__ == '__main__':
     PROGRAM_MENU = OrderedDict
     PROGRAM_MENU = {}
     MENU_LIST = []
+    MENU_NESTING = []
     CURRENT_USER = login_program()
     USR_ACS = CURRENT_USER['accesse']
 
@@ -98,13 +97,20 @@ if __name__ == '__main__':
             # Enter sub-menu.
             if '-->' in MENU_LIST[USER_CHOISE][0]:
                 MENU_HEADER[1] = MENU_LIST[USER_CHOISE][0].split(' ')[1]
-                get_main_or_sub_menu(str(USER_CHOISE))
+                MENU_NESTING.append(MENU_LIST[USER_CHOISE][0])
+                get_main_or_sub_menu(MENU_LIST[USER_CHOISE][0])
                 print_menu()
                 continue
 
             # Exit sub-menu.
             elif '<--' in MENU_LIST[USER_CHOISE][0]:
-                break
+                MENU_NESTING = MENU_NESTING[:-1]
+                if MENU_NESTING:
+                    MENU_HEADER[1] = MENU_NESTING[-1].split(' ')[1]
+                    get_main_or_sub_menu(MENU_NESTING[-1])
+                    print_menu()
+                else:
+                    break
 
             # Exit program.
             elif MENU_LIST[USER_CHOISE][1] == 'exit program':
