@@ -1,7 +1,7 @@
 #!usr/bin/env python3
 """
 This class provides to work with all logs.
-Classes: Logs: 'upload_read_temp_file_log',
+Classes: Logs: 'upload_temp_file_log',
                'check_number_in_range',
                'choose_item',
                'confirm_deletion',
@@ -25,30 +25,33 @@ class Logs:
 
         self.data_file = data_file.get_absolyte_path()
         self.log_constructor = []
-        self.log_list = {
-            'enter': '\033[94m enter program \033[0m',
-            'в': '\033[93m exit program \033[0m',
-            'c': ' create new user',
-            'e': ' edit user ',
-            's': ' search in logs',
-            'd': ' delete logs from all useers'
-            }
+        self.log_list = [
+            '\033[94m enter program \033[0m',
+            '\033[93m exit program \033[0m',
+            ' create new user',
+            'edit user',
+            'search in logs',
+            'delete all logs',
+            'change self password',
+            'add worker',
+            'edit worker'
+            ]
 
-        self.search_list = [value for key, value in self.log_list.items()]
+        self.search_list = self.log_list[:]
         self.search_list.extend(Users().get_all_users_list())
 
     def create_log(self, user_login, user_action):
         """Create detailed log for action"""
-        if user_action in self.log_list:  # User action
+        if user_action in self.log_list:
+            self.log_constructor.append(user_login)
+            self.log_constructor.append(user_action)
+            self.upload_temp_file_log()
             current_time = str(datetime.now().replace(microsecond=0))
-            self.log_constructor.append(user_login)  # User login
-            self.log_constructor.append(self.log_list[user_action])
-            self.upload_read_temp_file_log()
             with shelve.open(self.data_file) as logs_base:
                 logs_base[current_time] = self.log_constructor
             self.log_constructor = self.log_constructor[:]
 
-    def upload_read_temp_file_log(self):
+    def upload_temp_file_log(self):
         """Read detailed user log from temp file"""
         file_path = AbsolytePath('log.tmp').get_absolyte_path()
         if os.path.exists(file_path):
@@ -61,7 +64,7 @@ class Logs:
         """show_all_logs"""
         with shelve.open(self.data_file) as logs_base:
             for log in sorted(logs_base):
-                print(log, ' '.join(logs_base[log]))
+                print(log, '; '.join(logs_base[log]))
 
     def search_in_logs(self):
         """Search in logs."""

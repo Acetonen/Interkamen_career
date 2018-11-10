@@ -76,32 +76,32 @@ class Users:
         if choosen_user:
             self.save_log_to_temp_file(choosen_user)
         users_base = shelve.open(self.data_file)
-        while choosen_user:
+        while choosen_user:  # TODO: change like in workers_module, edit worker
             temp_user = users_base[choosen_user]
             print()
             self.print_user(users_base[choosen_user])
-            user_name_list = {'a': 'change user access',
+            edit_menu_dict = {'a': 'change user access',
                               'n': 'change user name',
                               'p': 'change user password',
                               'd': 'delete user',
                               'x': 'exit edition'}
-            user_list = {'a': self.change_user_access,
-                         'n': self.change_user_name,
-                         'p': self.change_user_password,
-                         'd': self.delete_user,
-                         'x': 'break'}
-            for user in sorted(user_list):
-                print("[{}] {}".format(user, user_name_list[user]))
+            edit_action_dict = {'a': self.change_user_access,
+                                'n': self.change_user_name,
+                                'p': self.change_password,
+                                'd': self.delete_user,
+                                'x': 'break'}
+            for user in sorted(edit_action_dict):
+                print("[{}] {}".format(user, edit_menu_dict[user]))
 
             choosen_action = input("Choose action: ")
             print()
-            if choosen_action not in user_list:
+            if choosen_action not in edit_action_dict:
                 print("\nNo such option.\n")
                 continue
             if choosen_action in ['x', '']:
                 break
-            user_deleted = user_list[choosen_action](temp_user)
-            if user_deleted:
+            are_user_deleted = edit_action_dict[choosen_action](temp_user)
+            if are_user_deleted:
                 break
             users_base[choosen_user] = temp_user
         users_base.close()
@@ -155,7 +155,7 @@ class Users:
         user['name'] = new_name
         self.save_log_to_temp_file(f' change name -> {new_name}')
 
-    def change_user_password(self, user):
+    def change_password(self, user):
         """Changing password"""
         old_password = input("Введите старый пароль: ")
         if old_password == user['password']:
@@ -172,7 +172,7 @@ class Users:
         else:
             print("Неправильный пароль.")
 
-    def choose_user_from_base(self):
+    def choose_user_from_base(self): # TODO: merge with Change_user_access()
         """Return user login if user in base, return None if not."""
         users_base = shelve.open(self.data_file)
         for index, login in enumerate(sorted(users_base), 1):
@@ -222,7 +222,7 @@ class Users:
         with shelve.open(self.data_file) as users_base:
             return users_base[user_login]
 
-    def print_all_users(self):
+    def show_all_users(self):
         """Print all users from base"""
         with shelve.open(self.data_file) as users_base:
             for login in users_base:
