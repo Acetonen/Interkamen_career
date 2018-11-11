@@ -9,7 +9,7 @@ Classes: Logs: 'upload_temp_file_log',
                'delete_all_logs',
                'search_in_logs',
                'search_logs_by_item',
-               'show_all_logs'
+               'show_all_logs',
 """
 
 import shelve
@@ -34,7 +34,10 @@ class Logs:
             'delete all logs',
             'change self password',
             'add worker',
-            'edit worker'
+            'edit worker',
+            'upd company structure',
+            'Новый работник',
+            'Редактировать работника'
             ]
 
         self.search_list = self.log_list[:]
@@ -64,7 +67,7 @@ class Logs:
         """show_all_logs"""
         with shelve.open(self.data_file) as logs_base:
             for log in sorted(logs_base):
-                print(log, '; '.join(logs_base[log]))
+                print(log, ' '.join(logs_base[log]))
 
     def search_in_logs(self):
         """Search in logs."""

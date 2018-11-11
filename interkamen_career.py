@@ -92,6 +92,7 @@ if __name__ == '__main__':
 
             if not check_number_in_range(USER_CHOISE, PROGRAM_MENU):
                 continue
+
             USER_CHOISE = int(USER_CHOISE) - 1
 
             # Enter sub-menu.

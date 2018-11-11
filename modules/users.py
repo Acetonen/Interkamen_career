@@ -32,7 +32,7 @@ class Users:
     def __init__(self, data_file=AbsolytePath('users_base')):
 
         self.data_file = data_file.get_absolyte_path()
-        self.access_list = ['', 'admin', 'boss', 'master', 'mechanics']
+        self.access_list = ['admin', 'boss', 'master', 'mechanics']
         with shelve.open(self.data_file) as users_base:
             self.all_users_list = [user for user in users_base]
 
@@ -47,7 +47,8 @@ class Users:
             else:
                 break
         password = input("Input password: ")
-        access = self.choose_access()
+        print("Choose access by number:")
+        access = self.choise_from_list(self.access_list)
         users_base = shelve.open(self.data_file)
         users_base[login] = {'login': login,
                              'name': name,
@@ -58,49 +59,43 @@ class Users:
         self.save_log_to_temp_file(log)
         users_base.close()
 
-    def choose_access(self):
-        """Choosing access from access list"""
-        for index, name in enumerate(self.access_list[1:], 1):
-            print("[{}] {}".format(index, name))
+    @classmethod
+    def choise_from_list(cls, variants_list):
+        """Chose variant from list or dict."""
+        sort_list = sorted(variants_list)
+        for index, item in enumerate(sort_list, 1):
+            print("\t[{}] - {}".format(index, item))
         while True:
-            choose = input("Choose access by number: ")
-            if self.check_number_in_range(choose, len(self.access_list)-1):
-                chosen_access = self.access_list[int(choose)]
-                break
-        return chosen_access
+            choise = input()
+            if cls.check_number_in_range(choise, len(sort_list)):
+                chosen_item = sort_list[int(choise)-1]
+                return chosen_item
 
     def edit_user(self):
         """Change user parametrs."""
 
-        choosen_user = self.choose_user_from_base()
+        users_base = shelve.open(self.data_file)
+        print("Input number of user to edit:")
+        choosen_user = self.choise_from_list(users_base)
         if choosen_user:
             self.save_log_to_temp_file(choosen_user)
-        users_base = shelve.open(self.data_file)
-        while choosen_user:  # TODO: change like in workers_module, edit worker
+
+        while choosen_user:
             temp_user = users_base[choosen_user]
             print()
             self.print_user(users_base[choosen_user])
-            edit_menu_dict = {'a': 'change user access',
-                              'n': 'change user name',
-                              'p': 'change user password',
-                              'd': 'delete user',
-                              'x': 'exit edition'}
-            edit_action_dict = {'a': self.change_user_access,
-                                'n': self.change_user_name,
-                                'p': self.change_password,
-                                'd': self.delete_user,
-                                'x': 'break'}
-            for user in sorted(edit_action_dict):
-                print("[{}] {}".format(user, edit_menu_dict[user]))
+            edit_menu_dict = {'change user access': self.change_user_access,
+                              'change user name': self.change_user_name,
+                              'change user password': self.change_password,
+                              'delete user': self.delete_user,
+                              '[exit edition]': 'break'}
+            print("Choose action:")
+            choosen_action = self.choise_from_list(edit_menu_dict)
 
-            choosen_action = input("Choose action: ")
             print()
-            if choosen_action not in edit_action_dict:
-                print("\nNo such option.\n")
-                continue
-            if choosen_action in ['x', '']:
+            if choosen_action in ['exit edition', '']:
                 break
-            are_user_deleted = edit_action_dict[choosen_action](temp_user)
+            are_user_deleted = edit_menu_dict[choosen_action](temp_user)
             if are_user_deleted:
                 break
             users_base[choosen_user] = temp_user
@@ -145,7 +140,8 @@ class Users:
 
     def change_user_access(self, user):
         """Change_user_access"""
-        new_accesse = self.choose_access()
+        print("Choose new accesse:")
+        new_accesse = self.choise_from_list(self.access_list)
         user['accesse'] = new_accesse
         self.save_log_to_temp_file(' change access')
 
@@ -171,19 +167,6 @@ class Users:
                 print("Введенные пароли не совпадают.")
         else:
             print("Неправильный пароль.")
-
-    def choose_user_from_base(self): # TODO: merge with Change_user_access()
-        """Return user login if user in base, return None if not."""
-        users_base = shelve.open(self.data_file)
-        for index, login in enumerate(sorted(users_base), 1):
-            print("[{}] {}".format(index, login))
-        choose = input("Input number of user to edit: ")
-        if self.check_number_in_range(choose, len(users_base)):
-            user = sorted(users_base)[int(choose)-1]
-        else:
-            user = None
-        users_base.close()
-        return user
 
     def try_to_enter_program(self):
         """

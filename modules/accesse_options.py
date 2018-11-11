@@ -36,8 +36,14 @@ class Accesse:
             '--> [Работники] ': {
                 'Новый работник': lambda *arg: AllWorkers().add_new_worker(),
                 'Все работники': lambda *arg: AllWorkers().print_all_workers(),
-                'Редактировать данные': lambda *arg: AllWorkers().edit_worker()
-                }
+                'Редактировать работника': lambda *arg: AllWorkers().edit_worker()
+                },
+            '\033[91m--> [databases] \033[0m': {
+                'upd company structure':
+                lambda *arg: AllWorkers().upd_company_structure(),
+                'print company structure':
+                lambda *arg: AllWorkers().print_company_structure()
+            }
             }
 
         self.sub_standart_options = {
@@ -55,6 +61,7 @@ class Accesse:
             'boss': {'--> [Работники] ': 'sub-menu'},
             'admin': {'\033[91m--> [users_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [log_menu] \033[0m': 'sub-menu',
+                      '\033[91m--> [databases] \033[0m': 'sub-menu',
                       '\033[91m-----------------\033[0m': 'separator'}
             }
         self.menu_list = self.create_list(accesse, self.menu_options)

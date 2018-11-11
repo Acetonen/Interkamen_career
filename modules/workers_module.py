@@ -5,15 +5,19 @@ This module containe classes that provide accesse to information about workers.
 
 import shelve
 from collections import OrderedDict
+from pprint import pprint
 from modules.absolyte_path_module import AbsolytePath
 
 
 class Worker:
     """Particular worker"""
-    def __init__(self, name, working_place, shift):
+    def __init__(self, name, working_place):
         self.name = name
         self.working_place = working_place
-        self.working_shift = shift
+        # working_place = {'division': division,
+        #                  'subdivision': subdivision,
+        #                  'profession': profession,
+        #                  'shift': shift}
         self.telefone_number = ''
         self.salary = {}
         self.penalties = {}
@@ -23,12 +27,15 @@ class Worker:
         """Get dictionary working_place"""
         return self.working_place
 
+    def change_name(self, new_name):
+        """Change user name"""
+        self.name = new_name
+
     def __str__(self):
         output = (
             "{} ".format(self.name)
-            + "[{division}->{subdivision}->{profession}]; ".format(
+            + "[{division}->{subdivision}->{profession}->{shift}]; ".format(
                 **self.working_place)
-            + "{}".format(self.working_shift)
             )
         return output
 
@@ -55,17 +62,48 @@ class AllWorkers:
                                      'Регуляный': []}
                 }
             }
-        self.subdivision_list = ['',
-                                 'Инженерная служба',
-                                 'Добычная бригада',
-                                 'Механическая служба',
-                                 'Другие работники']
-        self.shift_list = ['', 'Смена 1', 'Смена 2', 'Регуляный']
+        self.subdivision_list = [
+            'Инженерная служба',
+            'Добычная бригада',
+            'Механическая служба',
+            'Другие работники'
+            ]
+        self.shift_list = ['Смена 1', 'Смена 2', 'Регуляный']
+
+    def upd_company_structure(self):
+        """Add new division in base"""
+        company_structure = shelve.open(self.company_structure)
+        for division in self.interkamen:
+            if division not in company_structure:
+                company_structure[division] = self.interkamen[division]
+                print("company structure updated.")
+            else:
+                print("nothing to update.")
+        company_structure.close()
+
+    def print_company_structure(self):
+        """Print company structure"""
+        with shelve.open(self.company_structure) as company_structure:
+            for division in company_structure:
+                print(division + ':')
+                pprint(company_structure[division])
 
     def add_new_worker(self):
         """Create new worker."""
         name = input("Введите ФИО: ")
-        profession = input("Введите название профессии: ")
+        working_place = self.add_working_place(None)
+        new_worker = Worker(name, working_place)
+        with shelve.open(self.workers_base) as workers_base:
+            workers_base[name] = new_worker
+        self.add_worker_to_structure(name, working_place)
+        log = f"\033[92m Добавлен сотрудник '{name}'. \033[0m"
+        print(log)
+        self.save_log_to_temp_file(f"\033[92m '{name}' \033[0m")
+
+    def add_working_place(self, profession):
+        """Change worker working place"""
+        if not profession:
+            profession = input("Введите название профессии: ")
         print("Выберете подразделение:")
         division = self.choise_from_list(self.interkamen)
         print("Выберете отдел:")
@@ -74,19 +112,82 @@ class AllWorkers:
         shift = self.choise_from_list(self.interkamen[division][subdivision])
         working_place = {'division': division,
                          'subdivision': subdivision,
-                         'profession': profession}
-        new_worker = Worker(name, working_place, shift)
-        with shelve.open(self.workers_base) as workers_base:
-            workers_base[name] = new_worker
+                         'profession': profession,
+                         'shift': shift}
+        return working_place
+
+    def add_worker_to_structure(self, name, working_place):
+        """Change company structure"""
+        division = working_place['division']
+        subdivision = working_place['subdivision']
+        shift = working_place['shift']
         with shelve.open(self.company_structure) as company_structure:
-            self.interkamen[division][subdivision][shift].append(name)
-            company_structure['division'] = self.interkamen[division]
-        log = f"\033[92m добавлен сотрудник '{name}' . \033[0m"
-        print(log)
-        self.save_log_to_temp_file(log)
+            temp_division = company_structure[division]
+            temp_division[subdivision][shift].append(name)
+            company_structure[division] = temp_division
+
+    def delete_worker_from_structure(self, worker):
+        """Delete worker name from company structure."""
+        print(worker)
+        division = worker.working_place['division']
+        subdivision = worker.working_place['subdivision']
+        shift = worker.working_place['shift']
+        with shelve.open(self.company_structure) as company_structure:
+            temp_division = company_structure[division]
+            temp_division[subdivision][shift].remove(worker.name)
+            company_structure[division] = temp_division
 
     def edit_worker(self):
-        """Edit worker information"""
+        """Edit worker information."""
+
+        def change_worker_name(temp_worker):
+            """Change worker name."""
+            self.delete_worker_from_structure(temp_worker)
+            workers_base.pop(temp_worker.name, None)
+            new_name = input("Введите новые ФИО:")
+            temp_worker.name = new_name
+            self.add_worker_to_structure(new_name, temp_worker.working_place)
+            return temp_worker
+
+        def change_worker_shift(temp_worker):
+            """Change worker shift."""
+            self.delete_worker_from_structure(temp_worker)
+            division = temp_worker.working_place['division']
+            subdivision = temp_worker.working_place['subdivision']
+            print("Выберете смену:")
+            new_shift = self.choise_from_list(
+                self.interkamen[division][subdivision])
+            temp_worker.working_place['shift'] = new_shift
+            self.add_worker_to_structure(
+                temp_worker.name, temp_worker.working_place)
+            log = f"{temp_worker.name} - переведен в '{new_shift}'."
+            print(log)
+            self.save_log_to_temp_file(f" - shifted in '{new_shift}'.")
+            return temp_worker
+
+        def change_working_place(temp_worker):
+            """Change worker shift."""
+            self.delete_worker_from_structure(temp_worker)
+            profession = temp_worker.working_place['profession']
+            new_working_place = self.add_working_place(profession)
+            temp_worker.working_place = new_working_place
+            self.add_worker_to_structure(
+                temp_worker.name, temp_worker.working_place)
+            log = f"{temp_worker.name} - перемещен'."
+            print(log)
+            self.save_log_to_temp_file(f" - shifted.")
+            return temp_worker
+
+        def delete_worker(temp_worker):
+            """Delete worker."""
+            self.delete_worker_from_structure(temp_worker)
+            workers_base.pop(temp_worker.name, None)
+            log = f"\033[91m {temp_worker.name} - удален. \033[0m"
+            print(log)
+            self.save_log_to_temp_file("\033[91m - worker deleted. \033[0m")
+            temp_worker = None
+            return temp_worker
+
         workers_base = shelve.open(self.workers_base)
         print("Выберете работника для редактирования:")
         worker = self.choise_from_list(workers_base)
@@ -99,24 +200,24 @@ class AllWorkers:
             print(workers_base[worker])
             edit_menu_dict = OrderedDict
             edit_menu_dict = {
-                'редактировать ФИО': self.change_worker_name,
-                'перевести в другую смену': self.change_worker_shift,
-                'редактировать место работы': self.change_worker_place,
-                'удалить работника': self.delete_worker,
-                '<-- [Работники]': 'break'
+                'редактировать ФИО': change_worker_name,
+                'перевести в другую смену': change_worker_shift,
+                'редактировать место работы': change_working_place,
+                'удалить работника': delete_worker,
+                '[закончить редактирование]': 'break'
                 }
             print("Выберете пункт дляредактирования:")
             action_name = self.choise_from_list(edit_menu_dict)
-            action = edit_menu_dict[action_name]
-            if action == 'break':
+
+            print()
+            if action_name in ['[закончить редактирование]', '']:
                 break
-            are_worker_deleted = action(worker)
-            if are_worker_deleted:
+            temp_worker = edit_menu_dict[action_name](temp_worker)
+            if not temp_worker:
                 break
+            worker = temp_worker.name
             workers_base[worker] = temp_worker
         workers_base.close()
-# TODO: add action functions
-
 
     @classmethod
     def choise_from_list(cls, variants_list):

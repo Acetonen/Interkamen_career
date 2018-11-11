@@ -1,0 +1,3 @@
+TODO: Database recovery copy reminder.
+TODO: Secure shelve.
+TODO: Move shelve handling to class level
