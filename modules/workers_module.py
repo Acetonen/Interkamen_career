@@ -1,6 +1,22 @@
 #!usr/bin/env python3
 """
 This module containe classes that provide accesse to information about workers.
+
+class: Worker: 'get_working_place',
+               'change_name',
+class AllWorkers: 'add_new_worker',
+                  'add_worker_to_structure',
+                  'add_working_place',
+                  'check_number_in_range',
+                  'choise_from_list',
+                  'delete_worker_from_structure',
+                  'edit_worker',
+                  'print_company_structure',
+                  'save_log_to_temp_file',
+                  'upd_company_structure'
+                  'give_workers_from_division',
+                  'print_workers_from_division'
+                  'print_telefon_numbers'
 """
 
 import shelve
@@ -32,11 +48,12 @@ class Worker:
         self.name = new_name
 
     def __str__(self):
-        output = (
-            "{} ".format(self.name)
-            + "[{division}->{subdivision}->{profession}->{shift}]; ".format(
-                **self.working_place)
-            )
+        output = ("ФИО: {}\n".format(self.name)
+                  + """Подразделение: {division}
+Служба: {subdivision}
+Профессия/должность: {profession}
+Смена: {shift}\n""".format(**self.working_place)
+                  + "тел.: {}\n".format(self.telefone_number))
         return output
 
 
@@ -60,6 +77,22 @@ class AllWorkers:
                 'Другие работники': {'Смена 1': [],
                                      'Смена 2': [],
                                      'Регуляный': []}
+                },
+            'Офис': {
+                'Инженерная служба': {'Регуляный': []},
+                'Бухгалтерия': {'Регуляный': []},
+                'Директора': {'Регуляный': []},
+                'Отдел кадров': {'Регуляный': []},
+                'Руководители служб и снабжение': {'Регулярный': []}
+                },
+            'КОЦ': {
+                'Инженерная служба': {'Регуляный': []},
+                'Рабочая бригада': {'Смена 1': [],
+                                    'Смена 2': [],
+                                    'Смена 3': [],
+                                    'Смена 4': []},
+                'Механическая служба': {'Регуляный': []},
+                'Другие работники': {'Регуляный': []}
                 }
             }
         self.subdivision_list = [
@@ -76,9 +109,9 @@ class AllWorkers:
         for division in self.interkamen:
             if division not in company_structure:
                 company_structure[division] = self.interkamen[division]
-                print("company structure updated.")
+                print(f"{division} added.")
             else:
-                print("nothing to update.")
+                print(f"{division} already exist.")
         company_structure.close()
 
     def print_company_structure(self):
@@ -178,6 +211,15 @@ class AllWorkers:
             self.save_log_to_temp_file(f" - shifted.")
             return temp_worker
 
+        def change_phone_number(temp_worker):
+            """Change worker phone number"""
+            number = input("Введите новый номер (без восьмерки): ")
+            new_number = ('+7(' + number[:3] + ')' + number[3:6]
+                          + '-' + number[6:8] + '-' + number[8:])
+            print(new_number)
+            temp_worker.telefone_number = new_number
+            return temp_worker
+
         def delete_worker(temp_worker):
             """Delete worker."""
             self.delete_worker_from_structure(temp_worker)
@@ -196,13 +238,13 @@ class AllWorkers:
 
         while worker:
             temp_worker = workers_base[worker]
-            print()
-            print(workers_base[worker])
+            print('\n', workers_base[worker])
             edit_menu_dict = OrderedDict
             edit_menu_dict = {
                 'редактировать ФИО': change_worker_name,
                 'перевести в другую смену': change_worker_shift,
                 'редактировать место работы': change_working_place,
+                'изменить номер телефона': change_phone_number,
                 'удалить работника': delete_worker,
                 '[закончить редактирование]': 'break'
                 }
@@ -250,8 +292,33 @@ class AllWorkers:
         with open(file_path, 'a') as temp_file:
             temp_file.write(log)
 
-    def print_all_workers(self):
+    def give_workers_from_division(self):
         """Print all users from base"""
+        company_structure = shelve.open(self.company_structure)
+        print("Выберете подразделение:")
+        division = self.choise_from_list(company_structure)
+        worker_list = [
+            worker for subdivision in company_structure[division]
+            for shift in company_structure[division][subdivision]
+            for worker in company_structure[division][subdivision][shift]
+            ]
+        company_structure.close()
+        return worker_list
+
+    def print_workers_from_division(self):
+        """Output workers from division"""
+        workers_list = self.give_workers_from_division()
         with shelve.open(self.workers_base) as workers_base:
-            for index, warker in enumerate(sorted(workers_base), 1):
-                print(f"[{index}]", workers_base[warker])
+            for worker in sorted(workers_list):
+                print(workers_base[worker])
+
+    def print_telefon_numbers(self):
+        """Print telefone numbers of workers from division."""
+        workers_list = self.give_workers_from_division()
+        workers_base = shelve.open(self.workers_base)
+        for worker in sorted(workers_list):
+            name = workers_base[worker].name
+            profession = workers_base[worker].working_place['profession']
+            telefone = workers_base[worker].telefone_number
+            print("{} - {} тел.: {}".format(name, profession, telefone))
+        workers_base.close()

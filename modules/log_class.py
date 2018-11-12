@@ -28,7 +28,7 @@ class Logs:
         self.log_list = [
             '\033[94m enter program \033[0m',
             '\033[93m exit program \033[0m',
-            ' create new user',
+            'create new user',
             'edit user',
             'search in logs',
             'delete all logs',

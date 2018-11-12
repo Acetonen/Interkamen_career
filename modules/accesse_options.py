@@ -35,8 +35,10 @@ class Accesse:
                 },
             '--> [Работники] ': {
                 'Новый работник': lambda *arg: AllWorkers().add_new_worker(),
-                'Все работники': lambda *arg: AllWorkers().print_all_workers(),
-                'Редактировать работника': lambda *arg: AllWorkers().edit_worker()
+                'Показать работников подразделения':
+                lambda *arg: AllWorkers().print_workers_from_division(),
+                'Редактировать работника':
+                lambda *arg: AllWorkers().edit_worker()
                 },
             '\033[91m--> [databases] \033[0m': {
                 'upd company structure':
@@ -46,13 +48,17 @@ class Accesse:
             }
             }
 
+        self.sub_standart_options = OrderedDict
         self.sub_standart_options = {
             '<-- [Предыдущее меню]': 'menu before',
             '\033[93mВыйти из программы\033[0m': 'exit program',
             }
 
+        self.menu_options = OrderedDict
         self.menu_options = {
             'basic': {
+                'Показать телефоны работников':
+                lambda arg: AllWorkers().print_telefon_numbers(),
                 'Поменять пароль': lambda arg: Users().change_password(arg),
                 '\033[93mВыйти из программы\033[0m': 'exit program'
                 },

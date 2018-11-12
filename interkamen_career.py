@@ -9,9 +9,11 @@ Functions: 'print_menu'
            'reload_menu_and_actions'
            'create_action_dict'
            'get_main_or_sub_menu'
+           'clear_screen'
 """
 
 import sys
+import os
 from collections import OrderedDict
 from modules.hi import INTERKAMEN
 from modules.accesse_options import Accesse
@@ -61,6 +63,14 @@ def check_number_in_range(user_input, list_range):
     return check_number
 
 
+def clear_screen():
+    """Clear shell screen"""
+    if sys.platform == 'win':
+        os.system('cls')
+    else:
+        os.system('clear')
+
+
 if __name__ == '__main__':
 
     MENU_HEADER = ['\033[1m \t', None, '\n \033[0m']
@@ -84,6 +94,7 @@ if __name__ == '__main__':
             print(SEPARATOR)
             USER_CHOISE = input("[м] - Показать меню программы"
                                 "\nВыберете действие:\n")
+            clear_screen()
             print(SEPARATOR)
 
             if USER_CHOISE == 'м':

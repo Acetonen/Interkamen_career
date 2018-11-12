@@ -2,23 +2,22 @@
 """
 This module work with User class and access.
 
-Classes: User: 'change_user_access',
-               'change_user_name',
-               'change_user_password',
-               'check_number_in_range',
-               'check_only_admin',
-               'choose_access',
-               'choose_user_from_base',
-               'confirm_deletion',
-               'create_new_user',
-               'delete_user',
-               'edit_user',
-               'get_all_users_list',
-               'save_log_to_temp_file',
-               'print_all_users',
-               'print_user',
-               'sync_user',
-               'try_to_enter_program'
+Classes: Users: 'change_password',
+                'change_user_access',
+                'change_user_name',
+                'check_number_in_range',
+                'check_only_admin',
+                'choise_from_list',
+                'confirm_deletion',
+                'create_new_user',
+                'delete_user',
+                'edit_user',
+                'get_all_users_list',
+                'print_user',
+                'save_log_to_temp_file',
+                'show_all_users',
+                'sync_user',
+                'try_to_enter_program'
 """
 
 
@@ -32,7 +31,7 @@ class Users:
     def __init__(self, data_file=AbsolytePath('users_base')):
 
         self.data_file = data_file.get_absolyte_path()
-        self.access_list = ['admin', 'boss', 'master', 'mechanics']
+        self.access_list = ['admin', 'boss', 'master', 'mechanic']
         with shelve.open(self.data_file) as users_base:
             self.all_users_list = [user for user in users_base]
 
@@ -93,7 +92,7 @@ class Users:
             choosen_action = self.choise_from_list(edit_menu_dict)
 
             print()
-            if choosen_action in ['exit edition', '']:
+            if choosen_action in ['[exit edition]', '']:
                 break
             are_user_deleted = edit_menu_dict[choosen_action](temp_user)
             if are_user_deleted:
