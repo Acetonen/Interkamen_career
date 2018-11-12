@@ -35,6 +35,8 @@ class Accesse:
                 'Новый работник': lambda *arg: AllWorkers().add_new_worker(),
                 'Показать работников подразделения':
                 lambda *arg: AllWorkers().print_workers_from_division(),
+                'Показать уволеных работников':
+                lambda *arg: AllWorkers().print_archive_workers(),
                 'Редактировать работника':
                 lambda *arg: AllWorkers().edit_worker()
                 },
@@ -64,7 +66,7 @@ class Accesse:
             'admin': {'\033[91m--> [users_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [log_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [databases] \033[0m': 'sub-menu',
-                      '\033[91m-----------------\033[0m': 'separator'}
+                      '\033[9m\033[91m                  \033[0m': 'separator'}
             }
         self.menu_list = self.create_list(accesse, self.menu_options)
 

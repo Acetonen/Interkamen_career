@@ -73,6 +73,14 @@ def clear_screen():
         os.system('clear')
 
 
+def make_backup():
+    """Check if user 'admin', and make backup if positive."""
+    if USR_ACS == 'admin':
+        backup = check_last_backup_date()
+        if backup:
+            Logs().create_log(CURRENT_USER['login'], backup)
+
+
 if __name__ == '__main__':
     MENU_HEADER = ['\033[1m \t', None, '\n \033[0m']
     SEPARATOR = "\033[9m\033[36m                             \033[0m\n"
@@ -82,8 +90,7 @@ if __name__ == '__main__':
     CURRENT_USER = login_program()
     USR_ACS = CURRENT_USER['accesse']
 
-    if USR_ACS == 'admin':
-        check_last_backup_date()
+    make_backup()
 
     print()
     while True:
@@ -132,6 +139,11 @@ if __name__ == '__main__':
                 Logs().create_log(
                     CURRENT_USER['login'], MENU_LIST[USER_CHOISE][0])
                 sys.exit()
+
+            elif '\033[9m\033[91m' in MENU_LIST[USER_CHOISE][0]:
+                print("Are you stupid?")
+                input("yes/no: ")
+                break
 
             # Make action.
             else:

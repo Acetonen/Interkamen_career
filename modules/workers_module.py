@@ -17,11 +17,13 @@ class AllWorkers: 'add_new_worker',
                   'give_workers_from_division',
                   'print_workers_from_division'
                   'print_telefon_numbers'
+                  'print_archive_workers'
 """
 
 import shelve
 import os
 from pprint import pprint
+from datetime import date
 from modules.absolyte_path_module import AbsolytePath
 
 
@@ -63,6 +65,8 @@ class AllWorkers:
 
         self.workers_base = AbsolytePath(
             'workers_base').get_absolyte_path()
+        self.workers_archive = AbsolytePath(
+            'workers_archive').get_absolyte_path()
         self.company_structure = AbsolytePath(
             'company_structure').get_absolyte_path()
 
@@ -106,8 +110,6 @@ class AllWorkers:
             if division not in company_structure:
                 company_structure[division] = self.interkamen[division]
                 print(f"{division} added.")
-            else:
-                print(f"{division} already exist.")
         company_structure.close()
 
     def print_company_structure(self):
@@ -216,6 +218,16 @@ class AllWorkers:
             temp_worker.telefone_number = new_number
             return temp_worker
 
+        def lay_off_worker(temp_worker):
+            """Lay off worker and put him in archive"""
+            with shelve.open(self.workers_archive) as workers_archive:
+                workers_archive[str(date.today())] = temp_worker
+            log = f"\033[91m {temp_worker.name} - уволен. \033[0m"
+            print(log)
+            self.save_log_to_temp_file("\033[91m - worker layed off. \033[0m")
+            temp_worker = delete_worker(temp_worker)
+            return temp_worker
+
         def delete_worker(temp_worker):
             """Delete worker."""
             self.delete_worker_from_structure(temp_worker)
@@ -241,6 +253,7 @@ class AllWorkers:
                 'редактировать место работы': change_working_place,
                 'изменить номер телефона': change_phone_number,
                 'удалить работника': delete_worker,
+                'уволить работника': lay_off_worker,
                 '[закончить редактирование]': 'break'
                 }
             print("Выберете пункт дляредактирования:")
@@ -255,6 +268,12 @@ class AllWorkers:
             worker = temp_worker.name
             workers_base[worker] = temp_worker
         workers_base.close()
+
+    def print_archive_workers(self):
+        """Print layed off workers"""
+        with shelve.open(self.workers_archive) as workers_archive:
+            for lay_off_date in workers_archive:
+                print(lay_off_date, workers_archive[lay_off_date].name)
 
     @classmethod
     def choise_from_list(cls, variants_list):
