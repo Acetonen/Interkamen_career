@@ -14,11 +14,11 @@ Functions: 'print_menu'
 
 import sys
 import os
-from collections import OrderedDict
 from modules.hi import INTERKAMEN
 from modules.accesse_options import Accesse
 from modules.users import Users
 from modules.log_class import Logs
+from modules.backup import check_last_backup_date
 
 
 def login_program():
@@ -34,6 +34,8 @@ def login_program():
 
 def print_menu():
     """Print program menu."""
+    if MENU_NESTING:
+        print(''.join(MENU_NESTING), '\n')
     print(' '.join(MENU_HEADER))
     for index, item in enumerate(PROGRAM_MENU, 1):
         print("[{}] - {}".format(index, item))
@@ -72,15 +74,16 @@ def clear_screen():
 
 
 if __name__ == '__main__':
-
     MENU_HEADER = ['\033[1m \t', None, '\n \033[0m']
     SEPARATOR = "\033[9m\033[36m                             \033[0m\n"
-    PROGRAM_MENU = OrderedDict
     PROGRAM_MENU = {}
     MENU_LIST = []
     MENU_NESTING = []
     CURRENT_USER = login_program()
     USR_ACS = CURRENT_USER['accesse']
+
+    if USR_ACS == 'admin':
+        check_last_backup_date()
 
     print()
     while True:

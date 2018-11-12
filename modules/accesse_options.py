@@ -9,7 +9,6 @@ Classes: Accesse: 'create_list',
                   'get_sub_menu'
 """
 
-from collections import OrderedDict
 from modules.log_class import Logs
 from modules.users import Users
 from modules.workers_module import AllWorkers
@@ -19,7 +18,6 @@ class Accesse:
     """Give to program 'choise tree' and 'meny' depend on user access"""
     def __init__(self, accesse='mechanic'):
 
-        self.sub_menus = OrderedDict
         self.sub_menus = {
             '--> [TEST]': {},
             '\033[91m--> [log_menu] \033[0m': {
@@ -48,13 +46,11 @@ class Accesse:
             }
             }
 
-        self.sub_standart_options = OrderedDict
         self.sub_standart_options = {
             '<-- [Предыдущее меню]': 'menu before',
             '\033[93mВыйти из программы\033[0m': 'exit program',
             }
 
-        self.menu_options = OrderedDict
         self.menu_options = {
             'basic': {
                 'Показать телефоны работников':

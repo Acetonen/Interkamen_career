@@ -58,3 +58,6 @@ target/
 
 # Data experiments
 data/
+
+# Archives
+*.zip

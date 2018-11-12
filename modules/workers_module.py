@@ -20,7 +20,7 @@ class AllWorkers: 'add_new_worker',
 """
 
 import shelve
-from collections import OrderedDict
+import os
 from pprint import pprint
 from modules.absolyte_path_module import AbsolytePath
 
@@ -95,13 +95,9 @@ class AllWorkers:
                 'Другие работники': {'Регуляный': []}
                 }
             }
-        self.subdivision_list = [
-            'Инженерная служба',
-            'Добычная бригада',
-            'Механическая служба',
-            'Другие работники'
-            ]
-        self.shift_list = ['Смена 1', 'Смена 2', 'Регуляный']
+        # Create company structure base if it not exist.
+        if not os.path.exists(self.company_structure):
+            self.upd_company_structure()
 
     def upd_company_structure(self):
         """Add new division in base"""
@@ -239,7 +235,6 @@ class AllWorkers:
         while worker:
             temp_worker = workers_base[worker]
             print('\n', workers_base[worker])
-            edit_menu_dict = OrderedDict
             edit_menu_dict = {
                 'редактировать ФИО': change_worker_name,
                 'перевести в другую смену': change_worker_shift,
