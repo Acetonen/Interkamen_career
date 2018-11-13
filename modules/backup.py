@@ -10,9 +10,10 @@ from modules.absolyte_path_module import AbsolytePath
 def make_backup():
     """Make backup file."""
     current_date = str(date.today())
+    backup_path = 'backup/' + current_date
     data_path = AbsolytePath('').get_absolyte_path()
-    shutil.make_archive(current_date, 'zip', data_path)
-    log_file_name = AbsolytePath('backup_log.txt').get_absolyte_path()
+    shutil.make_archive(backup_path, 'zip', data_path)
+    log_file_name = 'backup/backup_log.txt'
     with open(log_file_name, 'a') as backup_log:
         backup_log.write(current_date)
     backup_log.close()
@@ -20,7 +21,7 @@ def make_backup():
 
 def check_last_backup_date():
     """Check last backup date"""
-    log_file_name = AbsolytePath('backup_log.txt').get_absolyte_path()
+    log_file_name = 'backup/backup_log.txt'
     backup_log = None
     if os.path.exists(log_file_name):
         with open(log_file_name, 'r') as backup_log:

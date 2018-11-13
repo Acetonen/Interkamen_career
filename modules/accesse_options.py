@@ -12,6 +12,7 @@ Classes: Accesse: 'create_list',
 from modules.log_class import Logs
 from modules.users import Users
 from modules.workers_module import AllWorkers
+from modules.main_career_report import Reports
 
 
 class Accesse:
@@ -47,7 +48,13 @@ class Accesse:
                 lambda *arg: AllWorkers().upd_company_structure(),
                 'print company structure':
                 lambda *arg: AllWorkers().print_company_structure()
-            }
+                },
+            '--> [Табеля бригады]': {
+                'Создать табель добычной бригады':
+                lambda arg: Reports().create_report(),
+                'Показать все табеля':
+                lambda arg: Reports().show_all_reports()
+                }
             }
 
         self.sub_standart_options = {
@@ -63,7 +70,9 @@ class Accesse:
                 '\033[93mВыйти из программы\033[0m': 'exit program'
                 },
             'mechanic': {},
-            'master': {},
+            'master': {
+                '--> [Табеля бригады]': 'sub-menu'
+                },
             'boss': {'--> [Работники] ': 'sub-menu'},
             'admin': {'\033[91m--> [users_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [log_menu] \033[0m': 'sub-menu',

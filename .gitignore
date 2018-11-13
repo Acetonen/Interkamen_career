@@ -58,6 +58,7 @@ target/
 
 # Data experiments
 data/
+backup/
 
 # Archives
 *.zip

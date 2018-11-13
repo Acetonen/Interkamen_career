@@ -19,6 +19,7 @@ class AllWorkers: 'add_new_worker',
                   'print_telefon_numbers'
                   'print_archive_workers'
                   'return_from_archive'
+                  'give_workers_from_shift'
 """
 
 import shelve
@@ -227,7 +228,7 @@ class AllWorkers:
             with shelve.open(self.workers_archive) as workers_archive:
                 workers_archive[temp_worker.name] = temp_worker
             print(f"\033[91m{temp_worker.name} - уволен. \033[0m")
-            self.save_log_to_temp_file("\033[91m - worker layed off. \033[0m")
+            self.save_log_to_temp_file("\033[91m - layed off\033[0m")
             temp_worker = delete_worker(temp_worker)
             return temp_worker
 
@@ -327,6 +328,13 @@ class AllWorkers:
         with open(file_path, 'a') as temp_file:
             temp_file.write(log)
 
+    def give_workers_from_shift(self, shift, division='Карьер',
+                                subdivision='Добычная бригада'):
+        """Give worker list from shift"""
+        with shelve.open(self.company_structure) as company_structure:
+            worker_list = company_structure[division][subdivision][shift]
+        return worker_list
+
     def give_workers_from_division(self):
         """Print all users from base"""
         company_structure = shelve.open(self.company_structure)
@@ -355,5 +363,8 @@ class AllWorkers:
             name = workers_base[worker].name
             profession = workers_base[worker].working_place['profession']
             telefone = workers_base[worker].telefone_number
-            print("{} - {} тел.: {}".format(name, profession, telefone))
+            space1 = (32-len(name))*' '
+            space2 = (24-len(profession))*' '
+            print("{}{}- {}{}тел.: {}".format(
+                name, space1, profession, space2, telefone))
         workers_base.close()
