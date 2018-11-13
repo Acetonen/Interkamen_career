@@ -18,6 +18,7 @@ class AllWorkers: 'add_new_worker',
                   'print_workers_from_division'
                   'print_telefon_numbers'
                   'print_archive_workers'
+                  'return_from_archive'
 """
 
 import shelve
@@ -37,6 +38,8 @@ class Worker:
         #                  'profession': profession,
         #                  'shift': shift}
         self.telefone_number = ''
+        self.employing_lay_off_dates = {'employing': '',
+                                        'lay_off': ''}
         self.salary = {}
         self.penalties = {}
         self.contributions = {}
@@ -220,10 +223,10 @@ class AllWorkers:
 
         def lay_off_worker(temp_worker):
             """Lay off worker and put him in archive"""
+            temp_worker.employing_lay_off_dates['lay_off'] = str(date.today())
             with shelve.open(self.workers_archive) as workers_archive:
-                workers_archive[str(date.today())] = temp_worker
-            log = f"\033[91m {temp_worker.name} - уволен. \033[0m"
-            print(log)
+                workers_archive[temp_worker.name] = temp_worker
+            print(f"\033[91m{temp_worker.name} - уволен. \033[0m")
             self.save_log_to_temp_file("\033[91m - worker layed off. \033[0m")
             temp_worker = delete_worker(temp_worker)
             return temp_worker
@@ -232,7 +235,7 @@ class AllWorkers:
             """Delete worker."""
             self.delete_worker_from_structure(temp_worker)
             workers_base.pop(temp_worker.name, None)
-            log = f"\033[91m {temp_worker.name} - удален. \033[0m"
+            log = f"\033[91m{temp_worker.name} - удален. \033[0m"
             print(log)
             self.save_log_to_temp_file("\033[91m - worker deleted. \033[0m")
             temp_worker = None
@@ -240,20 +243,21 @@ class AllWorkers:
 
         workers_base = shelve.open(self.workers_base)
         print("Выберете работника для редактирования:")
-        worker = self.choise_from_list(workers_base)
+        division_workers = self.give_workers_from_division()
+        worker = self.choise_from_list(division_workers)
         if worker:
             self.save_log_to_temp_file(worker)
 
         while worker:
             temp_worker = workers_base[worker]
-            print('\n', workers_base[worker])
+            print(workers_base[worker])
             edit_menu_dict = {
                 'редактировать ФИО': change_worker_name,
                 'перевести в другую смену': change_worker_shift,
                 'редактировать место работы': change_working_place,
                 'изменить номер телефона': change_phone_number,
-                'удалить работника': delete_worker,
-                'уволить работника': lay_off_worker,
+                'уДАлить работника': delete_worker,
+                'уВОлить работника': lay_off_worker,
                 '[закончить редактирование]': 'break'
                 }
             print("Выберете пункт дляредактирования:")
@@ -272,8 +276,25 @@ class AllWorkers:
     def print_archive_workers(self):
         """Print layed off workers"""
         with shelve.open(self.workers_archive) as workers_archive:
-            for lay_off_date in workers_archive:
-                print(lay_off_date, workers_archive[lay_off_date].name)
+            for worker in workers_archive:
+                print(
+                    worker,
+                    workers_archive[worker].employing_lay_off_dates['lay_off']
+                    )
+
+    def return_from_archive(self):
+        """Return worker from archive"""
+        print("Выберете работника для возвращения:")
+        with shelve.open(self.workers_archive) as workers_archive:
+            choose = self.choise_from_list(workers_archive)
+            worker = workers_archive[choose]
+            workers_archive.pop(choose, None)
+        with shelve.open(self.workers_base) as workers_base:
+            workers_base[worker.name] = worker
+        self.add_worker_to_structure(worker.name, worker.working_place)
+        log = f"\033[92mCотрудник '{worker.name}' возвращен\033[0m"
+        print(log)
+        self.save_log_to_temp_file(f"\033[92m'{worker.name}' returned.\033[0m")
 
     @classmethod
     def choise_from_list(cls, variants_list):

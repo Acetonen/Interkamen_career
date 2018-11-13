@@ -1,2 +1,3 @@
 TODO: Secure shelve.
 TODO: Move shelve handling to class level
+TODO: restore worker from archive

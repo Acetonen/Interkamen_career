@@ -38,7 +38,8 @@ class Logs:
             'upd company structure',
             'Новый работник',
             'Редактировать работника',
-            "\033[5m\033[1mBackup done.\033[0m"
+            "\033[5m\033[1mBackup done.\033[0m",
+            'Вернуть работника из архива'
             ]
 
         self.search_list = self.log_list[:]

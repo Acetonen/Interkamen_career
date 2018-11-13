@@ -37,6 +37,8 @@ class Accesse:
                 lambda *arg: AllWorkers().print_workers_from_division(),
                 'Показать уволеных работников':
                 lambda *arg: AllWorkers().print_archive_workers(),
+                'Вернуть работника из архива':
+                lambda *arg: AllWorkers().return_from_archive(),
                 'Редактировать работника':
                 lambda *arg: AllWorkers().edit_worker()
                 },
