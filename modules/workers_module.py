@@ -23,6 +23,7 @@ class AllWorkers: 'add_new_worker',
 """
 
 import shelve
+import sys
 import os
 from pprint import pprint
 from datetime import date
@@ -245,7 +246,7 @@ class AllWorkers:
         workers_base = shelve.open(self.workers_base)
         print("Выберете работника для редактирования:")
         division_workers = self.give_workers_from_division()
-        worker = self.choise_from_list(division_workers)
+        worker = self.choise_from_list(division_workers, none_option=True)
         if worker:
             self.save_log_to_temp_file(worker)
 
@@ -261,7 +262,7 @@ class AllWorkers:
                 'уВОлить работника': lay_off_worker,
                 '[закончить редактирование]': 'break'
                 }
-            print("Выберете пункт дляредактирования:")
+            print("Выберете пункт для редактирования:")
             action_name = self.choise_from_list(edit_menu_dict)
 
             print()
@@ -272,6 +273,7 @@ class AllWorkers:
                 break
             worker = temp_worker.name
             workers_base[worker] = temp_worker
+            self.clear_screen()
         workers_base.close()
 
     def print_archive_workers(self):
@@ -298,16 +300,20 @@ class AllWorkers:
         self.save_log_to_temp_file(f"\033[92m'{worker.name}' returned.\033[0m")
 
     @classmethod
-    def choise_from_list(cls, variants_list):
+    def choise_from_list(cls, variants_list, none_option=False):
         """Chose variant from list."""
         sort_list = sorted(variants_list)
         for index, item in enumerate(sort_list, 1):
             print("\t[{}] - {}".format(index, item))
         while True:
             choise = input()
-            if cls.check_number_in_range(choise, len(sort_list)):
+            if choise == '' and none_option:
+                chosen_item = None
+                break
+            elif cls.check_number_in_range(choise, len(sort_list)):
                 chosen_item = sort_list[int(choise)-1]
-                return chosen_item
+                break
+        return chosen_item
 
     @classmethod
     def check_number_in_range(cls, user_input, list_range):
@@ -368,3 +374,11 @@ class AllWorkers:
             print("{}{}- {}{}тел.: {}".format(
                 name, space1, profession, space2, telefone))
         workers_base.close()
+
+    @classmethod
+    def clear_screen(cls):
+        """Clear shell screen"""
+        if sys.platform == 'win':
+            os.system('cls')
+        else:
+            os.system('clear')

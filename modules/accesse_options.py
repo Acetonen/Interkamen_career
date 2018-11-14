@@ -49,11 +49,13 @@ class Accesse:
                 'print company structure':
                 lambda *arg: AllWorkers().print_company_structure()
                 },
-            '--> [Табеля бригады]': {
+            '--> [Табеля_бригады]': {
                 'Создать табель добычной бригады':
                 lambda arg: Reports().create_report(),
                 'Показать все табеля':
-                lambda arg: Reports().show_all_reports()
+                lambda arg: Reports().show_all_reports(),
+                'Редактировать табель':
+                lambda arg: Reports().edit_report()
                 }
             }
 
@@ -71,7 +73,7 @@ class Accesse:
                 },
             'mechanic': {},
             'master': {
-                '--> [Табеля бригады]': 'sub-menu'
+                '--> [Табеля_бригады]': 'sub-menu'
                 },
             'boss': {'--> [Работники] ': 'sub-menu'},
             'admin': {'\033[91m--> [users_menu] \033[0m': 'sub-menu',

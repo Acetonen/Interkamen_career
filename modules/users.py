@@ -21,6 +21,8 @@ Classes: Users: 'change_password',
 """
 
 
+import sys
+import os
 import getpass
 import shelve
 from modules.absolyte_path_module import AbsolytePath
@@ -59,16 +61,20 @@ class Users:
         users_base.close()
 
     @classmethod
-    def choise_from_list(cls, variants_list):
-        """Chose variant from list or dict."""
+    def choise_from_list(cls, variants_list, none_option=False):
+        """Chose variant from list."""
         sort_list = sorted(variants_list)
         for index, item in enumerate(sort_list, 1):
             print("\t[{}] - {}".format(index, item))
         while True:
             choise = input()
-            if cls.check_number_in_range(choise, len(sort_list)):
+            if choise == '' and none_option:
+                chosen_item = None
+                break
+            elif cls.check_number_in_range(choise, len(sort_list)):
                 chosen_item = sort_list[int(choise)-1]
-                return chosen_item
+                break
+        return chosen_item
 
     def edit_user(self):
         """Change user parametrs."""
@@ -98,6 +104,7 @@ class Users:
             if are_user_deleted:
                 break
             users_base[choosen_user] = temp_user
+            self.clear_screen()
         users_base.close()
 
     def delete_user(self, user):
@@ -236,3 +243,11 @@ password:{password}\naccesse:{accesse}\n".format(**user))
             output.append('\n')
         users_base.close()
         return ' '.join(output)
+
+    @classmethod
+    def clear_screen(cls):
+        """Clear shell screen"""
+        if sys.platform == 'win':
+            os.system('cls')
+        else:
+            os.system('clear')

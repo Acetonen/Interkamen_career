@@ -1,2 +1,4 @@
 TODO: Secure shelve.
 TODO: Move shelve handling to class level
+TODO: Add logs for report module
+TODO: Add none option in worker and user modules
