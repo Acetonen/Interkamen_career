@@ -25,33 +25,33 @@ class Logs:
 
         self.data_file = data_file.get_absolyte_path()
         self.log_constructor = []
-        self.log_list = [
-            '\033[94m enter program \033[0m',
-            '\033[93m exit program \033[0m',
-            'create new user',
-            'edit user',
-            'search in logs',
-            'delete all logs',
-            'change self password',
-            'add worker',
-            'edit worker',
-            'upd company structure',
-            'Новый работник',
-            'Редактировать работника',
-            "\033[5m\033[1mBackup done.\033[0m",
-            'Вернуть работника из архива',
-            'Редактировать табель',
-            'Создать табель добычной бригады'
-            ]
+        self.log_list = {
+            '\033[94m enter program \033[0m': '\033[94m enter program \033[0m',
+            '\033[93m exit program \033[0m': '\033[93m exit program \033[0m',
+            'create new user': 'create new user',
+            'edit user': 'edit user',
+            'search in logs': 'search in logs',
+            'delete all logs': 'delete all logs',
+            'change self password': 'change self password',
+            'add worker': 'add worker',
+            'edit worker': 'edit worker',
+            'upd company structure': 'upd company structure',
+            'Новый работник': 'new worker',
+            'Редактировать работника': 'edit worker',
+            "\033[5m\033[1mBackup done.\033[0m": '\033[1mBackup done.\033[0m',
+            'Вернуть работника из архива': 'restore worker from archive',
+            'Редактировать табель': 'edit report',
+            'Создать табель добычной бригады': 'create new report'
+            }
 
-        self.search_list = self.log_list[:]
+        self.search_list = list(self.log_list.keys())
         self.search_list.extend(Users().get_all_users_list())
 
     def create_log(self, user_login, user_action):
         """Create detailed log for action"""
         if user_action in self.log_list:
             self.log_constructor.append(user_login)
-            self.log_constructor.append(user_action)
+            self.log_constructor.append(self.log_list[user_action])
             self.upload_temp_file_log()
             current_time = str(datetime.now().replace(microsecond=0))
             with shelve.open(self.data_file) as logs_base:
@@ -79,7 +79,7 @@ class Logs:
         self.search_logs_by_item(self.choose_item())
 
     def choose_item(self):
-        """Chose item for search"""
+        """Chose item to search"""
         item = None
         for index, option in enumerate(self.search_list, 1):
             print("[{}] - {}".format(index, option))

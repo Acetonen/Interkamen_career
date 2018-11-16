@@ -11,51 +11,125 @@ from modules.absolyte_path_module import AbsolytePath
 
 class MainReport:
     """Main career report"""
-    def __init__(self, status):
-        self.status = status
+    def __init__(self, status, shift, date):
+        self.status = {'status': status,
+                       'shift': shift,
+                       'date': date}
         # Avaliable statuses: '\033[91m[не завершен]\033[0m'
         #                     '\033[93m[в процессе]\033[0m'
         #                     '\033[92m[завершен]\033[0m'
-        self.drill = 0
-        self.workers_hours = {'бухгалтерия': {},
-                              'факт': {}}
-        self.ktu_list = {'бухгалтерия': {},
-                         'факт': {}}
+        self.workers_showing = {
+            'бух.': {
+                'КТУ': {},
+                'часы': {},
+                'зарплата': {}
+            },
+            'факт': {
+                'КТУ': {},
+                'часы': {},
+                'зарплата': {}
+            }}
+        self.result = {'машины второго сорта': 0,
+                       'шпурометры': 0,
+                       'меньше 0.7': 0,
+                       '0.7-1.5': 0,
+                       'выше 1.5': 0}
+        self.bonuses = {'более 250 кубов': False,
+                        'победа по критериям': False}
+        self.rock_mass = {'+108': 0,
+                          '+114': 0,
+                          '+120': 0,
+                          '+126': 0,
+                          '+132': 0}
+        self.totall = 0
 
-    def create_ktu_list(self, version):
+    def count_result(self):
+        """Count totall stone result"""
+        result = 0
+        for item in self.result:
+            if 'машины' not in item and 'шпурометры' not in item:
+                result += self.result[item]
+        if result > 250:
+            self.bonuses['более 250 кубов'] = True
+
+    def count_all_workers_in_report(self):
+        """Apply action to all workers in report"""
+        self.count_result()
+        for direction in self.workers_showing:
+            for worker in self.workers_showing[direction]['КТУ']:
+                if ((worker.split(' ')[0] in Reports().salary_workers or
+                     worker.split(' ')[0] in Reports().drillers) and
+                        direction == 'факт'):
+                    self.count_sal_workers_and_drill(worker)
+                else:
+                    self.count_salary(direction, worker)
+                self.add_brigad_bonus(worker)
+
+    def count_salary(self, direction, worker):
+        """Count totall salary"""
+        self.workers_showing[direction]['зарплата'][worker] = round(
+            self.workers_showing[direction]['КТУ'][worker]
+            * self.totall * 1.5
+            / len(self.workers_showing[direction]['КТУ']), 2)
+
+    def count_sal_workers_and_drill(self, worker):
+        """Count sallary workers and drillers"""
+        oklad = 0
+        if worker.split(' ')[0] in Reports().salary_workers:
+            oklad = (self.workers_showing['факт']['часы'][worker]
+                     / 11 * 50000 / 15)
+        elif worker.split(' ')[0] in Reports().drillers:
+            oklad = (self.result['шпурометры'] * 36)
+        if self.bonuses['более 250 кубов']:
+            oklad += (5000 / 15 / 11
+                      * self.workers_showing['факт']['часы'][worker])
+        self.workers_showing['факт']['зарплата'][worker] = round(oklad, 2)
+
+    def add_brigad_bonus(self, worker):
+        """Add bonus if brigade win monthly challenge"""
+        if self.bonuses['победа по критериям']:
+            self.workers_showing['факт']['зарплата'][worker] += 3000
+
+    def create_ktu_list(self):
         """Create ktu list"""
-        self.ktu_list[version] = {}
-        totall_hours = self.count_totall(self.workers_hours, version)
-        for worker in self.workers_hours[version]:
-            ktu = (
-                self.workers_hours[version][worker]
-                / totall_hours
-                * len(self.workers_hours[version])
-                )
-            self.ktu_list[version][worker] = round(ktu, 2)
+        for direction in self.workers_showing:
+            totall_hours = self.count_totall(
+                self.workers_showing[direction]['часы'])
+            for worker in self.workers_showing[direction]['часы']:
+                ktu = (
+                    self.workers_showing[direction]['часы'][worker]
+                    / totall_hours
+                    * len(self.workers_showing[direction]['часы'])
+                    )
+                self.workers_showing[direction]['КТУ'][worker] = round(ktu, 2)
+            self.coutn_delta_ktu(direction)
 
-    def coutn_delta_ktu(self, version):
+    def coutn_delta_ktu(self, direction):
         """Add delta ktu to worker"""
-        totall_ktu = self.count_totall(self.ktu_list, version)
-        delta_ktu = len(self.ktu_list[version]) - totall_ktu
-        print(f"В процессе округления образовался остаток: {delta_ktu}")
-        return delta_ktu
+        totall_ktu = self.count_totall(self.workers_showing[direction]['КТУ'])
+        delta_ktu = len(self.workers_showing[direction]['КТУ']) - totall_ktu
+        delta_ktu = round(delta_ktu, 2)
+        if delta_ktu != 0:
+            print(f"\nВ процессе округления образовался остаток: {delta_ktu}")
+            self.add_delta_ktu_to_worker(delta_ktu, direction)
 
-    def add_delta_ktu_to_worker(self, delta, version):
+    def add_delta_ktu_to_worker(self, delta, direction):
         """Add delta ktu to worker"""
-        print("Выберете работника, которому хотите добавить остаток:")
-        worker = self.choise_from_list(self.ktu_list[version])
-        self.ktu_list[version][worker] += delta
-        print("Остаток добавлен.")
-        print(version)
-        pprint(self.ktu_list[version])
+        print('\n' + 'КТУ: ' + direction)
+        workers_list = self.workers_showing[direction]['КТУ'].items()
+        print("\nВыберете работника, которому хотите добавить остаток:")
+        worker = self.choise_from_list(workers_list)
+        self.workers_showing[direction]['КТУ'][worker[0]] += delta
+        print("Остаток добавлен.\n")
+        print(direction)
+        pprint(self.workers_showing[direction]['КТУ'])
 
     @classmethod
-    def count_totall(cls, value_list, version):
+    def count_totall(cls, value_list):
         """Count totall hours"""
         totall = 0
-        for worker in value_list[version]:
-            totall += value_list[version][worker]
+        for worker in value_list:
+            totall += value_list[worker]
         return totall
 
     @classmethod
@@ -86,6 +160,61 @@ class MainReport:
             print("\nВы должны ввести цифру.\n")
         return check_number
 
+    @classmethod
+    def create_short_name(cls, name):
+        """Create short worker name."""
+        n_m = name.split(' ')
+        short_name = n_m[0] + ' ' + n_m[1][0] + '.' + n_m[2][0] + '.'
+        return short_name
+
+    def __str__(self):
+        """Print main report"""
+        output = "\n{date} {shift} {status}".format(**self.status)
+        output += """
+машины второго сорта: {0[машины второго сорта]}
+шпурометры: {0[шпурометры]}\n
+кубатура:
+меньше 0.7: {0[меньше 0.7]}
+0.7-1.5: {0[0.7-1.5]}
+выше 1.5: {0[выше 1.5]}\n""".format(self.result)
+        if self.status['status'] == '\033[91m[не завершен]\033[0m':
+            output += '\n'
+            for name in sorted(self.workers_showing['факт']['часы']):
+                short_name = self.create_short_name(name)
+                output += "{:<14}: {}\n".format(
+                    short_name, self.workers_showing['факт']['часы'][name])
+            return output
+        output += "\nГорная масса:\n"
+        for gorizont in sorted(self.rock_mass):
+            output += gorizont + ': ' + str(self.rock_mass[gorizont]) + '\n'
+        output += '\nСумма к распределению: ' + str(self.totall) + '\n'
+        if self.bonuses['более 250 кубов']:
+            output += "\033[92m[Премия за 250]\033[0m\n"
+        if self.bonuses['победа по критериям']:
+            output += "\033[92m[Победа в соц. соревновании]\033[0m\n"
+        output += "\n    ФИО       ф.часы ф.КТУ  ф.З/п б.часы б.КТУ   б.З/п\n"
+        for name in sorted(self.workers_showing['бух.']['часы']):
+            short_name = self.create_short_name(name)
+            output += "{:<14}: {:^4} {:^5} {:^8} {:^4}  {:^5} {:^8}\n".format(
+                short_name, self.workers_showing['факт']['часы'][name],
+                self.workers_showing['факт']['КТУ'][name],
+                self.workers_showing['факт']['зарплата'][name],
+                self.workers_showing['бух.']['часы'][name],
+                self.workers_showing['бух.']['КТУ'][name],
+                self.workers_showing['бух.']['зарплата'][name]
+                )
+        unofficial_workers = [
+            worker for worker in self.workers_showing['факт']['часы']
+            if worker not in self.workers_showing['бух.']['часы']
+            ]
+        for name in unofficial_workers:
+            short_name = self.create_short_name(name)
+            output += "{:<14}: {:^4} {:^5} {:^8}\n".format(
+                short_name, self.workers_showing['факт']['часы'][name],
+                self.workers_showing['факт']['КТУ'][name],
+                self.workers_showing['факт']['зарплата'][name])
+        return output
+
 
 class Reports:
     """Class to manage with reports"""
@@ -93,21 +222,43 @@ class Reports:
 
         self.data_file = data_file.get_absolyte_path()
         self.shifts = ['Смена 1', 'Смена 2']
-        self.salary_workers = {
-            'Смена 1': ['Зинкович', 'Кочерин', 'Кокорин', 'Ягонен'],
-            'Смена 2': ['Никулин', 'Медведев', 'Фигурин']
-        }
-        self.drillers = {
-            'Смена 1': ['Краснов'],
-            'Смена 2': ['Фролов']
-        }
+        self.salary_workers = ['Зинкович', 'Кочерин', 'Кокорин', 'Ягонен',
+                               'Никулин', 'Медведьев', 'Фигурин']
+        self.drillers = ['Краснов', 'Фролов']
+
+    @classmethod
+    def check_date_format(cls, date):
+        """Check if date format correct"""
+        date_numbers = date.split('-')
+        correct = (date[4] == '-' and
+                   date_numbers[0].isdigit() and
+                   date_numbers[1].isdigit() and
+                   int(date_numbers[1]) < 13 and
+                   int(date_numbers[1]) > 0)
+        return correct
+
+    def check_if_report_exist(self, shift, date):
+        """Check if report exist in base"""
+        check = True
+        with shelve.open(self.data_file) as report_file:
+            for report in report_file:
+                if shift in report and date in report:
+                    check = False
+                    print("Такой отчет уже существует.")
+        return check
 
     def create_report(self):
         """Create New main report."""
-        date = input("Введите дату отчета в формате 2018-12: ")
-        # TODO: check data format
-        print("Выберете бригаду:")
-        shift = self.choise_from_list(self.shifts)
+        while True:
+            date = input("Введите дату отчета в формате 2018-12: ")
+            if not self.check_date_format(date):
+                print("Введите дату корректно.")
+                continue
+            print("Выберете бригаду:")
+            shift = self.choise_from_list(self.shifts)
+            if self.check_if_report_exist(shift, date):
+                break
+
         workers_list = AllWorkers().give_workers_from_shift(shift)
         print(shift)
         for worker in workers_list:
@@ -116,93 +267,233 @@ class Reports:
         # Add additional workers from another shift.
         added_workers = self.add_worker_from_diff_shift(shift)
         workers_list.extend(added_workers)
+        self.clear_screen()
 
-        report = MainReport('\033[91m[не завершен]\033[0m')
+        report = MainReport('\033[91m[не завершен]\033[0m', shift, date)
         workers_hours_list = self.create_workers_hours_list(workers_list)
-        report.workers_hours['факт'] = workers_hours_list
-        report.drill = float(input("\nВедите колличество пробуренных метров:"))
+        report.workers_showing['факт']['часы'] = workers_hours_list
+        print("\nВведите результаты добычи бригады.")
+        for item in report.result:
+            print(item, end=': ')
+            report.result[item] = float(input())
         print("\nТабель бригады заполнен.\n")
         with shelve.open(self.data_file) as report_file:
-            report_file[date + ' ' + report.status] = report
+            report_name = "{date} {shift} {status}".format(**report.status)
+            report_file[report_name] = report
         self.save_log_to_temp_file(
-            "\033[92m" + date + ' ' + report.status + "\033[0m")
+            "\033[92m" + date + ' ' + shift + " \033[0m "
+            + report.status['status']
+            )
 
-    def edit_report(self):
-        """Edit report."""
-
-        def delete_report(report):
-            """Delete worker."""
-            if self.confirm_deletion(report):
-                report_file.pop(report, None)
+    def delete_report(self, report_name):
+        """Delete worker."""
+        with shelve.open(self.data_file) as report_file:
+            if self.confirm_deletion(report_name):
+                report_file.pop(report_name, None)
                 self.save_log_to_temp_file(
                     "\033[91m - report deleted. \033[0m")
 
-        def change_drill(temp_report):
-            """Change drill value."""
-            new_drill = input("Введите новое значение метров: ")
-            temp_report.drill = float(new_drill)
-            return temp_report
+    def edit_report(self):
+        """
+        Edition uncompleted report by user with 'master' accesse.
+        """
 
         def change_hours(temp_report):
             """Change hours value."""
             print("Выберете работника для редактирования:")
-            worker = self.choise_from_list(temp_report.workers_hours['факт'])
-            new_hours = input("Введите новое значение часов:")
-            temp_report.workers_hours['факт'][worker] = int(new_hours)
+            worker = self.choise_from_list(
+                temp_report.workers_showing['факт']['часы'])
+            new_hours = int(input("Введите новое значение часов: "))
+            temp_report.workers_showing['факт']['часы'][worker] = new_hours
             return temp_report
 
-        avaliable_reports = self.give_avaliable_to_edit()
+        def edit_result(temp_report):
+            """Edit working result"""
+            for item in temp_report.result:
+                print(item, end=': ')
+                temp_report.result[item] = float(input())
+            return temp_report
+
+        avaliable_reports = self.give_avaliable_to_edit(
+            '[не завершен]')
         print("""\
 Вам доступны для редактирования только отчеты со статусом: \
 \033[91m[не завершен]\033[0m
 Выберет отчет для редактирования:
 """)
-        report = self.choise_from_list(avaliable_reports, none_option=True)
-        if report:
-            self.save_log_to_temp_file(report)
+        report_name = self.choise_from_list(
+            avaliable_reports, none_option=True)
+        if report_name:
+            self.save_log_to_temp_file(report_name)
         report_file = shelve.open(self.data_file)
         self.clear_screen()
-        while report:
-            temp_report = report_file[report]
-            print(report)
-            pprint(temp_report.workers_hours['факт'])
-            print('\nКолличество шпурометров:', temp_report.drill, '\n')
+        while report_name:
+            temp_report = report_file[report_name]
+            print(temp_report)
             edit_menu_dict = {
                 'изменить часы': change_hours,
-                'изменить пробуренные метры': change_drill,
-                'удалить отчет': delete_report,
+                'удалить отчет': self.delete_report,
+                'изменить добычу': edit_result,
                 '[закончить редактирование]': 'break'
                 }
             print("Выберете пункт для редактирования:")
             action_name = self.choise_from_list(edit_menu_dict)
-
             print()
             if action_name in ['[закончить редактирование]', '']:
                 break
             elif action_name == 'удалить отчет':
-                temp_report = edit_menu_dict[action_name](report)
+                temp_report = edit_menu_dict[action_name](report_name)
                 break
-
             temp_report = edit_menu_dict[action_name](temp_report)
-
-            report_file[report] = temp_report
+            report_file[report_name] = temp_report
             self.clear_screen()
         report_file.close()
 
-    def give_avaliable_to_edit(self):
+    def work_with_main_report(self):
+        """Finish MainReport"""
+        report_file = shelve.open(self.data_file)
+        print("Выберет отчет:")
+        report_name = self.choise_from_list(report_file, none_option=True)
+        if report_name:
+            self.save_log_to_temp_file(report_name)
+        self.clear_screen()
+        if '[не завершен]' in report_name:
+            self.make_status_in_process(report_name)
+        elif '[завершен]' in report_name:
+            print(report_file[report_name])
+            choise = input(
+                "\n[un] Возвратить статус '\033[93m[в процессе]\033[0m'\n")
+            if choise == 'un':
+                self.uncomplete_main_report(report_name)
+        elif '[в процессе]' in report_name:
+            self.edit_main_report(report_name)
+        report_file.close()
+
+    def uncomplete_main_report(self, report_name):
+        """Uncomlete main report"""
+        choise = input("Are you shure, you want to uncomplete report? Y/n: ")
+        if choise.lower() == 'y':
+            report_file = shelve.open(self.data_file)
+            temp_report = report_file[report_name]
+            temp_report.status['status'] = '\033[93m[в процессе]\033[0m'
+            new_name = "{date} {shift} {status}".format(
+                **temp_report.status)
+            report_file[new_name] = temp_report
+            report_file.pop(report_name, None)
+            report_file.close()
+
+    def edit_main_report(self, report_name):
+        """
+        Edition main report by boss or admin usser.
+        """
+
+        def enter_rock_mass(temp_report):
+            """Enter rock_mass"""
+            print("Введите горную массу:")
+            for gorizont in sorted(temp_report.rock_mass):
+                print(gorizont, end=': ')
+                temp_report.rock_mass[gorizont] = float(input())
+            return temp_report
+
+        def enter_totall(temp_report):
+            """Enter totall money"""
+            temp_report.totall = float(input("Введите итоговую сумму: "))
+            return temp_report
+
+        def enter_bonus(temp_report):
+            """Enter monthly bonus"""
+            choise = input("Бригада победила в соревновании? Д/н")
+            if choise.lower() == 'д':
+                temp_report.bonuses['победа по критериям'] = True
+            return temp_report
+
+        def change_ktu(temp_report):
+            """Manualy change worker KTU"""
+            print("Выберете вид КТУ:")
+            direction = self.choise_from_list(temp_report.workers_showing)
+            print("Выберете работника:")
+            ch_worker = self.choise_from_list(
+                temp_report.workers_showing[direction]['КТУ'])
+            new_ktu = float(input("Введите новое значение КТУ: "))
+            delta = (temp_report.workers_showing[direction]['КТУ'][ch_worker]
+                     - new_ktu)
+            workers = len(temp_report.workers_showing[direction]['КТУ'])
+            temp_report.workers_showing[direction]['КТУ'][ch_worker] = new_ktu
+            for worker in temp_report.workers_showing[direction]['КТУ']:
+                if worker != ch_worker:
+                    temp_report.workers_showing[direction]['КТУ'][worker] = (
+                        temp_report.workers_showing[direction]['КТУ'][worker]
+                        + round(delta/(workers-1), 2))
+            temp_report.coutn_delta_ktu(direction)
+            return temp_report
+
+        def complete_main_report(temp_report):
+            """Complete main report"""
+            choise = input("Вы уверены что хотите завершить отчет? Д/н: ")
+            if choise.lower() == 'д':
+                temp_report.count_all_workers_in_report()
+                temp_report.status['status'] = '\033[92m[завершен]\033[0m'
+            return temp_report
+
+        report_file = shelve.open(self.data_file)
+        while True:
+            temp_report = report_file[report_name]
+            print(temp_report)
+            if '[завершен]' in report_name:
+                break
+            edit_menu_dict = {
+                'ввести горную массу': enter_rock_mass,
+                'ввести итоговую сумму': enter_totall,
+                'ежемесячный бонус': enter_bonus,
+                'изменить КТУ работника': change_ktu,
+                'удалить отчет': self.delete_report,
+                '\033[92mсформировать отчет\033[0m': complete_main_report,
+                '[закончить редактирование]': 'break'
+                }
+            print("Выберете пункт для редактирования:")
+            action_name = self.choise_from_list(edit_menu_dict)
+            print()
+            if action_name in ['[закончить редактирование]', '']:
+                break
+            elif action_name == 'удалить отчет':
+                temp_report = edit_menu_dict[action_name](report_name)
+                break
+            temp_report = edit_menu_dict[action_name](temp_report)
+            report_file.pop(report_name, None)
+            report_name = "{date} {shift} {status}".format(
+                **temp_report.status)
+            report_file[report_name] = temp_report
+            self.clear_screen()
+        report_file.close()
+
+    def make_status_in_process(self, report_name):
+        """Change status from 'not complete' to 'in process'"""
+        report_file = shelve.open(self.data_file)
+        print(report_file[report_name])
+        tmp_report = report_file[report_name]
+        print("Введите ОФИЦИАЛЬНЫЕ часы работы:")
+        shift = tmp_report.status['shift']
+        workers_list = AllWorkers().give_workers_from_shift(shift)
+        workers_hours_list = self.create_workers_hours_list(workers_list)
+        tmp_report.workers_showing['бух.']['часы'] = workers_hours_list
+        self.clear_screen()
+        tmp_report.create_ktu_list()
+        tmp_report.count_all_workers_in_report()
+        tmp_report.status['status'] = '\033[93m[в процессе]\033[0m'
+        report_file.pop(report_name, None)
+        new_name = "{date} {shift} {status}".format(**tmp_report.status)
+        report_file[new_name] = tmp_report
+        print(report_file[new_name])
+        report_file.close()
+
+    def give_avaliable_to_edit(self, status):
         """Give reports that avaliable to edit"""
         avaliable_reports = []
         with shelve.open(self.data_file) as report_file:
             for report in report_file:
-                if '\033[91m[не завершен]\033[0m' in report:
+                if status in report:
                     avaliable_reports.append(report)
         return avaliable_reports
-
-    def show_all_reports(self):
-        """Show all reports in base"""
-        with shelve.open(self.data_file) as report_file:
-            for report in sorted(report_file):
-                print(report)
 
     def add_worker_from_diff_shift(self, shift):
         """Add worker from different shift to current."""
@@ -240,7 +531,7 @@ class Reports:
     @classmethod
     def create_workers_hours_list(cls, workers_list):
         """Create workers hous list."""
-        print("\nВведите колличество отработанных часов:")
+        print("\nВведите колличество часов:")
         workers_hours = {}
         for worker in workers_list:
             print(worker, end="")
@@ -286,7 +577,7 @@ class Reports:
     @classmethod
     def clear_screen(cls):
         """Clear shell screen"""
-        if sys.platform == 'win':
+        if sys.platform[:3] == 'win':
             os.system('cls')
         else:
             os.system('clear')

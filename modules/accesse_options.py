@@ -52,8 +52,6 @@ class Accesse:
             '--> [Табеля_бригады]': {
                 'Создать табель добычной бригады':
                 lambda arg: Reports().create_report(),
-                'Показать все табеля':
-                lambda arg: Reports().show_all_reports(),
                 'Редактировать табель':
                 lambda arg: Reports().edit_report()
                 }
@@ -75,7 +73,9 @@ class Accesse:
             'master': {
                 '--> [Табеля_бригады]': 'sub-menu'
                 },
-            'boss': {'--> [Работники] ': 'sub-menu'},
+            'boss': {'--> [Работники] ': 'sub-menu',
+                     'Наряд бригады':
+                     lambda arg: Reports().work_with_main_report()},
             'admin': {'\033[91m--> [users_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [log_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [databases] \033[0m': 'sub-menu',

@@ -18,6 +18,7 @@ Classes: Users: 'change_password',
                 'show_all_users',
                 'sync_user',
                 'try_to_enter_program'
+                'clear_screen'
 """
 
 
@@ -81,10 +82,10 @@ class Users:
 
         users_base = shelve.open(self.data_file)
         print("Input number of user to edit:")
-        choosen_user = self.choise_from_list(users_base)
+        choosen_user = self.choise_from_list(users_base, none_option=True)
         if choosen_user:
             self.save_log_to_temp_file(choosen_user)
-
+        self.clear_screen()
         while choosen_user:
             temp_user = users_base[choosen_user]
             print()
@@ -247,7 +248,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
     @classmethod
     def clear_screen(cls):
         """Clear shell screen"""
-        if sys.platform == 'win':
+        if sys.platform[:3] == 'win':
             os.system('cls')
         else:
             os.system('clear')

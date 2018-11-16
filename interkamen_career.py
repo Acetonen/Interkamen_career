@@ -67,7 +67,7 @@ def check_number_in_range(user_input, list_range):
 
 def clear_screen():
     """Clear shell screen"""
-    if sys.platform == 'win':
+    if sys.platform[:3] == 'win':
         os.system('cls')
     else:
         os.system('clear')

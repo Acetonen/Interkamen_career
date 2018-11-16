@@ -20,6 +20,7 @@ class AllWorkers: 'add_new_worker',
                   'print_archive_workers'
                   'return_from_archive'
                   'give_workers_from_shift'
+                  'clear_screen'
 """
 
 import shelve
@@ -249,10 +250,10 @@ class AllWorkers:
         worker = self.choise_from_list(division_workers, none_option=True)
         if worker:
             self.save_log_to_temp_file(worker)
-
+        self.clear_screen()
         while worker:
             temp_worker = workers_base[worker]
-            print(workers_base[worker])
+            print(temp_worker)
             edit_menu_dict = {
                 'редактировать ФИО': change_worker_name,
                 'перевести в другую смену': change_worker_shift,
@@ -288,16 +289,18 @@ class AllWorkers:
     def return_from_archive(self):
         """Return worker from archive"""
         print("Выберете работника для возвращения:")
-        with shelve.open(self.workers_archive) as workers_archive:
-            choose = self.choise_from_list(workers_archive)
+        workers_archive = shelve.open(self.workers_archive)
+        choose = self.choise_from_list(workers_archive, none_option=True)
+        if choose:
             worker = workers_archive[choose]
             workers_archive.pop(choose, None)
-        with shelve.open(self.workers_base) as workers_base:
-            workers_base[worker.name] = worker
-        self.add_worker_to_structure(worker.name, worker.working_place)
-        log = f"\033[92mCотрудник '{worker.name}' возвращен\033[0m"
-        print(log)
-        self.save_log_to_temp_file(f"\033[92m'{worker.name}' returned.\033[0m")
+            with shelve.open(self.workers_base) as workers_base:
+                workers_base[worker.name] = worker
+                self.add_worker_to_structure(worker.name, worker.working_place)
+                print(f"\033[92mCотрудник '{worker.name}' возвращен\033[0m")
+                self.save_log_to_temp_file(
+                    f"\033[92m'{worker.name}' returned.\033[0m")
+        workers_archive.close()
 
     @classmethod
     def choise_from_list(cls, variants_list, none_option=False):
@@ -369,16 +372,14 @@ class AllWorkers:
             name = workers_base[worker].name
             profession = workers_base[worker].working_place['profession']
             telefone = workers_base[worker].telefone_number
-            space1 = (32-len(name))*' '
-            space2 = (24-len(profession))*' '
-            print("{}{}- {}{}тел.: {}".format(
-                name, space1, profession, space2, telefone))
+            print("{:<32}- {:<24}тел.: {}".format(
+                name, profession, telefone))
         workers_base.close()
 
     @classmethod
     def clear_screen(cls):
         """Clear shell screen"""
-        if sys.platform == 'win':
+        if sys.platform[:3] == 'win':
             os.system('cls')
         else:
             os.system('clear')
