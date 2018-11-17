@@ -74,8 +74,8 @@ class Accesse:
                 '--> [Табеля_бригады]': 'sub-menu'
                 },
             'boss': {'--> [Работники] ': 'sub-menu',
-                     'Наряд бригады':
-                     lambda arg: Reports().work_with_main_report()},
+                     '[Наряд бригады]':
+                     lambda arg: Reports().work_with_main_report(arg)},
             'admin': {'\033[91m--> [users_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [log_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [databases] \033[0m': 'sub-menu',

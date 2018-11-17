@@ -21,6 +21,7 @@ class AllWorkers: 'add_new_worker',
                   'return_from_archive'
                   'give_workers_from_shift'
                   'clear_screen'
+                  'add_salary_to_worker'
 """
 
 import shelve
@@ -244,6 +245,16 @@ class AllWorkers:
             temp_worker = None
             return temp_worker
 
+        def show_salary(temp_worker):
+            """Show worker salary"""
+            salary_count = 0
+            for salary_date in sorted(temp_worker.salary):
+                print(salary_date, '-', temp_worker.salary[salary_date], 'р.')
+                salary_count += temp_worker.salary[salary_date]
+            if temp_worker.salary:
+                average_sallary = round(salary_count/len(temp_worker.salary))
+                print("\033[93mСредняя з/п:\033[0m ", average_sallary, 'p.')
+
         workers_base = shelve.open(self.workers_base)
         print("Выберете работника для редактирования:")
         division_workers = self.give_workers_from_division()
@@ -259,6 +270,7 @@ class AllWorkers:
                 'перевести в другую смену': change_worker_shift,
                 'редактировать место работы': change_working_place,
                 'изменить номер телефона': change_phone_number,
+                'показать зарплату': show_salary,
                 'уДАлить работника': delete_worker,
                 'уВОлить работника': lay_off_worker,
                 '[закончить редактирование]': 'break'
@@ -285,6 +297,15 @@ class AllWorkers:
                     worker,
                     workers_archive[worker].employing_lay_off_dates['lay_off']
                     )
+
+    def add_salary_to_workers(self, salary_dict, salary_date):
+        """Add monthlysalary to workers"""
+        workers_base = shelve.open(self.workers_base)
+        for worker in salary_dict:
+            temp_worker = workers_base[worker]
+            temp_worker.salary[salary_date] = salary_dict[worker]
+            workers_base[worker] = temp_worker
+        workers_base.close()
 
     def return_from_archive(self):
         """Return worker from archive"""

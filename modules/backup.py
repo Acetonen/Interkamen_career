@@ -29,11 +29,9 @@ def check_last_backup_date():
         last_data = datetime.strptime(last_backup_date[:-1], '%Y-%m-%d')
         delta = datetime.now() - last_data
         if delta.days > 30:
-            backup_log = "\033[5m\033[1mBackup done.\033[0m"
-            print(backup_log)
+            print("\033[5m\033[1mBackup done.\033[0m")
             make_backup()
     else:
-        backup_log = "\033[5m\033[1mBackup done.\033[0m"
-        print(backup_log)
+        print("\033[5m\033[1mBackup done.\033[0m")
         make_backup()
     return backup_log

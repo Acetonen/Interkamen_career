@@ -180,7 +180,7 @@ class Users:
         Take user login/password input and return current user privilege
         """
         user_in = None
-        login = input("Введите имя пользователя: ")
+        login = input("Имя пользователя: ")
         users_base = shelve.open(self.data_file)
         if login in users_base:
             while True:

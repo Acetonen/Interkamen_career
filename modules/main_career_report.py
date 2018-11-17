@@ -1,5 +1,36 @@
 #!usr/bin/env python3
-"""Main career report"""
+"""
+Main career report
+classes: MainReport:'add_brigad_bonus',
+                    'add_delta_ktu_to_worker',
+                    'check_number_in_range',
+                    'choise_from_list',
+                    'count_all_workers_in_report',
+                    'count_result',
+                    'count_sal_workers_and_drill',
+                    'count_salary',
+                    'count_totall',
+                    'coutn_delta_ktu',
+                    'create_ktu_list',
+                    'create_short_name'
+         Reports: 'add_worker_from_diff_shift',
+                  'check_date_format',
+                  'check_if_report_exist',
+                  'check_number_in_range',
+                  'choise_from_list',
+                  'clear_screen',
+                  'confirm_deletion',
+                  'create_report',
+                  'create_workers_hours_list',
+                  'delete_report',
+                  'edit_main_report',
+                  'edit_report',
+                  'give_avaliable_to_edit',
+                  'make_status_in_process',
+                  'save_log_to_temp_file',
+                  'uncomplete_main_report',
+                  'work_with_main_report'
+"""
 
 import shelve
 import sys
@@ -10,7 +41,9 @@ from modules.absolyte_path_module import AbsolytePath
 
 
 class MainReport:
-    """Main career report"""
+    """
+    Main career report.
+    """
     def __init__(self, status, shift, date):
         self.status = {'status': status,
                        'shift': shift,
@@ -29,11 +62,18 @@ class MainReport:
                 'часы': {},
                 'зарплата': {}
             }}
-        self.result = {'машины второго сорта': 0,
-                       'шпурометры': 0,
-                       'меньше 0.7': 0,
-                       '0.7-1.5': 0,
-                       'выше 1.5': 0}
+        self.result = {
+            'машины второго сорта': 0,
+            'шпурометры': 0,
+            'категории': {'меньше 0.7': 0,
+                          '0.7-1.5': 0,
+                          'выше 1.5': 0},
+            'погоризонтно': {'+108': 0,
+                             '+114': 0,
+                             '+120': 0,
+                             '+126': 0,
+                             '+132': 0}
+            }
         self.bonuses = {'более 250 кубов': False,
                         'победа по критериям': False}
         self.rock_mass = {'+108': 0,
@@ -46,9 +86,8 @@ class MainReport:
     def count_result(self):
         """Count totall stone result"""
         result = 0
-        for item in self.result:
-            if 'машины' not in item and 'шпурометры' not in item:
-                result += self.result[item]
+        for item in self.result['категории']:
+            result += self.result['категории'][item]
         if result > 250:
             self.bonuses['более 250 кубов'] = True
 
@@ -86,7 +125,7 @@ class MainReport:
         self.workers_showing['факт']['зарплата'][worker] = round(oklad, 2)
 
     def add_brigad_bonus(self, worker):
-        """Add bonus if brigade win monthly challenge"""
+        """Add bonus if brigad win monthly challenge"""
         if self.bonuses['победа по критериям']:
             self.workers_showing['факт']['зарплата'][worker] += 3000
 
@@ -119,7 +158,9 @@ class MainReport:
         workers_list = self.workers_showing[direction]['КТУ'].items()
         print("\nВыберете работника, которому хотите добавить остаток:")
         worker = self.choise_from_list(workers_list)
-        self.workers_showing[direction]['КТУ'][worker[0]] += delta
+        worker_ktu = self.workers_showing[direction]['КТУ'][worker[0]]
+        result = round(delta + worker_ktu, 2)
+        self.workers_showing[direction]['КТУ'][worker[0]] = result
         print("Остаток добавлен.\n")
         print(direction)
         pprint(self.workers_showing[direction]['КТУ'])
@@ -170,13 +211,19 @@ class MainReport:
     def __str__(self):
         """Print main report"""
         output = "\n{date} {shift} {status}".format(**self.status)
-        output += """
+        output += ("""\n
 машины второго сорта: {0[машины второго сорта]}
-шпурометры: {0[шпурометры]}\n
-кубатура:
+шпурометры: {0[шпурометры]}\n""".format(self.result) +
+                   """\nкубатура:
 меньше 0.7: {0[меньше 0.7]}
 0.7-1.5: {0[0.7-1.5]}
-выше 1.5: {0[выше 1.5]}\n""".format(self.result)
+выше 1.5: {0[выше 1.5]}\n""".format(self.result['категории']))
+        by_horisont = {
+            key: value for (key, value) in self.result['погоризонтно'].items()
+            if value > 0}
+        output += "\nпогоризонтный выход блоков:\n"
+        for horizont in by_horisont:
+            output += horizont + ': ' + str(by_horisont[horizont]) + '\n'
         if self.status['status'] == '\033[91m[не завершен]\033[0m':
             output += '\n'
             for name in sorted(self.workers_showing['факт']['часы']):
@@ -201,8 +248,7 @@ class MainReport:
                 self.workers_showing['факт']['зарплата'][name],
                 self.workers_showing['бух.']['часы'][name],
                 self.workers_showing['бух.']['КТУ'][name],
-                self.workers_showing['бух.']['зарплата'][name]
-                )
+                self.workers_showing['бух.']['зарплата'][name])
         unofficial_workers = [
             worker for worker in self.workers_showing['факт']['часы']
             if worker not in self.workers_showing['бух.']['часы']
@@ -217,13 +263,16 @@ class MainReport:
 
 
 class Reports:
-    """Class to manage with reports"""
+    """
+    Class to manage with reports.
+    """
+
     def __init__(self, data_file=AbsolytePath('main_career_report')):
 
         self.data_file = data_file.get_absolyte_path()
         self.shifts = ['Смена 1', 'Смена 2']
-        self.salary_workers = ['Зинкович', 'Кочерин', 'Кокорин', 'Ягонен',
-                               'Никулин', 'Медведьев', 'Фигурин']
+        self.salary_workers = ['Кочерин', 'Кокорин', 'Ягонен',
+                               'Никулин', 'Медведев', 'Фигурин']
         self.drillers = ['Краснов', 'Фролов']
 
     @classmethod
@@ -273,25 +322,33 @@ class Reports:
         workers_hours_list = self.create_workers_hours_list(workers_list)
         report.workers_showing['факт']['часы'] = workers_hours_list
         print("\nВведите результаты добычи бригады.")
-        for item in report.result:
-            print(item, end=': ')
-            report.result[item] = float(input())
+        report = self.input_result(report)
         print("\nТабель бригады заполнен.\n")
         with shelve.open(self.data_file) as report_file:
             report_name = "{date} {shift} {status}".format(**report.status)
             report_file[report_name] = report
-        self.save_log_to_temp_file(
-            "\033[92m" + date + ' ' + shift + " \033[0m "
-            + report.status['status']
-            )
+        self.save_log_to_temp_file(report_name)
 
     def delete_report(self, report_name):
-        """Delete worker."""
+        """Delete report."""
         with shelve.open(self.data_file) as report_file:
             if self.confirm_deletion(report_name):
                 report_file.pop(report_name, None)
                 self.save_log_to_temp_file(
                     "\033[91m - report deleted. \033[0m")
+
+    @classmethod
+    def input_result(cls, report):
+        """Input working result"""
+        for item in report.result:
+            if isinstance(report.result[item], dict):
+                for sub_item in report.result[item]:
+                    print(sub_item, end=': ')
+                    report.result[item][sub_item] = float(input())
+            else:
+                print(item, end=': ')
+                report.result[item] = float(input())
+        return report
 
     def edit_report(self):
         """
@@ -305,13 +362,6 @@ class Reports:
                 temp_report.workers_showing['факт']['часы'])
             new_hours = int(input("Введите новое значение часов: "))
             temp_report.workers_showing['факт']['часы'][worker] = new_hours
-            return temp_report
-
-        def edit_result(temp_report):
-            """Edit working result"""
-            for item in temp_report.result:
-                print(item, end=': ')
-                temp_report.result[item] = float(input())
             return temp_report
 
         avaliable_reports = self.give_avaliable_to_edit(
@@ -333,7 +383,7 @@ class Reports:
             edit_menu_dict = {
                 'изменить часы': change_hours,
                 'удалить отчет': self.delete_report,
-                'изменить добычу': edit_result,
+                'изменить добычу': self.input_result,
                 '[закончить редактирование]': 'break'
                 }
             print("Выберете пункт для редактирования:")
@@ -349,24 +399,24 @@ class Reports:
             self.clear_screen()
         report_file.close()
 
-    def work_with_main_report(self):
+    def work_with_main_report(self, current_user):
         """Finish MainReport"""
         report_file = shelve.open(self.data_file)
         print("Выберет отчет:")
         report_name = self.choise_from_list(report_file, none_option=True)
         if report_name:
             self.save_log_to_temp_file(report_name)
-        self.clear_screen()
-        if '[не завершен]' in report_name:
-            self.make_status_in_process(report_name)
-        elif '[завершен]' in report_name:
-            print(report_file[report_name])
-            choise = input(
-                "\n[un] Возвратить статус '\033[93m[в процессе]\033[0m'\n")
-            if choise == 'un':
-                self.uncomplete_main_report(report_name)
-        elif '[в процессе]' in report_name:
-            self.edit_main_report(report_name)
+            if '[не завершен]' in report_name:
+                self.make_status_in_process(report_name)
+            elif '[завершен]' in report_name:
+                print(report_file[report_name])
+                if current_user['accesse'] == 'admin':
+                    choise = input("""\
+\033[91m[un]\033[0m Возвратить статус '\033[93m[в процессе]\033[0m'\n""")
+                    if choise == 'un':
+                        self.uncomplete_main_report(report_name)
+            elif '[в процессе]' in report_name:
+                self.edit_main_report(report_name)
         report_file.close()
 
     def uncomplete_main_report(self, report_name):
@@ -380,6 +430,8 @@ class Reports:
                 **temp_report.status)
             report_file[new_name] = temp_report
             report_file.pop(report_name, None)
+            self.save_log_to_temp_file(
+                ' --> ' + temp_report.status['status'])
             report_file.close()
 
     def edit_main_report(self, report_name):
@@ -402,7 +454,7 @@ class Reports:
 
         def enter_bonus(temp_report):
             """Enter monthly bonus"""
-            choise = input("Бригада победила в соревновании? Д/н")
+            choise = input("Бригада победила в соревновании? Д/н: ")
             if choise.lower() == 'д':
                 temp_report.bonuses['победа по критериям'] = True
             return temp_report
@@ -433,6 +485,12 @@ class Reports:
             if choise.lower() == 'д':
                 temp_report.count_all_workers_in_report()
                 temp_report.status['status'] = '\033[92m[завершен]\033[0m'
+                AllWorkers().add_salary_to_workers(
+                    temp_report.workers_showing['факт']['зарплата'],
+                    temp_report.status['date']
+                )
+                self.save_log_to_temp_file(
+                    ' --> ' + temp_report.status['status'])
             return temp_report
 
         report_file = shelve.open(self.data_file)
@@ -484,15 +542,17 @@ class Reports:
         new_name = "{date} {shift} {status}".format(**tmp_report.status)
         report_file[new_name] = tmp_report
         print(report_file[new_name])
+        self.save_log_to_temp_file(
+            ' --> ' + tmp_report.status['status'])
         report_file.close()
 
-    def give_avaliable_to_edit(self, status):
+    def give_avaliable_to_edit(self, *statuses):
         """Give reports that avaliable to edit"""
         avaliable_reports = []
         with shelve.open(self.data_file) as report_file:
-            for report in report_file:
-                if status in report:
-                    avaliable_reports.append(report)
+            avaliable_reports = [report for status in statuses
+                                 for report in report_file
+                                 if status in report]
         return avaliable_reports
 
     def add_worker_from_diff_shift(self, shift):
@@ -531,7 +591,7 @@ class Reports:
     @classmethod
     def create_workers_hours_list(cls, workers_list):
         """Create workers hous list."""
-        print("\nВведите колличество часов:")
+        print("\nВведите количество часов:")
         workers_hours = {}
         for worker in workers_list:
             print(worker, end="")

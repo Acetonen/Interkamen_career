@@ -26,8 +26,8 @@ class Logs:
         self.data_file = data_file.get_absolyte_path()
         self.log_constructor = []
         self.log_list = {
-            '\033[94m enter program \033[0m': '\033[94m enter program \033[0m',
-            '\033[93m exit program \033[0m': '\033[93m exit program \033[0m',
+            'enter program': '\033[94m enter program \033[0m',
+            'exit program': '\033[93m exit program \033[0m',
             'create new user': 'create new user',
             'edit user': 'edit user',
             'search in logs': 'search in logs',
@@ -41,7 +41,8 @@ class Logs:
             "\033[5m\033[1mBackup done.\033[0m": '\033[1mBackup done.\033[0m',
             'Вернуть работника из архива': 'restore worker from archive',
             'Редактировать табель': 'edit report',
-            'Создать табель добычной бригады': 'create new report'
+            'Создать табель добычной бригады': 'create new report',
+            '[Наряд бригады]': 'edit report'
             }
 
         self.search_list = list(self.log_list.keys())

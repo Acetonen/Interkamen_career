@@ -10,6 +10,7 @@ Functions: 'print_menu'
            'create_action_dict'
            'get_main_or_sub_menu'
            'clear_screen'
+           'make_header'
 """
 
 import sys
@@ -19,6 +20,7 @@ from modules.accesse_options import Accesse
 from modules.users import Users
 from modules.log_class import Logs
 from modules.backup import check_last_backup_date
+from modules.main_career_report import Reports
 
 
 def login_program():
@@ -28,12 +30,13 @@ def login_program():
     while current_user is None:
         current_user = Users().try_to_enter_program()
     Logs().create_log(
-        current_user['login'], '\033[94m enter program \033[0m')
+        current_user['login'], 'enter program')
     return current_user
 
 
 def print_menu():
     """Print program menu."""
+    print(make_header(), '\n', SEPARATOR)
     if MENU_NESTING:
         print(''.join(MENU_NESTING), '\n')
     print(' '.join(MENU_HEADER))
@@ -51,6 +54,18 @@ def get_main_or_sub_menu(sub_menu):
     PROGRAM_MENU.update(program_menu)
     del MENU_LIST[:]
     MENU_LIST.extend(list(PROGRAM_MENU.items()))
+
+
+def make_header():
+    """Make menu header"""
+    header = ''
+    reports_need_to_edit = Reports().give_avaliable_to_edit(
+        '[не завершен]', '[в процессе]')
+    if reports_need_to_edit:
+        header = "Присутствуют недооформленные документы:\n" + '\n'.join(
+            reports_need_to_edit
+        )
+    return header
 
 
 def check_number_in_range(user_input, list_range):
@@ -89,10 +104,7 @@ if __name__ == '__main__':
     MENU_NESTING = []
     CURRENT_USER = login_program()
     USR_ACS = CURRENT_USER['accesse']
-
     make_backup()
-
-    print()
     while True:
 
         # Create main menu (otput and actions dict).
@@ -105,7 +117,6 @@ if __name__ == '__main__':
             USER_CHOISE = input("[м] - Показать меню программы"
                                 "\nВыберете действие:\n")
             clear_screen()
-            print(SEPARATOR)
 
             if USER_CHOISE == 'м':
                 print_menu()
@@ -137,7 +148,7 @@ if __name__ == '__main__':
             # Exit program.
             elif MENU_LIST[USER_CHOISE][1] == 'exit program':
                 Logs().create_log(
-                    CURRENT_USER['login'], MENU_LIST[USER_CHOISE][0])
+                    CURRENT_USER['login'], 'exit program')
                 sys.exit()
 
             elif '\033[9m\033[91m' in MENU_LIST[USER_CHOISE][0]:
