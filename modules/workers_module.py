@@ -21,7 +21,7 @@ class AllWorkers: 'add_new_worker',
                   'return_from_archive'
                   'give_workers_from_shift'
                   'clear_screen'
-                  'add_salary_to_worker'
+                  'add_salary_to_workers'
 """
 
 import shelve
@@ -298,13 +298,15 @@ class AllWorkers:
                     workers_archive[worker].employing_lay_off_dates['lay_off']
                     )
 
-    def add_salary_to_workers(self, salary_dict, salary_date):
+    def add_salary_to_workers(self, salary_dict,
+                              salary_date, unofficial_workers):
         """Add monthlysalary to workers"""
         workers_base = shelve.open(self.workers_base)
         for worker in salary_dict:
-            temp_worker = workers_base[worker]
-            temp_worker.salary[salary_date] = salary_dict[worker]
-            workers_base[worker] = temp_worker
+            if worker not in unofficial_workers:
+                temp_worker = workers_base[worker]
+                temp_worker.salary[salary_date] = salary_dict[worker]
+                workers_base[worker] = temp_worker
         workers_base.close()
 
     def return_from_archive(self):

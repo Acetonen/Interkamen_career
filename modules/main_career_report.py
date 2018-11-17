@@ -13,7 +13,7 @@ classes: MainReport:'add_brigad_bonus',
                     'coutn_delta_ktu',
                     'create_ktu_list',
                     'create_short_name'
-         Reports: 'add_worker_from_diff_shift',
+         Reports: '_add_worker_from_diff_shift',
                   'check_date_format',
                   'check_if_report_exist',
                   'check_number_in_range',
@@ -82,88 +82,6 @@ class MainReport:
                           '+126': 0,
                           '+132': 0}
         self.totall = 0
-
-    def count_result(self):
-        """Count totall stone result"""
-        result = 0
-        for item in self.result['категории']:
-            result += self.result['категории'][item]
-        if result > 250:
-            self.bonuses['более 250 кубов'] = True
-
-    def count_all_workers_in_report(self):
-        """Apply action to all workers in report"""
-        self.count_result()
-        for direction in self.workers_showing:
-            for worker in self.workers_showing[direction]['КТУ']:
-                if ((worker.split(' ')[0] in Reports().salary_workers or
-                     worker.split(' ')[0] in Reports().drillers) and
-                        direction == 'факт'):
-                    self.count_sal_workers_and_drill(worker)
-                else:
-                    self.count_salary(direction, worker)
-                self.add_brigad_bonus(worker)
-
-    def count_salary(self, direction, worker):
-        """Count totall salary"""
-        self.workers_showing[direction]['зарплата'][worker] = round(
-            self.workers_showing[direction]['КТУ'][worker]
-            * self.totall * 1.5
-            / len(self.workers_showing[direction]['КТУ']), 2)
-
-    def count_sal_workers_and_drill(self, worker):
-        """Count sallary workers and drillers"""
-        oklad = 0
-        if worker.split(' ')[0] in Reports().salary_workers:
-            oklad = (self.workers_showing['факт']['часы'][worker]
-                     / 11 * 50000 / 15)
-        elif worker.split(' ')[0] in Reports().drillers:
-            oklad = (self.result['шпурометры'] * 36)
-        if self.bonuses['более 250 кубов']:
-            oklad += (5000 / 15 / 11
-                      * self.workers_showing['факт']['часы'][worker])
-        self.workers_showing['факт']['зарплата'][worker] = round(oklad, 2)
-
-    def add_brigad_bonus(self, worker):
-        """Add bonus if brigad win monthly challenge"""
-        if self.bonuses['победа по критериям']:
-            self.workers_showing['факт']['зарплата'][worker] += 3000
-
-    def create_ktu_list(self):
-        """Create ktu list"""
-        for direction in self.workers_showing:
-            totall_hours = self.count_totall(
-                self.workers_showing[direction]['часы'])
-            for worker in self.workers_showing[direction]['часы']:
-                ktu = (
-                    self.workers_showing[direction]['часы'][worker]
-                    / totall_hours
-                    * len(self.workers_showing[direction]['часы'])
-                    )
-                self.workers_showing[direction]['КТУ'][worker] = round(ktu, 2)
-            self.coutn_delta_ktu(direction)
-
-    def coutn_delta_ktu(self, direction):
-        """Add delta ktu to worker"""
-        totall_ktu = self.count_totall(self.workers_showing[direction]['КТУ'])
-        delta_ktu = len(self.workers_showing[direction]['КТУ']) - totall_ktu
-        delta_ktu = round(delta_ktu, 2)
-        if delta_ktu != 0:
-            print(f"\nВ процессе округления образовался остаток: {delta_ktu}")
-            self.add_delta_ktu_to_worker(delta_ktu, direction)
-
-    def add_delta_ktu_to_worker(self, delta, direction):
-        """Add delta ktu to worker"""
-        print('\n' + 'КТУ: ' + direction)
-        workers_list = self.workers_showing[direction]['КТУ'].items()
-        print("\nВыберете работника, которому хотите добавить остаток:")
-        worker = self.choise_from_list(workers_list)
-        worker_ktu = self.workers_showing[direction]['КТУ'][worker[0]]
-        result = round(delta + worker_ktu, 2)
-        self.workers_showing[direction]['КТУ'][worker[0]] = result
-        print("Остаток добавлен.\n")
-        print(direction)
-        pprint(self.workers_showing[direction]['КТУ'])
 
     @classmethod
     def count_totall(cls, value_list):
@@ -249,10 +167,7 @@ class MainReport:
                 self.workers_showing['бух.']['часы'][name],
                 self.workers_showing['бух.']['КТУ'][name],
                 self.workers_showing['бух.']['зарплата'][name])
-        unofficial_workers = [
-            worker for worker in self.workers_showing['факт']['часы']
-            if worker not in self.workers_showing['бух.']['часы']
-            ]
+        unofficial_workers = self.unofficial_workers()
         for name in unofficial_workers:
             short_name = self.create_short_name(name)
             output += "{:<14}: {:^4} {:^5} {:^8}\n".format(
@@ -260,6 +175,96 @@ class MainReport:
                 self.workers_showing['факт']['КТУ'][name],
                 self.workers_showing['факт']['зарплата'][name])
         return output
+
+    def unofficial_workers(self):
+        """Return unofficial workers"""
+        unofficial_workers = [
+            worker for worker in self.workers_showing['факт']['часы']
+            if worker not in self.workers_showing['бух.']['часы']
+            ]
+        return unofficial_workers
+
+    def count_result(self):
+        """Count totall stone result"""
+        result = 0
+        for item in self.result['категории']:
+            result += self.result['категории'][item]
+        if result > 250:
+            self.bonuses['более 250 кубов'] = True
+
+    def count_all_workers_in_report(self):
+        """Apply action to all workers in report"""
+        self.count_result()
+        for direction in self.workers_showing:
+            for worker in self.workers_showing[direction]['КТУ']:
+                if ((worker.split(' ')[0] in Reports().salary_workers or
+                     worker.split(' ')[0] in Reports().drillers) and
+                        direction == 'факт'):
+                    self.count_sal_workers_and_drill(worker)
+                else:
+                    self.count_salary(direction, worker)
+                self.add_brigad_bonus(worker)
+
+    def count_salary(self, direction, worker):
+        """Count totall salary"""
+        self.workers_showing[direction]['зарплата'][worker] = round(
+            self.workers_showing[direction]['КТУ'][worker]
+            * self.totall * 1.5
+            / len(self.workers_showing[direction]['КТУ']), 2)
+
+    def count_sal_workers_and_drill(self, worker):
+        """Count sallary workers and drillers"""
+        oklad = 0
+        if worker.split(' ')[0] in Reports().salary_workers:
+            oklad = (self.workers_showing['факт']['часы'][worker]
+                     / 11 * 50000 / 15)
+        elif worker.split(' ')[0] in Reports().drillers:
+            oklad = (self.result['шпурометры'] * 36)
+        if self.bonuses['более 250 кубов']:
+            oklad += (5000 / 15 / 11
+                      * self.workers_showing['факт']['часы'][worker])
+        self.workers_showing['факт']['зарплата'][worker] = round(oklad, 2)
+
+    def add_brigad_bonus(self, worker):
+        """Add bonus if brigad win monthly challenge"""
+        if self.bonuses['победа по критериям']:
+            self.workers_showing['факт']['зарплата'][worker] += 3000
+
+    def create_ktu_list(self):
+        """Create ktu list"""
+        for direction in self.workers_showing:
+            totall_hours = self.count_totall(
+                self.workers_showing[direction]['часы'])
+            for worker in self.workers_showing[direction]['часы']:
+                ktu = (
+                    self.workers_showing[direction]['часы'][worker]
+                    / totall_hours
+                    * len(self.workers_showing[direction]['часы'])
+                    )
+                self.workers_showing[direction]['КТУ'][worker] = round(ktu, 2)
+            self.coutn_delta_ktu(direction)
+
+    def coutn_delta_ktu(self, direction):
+        """Add delta ktu to worker"""
+        totall_ktu = self.count_totall(self.workers_showing[direction]['КТУ'])
+        delta_ktu = len(self.workers_showing[direction]['КТУ']) - totall_ktu
+        delta_ktu = round(delta_ktu, 2)
+        if delta_ktu != 0:
+            print(f"\nВ процессе округления образовался остаток: {delta_ktu}")
+            self.add_delta_ktu_to_worker(delta_ktu, direction)
+
+    def add_delta_ktu_to_worker(self, delta, direction):
+        """Add delta ktu to worker"""
+        print('\n' + 'КТУ: ' + direction)
+        workers_list = self.workers_showing[direction]['КТУ'].items()
+        print("\nВыберете работника, которому хотите добавить остаток:")
+        worker = self.choise_from_list(workers_list)
+        worker_ktu = self.workers_showing[direction]['КТУ'][worker[0]]
+        result = round(delta + worker_ktu, 2)
+        self.workers_showing[direction]['КТУ'][worker[0]] = result
+        print("Остаток добавлен.\n")
+        print(direction)
+        pprint(self.workers_showing[direction]['КТУ'])
 
 
 class Reports:
@@ -285,6 +290,86 @@ class Reports:
                    int(date_numbers[1]) < 13 and
                    int(date_numbers[1]) > 0)
         return correct
+
+    @classmethod
+    def input_result(cls, report):
+        """Input working result"""
+        for item in report.result:
+            if isinstance(report.result[item], dict):
+                for sub_item in report.result[item]:
+                    print(sub_item, end=': ')
+                    report.result[item][sub_item] = float(input())
+            else:
+                print(item, end=': ')
+                report.result[item] = float(input())
+        return report
+
+    @classmethod
+    def confirm_deletion(cls, item):
+        """Action conformation"""
+        confirm = input(
+            "Вы уверены что хотите удалить '{}'? Д/н: ".format(item))
+        if confirm.lower() == 'д':
+            confirm = True
+            print("\033[91m'{}' - удален. \033[0m".format(item))
+        else:
+            confirm = False
+            print("\nВы отменили удаление.\n")
+        return confirm
+
+    @classmethod
+    def create_workers_hours_list(cls, workers_list):
+        """Create workers hous list."""
+        print("\nВведите количество часов:")
+        workers_hours = {}
+        for worker in workers_list:
+            print(worker, end="")
+            hours = input('; часов: ')
+            workers_hours[worker] = int(hours)
+        return workers_hours
+
+    @classmethod
+    def choise_from_list(cls, variants_list, none_option=False):
+        """Chose variant from list."""
+        sort_list = sorted(variants_list)
+        for index, item in enumerate(sort_list, 1):
+            print("\t[{}] - {}".format(index, item))
+        while True:
+            choise = input()
+            if choise == '' and none_option:
+                chosen_item = None
+                break
+            elif cls.check_number_in_range(choise, len(sort_list)):
+                chosen_item = sort_list[int(choise)-1]
+                break
+        return chosen_item
+
+    @classmethod
+    def check_number_in_range(cls, user_input, list_range):
+        """Check is input a number in current range."""
+        check_number = None
+        if user_input.isdigit():
+            check_number = int(user_input) in range(list_range+1)
+            if not check_number:
+                print("\nВы должны выбрать цифру из списка.\n")
+        else:
+            print("\nВы должны ввести цифру.\n")
+        return check_number
+
+    @classmethod
+    def save_log_to_temp_file(cls, log):
+        "Get detailed log for user actions."
+        file_path = AbsolytePath('log.tmp').get_absolyte_path()
+        with open(file_path, 'a') as temp_file:
+            temp_file.write(log)
+
+    @classmethod
+    def clear_screen(cls):
+        """Clear shell screen"""
+        if sys.platform[:3] == 'win':
+            os.system('cls')
+        else:
+            os.system('clear')
 
     def check_if_report_exist(self, shift, date):
         """Check if report exist in base"""
@@ -314,7 +399,7 @@ class Reports:
             print(worker)
 
         # Add additional workers from another shift.
-        added_workers = self.add_worker_from_diff_shift(shift)
+        added_workers = self._add_worker_from_diff_shift(shift)
         workers_list.extend(added_workers)
         self.clear_screen()
 
@@ -336,19 +421,6 @@ class Reports:
                 report_file.pop(report_name, None)
                 self.save_log_to_temp_file(
                     "\033[91m - report deleted. \033[0m")
-
-    @classmethod
-    def input_result(cls, report):
-        """Input working result"""
-        for item in report.result:
-            if isinstance(report.result[item], dict):
-                for sub_item in report.result[item]:
-                    print(sub_item, end=': ')
-                    report.result[item][sub_item] = float(input())
-            else:
-                print(item, end=': ')
-                report.result[item] = float(input())
-        return report
 
     def edit_report(self):
         """
@@ -487,7 +559,8 @@ class Reports:
                 temp_report.status['status'] = '\033[92m[завершен]\033[0m'
                 AllWorkers().add_salary_to_workers(
                     temp_report.workers_showing['факт']['зарплата'],
-                    temp_report.status['date']
+                    temp_report.status['date'],
+                    temp_report.unofficial_workers()
                 )
                 self.save_log_to_temp_file(
                     ' --> ' + temp_report.status['status'])
@@ -555,7 +628,7 @@ class Reports:
                                  if status in report]
         return avaliable_reports
 
-    def add_worker_from_diff_shift(self, shift):
+    def _add_worker_from_diff_shift(self, shift):
         """Add worker from different shift to current."""
         added_workers = []
         self.shifts.remove(shift)
@@ -574,70 +647,3 @@ class Reports:
                 return added_workers
             else:
                 print("Введите 'д' или 'н'.")
-
-    @classmethod
-    def confirm_deletion(cls, item):
-        """Action conformation"""
-        confirm = input(
-            "Вы уверены что хотите удалить '{}'? Д/н: ".format(item))
-        if confirm.lower() == 'д':
-            confirm = True
-            print("\033[91m'{}' - удален. \033[0m".format(item))
-        else:
-            confirm = False
-            print("\nВы отменили удаление.\n")
-        return confirm
-
-    @classmethod
-    def create_workers_hours_list(cls, workers_list):
-        """Create workers hous list."""
-        print("\nВведите количество часов:")
-        workers_hours = {}
-        for worker in workers_list:
-            print(worker, end="")
-            hours = input('; часов: ')
-            workers_hours[worker] = int(hours)
-        return workers_hours
-
-    @classmethod
-    def choise_from_list(cls, variants_list, none_option=False):
-        """Chose variant from list."""
-        sort_list = sorted(variants_list)
-        for index, item in enumerate(sort_list, 1):
-            print("\t[{}] - {}".format(index, item))
-        while True:
-            choise = input()
-            if choise == '' and none_option:
-                chosen_item = None
-                break
-            elif cls.check_number_in_range(choise, len(sort_list)):
-                chosen_item = sort_list[int(choise)-1]
-                break
-        return chosen_item
-
-    @classmethod
-    def check_number_in_range(cls, user_input, list_range):
-        """Check is input a number in current range."""
-        check_number = None
-        if user_input.isdigit():
-            check_number = int(user_input) in range(list_range+1)
-            if not check_number:
-                print("\nВы должны выбрать цифру из списка.\n")
-        else:
-            print("\nВы должны ввести цифру.\n")
-        return check_number
-
-    @classmethod
-    def save_log_to_temp_file(cls, log):
-        "Get detailed log for user actions."
-        file_path = AbsolytePath('log.tmp').get_absolyte_path()
-        with open(file_path, 'a') as temp_file:
-            temp_file.write(log)
-
-    @classmethod
-    def clear_screen(cls):
-        """Clear shell screen"""
-        if sys.platform[:3] == 'win':
-            os.system('cls')
-        else:
-            os.system('clear')
