@@ -38,7 +38,7 @@ class Logs:
             'upd company structure': 'upd company structure',
             'Новый работник': 'new worker',
             'Редактировать работника': 'edit worker',
-            "\033[5m\033[1mBackup done.\033[0m": '\033[1mBackup done.\033[0m',
+            "Backup done.": '\033[1mbackup done.\033[0m',
             'Вернуть работника из архива': 'restore worker from archive',
             'Редактировать табель': 'edit report',
             'Создать табель добычной бригады': 'create new report',
@@ -68,8 +68,8 @@ class Logs:
             current_time = str(datetime.now().replace(microsecond=0))
             logs_base = self._load_data()
             logs_base[current_time] = self.log_constructor
-            self.log_constructor = self.log_constructor[:]
             self._dump_data(logs_base)
+            self.log_constructor = self.log_constructor[:]
 
     def upload_temp_file_log(self):
         """Read detailed user log from temp file"""

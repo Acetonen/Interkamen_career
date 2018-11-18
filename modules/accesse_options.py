@@ -68,7 +68,7 @@ class Accesse:
 
         self.menu_options = {
             'basic': {
-                'Показать телефоны работников':
+                'Телефоны работников':
                 lambda arg: AllWorkers().print_telefon_numbers(),
                 'Поменять пароль': lambda arg: Users().change_password(arg),
                 '\033[93mВыйти из программы\033[0m': 'exit program'
@@ -80,7 +80,7 @@ class Accesse:
             'admin': {'\033[91m--> [users_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [log_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [databases] \033[0m': 'sub-menu',
-                      '\033[9m\033[91m                  \033[0m': 'separator'}
+                      '\033[91m-------------------\033[0m': 'separator'}
             }
         self.menu_list = self.create_list(accesse, self.menu_options)
 

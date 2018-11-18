@@ -14,7 +14,7 @@ def make_backup():
     data_path = AbsolytePath('').get_absolyte_path()
     shutil.make_archive(backup_path, 'zip', data_path)
     log_file_name = 'backup/backup_log.txt'
-    with open(log_file_name, 'a') as backup_log:
+    with open(log_file_name, 'a', encoding='utf-8') as backup_log:
         backup_log.write(current_date)
     backup_log.close()
 
@@ -22,7 +22,7 @@ def make_backup():
 def check_last_backup_date():
     """Check last backup date"""
     log_file_name = 'backup/backup_log.txt'
-    backup_log = None
+    backup_log = True
     if os.path.exists(log_file_name):
         with open(log_file_name, 'r') as backup_log:
             last_backup_date = backup_log.readlines()[-1]
@@ -31,7 +31,9 @@ def check_last_backup_date():
         if delta.days > 30:
             print("\033[5m\033[1mBackup done.\033[0m")
             make_backup()
+            backup_log = True
     else:
         print("\033[5m\033[1mBackup done.\033[0m")
         make_backup()
+        backup_log = True
     return backup_log

@@ -36,12 +36,13 @@ def login_program():
 
 def print_menu():
     """Print program menu."""
-    print(make_header(), '\n', SEPARATOR)
+    print(make_header() + '\n' + SEPARATOR + '\n')
     if MENU_NESTING:
         print(''.join(MENU_NESTING), '\n')
     print(' '.join(MENU_HEADER))
     for index, item in enumerate(PROGRAM_MENU, 1):
         print("[{}] - {}".format(index, item))
+    print()
 
 
 def get_main_or_sub_menu(sub_menu):
@@ -62,7 +63,7 @@ def make_header():
     reports_need_to_edit = Reports().give_avaliable_to_edit(
         '[не завершен]', '[в процессе]')
     if reports_need_to_edit:
-        header = "Присутствуют недооформленные документы:\n" + '\n'.join(
+        header = "Недооформленные документы:\n" + '\n'.join(
             reports_need_to_edit
         )
     return header
@@ -88,23 +89,23 @@ def clear_screen():
         os.system('clear')
 
 
-def make_backup():
+def check_backup():
     """Check if user 'admin', and make backup if positive."""
     if USR_ACS == 'admin':
         backup = check_last_backup_date()
         if backup:
-            Logs().create_log(CURRENT_USER['login'], backup)
+            Logs().create_log(CURRENT_USER['login'], "Backup done.")
 
 
 if __name__ == '__main__':
     MENU_HEADER = ['\033[1m \t', None, '\n \033[0m']
-    SEPARATOR = "\033[9m\033[36m                             \033[0m\n"
+    SEPARATOR = "\033[36m------------------------------\033[0m"
     PROGRAM_MENU = {}
     MENU_LIST = []
     MENU_NESTING = []
     CURRENT_USER = login_program()
     USR_ACS = CURRENT_USER['accesse']
-    make_backup()
+    check_backup()
     while True:
 
         # Create main menu (otput and actions dict).
