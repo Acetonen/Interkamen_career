@@ -24,7 +24,7 @@ class AllWorkers: 'add_new_worker',
                   'add_salary_to_workers'
 """
 
-import shelve
+import pickle
 import sys
 import os
 from pprint import pprint
@@ -110,29 +110,86 @@ class AllWorkers:
         if not os.path.exists(self.company_structure):
             self.upd_company_structure()
 
+    @classmethod
+    def load_data(cls, base_file):
+        """Load file from pickle"""
+        with open(base_file, 'rb') as workers_file:
+            workers_base = pickle.load(workers_file)
+        return workers_base
+
+    @classmethod
+    def dump_data(cls, base_file, workers_base):
+        """Dumb data to pickle."""
+        with open(base_file, 'wb') as workers_file:
+            pickle.dump(workers_base, workers_file)
+
+    @classmethod
+    def check_number_in_range(cls, user_input, list_range):
+        """Check is input a number in current range."""
+        check_number = None
+        if user_input.isdigit():
+            check_number = int(user_input) in range(list_range+1)
+            if not check_number:
+                print("\nВы должны выбрать цифру из списка.\n")
+        else:
+            print("\nВы должны ввести цифру.\n")
+        return check_number
+
+    @classmethod
+    def choise_from_list(cls, variants_list, none_option=False):
+        """Chose variant from list."""
+        sort_list = sorted(variants_list)
+        for index, item in enumerate(sort_list, 1):
+            print("\t[{}] - {}".format(index, item))
+        while True:
+            choise = input()
+            if choise == '' and none_option:
+                chosen_item = None
+                break
+            elif cls.check_number_in_range(choise, len(sort_list)):
+                chosen_item = sort_list[int(choise)-1]
+                break
+        return chosen_item
+
+    @classmethod
+    def save_log_to_temp_file(cls, log):
+        "Get detailed log for user actions."
+        file_path = AbsolytePath('log.tmp').get_absolyte_path()
+        with open(file_path, 'a') as temp_file:
+            temp_file.write(log)
+
+    @classmethod
+    def clear_screen(cls):
+        """Clear shell screen"""
+        if sys.platform[:3] == 'win':
+            os.system('cls')
+        else:
+            os.system('clear')
+
     def upd_company_structure(self):
         """Add new division in base"""
-        company_structure = shelve.open(self.company_structure)
+        company_structure = self.load_data(self.company_structure)
         for division in self.interkamen:
             if division not in company_structure:
                 company_structure[division] = self.interkamen[division]
                 print(f"{division} added.")
-        company_structure.close()
+        self.dump_data(self.company_structure, company_structure)
 
     def print_company_structure(self):
         """Print company structure"""
-        with shelve.open(self.company_structure) as company_structure:
-            for division in company_structure:
-                print(division + ':')
-                pprint(company_structure[division])
+        company_structure = self.load_data(self.company_structure)
+        for division in company_structure:
+            print(division + ':')
+            pprint(company_structure[division])
 
     def add_new_worker(self):
         """Create new worker."""
         name = input("Введите ФИО: ")
         working_place = self.add_working_place(None)
         new_worker = Worker(name, working_place)
-        with shelve.open(self.workers_base) as workers_base:
-            workers_base[name] = new_worker
+        workers_base = self.load_data(self.workers_base)
+        workers_base[name] = new_worker
+        self.dump_data(self.workers_base, workers_base)
         self.add_worker_to_structure(name, working_place)
         log = f"\033[92m Добавлен сотрудник '{name}'. \033[0m"
         print(log)
@@ -159,10 +216,9 @@ class AllWorkers:
         division = working_place['division']
         subdivision = working_place['subdivision']
         shift = working_place['shift']
-        with shelve.open(self.company_structure) as company_structure:
-            temp_division = company_structure[division]
-            temp_division[subdivision][shift].append(name)
-            company_structure[division] = temp_division
+        company_structure = self.load_data(self.company_structure)
+        company_structure[division][subdivision][shift].append(name)
+        self.dump_data(self.company_structure, company_structure)
 
     def delete_worker_from_structure(self, worker):
         """Delete worker name from company structure."""
@@ -170,13 +226,14 @@ class AllWorkers:
         division = worker.working_place['division']
         subdivision = worker.working_place['subdivision']
         shift = worker.working_place['shift']
-        with shelve.open(self.company_structure) as company_structure:
-            temp_division = company_structure[division]
-            temp_division[subdivision][shift].remove(worker.name)
-            company_structure[division] = temp_division
+        company_structure = self.load_data(self.company_structure)
+        company_structure[division][subdivision][shift].remove(worker.name)
+        self.dump_data(self.company_structure, company_structure)
 
     def edit_worker(self):
-        """Edit worker information."""
+        """
+        Edit worker information.
+        """
 
         def change_worker_name(temp_worker):
             """Change worker name."""
@@ -228,8 +285,9 @@ class AllWorkers:
         def lay_off_worker(temp_worker):
             """Lay off worker and put him in archive"""
             temp_worker.employing_lay_off_dates['lay_off'] = str(date.today())
-            with shelve.open(self.workers_archive) as workers_archive:
-                workers_archive[temp_worker.name] = temp_worker
+            workers_archive = self.load_data(self.workers_archive)
+            workers_archive[temp_worker.name] = temp_worker
+            self.dump_data(self.workers_archive, workers_archive)
             print(f"\033[91m{temp_worker.name} - уволен. \033[0m")
             self.save_log_to_temp_file("\033[91m - layed off\033[0m")
             temp_worker = delete_worker(temp_worker)
@@ -255,7 +313,7 @@ class AllWorkers:
                 average_sallary = round(salary_count/len(temp_worker.salary))
                 print("\033[93mСредняя з/п:\033[0m ", average_sallary, 'p.')
 
-        workers_base = shelve.open(self.workers_base)
+        workers_base = self.load_data(self.workers_base)
         print("Выберете работника для редактирования:")
         division_workers = self.give_workers_from_division()
         worker = self.choise_from_list(division_workers, none_option=True)
@@ -286,90 +344,56 @@ class AllWorkers:
                 break
             worker = temp_worker.name
             workers_base[worker] = temp_worker
+            self.dump_data(self.workers_base, workers_base)
             self.clear_screen()
-        workers_base.close()
 
     def print_archive_workers(self):
         """Print layed off workers"""
-        with shelve.open(self.workers_archive) as workers_archive:
-            for worker in workers_archive:
-                print(
-                    worker,
-                    workers_archive[worker].employing_lay_off_dates['lay_off']
-                    )
+        workers_archive = self.load_data(self.workers_archive)
+        for worker in workers_archive:
+            print(
+                worker,
+                workers_archive[worker].employing_lay_off_dates['lay_off']
+                )
 
     def add_salary_to_workers(self, salary_dict,
                               salary_date, unofficial_workers):
-        """Add monthlysalary to workers"""
-        workers_base = shelve.open(self.workers_base)
+        """Add monthly salary to workers"""
+        workers_base = self.load_data(self.workers_base)
         for worker in salary_dict:
             if worker not in unofficial_workers:
                 temp_worker = workers_base[worker]
                 temp_worker.salary[salary_date] = salary_dict[worker]
                 workers_base[worker] = temp_worker
-        workers_base.close()
+        self.dump_data(self.workers_base, workers_base)
 
     def return_from_archive(self):
         """Return worker from archive"""
         print("Выберете работника для возвращения:")
-        workers_archive = shelve.open(self.workers_archive)
+        workers_archive = self.load_data(self.workers_archive)
         choose = self.choise_from_list(workers_archive, none_option=True)
         if choose:
             worker = workers_archive[choose]
             workers_archive.pop(choose, None)
-            with shelve.open(self.workers_base) as workers_base:
-                workers_base[worker.name] = worker
-                self.add_worker_to_structure(worker.name, worker.working_place)
-                print(f"\033[92mCотрудник '{worker.name}' возвращен\033[0m")
-                self.save_log_to_temp_file(
-                    f"\033[92m'{worker.name}' returned.\033[0m")
-        workers_archive.close()
-
-    @classmethod
-    def choise_from_list(cls, variants_list, none_option=False):
-        """Chose variant from list."""
-        sort_list = sorted(variants_list)
-        for index, item in enumerate(sort_list, 1):
-            print("\t[{}] - {}".format(index, item))
-        while True:
-            choise = input()
-            if choise == '' and none_option:
-                chosen_item = None
-                break
-            elif cls.check_number_in_range(choise, len(sort_list)):
-                chosen_item = sort_list[int(choise)-1]
-                break
-        return chosen_item
-
-    @classmethod
-    def check_number_in_range(cls, user_input, list_range):
-        """Check is input a number in current range."""
-        check_number = None
-        if user_input.isdigit():
-            check_number = int(user_input) in range(list_range+1)
-            if not check_number:
-                print("\nВы должны выбрать цифру из списка.\n")
-        else:
-            print("\nВы должны ввести цифру.\n")
-        return check_number
-
-    @classmethod
-    def save_log_to_temp_file(cls, log):
-        "Get detailed log for user actions."
-        file_path = AbsolytePath('log.tmp').get_absolyte_path()
-        with open(file_path, 'a') as temp_file:
-            temp_file.write(log)
+            self.dump_data(self.workers_archive, workers_archive)
+            workers_base = self.load_data(self.workers_base)
+            workers_base[worker.name] = worker
+            self.dump_data(self.workers_base, workers_base)
+            self.add_worker_to_structure(worker.name, worker.working_place)
+            print(f"\033[92mCотрудник '{worker.name}' возвращен\033[0m")
+            self.save_log_to_temp_file(
+                f"\033[92m'{worker.name}' returned.\033[0m")
 
     def give_workers_from_shift(self, shift, division='Карьер',
                                 subdivision='Добычная бригада'):
         """Give worker list from shift"""
-        with shelve.open(self.company_structure) as company_structure:
-            worker_list = company_structure[division][subdivision][shift]
+        company_structure = self.load_data(self.company_structure)
+        worker_list = company_structure[division][subdivision][shift]
         return worker_list
 
     def give_workers_from_division(self):
         """Print all users from base"""
-        company_structure = shelve.open(self.company_structure)
+        company_structure = self.load_data(self.company_structure)
         print("Выберете подразделение:")
         division = self.choise_from_list(company_structure)
         worker_list = [
@@ -377,20 +401,19 @@ class AllWorkers:
             for shift in company_structure[division][subdivision]
             for worker in company_structure[division][subdivision][shift]
             ]
-        company_structure.close()
         return worker_list
 
     def print_workers_from_division(self):
         """Output workers from division"""
         workers_list = self.give_workers_from_division()
-        with shelve.open(self.workers_base) as workers_base:
-            for worker in sorted(workers_list):
-                print(workers_base[worker])
+        workers_base = self.load_data(self.workers_base)
+        for worker in sorted(workers_list):
+            print(workers_base[worker])
 
     def print_telefon_numbers(self):
         """Print telefone numbers of workers from division."""
         workers_list = self.give_workers_from_division()
-        workers_base = shelve.open(self.workers_base)
+        workers_base = self.load_data(self.workers_base)
         for worker in sorted(workers_list):
             name = workers_base[worker].name
             profession = workers_base[worker].working_place['profession']
@@ -398,11 +421,3 @@ class AllWorkers:
             print("{:<32}- {:<24}тел.: {}".format(
                 name, profession, telefone))
         workers_base.close()
-
-    @classmethod
-    def clear_screen(cls):
-        """Clear shell screen"""
-        if sys.platform[:3] == 'win':
-            os.system('cls')
-        else:
-            os.system('clear')

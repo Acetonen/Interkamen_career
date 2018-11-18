@@ -12,7 +12,7 @@ Classes: Logs: 'upload_temp_file_log',
                'show_all_logs',
 """
 
-import shelve
+import pickle
 import os
 from datetime import datetime
 from modules.absolyte_path_module import AbsolytePath
@@ -48,6 +48,17 @@ class Logs:
         self.search_list = list(self.log_list.keys())
         self.search_list.extend(Users().get_all_users_list())
 
+    def _load_data(self):
+        """Load file from pickle"""
+        with open(self.data_file, 'rb') as logs_file:
+            logs_base = pickle.load(logs_file)
+        return logs_base
+
+    def _dump_data(self, logs_base):
+        """Dumb data to pickle."""
+        with open(self.data_file, 'wb') as logs_file:
+            pickle.dump(logs_base, logs_file)
+
     def create_log(self, user_login, user_action):
         """Create detailed log for action"""
         if user_action in self.log_list:
@@ -55,9 +66,10 @@ class Logs:
             self.log_constructor.append(self.log_list[user_action])
             self.upload_temp_file_log()
             current_time = str(datetime.now().replace(microsecond=0))
-            with shelve.open(self.data_file) as logs_base:
-                logs_base[current_time] = self.log_constructor
+            logs_base = self._load_data()
+            logs_base[current_time] = self.log_constructor
             self.log_constructor = self.log_constructor[:]
+            self._dump_data(logs_base)
 
     def upload_temp_file_log(self):
         """Read detailed user log from temp file"""
@@ -70,9 +82,9 @@ class Logs:
 
     def show_all_logs(self):
         """show_all_logs"""
-        with shelve.open(self.data_file) as logs_base:
-            for log in sorted(logs_base):
-                print(log, ' '.join(logs_base[log]))
+        logs_base = self._load_data()
+        for log in sorted(logs_base):
+            print(log, ' '.join(logs_base[log]))
 
     def search_in_logs(self):
         """Search in logs."""
@@ -93,11 +105,10 @@ class Logs:
         """Search particular information from logs."""
         print(search_item)
         search_list = {}
-        users_base = shelve.open(self.data_file)
-        for log in users_base:
-            if search_item in users_base[log]:
-                search_list[log] = users_base[log]
-        users_base.close()
+        logs_base = self._load_data()
+        for log in logs_base:
+            if search_item in logs_base[log]:
+                search_list[log] = logs_base[log]
         for log in sorted(search_list):
             print(log, ' '.join(search_list[log]))
         if not search_list:
@@ -118,8 +129,8 @@ class Logs:
     def delete_all_logs(self):
         """delete logs for all users"""
         if self.confirm_deletion('all logs'):
-            logs_base = shelve.open(self.data_file, flag='n')
-            logs_base.close()
+            logs_base = {}
+            self._dump_data(logs_base)
 
     @classmethod
     def confirm_deletion(cls, logs):

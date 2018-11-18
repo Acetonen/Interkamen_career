@@ -15,7 +15,7 @@ classes: MainReport:'add_brigad_bonus',
                     'create_short_name'
          Reports: '_add_worker_from_diff_shift',
                   'check_date_format',
-                  'check_if_report_exist',
+                  '_check_if_report_exist',
                   'check_number_in_range',
                   'choise_from_list',
                   'clear_screen',
@@ -28,11 +28,11 @@ classes: MainReport:'add_brigad_bonus',
                   'give_avaliable_to_edit',
                   'make_status_in_process',
                   'save_log_to_temp_file',
-                  'uncomplete_main_report',
+                  '_uncomplete_main_report',
                   'work_with_main_report'
 """
 
-import shelve
+import pickle
 import sys
 import os
 from pprint import pprint
@@ -371,15 +371,69 @@ class Reports:
         else:
             os.system('clear')
 
-    def check_if_report_exist(self, shift, date):
+    def _load_data(self):
+        """Load file from pickle"""
+        with open(self.data_file, 'rb') as report_file:
+            report_base = pickle.load(report_file)
+        return report_base
+
+    def _dump_data(self, report_base):
+        """Dumb data to pickle."""
+        with open(self.data_file, 'wb') as report_file:
+            pickle.dump(report_base, report_file)
+
+    def _add_worker_from_diff_shift(self, shift):
+        """Add worker from different shift to current."""
+        added_workers = []
+        self.shifts.remove(shift)
+        different_shift = self.shifts[0]
+        other_shift_workers = (
+            AllWorkers().give_workers_from_shift(different_shift))
+        while True:
+            add_worker = input(
+                "\nДобавить работника из другой бригады? д/н: ")
+            if add_worker == 'д':
+                worker = self.choise_from_list(other_shift_workers)
+                print(worker, '- добавлен.')
+                added_workers.append(worker)
+                other_shift_workers.remove(worker)
+            elif add_worker == 'н':
+                return added_workers
+            else:
+                print("Введите 'д' или 'н'.")
+
+    def _check_if_report_exist(self, shift, date):
         """Check if report exist in base"""
         check = True
-        with shelve.open(self.data_file) as report_file:
-            for report in report_file:
-                if shift in report and date in report:
-                    check = False
-                    print("Такой отчет уже существует.")
+        report_file = self._load_data()
+        for report in report_file:
+            if shift in report and date in report:
+                check = False
+                print("Такой отчет уже существует.")
         return check
+
+    def _uncomplete_main_report(self, report_name):
+        """Uncomlete main report"""
+        choise = input("Are you shure, you want to uncomplete report? Y/n: ")
+        if choise.lower() == 'y':
+            report_file = self._load_data()
+            temp_report = report_file[report_name]
+            temp_report.status['status'] = '\033[93m[в процессе]\033[0m'
+            new_name = "{date} {shift} {status}".format(
+                **temp_report.status)
+            report_file[new_name] = temp_report
+            report_file.pop(report_name, None)
+            self._dump_data(report_file)
+            self.save_log_to_temp_file(' --> ' + temp_report.status['status'])
+
+    def give_avaliable_to_edit(self, *statuses):
+        """Give reports that avaliable to edit"""
+        avaliable_reports = []
+        report_file = self._load_data()
+        avaliable_reports = [report for status in statuses
+                             for report in report_file
+                             if status in report]
+        return avaliable_reports
 
     def create_report(self):
         """Create New main report."""
@@ -390,7 +444,7 @@ class Reports:
                 continue
             print("Выберете бригаду:")
             shift = self.choise_from_list(self.shifts)
-            if self.check_if_report_exist(shift, date):
+            if self._check_if_report_exist(shift, date):
                 break
 
         workers_list = AllWorkers().give_workers_from_shift(shift)
@@ -409,18 +463,20 @@ class Reports:
         print("\nВведите результаты добычи бригады.")
         report = self.input_result(report)
         print("\nТабель бригады заполнен.\n")
-        with shelve.open(self.data_file) as report_file:
-            report_name = "{date} {shift} {status}".format(**report.status)
-            report_file[report_name] = report
+        report_file = self._load_data()
+        report_name = "{date} {shift} {status}".format(**report.status)
+        report_file[report_name] = report
+        self._dump_data(report_file)
         self.save_log_to_temp_file(report_name)
 
     def delete_report(self, report_name):
         """Delete report."""
-        with shelve.open(self.data_file) as report_file:
-            if self.confirm_deletion(report_name):
-                report_file.pop(report_name, None)
-                self.save_log_to_temp_file(
-                    "\033[91m - report deleted. \033[0m")
+        report_file = self._load_data()
+        if self.confirm_deletion(report_name):
+            report_file.pop(report_name, None)
+            self._dump_data(report_file)
+            self.save_log_to_temp_file(
+                "\033[91m - report deleted. \033[0m")
 
     def edit_report(self):
         """
@@ -447,7 +503,7 @@ class Reports:
             avaliable_reports, none_option=True)
         if report_name:
             self.save_log_to_temp_file(report_name)
-        report_file = shelve.open(self.data_file)
+        report_file = self._load_data()
         self.clear_screen()
         while report_name:
             temp_report = report_file[report_name]
@@ -468,12 +524,12 @@ class Reports:
                 break
             temp_report = edit_menu_dict[action_name](temp_report)
             report_file[report_name] = temp_report
+            self._dump_data(report_file)
             self.clear_screen()
-        report_file.close()
 
     def work_with_main_report(self, current_user):
         """Finish MainReport"""
-        report_file = shelve.open(self.data_file)
+        report_file = self._load_data()
         print("Выберет отчет:")
         report_name = self.choise_from_list(report_file, none_option=True)
         if report_name:
@@ -486,25 +542,9 @@ class Reports:
                     choise = input("""\
 \033[91m[un]\033[0m Возвратить статус '\033[93m[в процессе]\033[0m'\n""")
                     if choise == 'un':
-                        self.uncomplete_main_report(report_name)
+                        self._uncomplete_main_report(report_name)
             elif '[в процессе]' in report_name:
                 self.edit_main_report(report_name)
-        report_file.close()
-
-    def uncomplete_main_report(self, report_name):
-        """Uncomlete main report"""
-        choise = input("Are you shure, you want to uncomplete report? Y/n: ")
-        if choise.lower() == 'y':
-            report_file = shelve.open(self.data_file)
-            temp_report = report_file[report_name]
-            temp_report.status['status'] = '\033[93m[в процессе]\033[0m'
-            new_name = "{date} {shift} {status}".format(
-                **temp_report.status)
-            report_file[new_name] = temp_report
-            report_file.pop(report_name, None)
-            self.save_log_to_temp_file(
-                ' --> ' + temp_report.status['status'])
-            report_file.close()
 
     def edit_main_report(self, report_name):
         """
@@ -566,7 +606,7 @@ class Reports:
                     ' --> ' + temp_report.status['status'])
             return temp_report
 
-        report_file = shelve.open(self.data_file)
+        report_file = self._load_data()
         while True:
             temp_report = report_file[report_name]
             print(temp_report)
@@ -594,12 +634,12 @@ class Reports:
             report_name = "{date} {shift} {status}".format(
                 **temp_report.status)
             report_file[report_name] = temp_report
+            self._dump_data(report_file)
             self.clear_screen()
-        report_file.close()
 
     def make_status_in_process(self, report_name):
         """Change status from 'not complete' to 'in process'"""
-        report_file = shelve.open(self.data_file)
+        report_file = self._load_data()
         print(report_file[report_name])
         tmp_report = report_file[report_name]
         print("Введите ОФИЦИАЛЬНЫЕ часы работы:")
@@ -614,36 +654,7 @@ class Reports:
         report_file.pop(report_name, None)
         new_name = "{date} {shift} {status}".format(**tmp_report.status)
         report_file[new_name] = tmp_report
-        print(report_file[new_name])
+        self._dump_data(report_file)
         self.save_log_to_temp_file(
             ' --> ' + tmp_report.status['status'])
-        report_file.close()
-
-    def give_avaliable_to_edit(self, *statuses):
-        """Give reports that avaliable to edit"""
-        avaliable_reports = []
-        with shelve.open(self.data_file) as report_file:
-            avaliable_reports = [report for status in statuses
-                                 for report in report_file
-                                 if status in report]
-        return avaliable_reports
-
-    def _add_worker_from_diff_shift(self, shift):
-        """Add worker from different shift to current."""
-        added_workers = []
-        self.shifts.remove(shift)
-        different_shift = self.shifts[0]
-        other_shift_workers = (
-            AllWorkers().give_workers_from_shift(different_shift))
-        while True:
-            add_worker = input(
-                "\nДобавить работника из другой бригады? д/н: ")
-            if add_worker == 'д':
-                worker = self.choise_from_list(other_shift_workers)
-                print(worker, '- добавлен.')
-                added_workers.append(worker)
-                other_shift_workers.remove(worker)
-            elif add_worker == 'н':
-                return added_workers
-            else:
-                print("Введите 'д' или 'н'.")
+        self.edit_main_report(new_name)

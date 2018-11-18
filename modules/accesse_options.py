@@ -49,12 +49,16 @@ class Accesse:
                 'print company structure':
                 lambda *arg: AllWorkers().print_company_structure()
                 },
-            '--> [Табеля_бригады]': {
+            '--> [Статистика]': {
                 'Создать табель добычной бригады':
                 lambda arg: Reports().create_report(),
                 'Редактировать табель':
                 lambda arg: Reports().edit_report()
-                }
+                },
+            '--> [Финансы]': {
+                'Наряд бригады':
+                lambda arg: Reports().work_with_main_report(arg)
+            }
             }
 
         self.sub_standart_options = {
@@ -70,12 +74,9 @@ class Accesse:
                 '\033[93mВыйти из программы\033[0m': 'exit program'
                 },
             'mechanic': {},
-            'master': {
-                '--> [Табеля_бригады]': 'sub-menu'
-                },
+            'master': {'--> [Статистика]': 'sub-menu'},
             'boss': {'--> [Работники] ': 'sub-menu',
-                     '[Наряд бригады]':
-                     lambda arg: Reports().work_with_main_report(arg)},
+                     '--> [Финансы]': 'sub-menu'},
             'admin': {'\033[91m--> [users_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [log_menu] \033[0m': 'sub-menu',
                       '\033[91m--> [databases] \033[0m': 'sub-menu',
