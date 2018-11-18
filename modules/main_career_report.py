@@ -360,7 +360,7 @@ class Reports:
     def save_log_to_temp_file(cls, log):
         "Get detailed log for user actions."
         file_path = AbsolytePath('log.tmp').get_absolyte_path()
-        with open(file_path, 'a') as temp_file:
+        with open(file_path, 'a', encoding='utf-8') as temp_file:
             temp_file.write(log)
 
     @classmethod
