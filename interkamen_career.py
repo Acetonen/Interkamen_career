@@ -1,4 +1,4 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 """
 This program provides control of all data and statistic of Career Interkamen.
 

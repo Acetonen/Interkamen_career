@@ -1,4 +1,4 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 """
 This class provides to work with all logs.
 Classes: Logs: 'upload_temp_file_log',

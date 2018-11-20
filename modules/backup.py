@@ -1,4 +1,4 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 """Create backup of data files once a month."""
 
 import shutil

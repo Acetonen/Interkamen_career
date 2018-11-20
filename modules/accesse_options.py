@@ -1,4 +1,4 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 """
 This module give to program choise tree and meny depend on user access.
 
@@ -13,6 +13,7 @@ from modules.log_class import Logs
 from modules.users import Users
 from modules.workers_module import AllWorkers
 from modules.main_career_report import Reports
+from modules.report_analysis import ReportAnalysis
 
 
 class Accesse:
@@ -53,7 +54,9 @@ class Accesse:
                 'Создать табель добычной бригады':
                 lambda arg: Reports().create_report(),
                 'Редактировать табель':
-                lambda arg: Reports().edit_report()
+                lambda arg: Reports().edit_report(),
+                'Погодовой анализ':
+                lambda arg: ReportAnalysis().result_analysis()
                 },
             '--> [Финансы]': {
                 'Наряд бригады':

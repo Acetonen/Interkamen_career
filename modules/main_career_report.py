@@ -1,4 +1,4 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 """
 Main career report
 classes: MainReport:'add_brigad_bonus',
@@ -40,7 +40,7 @@ from modules.workers_module import AllWorkers
 from modules.absolyte_path_module import AbsolytePath
 
 
-class MainReport:
+class MainReport(object):
     """
     Main career report.
     """
@@ -191,6 +191,14 @@ class MainReport:
             result += self.result['категории'][item]
         if result > 250:
             self.bonuses['более 250 кубов'] = True
+        return result
+
+    def count_rock_mass(self):
+        """Count totall rock_mass"""
+        result = 0
+        for item in self.rock_mass:
+            result += self.rock_mass[item]
+        return result
 
     def count_all_workers_in_report(self):
         """Apply action to all workers in report"""
@@ -267,7 +275,7 @@ class MainReport:
         pprint(self.workers_showing[direction]['КТУ'])
 
 
-class Reports:
+class Reports(object):
     """
     Class to manage with reports.
     """
