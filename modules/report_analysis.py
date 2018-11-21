@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Module that provide to analyse and visualise MainReport data"""
+"""
+Module that provide to analyse and visualise MainReport data.
+classes: ReportAnalysis: result_analysis
+"""
 
 import sys
 import os
@@ -66,66 +69,93 @@ class ReportAnalysis(Reports):
         """Pretty data print"""
         output = "\033[92m" + year + ' год\n' + "\033[0m"
         output += "{:^100}\n".format('месяц')
-        output += "\n           {}\n".format('     '.join(self.month_list))
+        output += "           {}\n".format('     '.join(self.month_list))
+        output += '-' * 94 + '\n'
         for item in sorted(data_dict):
             output += """\
-{:<7}: {:^6} {:^6} {:^6} {:^6} {:^6} {:^6} {:^6} {:^6} {:^6} {:^6} {:^6} {:^6}\
+{:<7}: |{:^6}|{:^6}|{:^6}|{:^6}|{:^6}|\
+{:^6}|{:^6}|{:^6}|{:^6}|{:^6}|{:^6}|{:^6}|\
 
 """.format(item, *data_dict[item])
         print(output)
-
-    def _plot_result(self, result_dict, title, year):
-        """visualise result."""
-        window_parametrs['figure.figsize'] = [12.0, 8.0]
-        window_parametrs['figure.dpi'] = 100
-        window_parametrs['savefig.dpi'] = 100
-        window_parametrs['font.size'] = 12
-        window_parametrs['legend.fontsize'] = 'large'
-        window_parametrs['figure.titlesize'] = 'large'
-
-        # Count coefficient for annotations coordinate depend on scale.
-        if title.split(' ')[0] == 'Добыча':
-            coef = 5
-        else:
-            coef = 0.1
-
-        for item in sorted(result_dict):
-            plt.plot(self.month_list, result_dict[item],
-                     marker='D', markersize=4)
-            for point in zip(self.month_list, result_dict[item]):
-                if point[1] != 0:
-                    ann_text = str(point[1])
-                    ann_coord = (point[0], point[1]+coef)
-                    plt.annotate(ann_text, xy=ann_coord, fontsize='small')
-        plt.legend(list(sorted(result_dict.keys())))
-        plt.xlabel('месяц')
-        plt.ylabel(title.split(' ')[-1])
-        plt.title(year + 'г., ' + title)
-        plt.grid(b=True, linestyle='--', linewidth=0.5)
-        plt.show()
 
     def result_analysis(self):
         """Analysis by result"""
         print("Выберете год:")
         year = super().choise_from_list(self._chose_year())
         self._give_reports_by_year(year)
+        self.clear_screen()
         while True:
-            data_type = {'Добыча помесячно, м\u00B3': self._give_res_by_horiz,
-                         'Добыча повахтово, м\u00B3': self._give_res_by_shift,
-                         'Выход помесячно, %': self._give_persent_by_horiz,
-                         'Выход повахтово, %': self._give_persent_by_shift}
+            data_type = {
+                'Погоризонтная статистика': self._make_horizont_statistic,
+                'Повахтовая статистика': self._make_shift_statistic
+                }
             print("\nВыберете необходимый очет:")
             choise = super().choise_from_list(data_type, none_option=True)
             self.clear_screen()
             if choise in data_type:
-                reports_data = data_type[choise]()
-                self._data_print(year, reports_data)
-                self._plot_result(reports_data, choise, year)
+                results_and_titles = data_type[choise]()
+                self._data_print(year, results_and_titles[0])
+                self._data_print(year, results_and_titles[2])
+                self._two_plots_show(year, results_and_titles)
+
             elif not choise:
                 break
             else:
                 print("Нет такого варианта.")
                 continue
+
+    def _make_shift_statistic(self):
+        """Make result and persent statistic by shift."""
+        result1 = self._give_res_by_shift()
+        title1 = 'Повахтовая добыча м\u00B3'
+        result2 = self._give_persent_by_shift()
+        title2 = 'Повахтовый выход, %'
+        return (result1, title1, result2, title2)
+
+    def _make_horizont_statistic(self):
+        """Make result and persent statistic by horizont."""
+        result1 = self._give_res_by_horiz()
+        title1 = 'Погоризонтная добыча, м\u00B3'
+        result2 = self._give_persent_by_horiz()
+        title2 = 'Погоризонтный выход, %'
+        return (result1, title1, result2, title2)
+
+    def _two_plots_show(self, year, results_and_titles):
+        """Combine two subplots"""
+        window_parametrs['figure.figsize'] = [18.0, 8.0]
+        window_parametrs['figure.dpi'] = 100
+        window_parametrs['savefig.dpi'] = 100
+        window_parametrs['font.size'] = 12
+        window_parametrs['legend.fontsize'] = 'large'
+        window_parametrs['figure.titlesize'] = 'large'
+        plt.subplot(1, 2, 1)
+        self._subplot_result(year, results_and_titles[:2])
+        plt.subplot(1, 2, 2)
+        self._subplot_result(year, results_and_titles[2:4])
+        plt.show()
+
+    def _subplot_result(self, year, results_and_titles):
+        """visualise result."""
+        # Count coefficient for annotations coordinate depend on scale.
+        if results_and_titles[1].split(' ')[1] == 'добыча,':
+            coef = 5
+        else:
+            coef = 0.1
+
+        for item in sorted(results_and_titles[0]):
+            plt.plot(self.month_list, results_and_titles[0][item],
+                     marker='D', markersize=4)
+            for point in zip(self.month_list, results_and_titles[0][item]):
+                if point[1] != 0:
+                    ann_text = str(point[1])
+                    ann_coord = (point[0], point[1]+coef)
+                    plt.annotate(ann_text, xy=ann_coord, fontsize='small')
+        plt.legend(list(sorted(results_and_titles[0].keys())))
+        plt.xlabel('месяц')
+        plt.ylabel(results_and_titles[1].split(' ')[-1])
+        plt.title(year + 'г., ' + results_and_titles[1])
+        plt.grid(b=True, linestyle='--', linewidth=0.5)
 
     def _give_res_by_horiz(self):
         """Result by horizont"""
