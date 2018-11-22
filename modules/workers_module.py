@@ -7,12 +7,9 @@ class: Worker: 'get_working_place',
 class AllWorkers: 'add_new_worker',
                   'add_worker_to_structure',
                   'add_working_place',
-                  'check_number_in_range',
-                  'choise_from_list',
                   'delete_worker_from_structure',
                   'edit_worker',
                   'print_company_structure',
-                  'save_log_to_temp_file',
                   'upd_company_structure'
                   'give_workers_from_division',
                   'print_workers_from_division'
@@ -20,19 +17,17 @@ class AllWorkers: 'add_new_worker',
                   'print_archive_workers'
                   'return_from_archive'
                   'give_workers_from_shift'
-                  'clear_screen'
                   'add_salary_to_workers'
 """
 
-import pickle
-import sys
 import os
 from pprint import pprint
 from datetime import date
 from modules.absolyte_path_module import AbsolytePath
+from modules.standart_functions import BasicFunctions
 
 
-class Worker:
+class Worker():
     """Particular worker"""
     def __init__(self, name, working_place):
         self.name = name
@@ -66,10 +61,10 @@ class Worker:
         return output
 
 
-class AllWorkers:
+class AllWorkers(BasicFunctions):
     """Infofmation about all workers and tools to manipulate"""
     def __init__(self):
-
+        super().__init__()
         self.workers_base = AbsolytePath(
             'workers_base').get_absolyte_path()
         self.workers_archive = AbsolytePath(
@@ -110,74 +105,18 @@ class AllWorkers:
         if not os.path.exists(self.company_structure):
             self.upd_company_structure()
 
-    @classmethod
-    def load_data(cls, base_file):
-        """Load file from pickle"""
-        with open(base_file, 'rb') as workers_file:
-            workers_base = pickle.load(workers_file)
-        return workers_base
-
-    @classmethod
-    def dump_data(cls, base_file, workers_base):
-        """Dumb data to pickle."""
-        with open(base_file, 'wb') as workers_file:
-            pickle.dump(workers_base, workers_file)
-
-    @classmethod
-    def check_number_in_range(cls, user_input, list_range):
-        """Check is input a number in current range."""
-        check_number = None
-        if user_input.isdigit():
-            check_number = int(user_input) in range(list_range+1)
-            if not check_number:
-                print("\nВы должны выбрать цифру из списка.\n")
-        else:
-            print("\nВы должны ввести цифру.\n")
-        return check_number
-
-    @classmethod
-    def choise_from_list(cls, variants_list, none_option=False):
-        """Chose variant from list."""
-        sort_list = sorted(variants_list)
-        for index, item in enumerate(sort_list, 1):
-            print("\t[{}] - {}".format(index, item))
-        while True:
-            choise = input()
-            if choise == '' and none_option:
-                chosen_item = None
-                break
-            elif cls.check_number_in_range(choise, len(sort_list)):
-                chosen_item = sort_list[int(choise)-1]
-                break
-        return chosen_item
-
-    @classmethod
-    def save_log_to_temp_file(cls, log):
-        "Get detailed log for user actions."
-        file_path = AbsolytePath('log.tmp').get_absolyte_path()
-        with open(file_path, 'a', encoding='utf-8') as temp_file:
-            temp_file.write(log)
-
-    @classmethod
-    def clear_screen(cls):
-        """Clear shell screen"""
-        if sys.platform[:3] == 'win':
-            os.system('cls')
-        else:
-            os.system('clear')
-
     def upd_company_structure(self):
         """Add new division in base"""
-        company_structure = self.load_data(self.company_structure)
+        company_structure = super().load_data(self.company_structure)
         for division in self.interkamen:
             if division not in company_structure:
                 company_structure[division] = self.interkamen[division]
                 print(f"{division} added.")
-        self.dump_data(self.company_structure, company_structure)
+        super().dump_data(self.company_structure, company_structure)
 
     def print_company_structure(self):
         """Print company structure"""
-        company_structure = self.load_data(self.company_structure)
+        company_structure = super().load_data(self.company_structure)
         for division in company_structure:
             print(division + ':')
             pprint(company_structure[division])
@@ -187,24 +126,25 @@ class AllWorkers:
         name = input("Введите ФИО: ")
         working_place = self.add_working_place(None)
         new_worker = Worker(name, working_place)
-        workers_base = self.load_data(self.workers_base)
+        workers_base = super().load_data(self.workers_base)
         workers_base[name] = new_worker
-        self.dump_data(self.workers_base, workers_base)
+        super().dump_data(self.workers_base, workers_base)
         self.add_worker_to_structure(name, working_place)
         log = f"\033[92m Добавлен сотрудник '{name}'. \033[0m"
         print(log)
-        self.save_log_to_temp_file(f"\033[92m '{name}' \033[0m")
+        super().save_log_to_temp_file(f"\033[92m '{name}' \033[0m")
 
     def add_working_place(self, profession):
         """Change worker working place"""
         if not profession:
             profession = input("Введите название профессии: ")
         print("Выберете подразделение:")
-        division = self.choise_from_list(self.interkamen)
+        division = super().choise_from_list(self.interkamen)
         print("Выберете отдел:")
-        subdivision = self.choise_from_list(self.interkamen[division])
+        subdivision = super().choise_from_list(self.interkamen[division])
         print("Выберете смену:")
-        shift = self.choise_from_list(self.interkamen[division][subdivision])
+        shift = super().choise_from_list(
+            self.interkamen[division][subdivision])
         working_place = {'division': division,
                          'subdivision': subdivision,
                          'profession': profession,
@@ -216,9 +156,9 @@ class AllWorkers:
         division = working_place['division']
         subdivision = working_place['subdivision']
         shift = working_place['shift']
-        company_structure = self.load_data(self.company_structure)
+        company_structure = super().load_data(self.company_structure)
         company_structure[division][subdivision][shift].append(name)
-        self.dump_data(self.company_structure, company_structure)
+        super().dump_data(self.company_structure, company_structure)
 
     def delete_worker_from_structure(self, worker):
         """Delete worker name from company structure."""
@@ -226,9 +166,9 @@ class AllWorkers:
         division = worker.working_place['division']
         subdivision = worker.working_place['subdivision']
         shift = worker.working_place['shift']
-        company_structure = self.load_data(self.company_structure)
+        company_structure = super().load_data(self.company_structure)
         company_structure[division][subdivision][shift].remove(worker.name)
-        self.dump_data(self.company_structure, company_structure)
+        super().dump_data(self.company_structure, company_structure)
 
     def edit_worker(self):
         """
@@ -250,14 +190,14 @@ class AllWorkers:
             division = temp_worker.working_place['division']
             subdivision = temp_worker.working_place['subdivision']
             print("Выберете смену:")
-            new_shift = self.choise_from_list(
+            new_shift = super().choise_from_list(
                 self.interkamen[division][subdivision])
             temp_worker.working_place['shift'] = new_shift
             self.add_worker_to_structure(
                 temp_worker.name, temp_worker.working_place)
             log = f"{temp_worker.name} - переведен в '{new_shift}'."
             print(log)
-            self.save_log_to_temp_file(f" - shifted in '{new_shift}'.")
+            super().save_log_to_temp_file(f" - shifted in '{new_shift}'.")
             return temp_worker
 
         def change_working_place(temp_worker):
@@ -270,7 +210,7 @@ class AllWorkers:
                 temp_worker.name, temp_worker.working_place)
             log = f"{temp_worker.name} - перемещен'."
             print(log)
-            self.save_log_to_temp_file(f" - shifted.")
+            super().save_log_to_temp_file(f" - shifted.")
             return temp_worker
 
         def change_phone_number(temp_worker):
@@ -285,11 +225,11 @@ class AllWorkers:
         def lay_off_worker(temp_worker):
             """Lay off worker and put him in archive"""
             temp_worker.employing_lay_off_dates['lay_off'] = str(date.today())
-            workers_archive = self.load_data(self.workers_archive)
+            workers_archive = super().load_data(self.workers_archive)
             workers_archive[temp_worker.name] = temp_worker
-            self.dump_data(self.workers_archive, workers_archive)
+            super().dump_data(self.workers_archive, workers_archive)
             print(f"\033[91m{temp_worker.name} - уволен. \033[0m")
-            self.save_log_to_temp_file("\033[91m - layed off\033[0m")
+            super().save_log_to_temp_file("\033[91m - layed off\033[0m")
             temp_worker = delete_worker(temp_worker)
             return temp_worker
 
@@ -299,7 +239,7 @@ class AllWorkers:
             workers_base.pop(temp_worker.name, None)
             log = f"\033[91m{temp_worker.name} - удален. \033[0m"
             print(log)
-            self.save_log_to_temp_file("\033[91m - worker deleted. \033[0m")
+            super().save_log_to_temp_file("\033[91m - worker deleted. \033[0m")
             temp_worker = None
             return temp_worker
 
@@ -313,13 +253,13 @@ class AllWorkers:
                 average_sallary = round(salary_count/len(temp_worker.salary))
                 print("\033[93mСредняя з/п:\033[0m ", average_sallary, 'p.')
 
-        workers_base = self.load_data(self.workers_base)
+        workers_base = super().load_data(self.workers_base)
         print("Выберете работника для редактирования:")
         division_workers = self.give_workers_from_division()
-        worker = self.choise_from_list(division_workers, none_option=True)
+        worker = super().choise_from_list(division_workers, none_option=True)
         if worker:
-            self.save_log_to_temp_file(worker)
-        self.clear_screen()
+            super().save_log_to_temp_file(worker)
+        super().clear_screen()
         while worker:
             temp_worker = workers_base[worker]
             print(temp_worker)
@@ -334,7 +274,7 @@ class AllWorkers:
                 '[закончить редактирование]': 'break'
                 }
             print("Выберете пункт для редактирования:")
-            action_name = self.choise_from_list(edit_menu_dict)
+            action_name = super().choise_from_list(edit_menu_dict)
 
             print()
             if action_name in ['[закончить редактирование]', '']:
@@ -344,12 +284,12 @@ class AllWorkers:
                 break
             worker = temp_worker.name
             workers_base[worker] = temp_worker
-            self.dump_data(self.workers_base, workers_base)
-            self.clear_screen()
+            super().dump_data(self.workers_base, workers_base)
+            super().clear_screen()
 
     def print_archive_workers(self):
         """Print layed off workers"""
-        workers_archive = self.load_data(self.workers_archive)
+        workers_archive = super().load_data(self.workers_archive)
         for worker in workers_archive:
             print(
                 worker,
@@ -359,43 +299,43 @@ class AllWorkers:
     def add_salary_to_workers(self, salary_dict,
                               salary_date, unofficial_workers):
         """Add monthly salary to workers"""
-        workers_base = self.load_data(self.workers_base)
+        workers_base = super().load_data(self.workers_base)
         for worker in salary_dict:
             if worker not in unofficial_workers:
                 temp_worker = workers_base[worker]
                 temp_worker.salary[salary_date] = salary_dict[worker]
                 workers_base[worker] = temp_worker
-        self.dump_data(self.workers_base, workers_base)
+        super().dump_data(self.workers_base, workers_base)
 
     def return_from_archive(self):
         """Return worker from archive"""
         print("Выберете работника для возвращения:")
-        workers_archive = self.load_data(self.workers_archive)
-        choose = self.choise_from_list(workers_archive, none_option=True)
+        workers_archive = super().load_data(self.workers_archive)
+        choose = super().choise_from_list(workers_archive, none_option=True)
         if choose:
             worker = workers_archive[choose]
             workers_archive.pop(choose, None)
-            self.dump_data(self.workers_archive, workers_archive)
-            workers_base = self.load_data(self.workers_base)
+            super().dump_data(self.workers_archive, workers_archive)
+            workers_base = super().load_data(self.workers_base)
             workers_base[worker.name] = worker
-            self.dump_data(self.workers_base, workers_base)
+            super().dump_data(self.workers_base, workers_base)
             self.add_worker_to_structure(worker.name, worker.working_place)
             print(f"\033[92mCотрудник '{worker.name}' возвращен\033[0m")
-            self.save_log_to_temp_file(
+            super().save_log_to_temp_file(
                 f"\033[92m'{worker.name}' returned.\033[0m")
 
     def give_workers_from_shift(self, shift, division='Карьер',
                                 subdivision='Добычная бригада'):
         """Give worker list from shift"""
-        company_structure = self.load_data(self.company_structure)
+        company_structure = super().load_data(self.company_structure)
         worker_list = company_structure[division][subdivision][shift]
         return worker_list
 
     def give_workers_from_division(self):
         """Print all users from base"""
-        company_structure = self.load_data(self.company_structure)
+        company_structure = super().load_data(self.company_structure)
         print("Выберете подразделение:")
-        division = self.choise_from_list(company_structure)
+        division = super().choise_from_list(company_structure)
         worker_list = [
             worker for subdivision in company_structure[division]
             for shift in company_structure[division][subdivision]
@@ -406,14 +346,14 @@ class AllWorkers:
     def print_workers_from_division(self):
         """Output workers from division"""
         workers_list = self.give_workers_from_division()
-        workers_base = self.load_data(self.workers_base)
+        workers_base = super().load_data(self.workers_base)
         for worker in sorted(workers_list):
             print(workers_base[worker])
 
     def print_telefon_numbers(self):
         """Print telefone numbers of workers from division."""
         workers_list = self.give_workers_from_division()
-        workers_base = self.load_data(self.workers_base)
+        workers_base = super().load_data(self.workers_base)
         for worker in sorted(workers_list):
             name = workers_base[worker].name
             profession = workers_base[worker].working_place['profession']

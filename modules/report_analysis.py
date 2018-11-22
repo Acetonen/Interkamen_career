@@ -4,8 +4,6 @@ Module that provide to analyse and visualise MainReport data.
 classes: ReportAnalysis: result_analysis
 """
 
-import sys
-import os
 from copy import deepcopy
 from matplotlib import pyplot as plt
 from matplotlib import rcParams as window_parametrs
@@ -21,7 +19,7 @@ class ReportAnalysis(Reports):
         self.month_list = ['01', '02', '03', '04', '05', '06',
                            '07', '08', '09', '10', '11', '12']
         super().__init__()
-        self.base = super()._load_data()
+        self.base = super().load_data(self.data_path)
         self.result_by_horizont = {
             '+108': [],
             '+114': [],
@@ -35,14 +33,6 @@ class ReportAnalysis(Reports):
             'Смена 2': []
         }
         self.year_reports = {}
-
-    @classmethod
-    def clear_screen(cls):
-        """Clear shell screen"""
-        if sys.platform[:3] == 'win':
-            os.system('cls')
-        else:
-            os.system('clear')
 
     @classmethod
     def count_persent(cls, rock_mass, result):
@@ -84,7 +74,7 @@ class ReportAnalysis(Reports):
         print("Выберете год:")
         year = super().choise_from_list(self._chose_year())
         self._give_reports_by_year(year)
-        self.clear_screen()
+        super().clear_screen()
         while True:
             data_type = {
                 'Погоризонтная статистика': self._make_horizont_statistic,
@@ -92,7 +82,7 @@ class ReportAnalysis(Reports):
                 }
             print("\nВыберете необходимый очет:")
             choise = super().choise_from_list(data_type, none_option=True)
-            self.clear_screen()
+            super().clear_screen()
             if choise in data_type:
                 results_and_titles = data_type[choise]()
                 self._data_print(year, results_and_titles[0])

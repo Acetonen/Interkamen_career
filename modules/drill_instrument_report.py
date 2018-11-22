@@ -3,87 +3,33 @@
 Working with statistic of drill instrument.
 """
 
-import sys
 import os
-import pickle
 from matplotlib import pyplot as plt
 from matplotlib import rcParams as window_parametrs
 import pandas as pd
 from modules.absolyte_path_module import AbsolytePath
 from modules.main_career_report import Reports
+from modules.standart_functions import BasicFunctions
 
 
-class DrillInstruments:
+class DrillInstruments(BasicFunctions):
     """
     All information about drill instruments.
     """
     def __init__(self, data_file=AbsolytePath('drill_instruments')):
+        super().__init__()
         self.drill_file = data_file.get_absolyte_path()
         self.month_list = ['01', '02', '03', '04', '05', '06',
                            '07', '08', '09', '10', '11', '12']
         self.drill_data = {}
 
-    @classmethod
-    def choise_from_list(cls, variants_list, none_option=False):
-        """Chose variant from list."""
-        sort_list = sorted(variants_list)
-        for index, item in enumerate(sort_list, 1):
-            print("\t[{}] - {}".format(index, item))
-        while True:
-            choise = input()
-            if choise == '' and none_option:
-                chosen_item = None
-                break
-            elif cls.check_number_in_range(choise, len(sort_list)):
-                chosen_item = sort_list[int(choise)-1]
-                break
-        return chosen_item
-
-    @classmethod
-    def check_number_in_range(cls, user_input, list_range):
-        """Check is input a number in current range."""
-        check_number = None
-        if user_input.isdigit():
-            check_number = int(user_input) in range(list_range+1)
-            if not check_number:
-                print("\nВы должны выбрать цифру из списка.\n")
-        else:
-            print("\nВы должны ввести цифру.\n")
-        return check_number
-
-    @classmethod
-    def clear_screen(cls):
-        """Clear shell screen"""
-        if sys.platform[:3] == 'win':
-            os.system('cls')
-        else:
-            os.system('clear')
-
-    @classmethod
-    def save_log_to_temp_file(cls, log):
-        "Get detailed log for user actions."
-        file_path = AbsolytePath('log.tmp').get_absolyte_path()
-        with open(file_path, 'a', encoding='utf-8') as temp_file:
-            temp_file.write(log)
-
-    def _load_data(self):
-        """Load file from pickle"""
-        with open(self.drill_file, 'rb') as drill_file:
-            drill_base = pickle.load(drill_file)
-        return drill_base
-
-    def _dump_data(self, drill_base):
-        """Dumb data to pickle."""
-        with open(self.drill_file, 'wb') as drill_file:
-            pickle.dump(drill_base, drill_file)
-
     def _check_if_report_avaliable(self):
         """Check if main report exist and complate."""
         self.drill_data['year'] = input("Введите год: ")
         print("Выберете month:")
-        self.drill_data['month'] = self.choise_from_list(self.month_list)
+        self.drill_data['month'] = super().choise_from_list(self.month_list)
         print("Выберете смену:")
-        self.drill_data['shift'] = self.choise_from_list(Reports().shifts)
+        self.drill_data['shift'] = super().choise_from_list(Reports().shifts)
         main_report_results = Reports().give_main_results(
             self.drill_data['year'],
             self.drill_data['month'],
@@ -113,7 +59,7 @@ class DrillInstruments:
         if confirm == 'д':
             self._save_to_drill_file()
             print("Отчет по инструменту создан.")
-            self.save_log_to_temp_file(
+            super().save_log_to_temp_file(
                 '{}-{}-{}\033[94m created\033[0m'.format(
                     self.drill_data['year'],
                     self.drill_data['month'],
@@ -123,15 +69,15 @@ class DrillInstruments:
     def _save_to_drill_file(self):
         """Save new data to drill file"""
         if os.path.exists(self.drill_file):
-            old_data = self._load_data()
+            old_data = super().load_data(self.drill_file)
             new_data = old_data.append(self.drill_data, ignore_index=True)
         else:
             new_data = pd.DataFrame(self.drill_data, index=[0])
-        self._dump_data(new_data)
+        super.dump_data(self.drill_file, new_data)
 
     def _visualise_statistic(self, year):
         """Visualise statistic."""
-        drill_data = self._load_data()
+        drill_data = super().load_data(self.drill_file)
         drill_year = drill_data.year == year
         data_by_year = drill_data[drill_year].sort_values(by=['month'])
         self.print_statistic_by_year(data_by_year)
@@ -244,7 +190,7 @@ class DrillInstruments:
         if main_report_results:
             print("Введите данные по инструменту:")
             self._input_other_stats(main_report_results)
-            self.clear_screen()
+            super().clear_screen()
             self._check_correctly_input()
         else:
             print("Наряд данной смены еще не сфомирован, отчет о расходе \
@@ -253,7 +199,7 @@ class DrillInstruments:
     def show_statistic_by_year(self):
         """Showing statistic about drill instrument."""
         year = input("Введите год: ")
-        drill_data = self._load_data()
+        drill_data = super().load_data(self.drill_file)
         if year in list(drill_data.year):
             self._visualise_statistic(year)
         else:

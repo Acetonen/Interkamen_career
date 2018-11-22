@@ -3,24 +3,21 @@
 This program provides control of all data and statistic of Career Interkamen.
 
 Functions: 'print_menu'
-           'make_log'
-           'create_action_dict'
+           'make_header'
            'login_program'
-           'reload_menu_and_actions'
-           'create_action_dict'
+           'check_backup'
            'get_main_or_sub_menu'
-           'clear_screen'
            'make_header'
 """
 
 import sys
-import os
 from modules.hi import INTERKAMEN
 from modules.accesse_options import Accesse
 from modules.users import Users
 from modules.log_class import Logs
 from modules.backup import check_last_backup_date
 from modules.main_career_report import Reports
+from modules.standart_functions import BasicFunctions
 
 
 def login_program():
@@ -69,26 +66,6 @@ def make_header():
     return header
 
 
-def check_number_in_range(user_input, list_range):
-    """Check is input a number in current range."""
-    check_number = None
-    if user_input.isdigit():
-        check_number = int(user_input) in range(len(list_range)+1)
-        if not check_number:
-            print("\nВведите цифру соответствующую пункту меню.\n")
-    else:
-        print("\nВведите цифру соответствующую пункту меню.\n")
-    return check_number
-
-
-def clear_screen():
-    """Clear shell screen"""
-    if sys.platform[:3] == 'win':
-        os.system('cls')
-    else:
-        os.system('clear')
-
-
 def check_backup():
     """Check if user 'admin', and make backup if positive."""
     if USR_ACS == 'admin':
@@ -117,13 +94,14 @@ if __name__ == '__main__':
             print(SEPARATOR)
             USER_CHOISE = input("[м] - Показать меню программы"
                                 "\nВыберете действие:\n")
-            clear_screen()
+            BasicFunctions().clear_screen()
 
             if USER_CHOISE == 'м':
                 print_menu()
                 continue
 
-            if not check_number_in_range(USER_CHOISE, PROGRAM_MENU):
+            if not BasicFunctions().check_number_in_range(
+                    USER_CHOISE, PROGRAM_MENU):
                 continue
 
             USER_CHOISE = int(USER_CHOISE) - 1

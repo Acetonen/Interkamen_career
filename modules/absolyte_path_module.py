@@ -26,5 +26,5 @@ class AbsolytePath:
         return os_path
 
     def get_absolyte_path(self):
-        """Get absolyte peth to data file"""
+        """Get absolyte path to data file"""
         return self.absolute_path

@@ -4,7 +4,6 @@ Main career report
 classes: MainReport:'add_brigad_bonus',
                     'add_delta_ktu_to_worker',
                     'check_number_in_range',
-                    'choise_from_list',
                     'count_all_workers_in_report',
                     'count_result',
                     'count_sal_workers_and_drill',
@@ -17,9 +16,6 @@ classes: MainReport:'add_brigad_bonus',
                   'check_date_format',
                   '_check_if_report_exist',
                   'check_number_in_range',
-                  'choise_from_list',
-                  'clear_screen',
-                  'confirm_deletion',
                   'create_report',
                   'create_workers_hours_list',
                   'delete_report',
@@ -28,24 +24,22 @@ classes: MainReport:'add_brigad_bonus',
                   'give_avaliable_to_edit',
                   'give_main_results',
                   'make_status_in_process',
-                  'save_log_to_temp_file',
                   '_uncomplete_main_report',
                   'work_with_main_report',
 """
 
-import pickle
-import sys
-import os
 from pprint import pprint
 from modules.workers_module import AllWorkers
 from modules.absolyte_path_module import AbsolytePath
+from modules.standart_functions import BasicFunctions
 
 
-class MainReport(object):
+class MainReport(BasicFunctions):
     """
     Main career report.
     """
     def __init__(self, status, shift, date):
+        super().__init__()
         self.status = {'status': status,
                        'shift': shift,
                        'date': date}
@@ -91,34 +85,6 @@ class MainReport(object):
         for worker in value_list:
             totall += value_list[worker]
         return totall
-
-    @classmethod
-    def choise_from_list(cls, variants_list, none_option=False):
-        """Chose variant from list."""
-        sort_list = sorted(variants_list)
-        for index, item in enumerate(sort_list, 1):
-            print("\t[{}] - {}".format(index, item))
-        while True:
-            choise = input()
-            if choise == '' and none_option:
-                chosen_item = None
-                break
-            elif cls.check_number_in_range(choise, len(sort_list)):
-                chosen_item = sort_list[int(choise)-1]
-                break
-        return chosen_item
-
-    @classmethod
-    def check_number_in_range(cls, user_input, list_range):
-        """Check is input a number in current range."""
-        check_number = None
-        if user_input.isdigit():
-            check_number = int(user_input) in range(list_range+1)
-            if not check_number:
-                print("\nВы должны выбрать цифру из списка.\n")
-        else:
-            print("\nВы должны ввести цифру.\n")
-        return check_number
 
     @classmethod
     def create_short_name(cls, name):
@@ -267,7 +233,7 @@ class MainReport(object):
         print('\n' + 'КТУ: ' + direction)
         workers_list = self.workers_showing[direction]['КТУ'].items()
         print("\nВыберете работника, которому хотите добавить остаток:")
-        worker = self.choise_from_list(workers_list)
+        worker = super().choise_from_list(workers_list)
         worker_ktu = self.workers_showing[direction]['КТУ'][worker[0]]
         result = round(delta + worker_ktu, 2)
         self.workers_showing[direction]['КТУ'][worker[0]] = result
@@ -276,14 +242,14 @@ class MainReport(object):
         pprint(self.workers_showing[direction]['КТУ'])
 
 
-class Reports(object):
+class Reports(BasicFunctions):
     """
     Class to manage with reports.
     """
 
     def __init__(self, data_file=AbsolytePath('main_career_report')):
-
-        self.data_file = data_file.get_absolyte_path()
+        super().__init__()
+        self.data_path = data_file.get_absolyte_path()
         self.shifts = ['Смена 1', 'Смена 2']
         self.salary_workers = ['Кочерин', 'Кокорин', 'Ягонен',
                                'Никулин', 'Медведев', 'Фигурин']
@@ -314,19 +280,6 @@ class Reports(object):
         return report
 
     @classmethod
-    def confirm_deletion(cls, item):
-        """Action conformation"""
-        confirm = input(
-            "Вы уверены что хотите удалить '{}'? Д/н: ".format(item))
-        if confirm.lower() == 'д':
-            confirm = True
-            print("\033[91m'{}' - удален. \033[0m".format(item))
-        else:
-            confirm = False
-            print("\nВы отменили удаление.\n")
-        return confirm
-
-    @classmethod
     def create_workers_hours_list(cls, workers_list):
         """Create workers hous list."""
         print("\nВведите количество часов:")
@@ -336,60 +289,6 @@ class Reports(object):
             hours = input('; часов: ')
             workers_hours[worker] = int(hours)
         return workers_hours
-
-    @classmethod
-    def choise_from_list(cls, variants_list, none_option=False):
-        """Chose variant from list."""
-        sort_list = sorted(variants_list)
-        for index, item in enumerate(sort_list, 1):
-            print("\t[{}] - {}".format(index, item))
-        while True:
-            choise = input()
-            if choise == '' and none_option:
-                chosen_item = None
-                break
-            elif cls.check_number_in_range(choise, len(sort_list)):
-                chosen_item = sort_list[int(choise)-1]
-                break
-        return chosen_item
-
-    @classmethod
-    def check_number_in_range(cls, user_input, list_range):
-        """Check is input a number in current range."""
-        check_number = None
-        if user_input.isdigit():
-            check_number = int(user_input) in range(list_range+1)
-            if not check_number:
-                print("\nВы должны выбрать цифру из списка.\n")
-        else:
-            print("\nВы должны ввести цифру.\n")
-        return check_number
-
-    @classmethod
-    def save_log_to_temp_file(cls, log):
-        "Get detailed log for user actions."
-        file_path = AbsolytePath('log.tmp').get_absolyte_path()
-        with open(file_path, 'a', encoding='utf-8') as temp_file:
-            temp_file.write(log)
-
-    @classmethod
-    def clear_screen(cls):
-        """Clear shell screen"""
-        if sys.platform[:3] == 'win':
-            os.system('cls')
-        else:
-            os.system('clear')
-
-    def _load_data(self):
-        """Load file from pickle"""
-        with open(self.data_file, 'rb') as report_file:
-            report_base = pickle.load(report_file)
-        return report_base
-
-    def _dump_data(self, report_base):
-        """Dumb data to pickle."""
-        with open(self.data_file, 'wb') as report_file:
-            pickle.dump(report_base, report_file)
 
     def _add_worker_from_diff_shift(self, shift):
         """Add worker from different shift to current."""
@@ -402,7 +301,7 @@ class Reports(object):
             add_worker = input(
                 "\nДобавить работника из другой бригады? д/н: ")
             if add_worker == 'д':
-                worker = self.choise_from_list(other_shift_workers)
+                worker = super().choise_from_list(other_shift_workers)
                 print(worker, '- добавлен.')
                 added_workers.append(worker)
                 other_shift_workers.remove(worker)
@@ -414,7 +313,7 @@ class Reports(object):
     def _check_if_report_exist(self, shift, date):
         """Check if report exist in base"""
         check = True
-        report_file = self._load_data()
+        report_file = super().load_data(self.data_path)
         for report in report_file:
             if shift in report and date in report:
                 check = False
@@ -425,21 +324,22 @@ class Reports(object):
         """Uncomlete main report"""
         choise = input("Are you shure, you want to uncomplete report? Y/n: ")
         if choise.lower() == 'y':
-            report_file = self._load_data()
+            report_file = super().load_data(self.data_path)
             temp_report = report_file[report_name]
             temp_report.status['status'] = '\033[93m[в процессе]\033[0m'
             new_name = "{date} {shift} {status}".format(
                 **temp_report.status)
             report_file[new_name] = temp_report
             report_file.pop(report_name, None)
-            self._dump_data(report_file)
-            self.save_log_to_temp_file(' --> ' + temp_report.status['status'])
+            super().dump_data(self.data_path, report_file)
+            super().save_log_to_temp_file(
+                ' --> ' + temp_report.status['status'])
 
     def give_main_results(self, year, month, shift):
         """Return drill meters, result and rock_mass.
         Return None, if report not exist."""
         report_name = year + '-' + month + ' ' + shift
-        report_file = self._load_data()
+        report_file = super().load_data(self.data_path)
         result_tuplet = ()
         for report in report_file:
             if report_name in report:
@@ -452,7 +352,7 @@ class Reports(object):
     def give_avaliable_to_edit(self, *statuses):
         """Give reports that avaliable to edit"""
         avaliable_reports = []
-        report_file = self._load_data()
+        report_file = super().load_data(self.data_path)
         avaliable_reports = [report for status in statuses
                              for report in report_file
                              if status in report]
@@ -466,7 +366,7 @@ class Reports(object):
                 print("Введите дату корректно.")
                 continue
             print("Выберете бригаду:")
-            shift = self.choise_from_list(self.shifts)
+            shift = super().choise_from_list(self.shifts)
             if self._check_if_report_exist(shift, date):
                 break
 
@@ -478,7 +378,7 @@ class Reports(object):
         # Add additional workers from another shift.
         added_workers = self._add_worker_from_diff_shift(shift)
         workers_list.extend(added_workers)
-        self.clear_screen()
+        super().clear_screen()
 
         report = MainReport('\033[91m[не завершен]\033[0m', shift, date)
         workers_hours_list = self.create_workers_hours_list(workers_list)
@@ -486,19 +386,19 @@ class Reports(object):
         print("\nВведите результаты добычи бригады.")
         report = self.input_result(report)
         print("\nТабель бригады заполнен.\n")
-        report_file = self._load_data()
+        report_file = super().load_data(self.data_path)
         report_name = "{date} {shift} {status}".format(**report.status)
         report_file[report_name] = report
-        self._dump_data(report_file)
-        self.save_log_to_temp_file(report_name)
+        super().dump_data(self.data_path, report_file)
+        super().save_log_to_temp_file(report_name)
 
     def delete_report(self, report_name):
         """Delete report."""
-        report_file = self._load_data()
-        if self.confirm_deletion(report_name):
+        report_file = super().load_data(self.data_path)
+        if super().confirm_deletion(report_name):
             report_file.pop(report_name, None)
-            self._dump_data(report_file)
-            self.save_log_to_temp_file(
+            super().dump_data(self.data_path, report_file)
+            super().save_log_to_temp_file(
                 "\033[91m - report deleted. \033[0m")
 
     def edit_report(self):
@@ -509,7 +409,7 @@ class Reports(object):
         def change_hours(temp_report):
             """Change hours value."""
             print("Выберете работника для редактирования:")
-            worker = self.choise_from_list(
+            worker = super().choise_from_list(
                 temp_report.workers_showing['факт']['часы'])
             new_hours = int(input("Введите новое значение часов: "))
             temp_report.workers_showing['факт']['часы'][worker] = new_hours
@@ -522,12 +422,12 @@ class Reports(object):
 \033[91m[не завершен]\033[0m
 Выберет отчет для редактирования:
 """)
-        report_name = self.choise_from_list(
+        report_name = super().choise_from_list(
             avaliable_reports, none_option=True)
         if report_name:
-            self.save_log_to_temp_file(report_name)
-        report_file = self._load_data()
-        self.clear_screen()
+            super().save_log_to_temp_file(report_name)
+        report_file = super().load_data(self.data_path)
+        super().clear_screen()
         while report_name:
             temp_report = report_file[report_name]
             print(temp_report)
@@ -538,7 +438,7 @@ class Reports(object):
                 '[закончить редактирование]': 'break'
                 }
             print("Выберете пункт для редактирования:")
-            action_name = self.choise_from_list(edit_menu_dict)
+            action_name = super().choise_from_list(edit_menu_dict)
             print()
             if action_name in ['[закончить редактирование]', '']:
                 break
@@ -547,16 +447,16 @@ class Reports(object):
                 break
             temp_report = edit_menu_dict[action_name](temp_report)
             report_file[report_name] = temp_report
-            self._dump_data(report_file)
-            self.clear_screen()
+            super().dump_data(self.data_path, report_file)
+            super().clear_screen()
 
     def work_with_main_report(self, current_user):
         """Finish MainReport"""
-        report_file = self._load_data()
+        report_file = super().load_data(self.data_path)
         print("Выберет отчет:")
-        report_name = self.choise_from_list(report_file, none_option=True)
+        report_name = super().choise_from_list(report_file, none_option=True)
         if report_name:
-            self.save_log_to_temp_file(report_name)
+            super().save_log_to_temp_file(report_name)
             if '[не завершен]' in report_name:
                 self.make_status_in_process(report_name)
             elif '[завершен]' in report_name:
@@ -597,9 +497,9 @@ class Reports(object):
         def change_ktu(temp_report):
             """Manualy change worker KTU"""
             print("Выберете вид КТУ:")
-            direction = self.choise_from_list(temp_report.workers_showing)
+            direction = super().choise_from_list(temp_report.workers_showing)
             print("Выберете работника:")
-            ch_worker = self.choise_from_list(
+            ch_worker = super().choise_from_list(
                 temp_report.workers_showing[direction]['КТУ'])
             new_ktu = float(input("Введите новое значение КТУ: "))
             delta = (temp_report.workers_showing[direction]['КТУ'][ch_worker]
@@ -625,11 +525,11 @@ class Reports(object):
                     temp_report.status['date'],
                     temp_report.unofficial_workers()
                 )
-                self.save_log_to_temp_file(
+                super().save_log_to_temp_file(
                     ' --> ' + temp_report.status['status'])
             return temp_report
 
-        report_file = self._load_data()
+        report_file = super().load_data(self.data_path)
         while True:
             temp_report = report_file[report_name]
             print(temp_report)
@@ -645,7 +545,7 @@ class Reports(object):
                 '[закончить редактирование]': 'break'
                 }
             print("Выберете пункт для редактирования:")
-            action_name = self.choise_from_list(edit_menu_dict)
+            action_name = super().choise_from_list(edit_menu_dict)
             print()
             if action_name in ['[закончить редактирование]', '']:
                 break
@@ -657,12 +557,12 @@ class Reports(object):
             report_name = "{date} {shift} {status}".format(
                 **temp_report.status)
             report_file[report_name] = temp_report
-            self._dump_data(report_file)
-            self.clear_screen()
+            super().dump_data(self.data_path, report_file)
+            super().clear_screen()
 
     def make_status_in_process(self, report_name):
         """Change status from 'not complete' to 'in process'"""
-        report_file = self._load_data()
+        report_file = super().load_data(self.data_path)
         print(report_file[report_name])
         tmp_report = report_file[report_name]
         print("Введите ОФИЦИАЛЬНЫЕ часы работы:")
@@ -670,14 +570,14 @@ class Reports(object):
         workers_list = AllWorkers().give_workers_from_shift(shift)
         workers_hours_list = self.create_workers_hours_list(workers_list)
         tmp_report.workers_showing['бух.']['часы'] = workers_hours_list
-        self.clear_screen()
+        super().clear_screen()
         tmp_report.create_ktu_list()
         tmp_report.count_all_workers_in_report()
         tmp_report.status['status'] = '\033[93m[в процессе]\033[0m'
         report_file.pop(report_name, None)
         new_name = "{date} {shift} {status}".format(**tmp_report.status)
         report_file[new_name] = tmp_report
-        self._dump_data(report_file)
-        self.save_log_to_temp_file(
+        super().dump_data(self.data_path, report_file)
+        super().save_log_to_temp_file(
             ' --> ' + tmp_report.status['status'])
         self.edit_main_report(new_name)
