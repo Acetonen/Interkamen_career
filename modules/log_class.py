@@ -42,7 +42,8 @@ class Logs:
             'Вернуть работника из архива': 'restore worker from archive',
             'Редактировать табель': 'edit report',
             'Создать табель добычной бригады': 'create new report',
-            '[Наряд бригады]': 'edit report'
+            '[Наряд бригады]': 'edit report',
+            'Создать отчет по буровым инструментам': 'create drill report'
             }
 
         self.search_list = list(self.log_list.keys())

@@ -26,10 +26,11 @@ classes: MainReport:'add_brigad_bonus',
                   'edit_main_report',
                   'edit_report',
                   'give_avaliable_to_edit',
+                  'give_main_results',
                   'make_status_in_process',
                   'save_log_to_temp_file',
                   '_uncomplete_main_report',
-                  'work_with_main_report'
+                  'work_with_main_report',
 """
 
 import pickle
@@ -433,6 +434,20 @@ class Reports(object):
             report_file.pop(report_name, None)
             self._dump_data(report_file)
             self.save_log_to_temp_file(' --> ' + temp_report.status['status'])
+
+    def give_main_results(self, year, month, shift):
+        """Return drill meters, result and rock_mass.
+        Return None, if report not exist."""
+        report_name = year + '-' + month + ' ' + shift
+        report_file = self._load_data()
+        result_tuplet = ()
+        for report in report_file:
+            if report_name in report:
+                drill_meters = report_file[report].result['шпурометры']
+                result = report_file[report].count_result()
+                rock_mass = report_file[report].count_rock_mass()
+                result_tuplet = drill_meters, result, rock_mass
+        return result_tuplet
 
     def give_avaliable_to_edit(self, *statuses):
         """Give reports that avaliable to edit"""

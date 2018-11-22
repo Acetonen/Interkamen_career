@@ -1,6 +1,6 @@
-# Interkamen Career Program
+# Interkamen Program
 
-One Paragraph of project description goes here
+This is corporative program to maintain Career statistic.
 
 ## Getting Started
 

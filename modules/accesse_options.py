@@ -14,6 +14,7 @@ from modules.users import Users
 from modules.workers_module import AllWorkers
 from modules.main_career_report import Reports
 from modules.report_analysis import ReportAnalysis
+from modules.drill_instrument_report import DrillInstruments
 
 
 class Accesse:
@@ -56,7 +57,11 @@ class Accesse:
                 'Редактировать табель':
                 lambda arg: Reports().edit_report(),
                 'Погодовой анализ':
-                lambda arg: ReportAnalysis().result_analysis()
+                lambda arg: ReportAnalysis().result_analysis(),
+                'Создать отчет по буровым инструментам':
+                lambda arg: DrillInstruments().create_drill_report(),
+                'Статистика по буровому инструменту':
+                lambda arg: DrillInstruments().show_statistic_by_year()
                 },
             '--> [Финансы]': {
                 'Наряд бригады':

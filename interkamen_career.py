@@ -93,7 +93,6 @@ def check_backup():
     """Check if user 'admin', and make backup if positive."""
     if USR_ACS == 'admin':
         backup = check_last_backup_date()
-        print(check_last_backup_date())
         if backup:
             Logs().create_log(CURRENT_USER['login'], "Backup done.")
 
