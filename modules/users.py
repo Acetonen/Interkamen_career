@@ -152,7 +152,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
                 users_base[user['login']] = user
                 super().dump_data(self.data_path, users_base)
                 print("Новый пароль сохранен.")
-                super().save_log_to_temp_file('change password')
+                super().save_log_to_temp_file(' change password')
             else:
                 print("Введенные пароли не совпадают.")
         else:

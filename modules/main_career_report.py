@@ -409,8 +409,8 @@ class Reports(BasicFunctions):
         def change_hours(temp_report):
             """Change hours value."""
             print("Выберете работника для редактирования:")
-            worker = super().choise_from_list(
-                temp_report.workers_showing['факт']['часы'])
+            workers = temp_report.workers_showing['факт']['часы']
+            worker = super().choise_from_list(workers)
             new_hours = int(input("Введите новое значение часов: "))
             temp_report.workers_showing['факт']['часы'][worker] = new_hours
             return temp_report
@@ -497,10 +497,11 @@ class Reports(BasicFunctions):
         def change_ktu(temp_report):
             """Manualy change worker KTU"""
             print("Выберете вид КТУ:")
-            direction = super().choise_from_list(temp_report.workers_showing)
+            ktu_option = temp_report.workers_showing
+            direction = super().choise_from_list(ktu_option)
             print("Выберете работника:")
-            ch_worker = super().choise_from_list(
-                temp_report.workers_showing[direction]['КТУ'])
+            workers = temp_report.workers_showing[direction]['КТУ']
+            ch_worker = super().choise_from_list(workers)
             new_ktu = float(input("Введите новое значение КТУ: "))
             delta = (temp_report.workers_showing[direction]['КТУ'][ch_worker]
                      - new_ktu)

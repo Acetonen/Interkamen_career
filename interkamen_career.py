@@ -92,11 +92,11 @@ if __name__ == '__main__':
 
         while True:
             print(SEPARATOR)
-            USER_CHOISE = input("[м] - Показать меню программы"
+            USER_CHOISE = input("[0] - Показать меню программы"
                                 "\nВыберете действие:\n")
             BasicFunctions().clear_screen()
 
-            if USER_CHOISE == 'м':
+            if USER_CHOISE == '0':
                 print_menu()
                 continue
 
