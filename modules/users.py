@@ -25,7 +25,6 @@ from modules.standart_functions import BasicFunctions
 class Users(BasicFunctions):
     """Users warking with program."""
     def __init__(self, data_file=AbsolytePath('users_base')):
-        super().__init__()
         self.data_path = data_file.get_absolyte_path()
         self.access_list = ['admin', 'boss', 'master', 'mechanic']
         self.all_users_list = [

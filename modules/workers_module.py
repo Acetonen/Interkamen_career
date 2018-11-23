@@ -64,7 +64,6 @@ class Worker():
 class AllWorkers(BasicFunctions):
     """Infofmation about all workers and tools to manipulate"""
     def __init__(self):
-        super().__init__()
         self.workers_base = AbsolytePath(
             'workers_base').get_absolyte_path()
         self.workers_archive = AbsolytePath(
@@ -197,7 +196,8 @@ class AllWorkers(BasicFunctions):
                 temp_worker.name, temp_worker.working_place)
             log = f"{temp_worker.name} - переведен в '{new_shift}'."
             print(log)
-            super().save_log_to_temp_file(f" - shifted in '{new_shift}'.")
+            super(AllWorkers, self).save_log_to_temp_file(
+                f" - shifted in '{new_shift}'.")
             return temp_worker
 
         def change_working_place(temp_worker):
@@ -210,7 +210,7 @@ class AllWorkers(BasicFunctions):
                 temp_worker.name, temp_worker.working_place)
             log = f"{temp_worker.name} - перемещен'."
             print(log)
-            super().save_log_to_temp_file(f" - shifted.")
+            super(AllWorkers, self).save_log_to_temp_file(f" - shifted.")
             return temp_worker
 
         def change_phone_number(temp_worker):
@@ -227,9 +227,11 @@ class AllWorkers(BasicFunctions):
             temp_worker.employing_lay_off_dates['lay_off'] = str(date.today())
             workers_archive = super().load_data(self.workers_archive)
             workers_archive[temp_worker.name] = temp_worker
-            super().dump_data(self.workers_archive, workers_archive)
+            super(AllWorkers, self).dump_data(
+                self.workers_archive, workers_archive)
             print(f"\033[91m{temp_worker.name} - уволен. \033[0m")
-            super().save_log_to_temp_file("\033[91m - layed off\033[0m")
+            super(AllWorkers, self).save_log_to_temp_file(
+                "\033[91m - layed off\033[0m")
             temp_worker = delete_worker(temp_worker)
             return temp_worker
 
@@ -239,7 +241,8 @@ class AllWorkers(BasicFunctions):
             workers_base.pop(temp_worker.name, None)
             log = f"\033[91m{temp_worker.name} - удален. \033[0m"
             print(log)
-            super().save_log_to_temp_file("\033[91m - worker deleted. \033[0m")
+            super(AllWorkers, self).save_log_to_temp_file(
+                "\033[91m - worker deleted. \033[0m")
             temp_worker = None
             return temp_worker
 
