@@ -265,19 +265,6 @@ class Reports(BasicFunctions):
         return correct
 
     @classmethod
-    def input_result(cls, report):
-        """Input working result"""
-        for item in report.result:
-            if isinstance(report.result[item], dict):
-                for sub_item in report.result[item]:
-                    print(sub_item, end=': ')
-                    report.result[item][sub_item] = float(input())
-            else:
-                print(item, end=': ')
-                report.result[item] = float(input())
-        return report
-
-    @classmethod
     def create_workers_hours_list(cls, workers_list):
         """Create workers hous list."""
         print("\nВведите количество часов:")
@@ -285,8 +272,32 @@ class Reports(BasicFunctions):
         for worker in workers_list:
             print(worker, end="")
             hours = input('; часов: ')
-            workers_hours[worker] = int(hours)
+            workers_hours[worker] = float(hours)
         return workers_hours
+
+    @classmethod
+    def check_comma_error(cls):
+        """Check input floats for commas."""
+        while True:
+            inpt = input()
+            if ',' in inpt or inpt == '':
+                print("Некорректный ввод, повторите:", end='')
+            else:
+                return inpt
+
+    def input_result(self, report):
+        """Input working result"""
+        for item in report.result:
+            if isinstance(report.result[item], dict):
+                for sub_item in report.result[item]:
+                    print(sub_item, end=': ')
+                    inpt = self.check_comma_error()
+                    report.result[item][sub_item] = float(inpt)
+            else:
+                print(item, end=': ')
+                inpt = self.check_comma_error()
+                report.result[item] = float(inpt)
+        return report
 
     def _add_worker_from_diff_shift(self, shift):
         """Add worker from different shift to current."""
