@@ -322,8 +322,8 @@ class Reports(BasicFunctions):
     def _check_if_report_exist(self, shift, date):
         """Check if report exist in base"""
         check = True
-        report_file = super().load_data(self.data_path)
-        for report in report_file:
+        rpt_file = super().load_data(self.data_path)
+        for report in rpt_file:
             if shift in report and date in report:
                 check = False
                 print("Такой отчет уже существует.")
@@ -333,37 +333,38 @@ class Reports(BasicFunctions):
         """Uncomlete main report"""
         choise = input("Are you shure, you want to uncomplete report? Y/n: ")
         if choise.lower() == 'y':
-            report_file = super().load_data(self.data_path)
-            temp_report = report_file[report_name]
-            temp_report.status['status'] = '\033[93m[в процессе]\033[0m'
+            rpt_file = super().load_data(self.data_path)
+            tmp_rpt = rpt_file[report_name]
+            tmp_rpt.status['status'] = '\033[93m[в процессе]\033[0m'
             new_name = "{date} {shift} {status}".format(
-                **temp_report.status)
-            report_file[new_name] = temp_report
-            report_file.pop(report_name, None)
-            super().dump_data(self.data_path, report_file)
+                **tmp_rpt.status)
+            rpt_file[new_name] = tmp_rpt
+            rpt_file.pop(report_name, None)
+            super().dump_data(self.data_path, rpt_file)
             super().save_log_to_temp_file(
-                ' --> ' + temp_report.status['status'])
+                ' --> ' + tmp_rpt.status['status'])
 
     def give_main_results(self, year, month, shift):
         """Return drill meters, result and rock_mass.
         Return None, if report not exist."""
         report_name = year + '-' + month + ' ' + shift
-        report_file = super().load_data(self.data_path)
+        rpt_file = super().load_data(self.data_path)
         result_tuplet = ()
-        for report in report_file:
-            if report_name in report:
-                drill_meters = report_file[report].result['шпурометры']
-                result = report_file[report].count_result()
-                rock_mass = report_file[report].count_rock_mass()
+        for report in rpt_file:
+            if (report_name in report and
+                    rpt_file[report].count_rock_mass() != 0):
+                drill_meters = rpt_file[report].result['шпурометры']
+                result = rpt_file[report].count_result()
+                rock_mass = rpt_file[report].count_rock_mass()
                 result_tuplet = drill_meters, result, rock_mass
         return result_tuplet
 
     def give_avaliable_to_edit(self, *statuses):
         """Give reports that avaliable to edit"""
         avaliable_reports = []
-        report_file = super().load_data(self.data_path)
+        rpt_file = super().load_data(self.data_path)
         avaliable_reports = [report for status in statuses
-                             for report in report_file
+                             for report in rpt_file
                              if status in report]
         return avaliable_reports
 
@@ -395,18 +396,18 @@ class Reports(BasicFunctions):
         print("\nВведите результаты добычи бригады.")
         report = self.input_result(report)
         print("\nТабель бригады заполнен.\n")
-        report_file = super().load_data(self.data_path)
+        rpt_file = super().load_data(self.data_path)
         report_name = "{date} {shift} {status}".format(**report.status)
-        report_file[report_name] = report
-        super().dump_data(self.data_path, report_file)
+        rpt_file[report_name] = report
+        super().dump_data(self.data_path, rpt_file)
         super().save_log_to_temp_file(report_name)
 
     def delete_report(self, report_name):
         """Delete report."""
-        report_file = super().load_data(self.data_path)
+        rpt_file = super().load_data(self.data_path)
         if super().confirm_deletion(report_name):
-            report_file.pop(report_name, None)
-            super().dump_data(self.data_path, report_file)
+            rpt_file.pop(report_name, None)
+            super().dump_data(self.data_path, rpt_file)
             super().save_log_to_temp_file(
                 "\033[91m - report deleted. \033[0m")
 
@@ -415,14 +416,14 @@ class Reports(BasicFunctions):
         Edition uncompleted report by user with 'master' accesse.
         """
 
-        def change_hours(temp_report):
+        def change_hours(tmp_rpt):
             """Change hours value."""
             print("Выберете работника для редактирования:")
-            workers = temp_report.workers_showing['факт']['часы']
+            workers = tmp_rpt.workers_showing['факт']['часы']
             worker = super(Reports, self).choise_from_list(workers)
             new_hours = int(input("Введите новое значение часов: "))
-            temp_report.workers_showing['факт']['часы'][worker] = new_hours
-            return temp_report
+            tmp_rpt.workers_showing['факт']['часы'][worker] = new_hours
+            return tmp_rpt
 
         avaliable_reports = self.give_avaliable_to_edit(
             '[не завершен]')
@@ -435,11 +436,11 @@ class Reports(BasicFunctions):
             avaliable_reports, none_option=True)
         if report_name:
             super().save_log_to_temp_file(report_name)
-        report_file = super().load_data(self.data_path)
+        rpt_file = super().load_data(self.data_path)
         super().clear_screen()
         while report_name:
-            temp_report = report_file[report_name]
-            print(temp_report)
+            tmp_rpt = rpt_file[report_name]
+            print(tmp_rpt)
             edit_menu_dict = {
                 'изменить часы': change_hours,
                 'удалить отчет': self.delete_report,
@@ -452,24 +453,24 @@ class Reports(BasicFunctions):
             if action_name in ['[закончить редактирование]', '']:
                 break
             elif action_name == 'удалить отчет':
-                temp_report = edit_menu_dict[action_name](report_name)
+                tmp_rpt = edit_menu_dict[action_name](report_name)
                 break
-            temp_report = edit_menu_dict[action_name](temp_report)
-            report_file[report_name] = temp_report
-            super().dump_data(self.data_path, report_file)
+            tmp_rpt = edit_menu_dict[action_name](tmp_rpt)
+            rpt_file[report_name] = tmp_rpt
+            super().dump_data(self.data_path, rpt_file)
             super().clear_screen()
 
     def work_with_main_report(self, current_user):
         """Finish MainReport"""
-        report_file = super().load_data(self.data_path)
+        rpt_file = super().load_data(self.data_path)
         print("Выберет отчет:")
-        report_name = super().choise_from_list(report_file, none_option=True)
+        report_name = super().choise_from_list(rpt_file, none_option=True)
         if report_name:
             super().save_log_to_temp_file(report_name)
             if '[не завершен]' in report_name:
                 self.make_status_in_process(report_name)
             elif '[завершен]' in report_name:
-                print(report_file[report_name])
+                print(rpt_file[report_name])
                 if current_user['accesse'] == 'admin':
                     choise = input("""\
 \033[91m[un]\033[0m Возвратить статус '\033[93m[в процессе]\033[0m'\n""")
@@ -483,66 +484,70 @@ class Reports(BasicFunctions):
         Edition main report by boss or admin usser.
         """
 
-        def enter_rock_mass(temp_report):
+        def enter_rock_mass(tmp_rpt):
             """Enter rock_mass"""
             print("Введите горную массу:")
-            for gorizont in sorted(temp_report.rock_mass):
+            for gorizont in sorted(tmp_rpt.rock_mass):
                 print(gorizont, end=': ')
-                temp_report.rock_mass[gorizont] = float(input())
-            return temp_report
+                tmp_rpt.rock_mass[gorizont] = float(input())
+            return tmp_rpt
 
-        def enter_totall(temp_report):
+        def enter_totall(tmp_rpt):
             """Enter totall money"""
-            temp_report.totall = float(input("Введите итоговую сумму: "))
-            return temp_report
+            tmp_rpt.totall = float(input("Введите итоговую сумму: "))
+            return tmp_rpt
 
-        def enter_bonus(temp_report):
+        def enter_bonus(tmp_rpt):
             """Enter monthly bonus"""
             choise = input("Бригада победила в соревновании? Д/н: ")
             if choise.lower() == 'д':
-                temp_report.bonuses['победа по критериям'] = True
-            return temp_report
+                tmp_rpt.bonuses['победа по критериям'] = True
+            return tmp_rpt
 
-        def change_ktu(temp_report):
+        def change_ktu(tmp_rpt):
             """Manualy change worker KTU"""
             print("Выберете вид КТУ:")
-            ktu_option = temp_report.workers_showing
+            ktu_option = tmp_rpt.workers_showing
             direction = super(Reports, self).choise_from_list(ktu_option)
             print("Выберете работника:")
-            workers = temp_report.workers_showing[direction]['КТУ']
+            workers = tmp_rpt.workers_showing[direction]['КТУ']
             ch_worker = super(Reports, self).choise_from_list(workers)
             new_ktu = float(input("Введите новое значение КТУ: "))
-            delta = (temp_report.workers_showing[direction]['КТУ'][ch_worker]
+            delta = (tmp_rpt.workers_showing[direction]['КТУ'][ch_worker]
                      - new_ktu)
-            workers = len(temp_report.workers_showing[direction]['КТУ'])
-            temp_report.workers_showing[direction]['КТУ'][ch_worker] = new_ktu
-            for worker in temp_report.workers_showing[direction]['КТУ']:
-                if worker != ch_worker:
-                    temp_report.workers_showing[direction]['КТУ'][worker] = (
-                        temp_report.workers_showing[direction]['КТУ'][worker]
-                        + round(delta/(workers-1), 2))
-            temp_report.coutn_delta_ktu(direction)
-            return temp_report
 
-        def complete_main_report(temp_report):
+            workers = super(Reports, self).count_unzero_items(
+                tmp_rpt.workers_showing[direction]['КТУ'])
+            tmp_rpt.workers_showing[direction]['КТУ'][ch_worker] = new_ktu
+            for worker in tmp_rpt.workers_showing[direction]['КТУ']:
+                unzero_worker = (
+                    tmp_rpt.workers_showing[direction]['КТУ'][worker] != 0)
+                if worker != ch_worker and unzero_worker:
+                    tmp_rpt.workers_showing[direction]['КТУ'][worker] = round(
+                        tmp_rpt.workers_showing[direction]['КТУ'][worker]
+                        + round(delta/(workers-1), 2), 2)
+            tmp_rpt.coutn_delta_ktu(direction)
+            return tmp_rpt
+
+        def complete_main_report(tmp_rpt):
             """Complete main report"""
             choise = input("Вы уверены что хотите завершить отчет? Д/н: ")
             if choise.lower() == 'д':
-                temp_report.count_all_workers_in_report()
-                temp_report.status['status'] = '\033[92m[завершен]\033[0m'
+                tmp_rpt.count_all_workers_in_report()
+                tmp_rpt.status['status'] = '\033[92m[завершен]\033[0m'
                 AllWorkers().add_salary_to_workers(
-                    temp_report.workers_showing['факт']['зарплата'],
-                    temp_report.status['date'],
-                    temp_report.unofficial_workers()
+                    tmp_rpt.workers_showing['факт']['зарплата'],
+                    tmp_rpt.status['date'],
+                    tmp_rpt.unofficial_workers()
                 )
                 super(Reports, self).save_log_to_temp_file(
-                    ' --> ' + temp_report.status['status'])
-            return temp_report
+                    ' --> ' + tmp_rpt.status['status'])
+            return tmp_rpt
 
-        report_file = super().load_data(self.data_path)
+        rpt_file = super().load_data(self.data_path)
         while True:
-            temp_report = report_file[report_name]
-            print(temp_report)
+            tmp_rpt = rpt_file[report_name]
+            print(tmp_rpt)
             if '[завершен]' in report_name:
                 break
             edit_menu_dict = {
@@ -560,21 +565,21 @@ class Reports(BasicFunctions):
             if action_name in ['[закончить редактирование]', '']:
                 break
             elif action_name == 'удалить отчет':
-                temp_report = edit_menu_dict[action_name](report_name)
+                tmp_rpt = edit_menu_dict[action_name](report_name)
                 break
-            temp_report = edit_menu_dict[action_name](temp_report)
-            report_file.pop(report_name, None)
+            tmp_rpt = edit_menu_dict[action_name](tmp_rpt)
+            rpt_file.pop(report_name, None)
             report_name = "{date} {shift} {status}".format(
-                **temp_report.status)
-            report_file[report_name] = temp_report
-            super().dump_data(self.data_path, report_file)
+                **tmp_rpt.status)
+            rpt_file[report_name] = tmp_rpt
+            super().dump_data(self.data_path, rpt_file)
             super().clear_screen()
 
     def make_status_in_process(self, report_name):
         """Change status from 'not complete' to 'in process'"""
-        report_file = super().load_data(self.data_path)
-        print(report_file[report_name])
-        tmp_report = report_file[report_name]
+        rpt_file = super().load_data(self.data_path)
+        print(rpt_file[report_name])
+        tmp_report = rpt_file[report_name]
         print("Введите ОФИЦИАЛЬНЫЕ часы работы:")
         shift = tmp_report.status['shift']
         workers_list = AllWorkers().give_workers_from_shift(shift)
@@ -584,10 +589,10 @@ class Reports(BasicFunctions):
         tmp_report.create_ktu_list()
         tmp_report.count_all_workers_in_report()
         tmp_report.status['status'] = '\033[93m[в процессе]\033[0m'
-        report_file.pop(report_name, None)
+        rpt_file.pop(report_name, None)
         new_name = "{date} {shift} {status}".format(**tmp_report.status)
-        report_file[new_name] = tmp_report
-        super().dump_data(self.data_path, report_file)
+        rpt_file[new_name] = tmp_report
+        super().dump_data(self.data_path, rpt_file)
         super().save_log_to_temp_file(
             ' --> ' + tmp_report.status['status'])
         self.edit_main_report(new_name)

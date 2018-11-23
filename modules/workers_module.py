@@ -225,7 +225,8 @@ class AllWorkers(BasicFunctions):
         def lay_off_worker(temp_worker):
             """Lay off worker and put him in archive"""
             temp_worker.employing_lay_off_dates['lay_off'] = str(date.today())
-            workers_archive = super().load_data(self.workers_archive)
+            workers_archive = super(
+                AllWorkers, self).load_data(self.workers_archive)
             workers_archive[temp_worker.name] = temp_worker
             super(AllWorkers, self).dump_data(
                 self.workers_archive, workers_archive)
@@ -253,7 +254,9 @@ class AllWorkers(BasicFunctions):
                 print(salary_date, '-', temp_worker.salary[salary_date], 'р.')
                 salary_count += temp_worker.salary[salary_date]
             if temp_worker.salary:
-                average_sallary = round(salary_count/len(temp_worker.salary))
+                unzero = super(AllWorkers, self).count_unzero_items(
+                    temp_worker.salary)
+                average_sallary = round(salary_count / unzero)
                 print("\033[93mСредняя з/п:\033[0m ", average_sallary, 'p.')
 
         workers_base = super().load_data(self.workers_base)

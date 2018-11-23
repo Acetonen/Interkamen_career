@@ -78,3 +78,12 @@ class BasicFunctions:
         file_path = AbsolytePath('log.tmp').get_absolyte_path()
         with open(file_path, 'a', encoding='utf-8') as temp_file:
             temp_file.write(log)
+
+    @classmethod
+    def count_unzero_items(cls, items_list):
+        """Count workers that haven't zero hours."""
+        counter = 0
+        for item in items_list:
+            if items_list[item] != 0:
+                counter += 1
+        return counter
