@@ -39,7 +39,6 @@ class MainReport(BasicFunctions):
     Main career report.
     """
     def __init__(self, status, shift, date):
-        super().__init__()
         self.status = {'status': status,
                        'shift': shift,
                        'date': date}
@@ -248,7 +247,6 @@ class Reports(BasicFunctions):
     """
 
     def __init__(self, data_file=AbsolytePath('main_career_report')):
-        super().__init__()
         self.data_path = data_file.get_absolyte_path()
         self.shifts = ['Смена 1', 'Смена 2']
         self.salary_workers = ['Кочерин', 'Кокорин', 'Ягонен',
@@ -409,8 +407,8 @@ class Reports(BasicFunctions):
         def change_hours(temp_report):
             """Change hours value."""
             print("Выберете работника для редактирования:")
-            worker = super().choise_from_list(
-                temp_report.workers_showing['факт']['часы'])
+            workers = temp_report.workers_showing['факт']['часы']
+            worker = super(Reports, self).choise_from_list(workers)
             new_hours = int(input("Введите новое значение часов: "))
             temp_report.workers_showing['факт']['часы'][worker] = new_hours
             return temp_report
@@ -497,10 +495,11 @@ class Reports(BasicFunctions):
         def change_ktu(temp_report):
             """Manualy change worker KTU"""
             print("Выберете вид КТУ:")
-            direction = super().choise_from_list(temp_report.workers_showing)
+            ktu_option = temp_report.workers_showing
+            direction = super(Reports, self).choise_from_list(ktu_option)
             print("Выберете работника:")
-            ch_worker = super().choise_from_list(
-                temp_report.workers_showing[direction]['КТУ'])
+            workers = temp_report.workers_showing[direction]['КТУ']
+            ch_worker = super(Reports, self).choise_from_list(workers)
             new_ktu = float(input("Введите новое значение КТУ: "))
             delta = (temp_report.workers_showing[direction]['КТУ'][ch_worker]
                      - new_ktu)

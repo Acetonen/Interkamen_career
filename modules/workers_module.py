@@ -190,7 +190,7 @@ class AllWorkers(BasicFunctions):
             division = temp_worker.working_place['division']
             subdivision = temp_worker.working_place['subdivision']
             print("Выберете смену:")
-            new_shift = super().choise_from_list(
+            new_shift = super(AllWorkers, self).choise_from_list(
                 self.interkamen[division][subdivision])
             temp_worker.working_place['shift'] = new_shift
             self.add_worker_to_structure(
@@ -256,7 +256,8 @@ class AllWorkers(BasicFunctions):
         workers_base = super().load_data(self.workers_base)
         print("Выберете работника для редактирования:")
         division_workers = self.give_workers_from_division()
-        worker = super().choise_from_list(division_workers, none_option=True)
+        worker = super(AllWorkers, self).choise_from_list(
+            division_workers, none_option=True)
         if worker:
             super().save_log_to_temp_file(worker)
         super().clear_screen()

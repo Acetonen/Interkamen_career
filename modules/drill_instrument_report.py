@@ -26,7 +26,7 @@ class DrillInstruments(BasicFunctions):
     def _check_if_report_avaliable(self):
         """Check if main report exist and complate."""
         self.drill_data['year'] = input("Введите год: ")
-        print("Выберете month:")
+        print("Выберете месяц:")
         self.drill_data['month'] = super().choise_from_list(self.month_list)
         print("Выберете смену:")
         self.drill_data['shift'] = super().choise_from_list(Reports().shifts)
