@@ -1,5 +1,0 @@
-TODO: Secure shelve.
-TODO: Move shelve handling to class level
-TODO: Add rock_mass by month
-TODO: not to available to make drill report if mass = 0
-TODO: change average_sallary count
