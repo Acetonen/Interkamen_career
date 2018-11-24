@@ -126,20 +126,31 @@ class MainReport(BasicFunctions):
         output += "\n    ФИО       ф.часы ф.КТУ  ф.З/п б.часы б.КТУ   б.З/п\n"
         for name in sorted(self.workers_showing['бух.']['часы']):
             short_name = self.create_short_name(name)
-            output += "{:<14}: {:^4} {:^5} {:^8} {:^4}  {:^5} {:^8}\n".format(
+            t_output = "{:<14}: {:^4} {:^5} {:^8} {:^4}  {:^5} {:^8}\n".format(
                 short_name, self.workers_showing['факт']['часы'][name],
                 self.workers_showing['факт']['КТУ'][name],
                 self.workers_showing['факт']['зарплата'][name],
                 self.workers_showing['бух.']['часы'][name],
                 self.workers_showing['бух.']['КТУ'][name],
                 self.workers_showing['бух.']['зарплата'][name])
+            t_output = self._colorise_salary_and_drillers(name, t_output)
+            output += t_output
         unofficial_workers = self.unofficial_workers()
         for name in unofficial_workers:
             short_name = self.create_short_name(name)
-            output += "{:<14}: {:^4} {:^5} {:^8}\n".format(
+            t_output = "{:<14}: {:^4} {:^5} {:^8}\n".format(
                 short_name, self.workers_showing['факт']['часы'][name],
                 self.workers_showing['факт']['КТУ'][name],
                 self.workers_showing['факт']['зарплата'][name])
+            t_output = self._colorise_salary_and_drillers(name, t_output)
+            output += t_output
+        return output
+
+    @classmethod
+    def _colorise_salary_and_drillers(cls, name, output):
+        """Colorise sallary and drillers in report output."""
+        if name in Reports().salary_workers or name in Reports().drillers:
+            output = ''.join(['\033[36m', output, '\033[0m'])
         return output
 
     def unofficial_workers(self):

@@ -61,7 +61,7 @@ def make_header():
         '[не завершен]', '[в процессе]')
     if reports_need_to_edit:
         header = "Недооформленные документы:\n" + '\n'.join(
-            reports_need_to_edit
+            sorted(reports_need_to_edit)
         )
     return header
 
