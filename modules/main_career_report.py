@@ -171,8 +171,8 @@ class MainReport(BasicFunctions):
         self.count_result()
         for direction in self.workers_showing:
             for worker in self.workers_showing[direction]['КТУ']:
-                if ((worker.split(' ')[0] in Reports().salary_workers or
-                     worker.split(' ')[0] in Reports().drillers) and
+                if ((worker in Reports().salary_workers or
+                     worker in Reports().drillers) and
                         direction == 'факт'):
                     self.count_sal_workers_and_drill(worker)
                 else:
@@ -189,10 +189,10 @@ class MainReport(BasicFunctions):
     def count_sal_workers_and_drill(self, worker):
         """Count sallary workers and drillers"""
         oklad = 0
-        if worker.split(' ')[0] in Reports().salary_workers:
+        if worker in Reports().salary_workers:
             oklad = (self.workers_showing['факт']['часы'][worker]
                      / 11 * 50000 / 15)
-        elif worker.split(' ')[0] in Reports().drillers:
+        elif worker in Reports().drillers:
             oklad = (self.result['шпурометры'] * 36)
         if self.bonuses['более 250 кубов']:
             oklad += (5000 / 15 / 11
@@ -246,12 +246,13 @@ class Reports(BasicFunctions):
     Class to manage with reports.
     """
 
-    def __init__(self, data_file=AbsolytePath('main_career_report')):
-        self.data_path = data_file.get_absolyte_path()
+    def __init__(self):
+        self.data_path = AbsolytePath('main_career_report').get_absolyte_path()
+        self.salary_path = AbsolytePath('salary_worker').get_absolyte_path()
+        self.drillers_path = AbsolytePath('drillers').get_absolyte_path()
         self.shifts = ['Смена 1', 'Смена 2']
-        self.salary_workers = ['Кочерин', 'Кокорин', 'Ягонен',
-                               'Никулин', 'Медведев', 'Фигурин']
-        self.drillers = ['Краснов', 'Фролов']
+        self.salary_workers = self._get_salary_workers_list()
+        self.drillers = self._get_drillers_list()
 
     @classmethod
     def check_date_format(cls, date):
@@ -343,6 +344,72 @@ class Reports(BasicFunctions):
             super().dump_data(self.data_path, rpt_file)
             super().save_log_to_temp_file(
                 ' --> ' + tmp_rpt.status['status'])
+
+    def _get_salary_workers_list(self):
+        """Get salary workers list."""
+        salary_workers_base = super().load_data(self.salary_path)
+        return salary_workers_base
+
+    def _get_drillers_list(self):
+        """Get salary workers list."""
+        drillers_base = super().load_data(self.drillers_path)
+        return drillers_base
+
+    def choose_salary_or_drillers(self):
+        """Chose list to edit, salary or drillers."""
+        choose = input("Редактировать окладников или бурильщиков? о/б: ")
+        if choose == 'о':
+            self.edit_salary_or_drillers(self.salary_path)
+            super().save_log_to_temp_file(' salary')
+        elif choose == 'б':
+            self.edit_salary_or_drillers(self.drillers_path)
+            super().save_log_to_temp_file(' drillers')
+
+    def edit_salary_or_drillers(self, workers_base):
+        """Edit sallary or drillers lists."""
+
+        def add_salary_or_driller(workers_base):
+            """Add worker from salary or driller list."""
+            worker_list = super(Reports, self).load_data(workers_base)
+            if not worker_list:
+                worker_list = []
+            print("Выберете работника:")
+            worker = super(Reports, self).choise_from_list(
+                AllWorkers().give_mining_workers(), none_option=True
+            )
+            if worker:
+                worker_list.append(worker)
+                super(Reports, self).dump_data(workers_base, worker_list)
+                log = " worker {} aded".format(worker)
+                print(log)
+                super(Reports, self).save_log_to_temp_file(log)
+
+        def delete_salary_or_driller(workers_base):
+            """Delete worker from salary or driller list."""
+            worker_list = super(Reports, self).load_data(workers_base)
+            if not worker_list:
+                worker_list = []
+            print("Выберете работника для удаления:")
+            worker = super(Reports, self).choise_from_list(
+                worker_list, none_option=True)
+            if worker:
+                worker_list.remove(worker)
+                super(Reports, self).dump_data(workers_base, worker_list)
+                log = " worker {} deleted".format(worker)
+                print(log)
+                super(Reports, self).save_log_to_temp_file(log)
+
+        while True:
+            worker_list = super(Reports, self).load_data(workers_base)
+            print(worker_list)
+            edit_menu_dict = {'д': add_salary_or_driller,
+                              'у': delete_salary_or_driller}
+            action_name = input("Добавить или удалить работника (д/у): ")
+            if action_name not in edit_menu_dict:
+                print("Вы отменили редактирование.")
+                break
+            else:
+                edit_menu_dict[action_name](workers_base)
 
     def give_main_results(self, year, month, shift):
         """Return drill meters, result and rock_mass.

@@ -350,6 +350,15 @@ class AllWorkers(BasicFunctions):
             ]
         return worker_list
 
+    def give_mining_workers(self):
+        """Give all mining workers from both shifts."""
+        company_structure = super().load_data(self.company_structure)
+        mining_workers_list = (
+            company_structure['Карьер']['Добычная бригада']['Смена 1']
+            + company_structure['Карьер']['Добычная бригада']['Смена 2']
+            )
+        return mining_workers_list
+
     def print_workers_from_division(self):
         """Output workers from division"""
         workers_list = self.give_workers_from_division()

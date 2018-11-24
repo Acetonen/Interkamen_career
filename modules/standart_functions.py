@@ -62,8 +62,11 @@ class BasicFunctions:
     @classmethod
     def load_data(cls, data_path):
         """Load file from pickle"""
-        with open(data_path, 'rb') as base_file:
-            base = pickle.load(base_file)
+        if os.path.exists(data_path):
+            with open(data_path, 'rb') as base_file:
+                base = pickle.load(base_file)
+        else:
+            base = {}
         return base
 
     @classmethod

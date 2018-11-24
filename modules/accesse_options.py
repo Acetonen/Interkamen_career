@@ -43,7 +43,9 @@ class Accesse:
                 'Вернуть работника из архива':
                 lambda *arg: AllWorkers().return_from_archive(),
                 'Редактировать работника':
-                lambda *arg: AllWorkers().edit_worker()
+                lambda *arg: AllWorkers().edit_worker(),
+                'Редактировать окладников или бурильщиков':
+                lambda *arg: Reports().choose_salary_or_drillers()
                 },
             '\033[91m--> [databases] \033[0m': {
                 'upd company structure':

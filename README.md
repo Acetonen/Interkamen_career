@@ -1,6 +1,6 @@
 # Interkamen Program
 
-This is corporative program to maintain Career statistic.
+This is corporative program of mining company to work with statistic and financial reports.
 
 ## Getting Started
 
@@ -8,29 +8,16 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
-
-```
-Give examples
-```
+For working with that program you need to install on your machine:
+1. python 3.6+
+And pythons frameworks:
+1. pandas
+2. matplotlib
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
+1. Copy repository or download files on your computer.
+2. Unzip data.zip in root folder of program.
 
 ## Running the tests
 

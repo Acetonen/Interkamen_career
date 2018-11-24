@@ -40,7 +40,8 @@ class Logs(BasicFunctions):
             'Редактировать табель': 'edit report',
             'Создать табель добычной бригады': 'create new report',
             '[Наряд бригады]': 'edit report',
-            'Создать отчет по буровым инструментам': 'create drill report'
+            'Создать отчет по буровым инструментам': 'create drill report',
+            'Редактировать окладников или бурильщиков': 'edit'
             }
 
         self.search_list = list(self.log_list.keys())
