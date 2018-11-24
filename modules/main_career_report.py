@@ -488,7 +488,7 @@ class Reports(BasicFunctions):
             print("Выберете работника для редактирования:")
             workers = tmp_rpt.workers_showing['факт']['часы']
             worker = super(Reports, self).choise_from_list(workers)
-            new_hours = int(input("Введите новое значение часов: "))
+            new_hours = float(input("Введите новое значение часов: "))
             tmp_rpt.workers_showing['факт']['часы'][worker] = new_hours
             return tmp_rpt
 
@@ -533,7 +533,7 @@ class Reports(BasicFunctions):
         print("Выберет отчет:")
         report_name = super().choise_from_list(rpt_file, none_option=True)
         if report_name:
-            super().save_log_to_temp_file(report_name)
+            super().save_log_to_temp_file(' ' + report_name)
             if '[не завершен]' in report_name:
                 self.make_status_in_process(report_name)
             elif '[завершен]' in report_name:
