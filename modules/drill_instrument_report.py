@@ -17,7 +17,6 @@ class DrillInstruments(BasicFunctions):
     All information about drill instruments.
     """
     def __init__(self, data_file=AbsolytePath('drill_instruments')):
-        super().__init__()
         self.drill_file = data_file.get_absolyte_path()
         self.month_list = ['01', '02', '03', '04', '05', '06',
                            '07', '08', '09', '10', '11', '12']
@@ -73,7 +72,7 @@ class DrillInstruments(BasicFunctions):
             new_data = old_data.append(self.drill_data, ignore_index=True)
         else:
             new_data = pd.DataFrame(self.drill_data, index=[0])
-        super.dump_data(self.drill_file, new_data)
+        super().dump_data(self.drill_file, new_data)
 
     def _visualise_statistic(self, year):
         """Visualise statistic."""
@@ -200,7 +199,10 @@ class DrillInstruments(BasicFunctions):
         """Showing statistic about drill instrument."""
         year = input("Введите год: ")
         drill_data = super().load_data(self.drill_file)
-        if year in list(drill_data.year):
+        drill_data_year = []
+        if isinstance(drill_data, pd.DataFrame):
+            drill_data_year = list(drill_data.year)
+        if year in drill_data_year:
             self._visualise_statistic(year)
         else:
             print("Отстутствует статистика за {} год".format(year))
