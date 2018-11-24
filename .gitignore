@@ -60,7 +60,5 @@ target/
 data/
 backup/
 
-# Archives
-*.zip
 
 ToDo.txt
