@@ -30,8 +30,8 @@ classes: MainReport:'add_brigad_bonus',
 
 from pprint import pprint
 from modules.workers_module import AllWorkers
-from modules.absolyte_path_module import AbsolytePath
-from modules.standart_functions import BasicFunctions
+from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.standart_functions import BasicFunctions
 
 
 class MainReport(BasicFunctions):
@@ -123,7 +123,7 @@ class MainReport(BasicFunctions):
             output += "\033[92m[Премия за 250]\033[0m\n"
         if self.bonuses['победа по критериям']:
             output += "\033[92m[Победа в соц. соревновании]\033[0m\n"
-        output += "\n    ФИО       ф.часы ф.КТУ  ф.З/п б.часы б.КТУ   б.З/п\n"
+        output += "\n    ФИО       ф.часы ф.КТУ  ф.З/п  б.часы б.КТУ  б.З/п\n"
         for name in sorted(self.workers_showing['бух.']['часы']):
             short_name = self.create_short_name(name)
             t_output = "{:<14}: {:^4} {:^5} {:^8} {:^4}  {:^5} {:^8}\n".format(

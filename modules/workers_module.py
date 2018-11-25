@@ -23,8 +23,8 @@ class AllWorkers: 'add_new_worker',
 import os
 from pprint import pprint
 from datetime import date
-from modules.absolyte_path_module import AbsolytePath
-from modules.standart_functions import BasicFunctions
+from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.standart_functions import BasicFunctions
 
 
 class Worker():

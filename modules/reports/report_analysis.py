@@ -7,7 +7,7 @@ classes: ReportAnalysis: result_analysis
 from copy import deepcopy
 from matplotlib import pyplot as plt
 from matplotlib import rcParams as window_parametrs
-from modules.main_career_report import Reports
+from modules.reports.main_career_report import Reports
 
 
 class ReportAnalysis(Reports):
@@ -171,7 +171,6 @@ class ReportAnalysis(Reports):
         plot_number = 1
         print('plot number', plot_number)
         for result in sorted(results_and_titles[0]):
-
             plt.subplot(1, 2, plot_number)
             self._subplot_result(year, results_and_titles[0][result],
                                  results_and_titles[plot_number])
@@ -181,7 +180,7 @@ class ReportAnalysis(Reports):
     def _subplot_result(self, year, result, title):
         """visualise result."""
         # Count coefficient for annotations coordinate depend on scale.
-        if title.split(' ')[1] == 'добыча,':
+        if title.split(' ')[1] in ['добыча,', 'масса']:
             coef = 5
         else:
             coef = 0.1
@@ -219,13 +218,15 @@ class ReportAnalysis(Reports):
                         rock_mass_month += self.base[report].count_rock_mass()
                 persent = self.count_persent(rock_mass_horizont, horizont_sum)
                 result_lists['pers'][horizont].append(persent)
-                result_lists['rock_mass'][horizont].append(rock_mass_horizont)
+                result_lists['rock_mass'][horizont].append(
+                    int(round(rock_mass_horizont, 0)))
                 result_lists['res'][horizont].append(
                     int(round(horizont_sum, 0)))
             persent = self.count_persent(rock_mass_month, monthly_sum)
             result_lists['pers']['totall'].append(persent)
             result_lists['res']['totall'].append(int(round(monthly_sum, 0)))
-            result_lists['rock_mass']['totall'].append(rock_mass_month)
+            result_lists['rock_mass']['totall'].append(
+                int(round(rock_mass_month, 0)))
         return result_lists
 
     def _give_by_shift(self):
@@ -244,5 +245,6 @@ class ReportAnalysis(Reports):
                 persent = self.count_persent(rock_mass_shift, shift_sum)
                 result_lists['pers'][shift].append(persent)
                 result_lists['res'][shift].append(int(round(shift_sum, 0)))
-                result_lists['rock_mass'][shift].append(rock_mass_shift)
+                result_lists['rock_mass'][shift].append(
+                    int(round(rock_mass_shift, 0)))
         return result_lists

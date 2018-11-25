@@ -18,8 +18,8 @@ Classes: Users: 'change_password',
 
 
 import getpass
-from modules.absolyte_path_module import AbsolytePath
-from modules.standart_functions import BasicFunctions
+from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.standart_functions import BasicFunctions
 
 
 class Users(BasicFunctions):

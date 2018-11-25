@@ -11,13 +11,16 @@ Functions: 'print_menu'
 """
 
 import sys
-from modules.hi import INTERKAMEN
-from modules.accesse_options import Accesse
-from modules.users import Users
-from modules.log_class import Logs
-from modules.backup import check_last_backup_date
-from modules.main_career_report import Reports
-from modules.standart_functions import BasicFunctions
+
+from modules.support_modules.hi import INTERKAMEN
+from modules.support_modules.backup import check_last_backup_date
+from modules.support_modules.standart_functions import BasicFunctions
+
+from modules.administration.accesse_options import Accesse
+from modules.administration.users import Users
+from modules.administration.log_class import Logs
+
+from modules.reports.main_career_report import Reports
 
 
 def login_program():

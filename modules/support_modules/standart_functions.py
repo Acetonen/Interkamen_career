@@ -4,7 +4,7 @@
 import sys
 import os
 import pickle
-from modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsolytePath
 
 
 class BasicFunctions:

@@ -4,7 +4,7 @@
 import shutil
 import os
 from datetime import date, datetime
-from modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsolytePath
 
 
 def make_backup():

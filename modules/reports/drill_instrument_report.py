@@ -7,9 +7,9 @@ import os
 from matplotlib import pyplot as plt
 from matplotlib import rcParams as window_parametrs
 import pandas as pd
-from modules.absolyte_path_module import AbsolytePath
-from modules.main_career_report import Reports
-from modules.standart_functions import BasicFunctions
+from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.reports.main_career_report import Reports
+from modules.support_modules.standart_functions import BasicFunctions
 
 
 class DrillInstruments(BasicFunctions):

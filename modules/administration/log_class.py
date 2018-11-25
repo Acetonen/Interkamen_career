@@ -11,9 +11,11 @@ Classes: Logs: '_upload_temp_file_log',
 
 import os
 from datetime import datetime
-from modules.absolyte_path_module import AbsolytePath
-from modules.users import Users
-from modules.standart_functions import BasicFunctions
+
+from modules.administration.users import Users
+
+from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.absolyte_path_module import AbsolytePath
 
 
 class Logs(BasicFunctions):
@@ -51,7 +53,7 @@ class Logs(BasicFunctions):
         """Read detailed user log from temp file"""
         file_path = AbsolytePath('log.tmp').get_absolyte_path()
         if os.path.exists(file_path):
-            with open(file_path, 'r') as temp_file:
+            with open(file_path, 'r', encoding='utf-8') as temp_file:
                 detail_log = temp_file.readlines()
                 self.log_constructor.extend(detail_log)
             os.remove(file_path)
