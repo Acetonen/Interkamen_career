@@ -33,7 +33,7 @@ Please email to acetonen@gmail.com for details on our code of conduct, and the p
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. 
+We use [SemVer](http://semver.org/) for versioning.
 ##### current version 1.0.0 (release)
 
 ## Content and Instruction
@@ -46,6 +46,7 @@ Username: admin
 Password: 0000
 ### 2. Main menu
 ![main_menu](readme_screenshots/main_menu.png)
+
 From this menu you have access to different sub-menus (depend on user access) and basic functions such are: [8] - 'workers telephone numbers', [9] - 'change password', [10] - 'exit program'. Red menus are 'admin-only'
 ### 3. Admin menus
 This menus give you access to:
@@ -54,6 +55,7 @@ This menus give you access to:
 3. create/show company structure
 ### 4. Workers menu [5]
 ![workers_menu](readme_screenshots/workers_menu.png)
+
 In this menu u can:
 1. Create new worker
 2. Show all workers from division
@@ -63,6 +65,7 @@ In this menu u can:
 6. Edit list of special workers category
 ### 5. Statistic menu
 ![statistic_menu](readme_screenshots/statistic.png)
+
 In this menu u can:
 1. Create main career report
 2. Edit main career report
@@ -71,6 +74,7 @@ In this menu u can:
 5. Show statistic of drill instrument by year
 ### 5. Finansial  menu
 ![finance_menu](readme_screenshots/finance.png)
+
 In this menu u can:
 1. Count workers salary
 
