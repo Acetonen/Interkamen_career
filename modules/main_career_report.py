@@ -186,15 +186,19 @@ class MainReport(BasicFunctions):
                      worker in Reports().drillers) and
                         direction == 'факт'):
                     self.count_sal_workers_and_drill(worker)
-                else:
-                    self.count_salary(direction, worker)
+                elif direction == 'бух.':
+                    coefficient = 1
+                    self.count_salary(direction, worker, coefficient)
+                elif direction == 'факт':
+                    coefficient = 1.5
+                    self.count_salary(direction, worker, coefficient)
                 self.add_brigad_bonus(worker)
 
-    def count_salary(self, direction, worker):
+    def count_salary(self, direction, worker, coefficient):
         """Count totall salary"""
         self.workers_showing[direction]['зарплата'][worker] = round(
             self.workers_showing[direction]['КТУ'][worker]
-            * self.totall * 1.5
+            * self.totall * coefficient
             / len(self.workers_showing[direction]['КТУ']), 2)
 
     def count_sal_workers_and_drill(self, worker):
