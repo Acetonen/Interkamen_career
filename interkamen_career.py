@@ -20,7 +20,7 @@ from modules.administration.accesse_options import Accesse
 from modules.administration.users import Users
 from modules.administration.log_class import Logs
 
-from modules.reports.main_career_report import Reports
+from modules.main_career_report import Reports
 
 
 def login_program():

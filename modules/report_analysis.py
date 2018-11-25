@@ -7,7 +7,7 @@ classes: ReportAnalysis: result_analysis
 from copy import deepcopy
 from matplotlib import pyplot as plt
 from matplotlib import rcParams as window_parametrs
-from modules.reports.main_career_report import Reports
+from modules.main_career_report import Reports
 
 
 class ReportAnalysis(Reports):

@@ -14,9 +14,9 @@ from modules.administration.users import Users
 
 from modules.workers_module import AllWorkers
 
-from modules.reports.main_career_report import Reports
-from modules.reports.report_analysis import ReportAnalysis
-from modules.reports.drill_instrument_report import DrillInstruments
+from modules.main_career_report import Reports
+from modules.report_analysis import ReportAnalysis
+from modules.drill_instrument_report import DrillInstruments
 
 
 class Accesse:

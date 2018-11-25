@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from matplotlib import rcParams as window_parametrs
 import pandas as pd
 from modules.support_modules.absolyte_path_module import AbsolytePath
-from modules.reports.main_career_report import Reports
+from modules.main_career_report import Reports
 from modules.support_modules.standart_functions import BasicFunctions
 
 

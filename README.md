@@ -1,4 +1,4 @@
-# Interkamen Program
+# Interkamen Program 1.0.1
 
 ![intro](readme_screenshots/intro.png)
 
@@ -34,7 +34,6 @@ Please email to acetonen@gmail.com for details on our code of conduct, and the p
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
-##### current version 1.0.1
 ### what's new in 1.0.1:
 1. Remove 1,5 coefficient from buh. salary.
 2. Add 'rock mass by month' plot in 'report_analysis'.
