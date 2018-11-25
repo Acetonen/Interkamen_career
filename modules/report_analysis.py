@@ -159,8 +159,8 @@ class ReportAnalysis(Reports):
                         horizont_sum += (
                             self.base[report].result['погоризонтно'][horizont])
                         monthly_sum += self.base[report].count_result()
-                result_lists[horizont].append(round(horizont_sum, 2))
-            result_lists['totall'].append(round(monthly_sum, 2))
+                result_lists[horizont].append(round(horizont_sum, 0))
+            result_lists['totall'].append(round(monthly_sum, 0))
         return result_lists
 
     def _give_persent_by_horiz(self):
@@ -197,7 +197,7 @@ class ReportAnalysis(Reports):
                     report_shift = self.base[report].status['shift']
                     if shift == report_shift and report_month == month:
                         shift_sum += self.base[report].count_result()
-                result_lists[shift].append(shift_sum)
+                result_lists[shift].append(round(shift_sum, 0))
         return result_lists
 
     def _give_persent_by_shift(self):
