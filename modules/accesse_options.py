@@ -58,8 +58,10 @@ class Accesse:
                 lambda arg: Reports().create_report(),
                 'Редактировать табель':
                 lambda arg: Reports().edit_report(),
-                'Погодовой анализ':
+                'Статистика добычи по кубатуре':
                 lambda arg: ReportAnalysis().result_analysis(),
+                'Статистика по горной массе':
+                lambda arg: ReportAnalysis().rock_mass_analysis(),
                 'Создать отчет по буровым инструментам':
                 lambda arg: DrillInstruments().create_drill_report(),
                 'Статистика по буровому инструменту':
