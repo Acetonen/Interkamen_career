@@ -60,5 +60,6 @@ target/
 data/
 backup/
 
+#Jupyter files
 .ipynb_checkpoints
-ToDo.txt
+.ipynb

@@ -19,9 +19,10 @@ def make_backup():
         backup_log.write(current_date)
     backup_log.close()
     EmailSender().try_email(
-        ''.join([data_path[:-5], backup_path, '.zip']),
-        'Data backup',
-        'Data backup for ' + current_date)
+        subject='Data backup',
+        message='Data backup for ' + current_date,
+        add_file=''.join([data_path[:-5], backup_path, '.zip'])
+    )
 
 
 def check_last_backup_date():

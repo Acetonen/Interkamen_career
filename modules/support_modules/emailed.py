@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Email backup file"""
+"""Email file"""
 
 import smtplib
 import socket
@@ -104,20 +104,20 @@ class EmailSender(BasicFunctions):
         print("\033[92mpassword changed.\033[0m")
         return email_prop
 
-    def try_email(self, file_path, subject, message):
+    def try_email(self, *, subject, message, add_file=None):
         """Try to send mail."""
         if not self.login or not self.password:
             print("""Для получения резервных копий баз на почту,
 настройте настройки почты в меню администратора""")
         else:
             try:
-                self.send_mail(file_path, subject, message)
+                self._send_mail(subject, message, add_file)
             except smtplib.SMTPAuthenticationError:
                 print("\033[91mcan't login in e-mail.\033[0m")
             except socket.gaierror:
                 print("\033[91mcan't sent e-mail, no connection\033[0m")
 
-    def send_mail(self, file_path, subject, message, use_tls=True):
+    def _send_mail(self, subject, message, add_file, use_tls=True):
         """Compose and send email with provided info and attachments."""
         msg = MIMEMultipart()
         msg['From'] = self.login
@@ -127,13 +127,13 @@ class EmailSender(BasicFunctions):
         msg.attach(MIMEText(message))
 
         part = MIMEBase('application', "octet-stream")
-        if file_path:
-            with open(file_path, 'rb') as file:
+        if add_file:
+            with open(add_file, 'rb') as file:
                 part.set_payload(file.read())
             encoders.encode_base64(part)
             part.add_header(
                 'Content-Disposition',
-                'attachment; filename="{}"'.format(op.basename(file_path)))
+                'attachment; filename="{}"'.format(op.basename(add_file)))
             msg.attach(part)
 
         smtp = smtplib.SMTP('smtp.gmail.com', 587)
