@@ -85,58 +85,54 @@ if __name__ == '__main__':
     CURRENT_USER = login_program()
     USR_ACS = CURRENT_USER['accesse']
     check_backup()
+
+    # Create main menu (otput and actions dict).
+    MENU_HEADER[1] = '\033[4m ГЛАВНОЕ МЕНЮ \033[0m'
+    get_main_or_sub_menu(None)
+
     while True:
 
-        # Create main menu (otput and actions dict).
-        MENU_HEADER[1] = '\033[4m ГЛАВНОЕ МЕНЮ \033[0m'
-        get_main_or_sub_menu(None)
         print_menu()
+        print(SEPARATOR)
+        USER_CHOISE = input("\nВыберете действие: ")
+        BasicFunctions().clear_screen()
 
-        while True:
-            print(SEPARATOR)
-            USER_CHOISE = input("[0] - Показать меню программы"
-                                "\nВыберете действие:\n")
+        if not BasicFunctions().check_number_in_range(
+                USER_CHOISE, PROGRAM_MENU):
+            continue
+
+        USER_CHOISE = int(USER_CHOISE) - 1
+
+        # Enter sub-menu.
+        if '-->' in MENU_LIST[USER_CHOISE][0]:
+            MENU_HEADER[1] = MENU_LIST[USER_CHOISE][0].split(' ')[1]
+            MENU_NESTING.append(MENU_LIST[USER_CHOISE][0])
+            get_main_or_sub_menu(MENU_LIST[USER_CHOISE][0])
+            continue
+
+        # Exit sub-menu.
+        elif '<--' in MENU_LIST[USER_CHOISE][0]:
+            MENU_NESTING = MENU_NESTING[:-1]
+            if MENU_NESTING:
+                MENU_HEADER[1] = MENU_NESTING[-1].split(' ')[1]
+                get_main_or_sub_menu(MENU_NESTING[-1])
+            else:
+                MENU_HEADER[1] = '\033[4m ГЛАВНОЕ МЕНЮ \033[0m'
+                get_main_or_sub_menu(None)
+
+        # Exit program.
+        elif MENU_LIST[USER_CHOISE][1] == 'exit program':
+            Logs().create_log(
+                CURRENT_USER['login'], 'exit program')
+            sys.exit()
+
+        # Make action.
+        else:
+            ACTION = MENU_LIST[USER_CHOISE][1]
+            ACTION(CURRENT_USER)
+            input('\n[нажмите ENTER]')
             BasicFunctions().clear_screen()
 
-            if USER_CHOISE == '0':
-                print_menu()
-                continue
-
-            if not BasicFunctions().check_number_in_range(
-                    USER_CHOISE, PROGRAM_MENU):
-                continue
-
-            USER_CHOISE = int(USER_CHOISE) - 1
-
-            # Enter sub-menu.
-            if '-->' in MENU_LIST[USER_CHOISE][0]:
-                MENU_HEADER[1] = MENU_LIST[USER_CHOISE][0].split(' ')[1]
-                MENU_NESTING.append(MENU_LIST[USER_CHOISE][0])
-                get_main_or_sub_menu(MENU_LIST[USER_CHOISE][0])
-                print_menu()
-                continue
-
-            # Exit sub-menu.
-            elif '<--' in MENU_LIST[USER_CHOISE][0]:
-                MENU_NESTING = MENU_NESTING[:-1]
-                if MENU_NESTING:
-                    MENU_HEADER[1] = MENU_NESTING[-1].split(' ')[1]
-                    get_main_or_sub_menu(MENU_NESTING[-1])
-                    print_menu()
-                else:
-                    break
-
-            # Exit program.
-            elif MENU_LIST[USER_CHOISE][1] == 'exit program':
-                Logs().create_log(
-                    CURRENT_USER['login'], 'exit program')
-                sys.exit()
-
-            # Make action.
-            else:
-                ACTION = MENU_LIST[USER_CHOISE][1]
-                ACTION(CURRENT_USER)
-
-            CURRENT_USER = Users().sync_user(CURRENT_USER['login'])
-            Logs().create_log(
-                CURRENT_USER['login'], MENU_LIST[USER_CHOISE][0])
+        CURRENT_USER = Users().sync_user(CURRENT_USER['login'])
+        Logs().create_log(
+            CURRENT_USER['login'], MENU_LIST[USER_CHOISE][0])

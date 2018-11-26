@@ -110,7 +110,8 @@ class ReportAnalysis(Reports):
                 'Погоризонтная статистика': self._make_horizont_statistic,
                 'Повахтовая статистика': self._make_shift_statistic
                 }
-            print("\nВыберете необходимый очет:")
+            print("\nВыберете необходимый очет:\n"
+                  "(ENTER - выход)")
             choise = super().choise_from_list(data_type, none_option=True)
             super().clear_screen()
             if choise in data_type:
@@ -169,7 +170,6 @@ class ReportAnalysis(Reports):
         window_parametrs['figure.titlesize'] = 'large'
 
         plot_number = 1
-        print('plot number', plot_number)
         for result in sorted(results_and_titles[0]):
             plt.subplot(1, 2, plot_number)
             self._subplot_result(year, results_and_titles[0][result],

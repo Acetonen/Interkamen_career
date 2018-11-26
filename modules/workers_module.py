@@ -23,6 +23,7 @@ class AllWorkers: 'add_new_worker',
 import os
 from pprint import pprint
 from datetime import date
+
 from modules.support_modules.absolyte_path_module import AbsolytePath
 from modules.support_modules.standart_functions import BasicFunctions
 
@@ -266,6 +267,7 @@ class AllWorkers(BasicFunctions):
             division_workers, none_option=True)
         if worker:
             super().save_log_to_temp_file(worker)
+        print("Редактирование отменено.")
         super().clear_screen()
         while worker:
             temp_worker = workers_base[worker]
@@ -342,7 +344,8 @@ class AllWorkers(BasicFunctions):
         """Print all users from base"""
         company_structure = super().load_data(self.company_structure)
         print("Выберете подразделение:")
-        division = super().choise_from_list(company_structure)
+        division = super().choise_from_list(company_structure,
+                                            none_option=True)
         worker_list = [
             worker for subdivision in company_structure[division]
             for shift in company_structure[division][subdivision]
