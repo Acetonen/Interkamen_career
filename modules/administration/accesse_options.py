@@ -12,8 +12,9 @@ Classes: Accesse: 'create_list',
 from modules.administration.log_class import Logs
 from modules.administration.users import Users
 
-from modules.workers_module import AllWorkers
+from modules.support_modules.emailed import EmailSender
 
+from modules.workers_module import AllWorkers
 from modules.main_career_report import Reports
 from modules.report_analysis import ReportAnalysis
 from modules.drill_instrument_report import DrillInstruments
@@ -24,18 +25,23 @@ class Accesse:
     def __init__(self, accesse='mechanic'):
 
         self.sub_menus = {
-            '--> [TEST]': {},
+            '\033[91m--> [administration]\033[0m': {
+                '\033[91m--> [log_menu] \033[0m': 'sub-menu',
+                '\033[91m--> [users_menu] \033[0m': 'sub-menu',
+                '\033[91m--> [databases] \033[0m': 'sub-menu',
+                '\033[91mbackup email settings\033[0m':
+                lambda *arg: EmailSender().edit_mail_propeties()
+            },
             '\033[91m--> [log_menu] \033[0m': {
                 'search in logs': lambda *arg: Logs().search_in_logs(),
                 'delete all logs': lambda *arg: Logs().delete_all_logs(),
                 'show all logs': lambda *arg: Logs().show_all_logs(),
-                },
+            },
             '\033[91m--> [users_menu] \033[0m': {
-                '--> [TEST]': 'test menu',
                 'create new user': lambda *arg: Users().create_new_user(),
                 'edit user': lambda *arg: Users().edit_user(),
                 'show all users': lambda *arg: Users().show_all_users()
-                },
+            },
             '--> [Работники] ': {
                 'Новый работник': lambda *arg: AllWorkers().add_new_worker(),
                 'Показать работников подразделения':
@@ -48,13 +54,13 @@ class Accesse:
                 lambda *arg: AllWorkers().edit_worker(),
                 'Редактировать окладников или бурильщиков':
                 lambda *arg: Reports().choose_salary_or_drillers()
-                },
+            },
             '\033[91m--> [databases] \033[0m': {
                 'upd company structure':
                 lambda *arg: AllWorkers().upd_company_structure(),
                 'print company structure':
                 lambda *arg: AllWorkers().print_company_structure()
-                },
+            },
             '--> [Статистика]': {
                 'Создать табель добычной бригады':
                 lambda arg: Reports().create_report(),
@@ -68,17 +74,17 @@ class Accesse:
                 lambda arg: DrillInstruments().create_drill_report(),
                 'Статистика по буровому инструменту':
                 lambda arg: DrillInstruments().show_statistic_by_year()
-                },
+            },
             '--> [Финансы]': {
                 'Наряд бригады':
                 lambda arg: Reports().work_with_main_report(arg)
             }
-            }
+        }
 
         self.sub_standart_options = {
             '<-- [Предыдущее меню]': 'menu before',
             '\033[93mВыйти из программы\033[0m': 'exit program',
-            }
+        }
 
         self.menu_options = {
             'basic': {
@@ -86,16 +92,13 @@ class Accesse:
                 lambda arg: AllWorkers().print_telefon_numbers(),
                 'Поменять пароль': lambda arg: Users().change_password(arg),
                 '\033[93mВыйти из программы\033[0m': 'exit program'
-                },
+            },
             'mechanic': {},
             'master': {'--> [Статистика]': 'sub-menu'},
             'boss': {'--> [Работники] ': 'sub-menu',
                      '--> [Финансы]': 'sub-menu'},
-            'admin': {'\033[91m--> [users_menu] \033[0m': 'sub-menu',
-                      '\033[91m--> [log_menu] \033[0m': 'sub-menu',
-                      '\033[91m--> [databases] \033[0m': 'sub-menu',
-                      '\033[91m-------------------\033[0m': 'separator'}
-            }
+            'admin': {'\033[91m--> [administration]\033[0m': 'sub-menu'}
+        }
         self.menu_list = self.create_list(accesse, self.menu_options)
 
     @classmethod

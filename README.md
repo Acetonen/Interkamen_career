@@ -52,6 +52,8 @@ Password: 0000
 
 From this menu you have access to different sub-menus (depend on user access) and basic functions such are: [8] - 'workers telephone numbers', [9] - 'change password', [10] - 'exit program'. Red menus are 'admin-only'
 ### 3. Admin menus
+![admin_menu](readme_screenshots/admin_menu.png)
+
 This menus give you access to:
 1. create/delete/edit new user
 2. read/delete/search in logs

@@ -5,7 +5,7 @@ import shutil
 import os
 from datetime import date, datetime
 from modules.support_modules.absolyte_path_module import AbsolytePath
-from modules.support_modules.emailed_backup import send_mail
+from modules.support_modules.emailed import EmailSender
 
 
 def make_backup():
@@ -18,7 +18,10 @@ def make_backup():
     with open(log_file_name, 'a', encoding='utf-8') as backup_log:
         backup_log.write(current_date)
     backup_log.close()
-    send_mail(''.join([data_path[:-5], backup_path, '.zip']))
+    EmailSender().try_email(
+        ''.join([data_path[:-5], backup_path, '.zip']),
+        'Data backup',
+        'Data backup for ' + current_date)
 
 
 def check_last_backup_date():

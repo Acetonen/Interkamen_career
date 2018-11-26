@@ -132,11 +132,6 @@ if __name__ == '__main__':
                     CURRENT_USER['login'], 'exit program')
                 sys.exit()
 
-            elif '\033[9m\033[91m' in MENU_LIST[USER_CHOISE][0]:
-                print("Are you stupid?")
-                input("yes/no: ")
-                break
-
             # Make action.
             else:
                 ACTION = MENU_LIST[USER_CHOISE][1]
