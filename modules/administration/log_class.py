@@ -16,6 +16,7 @@ from modules.administration.users import Users
 
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.emailed import EmailSender
 
 
 class Logs(BasicFunctions):
@@ -45,7 +46,10 @@ class Logs(BasicFunctions):
             'Создать отчет по буровым инструментам': 'create drill report',
             'Редактировать окладников или бурильщиков': 'edit'
             }
-
+        self.notification_list = [
+            '\033[91m[не завершен]\033[0m',
+            '\033[93m[в процессе]\033[0m',
+        ]
         self.search_list = list(self.log_list.keys())
         self.search_list.extend(Users().get_all_users_list())
 
@@ -68,7 +72,16 @@ class Logs(BasicFunctions):
             logs_base = super().load_data(self.data_path)
             logs_base[current_time] = self.log_constructor
             super().dump_data(self.data_path, logs_base)
+            self._send_mail_notification(
+                'InterKamen program notification.',
+                ' '.join(self.log_constructor))
             self.log_constructor = self.log_constructor[:]
+
+    def _send_mail_notification(self, subject, message):
+        """Send notification email if action in notification list."""
+        for event in self.notification_list:
+            if event in ' '.join(self.log_constructor):
+                EmailSender().try_email(subject=subject, message=message)
 
     def show_all_logs(self):
         """show_all_logs"""

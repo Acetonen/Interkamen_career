@@ -37,10 +37,9 @@ class EmailSender(BasicFunctions):
             email_prop = super().load_data(self.email_prop_path)
 
             print("Program email:\n\
-           login   : {}\n\
-           password: {}\n\
-           Send to:".format(email_prop['email'],
-                            email_prop['password']))
+    login   : {}\n\
+    password: {}\n\
+    Send to:".format(email_prop['email'], email_prop['password']))
             for email in email_prop['resivers list']:
                 print('\t', email)
 

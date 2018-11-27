@@ -123,22 +123,31 @@ class MainReport(BasicFunctions):
             output += "\033[92m[Премия за 250]\033[0m\n"
         if self.bonuses['победа по критериям']:
             output += "\033[92m[Победа в соц. соревновании]\033[0m\n"
-        output += "\n    ФИО       ф.часы ф.КТУ  ф.З/п  б.часы б.КТУ  б.З/п\n"
+        output += "                   \
+Фактические               Бухгалтерские"
+        output += "\n    ФИО         часы   КТУ       З/п     |\
+ часы   КТУ      З/п\n"
         for name in sorted(self.workers_showing['бух.']['часы']):
             short_name = self.create_short_name(name)
-            t_output = "{:<14}: {:^4} {:^5} {:^8} {:^4}  {:^5} {:^8}\n".format(
-                short_name, self.workers_showing['факт']['часы'][name],
-                self.workers_showing['факт']['КТУ'][name],
-                self.workers_showing['факт']['зарплата'][name],
-                self.workers_showing['бух.']['часы'][name],
-                self.workers_showing['бух.']['КТУ'][name],
-                self.workers_showing['бух.']['зарплата'][name])
+            t_output = (
+                "{:<14}: {:>3} | {:>4} | {:<9,}р. | ".format(
+                    short_name,
+                    self.workers_showing['факт']['часы'][name],
+                    self.workers_showing['факт']['КТУ'][name],
+                    self.workers_showing['факт']['зарплата'][name],
+                )
+                + "{:>3} | {:>4} | {:<9,}р.\n".format(
+                    self.workers_showing['бух.']['часы'][name],
+                    self.workers_showing['бух.']['КТУ'][name],
+                    self.workers_showing['бух.']['зарплата'][name]
+                )
+            )
             t_output = self._colorise_salary_and_drillers(name, t_output)
             output += t_output
         unofficial_workers = self.unofficial_workers()
         for name in unofficial_workers:
             short_name = self.create_short_name(name)
-            t_output = "{:<14}: {:^4} {:^5} {:^8}\n".format(
+            t_output = "{:<14}: {:>3} | {:>4} | {:<9,}\n".format(
                 short_name, self.workers_showing['факт']['часы'][name],
                 self.workers_showing['факт']['КТУ'][name],
                 self.workers_showing['факт']['зарплата'][name])
@@ -288,7 +297,7 @@ class Reports(BasicFunctions):
         for worker in workers_list:
             print(worker, end="")
             hours = input('; часов: ')
-            workers_hours[worker] = float(hours)
+            workers_hours[worker] = int(hours)
         return workers_hours
 
     @classmethod
