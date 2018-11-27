@@ -554,8 +554,17 @@ class Reports(BasicFunctions):
     def work_with_main_report(self, current_user):
         """Finish MainReport"""
         rpt_file = super().load_data(self.data_path)
-        print("Выберет отчет:")
-        report_name = super().choise_from_list(rpt_file, none_option=True)
+        years = set([report.split('-')[0] for report in rpt_file])
+        print("Выберете год:")
+        year = super().choise_from_list(years, none_option=True)
+        if year:
+            reports_by_years = [report for report in rpt_file
+                                if report.startswith(year)]
+            print("Выберет отчет:")
+            report_name = super().choise_from_list(reports_by_years,
+                                                   none_option=True)
+        else:
+            report_name = None
         if report_name:
             super().save_log_to_temp_file(' ' + report_name)
             if '[не завершен]' in report_name:

@@ -47,8 +47,10 @@ class Logs(BasicFunctions):
             'Редактировать окладников или бурильщиков': 'edit'
             }
         self.notification_list = [
-            '\033[91m[не завершен]\033[0m',
-            '\033[93m[в процессе]\033[0m',
+            'create drill report',
+            '-->',
+            'create new user',
+            'create new report'
         ]
         self.search_list = list(self.log_list.keys())
         self.search_list.extend(Users().get_all_users_list())
