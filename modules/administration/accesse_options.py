@@ -53,7 +53,9 @@ class Accesse:
                 'Редактировать работника':
                 lambda *arg: AllWorkers().edit_worker(),
                 'Редактировать окладников или бурильщиков':
-                lambda *arg: Reports().choose_salary_or_drillers()
+                lambda *arg: Reports().choose_salary_or_drillers(),
+                'Показать юбиляров этого года':
+                lambda *arg: AllWorkers().show_anniversary_workers()
             },
             '\033[91m--> [databases] \033[0m': {
                 'upd company structure':
