@@ -1,31 +1,6 @@
 #!/usr/bin/env python3
 """
 Main career report
-classes: MainReport:'add_brigad_bonus',
-                    'add_delta_ktu_to_worker',
-                    'check_number_in_range',
-                    'count_all_workers_in_report',
-                    'count_result',
-                    'count_sal_workers_and_drill',
-                    'count_salary',
-                    'count_totall',
-                    'coutn_delta_ktu',
-                    'create_ktu_list',
-                    'create_short_name'
-         Reports: '_add_worker_from_diff_shift',
-                  'check_date_format',
-                  '_check_if_report_exist',
-                  'check_number_in_range',
-                  'create_report',
-                  'create_workers_hours_list',
-                  'delete_report',
-                  'edit_main_report',
-                  'edit_report',
-                  'give_avaliable_to_edit',
-                  'give_main_results',
-                  'make_status_in_process',
-                  '_uncomplete_main_report',
-                  'work_with_main_report',
 """
 
 from pprint import pprint
@@ -38,6 +13,38 @@ class MainReport(BasicFunctions):
     """
     Main career report.
     """
+    workers_showing = {
+        'бух.': {
+            'КТУ': {},
+            'часы': {},
+            'зарплата': {}
+        },
+        'факт': {
+            'КТУ': {},
+            'часы': {},
+            'зарплата': {}
+        }}
+    result = {
+        'машины второго сорта': 0,
+        'шпурометры': 0,
+        'категории': {'меньше 0.7': 0,
+                      '0.7-1.5': 0,
+                      'выше 1.5': 0},
+        'погоризонтно': {'+108': 0,
+                         '+114': 0,
+                         '+120': 0,
+                         '+126': 0,
+                         '+132': 0}
+        }
+    bonuses = {'более 250 кубов': False,
+               'победа по критериям': False}
+    rock_mass = {'+108': 0,
+                 '+114': 0,
+                 '+120': 0,
+                 '+126': 0,
+                 '+132': 0}
+    totall = 0
+
     def __init__(self, status, shift, date):
         self.status = {'status': status,
                        'shift': shift,
@@ -45,37 +52,6 @@ class MainReport(BasicFunctions):
         # Avaliable statuses: '\033[91m[не завершен]\033[0m'
         #                     '\033[93m[в процессе]\033[0m'
         #                     '\033[92m[завершен]\033[0m'
-        self.workers_showing = {
-            'бух.': {
-                'КТУ': {},
-                'часы': {},
-                'зарплата': {}
-            },
-            'факт': {
-                'КТУ': {},
-                'часы': {},
-                'зарплата': {}
-            }}
-        self.result = {
-            'машины второго сорта': 0,
-            'шпурометры': 0,
-            'категории': {'меньше 0.7': 0,
-                          '0.7-1.5': 0,
-                          'выше 1.5': 0},
-            'погоризонтно': {'+108': 0,
-                             '+114': 0,
-                             '+120': 0,
-                             '+126': 0,
-                             '+132': 0}
-            }
-        self.bonuses = {'более 250 кубов': False,
-                        'победа по критериям': False}
-        self.rock_mass = {'+108': 0,
-                          '+114': 0,
-                          '+120': 0,
-                          '+126': 0,
-                          '+132': 0}
-        self.totall = 0
 
     @classmethod
     def count_totall(cls, value_list):
@@ -91,6 +67,13 @@ class MainReport(BasicFunctions):
         n_m = name.split(' ')
         short_name = n_m[0] + ' ' + n_m[1][0] + '.' + n_m[2][0] + '.'
         return short_name
+
+    @classmethod
+    def _colorise_salary_and_drillers(cls, name, output):
+        """Colorise sallary and drillers in report output."""
+        if name in Reports().salary_workers or name in Reports().drillers:
+            output = ''.join(['\033[36m', output, '\033[0m'])
+        return output
 
     def __str__(self):
         """Print main report"""
@@ -155,12 +138,43 @@ class MainReport(BasicFunctions):
             output += t_output
         return output
 
-    @classmethod
-    def _colorise_salary_and_drillers(cls, name, output):
-        """Colorise sallary and drillers in report output."""
-        if name in Reports().salary_workers or name in Reports().drillers:
-            output = ''.join(['\033[36m', output, '\033[0m'])
-        return output
+    def _count_salary(self, direction, worker, coefficient):
+        """Count totall salary"""
+        self.workers_showing[direction]['зарплата'][worker] = round(
+            self.workers_showing[direction]['КТУ'][worker]
+            * self.totall * coefficient
+            / len(self.workers_showing[direction]['КТУ']), 2)
+
+    def _count_sal_workers_and_drill(self, worker):
+        """Count sallary workers and drillers"""
+        oklad = 0
+        if worker in Reports().salary_workers:
+            oklad = (self.workers_showing['факт']['часы'][worker]
+                     / 11 * 50000 / 15)
+        elif worker in Reports().drillers:
+            oklad = (self.result['шпурометры'] * 36)
+        if self.bonuses['более 250 кубов']:
+            oklad += (5000 / 15 / 11
+                      * self.workers_showing['факт']['часы'][worker])
+        self.workers_showing['факт']['зарплата'][worker] = round(oklad, 2)
+
+    def _add_brigad_bonus(self, worker):
+        """Add bonus if brigad win monthly challenge"""
+        if self.bonuses['победа по критериям']:
+            self.workers_showing['факт']['зарплата'][worker] += 3000
+
+    def _add_delta_ktu_to_worker(self, delta, direction):
+        """Add delta ktu to worker"""
+        print('\n' + 'КТУ: ' + direction)
+        workers_list = self.workers_showing[direction]['КТУ'].items()
+        print("\nВыберете работника, которому хотите добавить остаток:")
+        worker = super().choise_from_list(workers_list)
+        worker_ktu = self.workers_showing[direction]['КТУ'][worker[0]]
+        result = round(delta + worker_ktu, 2)
+        self.workers_showing[direction]['КТУ'][worker[0]] = result
+        print("Остаток добавлен.\n")
+        print(direction)
+        pprint(self.workers_showing[direction]['КТУ'])
 
     def unofficial_workers(self):
         """Return unofficial workers"""
@@ -194,39 +208,14 @@ class MainReport(BasicFunctions):
                 if ((worker in Reports().salary_workers or
                      worker in Reports().drillers) and
                         direction == 'факт'):
-                    self.count_sal_workers_and_drill(worker)
+                    self._count_sal_workers_and_drill(worker)
                 elif direction == 'бух.':
                     coefficient = 1
-                    self.count_salary(direction, worker, coefficient)
+                    self._count_salary(direction, worker, coefficient)
                 elif direction == 'факт':
                     coefficient = 1.5
-                    self.count_salary(direction, worker, coefficient)
-                self.add_brigad_bonus(worker)
-
-    def count_salary(self, direction, worker, coefficient):
-        """Count totall salary"""
-        self.workers_showing[direction]['зарплата'][worker] = round(
-            self.workers_showing[direction]['КТУ'][worker]
-            * self.totall * coefficient
-            / len(self.workers_showing[direction]['КТУ']), 2)
-
-    def count_sal_workers_and_drill(self, worker):
-        """Count sallary workers and drillers"""
-        oklad = 0
-        if worker in Reports().salary_workers:
-            oklad = (self.workers_showing['факт']['часы'][worker]
-                     / 11 * 50000 / 15)
-        elif worker in Reports().drillers:
-            oklad = (self.result['шпурометры'] * 36)
-        if self.bonuses['более 250 кубов']:
-            oklad += (5000 / 15 / 11
-                      * self.workers_showing['факт']['часы'][worker])
-        self.workers_showing['факт']['зарплата'][worker] = round(oklad, 2)
-
-    def add_brigad_bonus(self, worker):
-        """Add bonus if brigad win monthly challenge"""
-        if self.bonuses['победа по критериям']:
-            self.workers_showing['факт']['зарплата'][worker] += 3000
+                    self._count_salary(direction, worker, coefficient)
+                self._add_brigad_bonus(worker)
 
     def create_ktu_list(self):
         """Create ktu list"""
@@ -249,20 +238,7 @@ class MainReport(BasicFunctions):
         delta_ktu = round(delta_ktu, 2)
         if delta_ktu != 0:
             print(f"\nВ процессе округления образовался остаток: {delta_ktu}")
-            self.add_delta_ktu_to_worker(delta_ktu, direction)
-
-    def add_delta_ktu_to_worker(self, delta, direction):
-        """Add delta ktu to worker"""
-        print('\n' + 'КТУ: ' + direction)
-        workers_list = self.workers_showing[direction]['КТУ'].items()
-        print("\nВыберете работника, которому хотите добавить остаток:")
-        worker = super().choise_from_list(workers_list)
-        worker_ktu = self.workers_showing[direction]['КТУ'][worker[0]]
-        result = round(delta + worker_ktu, 2)
-        self.workers_showing[direction]['КТУ'][worker[0]] = result
-        print("Остаток добавлен.\n")
-        print(direction)
-        pprint(self.workers_showing[direction]['КТУ'])
+            self._add_delta_ktu_to_worker(delta_ktu, direction)
 
 
 class Reports(BasicFunctions):
@@ -270,13 +246,15 @@ class Reports(BasicFunctions):
     Class to manage with reports.
     """
 
+    shifts = ['Смена 1', 'Смена 2']
+    data_path = AbsolytePath('main_career_report').get_absolyte_path()
+    salary_path = AbsolytePath('salary_worker').get_absolyte_path()
+    drillers_path = AbsolytePath('drillers').get_absolyte_path()
+
     def __init__(self):
-        self.data_path = AbsolytePath('main_career_report').get_absolyte_path()
-        self.salary_path = AbsolytePath('salary_worker').get_absolyte_path()
-        self.drillers_path = AbsolytePath('drillers').get_absolyte_path()
-        self.shifts = ['Смена 1', 'Смена 2']
-        self.salary_workers = self._get_salary_workers_list()
-        self.drillers = self._get_drillers_list()
+        self.salary_workers = super().load_data(self.salary_path)
+        self.drillers = super().load_data(self.drillers_path)
+        self.data_base = super().load_data(self.data_path)
 
     @classmethod
     def check_date_format(cls, date):
@@ -310,7 +288,7 @@ class Reports(BasicFunctions):
             else:
                 return inpt
 
-    def input_result(self, report):
+    def _input_result(self, report):
         """Input working result"""
         for item in report.result:
             if isinstance(report.result[item], dict):
@@ -347,8 +325,7 @@ class Reports(BasicFunctions):
     def _check_if_report_exist(self, shift, date):
         """Check if report exist in base"""
         check = True
-        rpt_file = super().load_data(self.data_path)
-        for report in rpt_file:
+        for report in self.data_base:
             if shift in report and date in report:
                 check = False
                 print("Такой отчет уже существует.")
@@ -358,43 +335,30 @@ class Reports(BasicFunctions):
         """Uncomlete main report"""
         choise = input("Are you shure, you want to uncomplete report? Y/n: ")
         if choise.lower() == 'y':
-            rpt_file = super().load_data(self.data_path)
-            tmp_rpt = rpt_file[report_name]
+            tmp_rpt = self.data_base[report_name]
             tmp_rpt.status['status'] = '\033[93m[в процессе]\033[0m'
             new_name = "{date} {shift} {status}".format(
                 **tmp_rpt.status)
-            rpt_file[new_name] = tmp_rpt
-            rpt_file.pop(report_name, None)
-            super().dump_data(self.data_path, rpt_file)
+            self.data_base[new_name] = tmp_rpt
+            self.data_base.pop(report_name, None)
+            super().dump_data(self.data_path, self.data_base)
             super().save_log_to_temp_file(
                 ' --> ' + tmp_rpt.status['status'])
 
-    def _get_salary_workers_list(self):
-        """Get salary workers list."""
-        salary_workers_base = super().load_data(self.salary_path)
-        return salary_workers_base
+    def _delete_report(self, report_name):
+        """Delete report."""
+        if super().confirm_deletion(report_name):
+            self.data_base.pop(report_name, None)
+            super().dump_data(self.data_path, self.data_base)
+            super().save_log_to_temp_file(
+                "\033[91m - report deleted. \033[0m")
 
-    def _get_drillers_list(self):
-        """Get salary workers list."""
-        drillers_base = super().load_data(self.drillers_path)
-        return drillers_base
-
-    def choose_salary_or_drillers(self):
-        """Chose list to edit, salary or drillers."""
-        choose = input("Редактировать окладников или бурильщиков? о/б: ")
-        if choose == 'о':
-            self.edit_salary_or_drillers(self.salary_path)
-            super().save_log_to_temp_file(' salary')
-        elif choose == 'б':
-            self.edit_salary_or_drillers(self.drillers_path)
-            super().save_log_to_temp_file(' drillers')
-
-    def edit_salary_or_drillers(self, workers_base):
+    def _edit_salary_or_drillers(self, data_path):
         """Edit sallary or drillers lists."""
 
-        def add_salary_or_driller(workers_base):
+        def add_salary_or_driller(data_path):
             """Add worker from salary or driller list."""
-            worker_list = super(Reports, self).load_data(workers_base)
+            worker_list = super(Reports, self).load_data(data_path)
             if not worker_list:
                 worker_list = []
             print("Выберете работника:")
@@ -403,14 +367,14 @@ class Reports(BasicFunctions):
             )
             if worker:
                 worker_list.append(worker)
-                super(Reports, self).dump_data(workers_base, worker_list)
+                super(Reports, self).dump_data(data_path, worker_list)
                 log = " worker {} aded".format(worker)
                 print(log)
                 super(Reports, self).save_log_to_temp_file(log)
 
-        def delete_salary_or_driller(workers_base):
+        def delete_salary_or_driller(data_path):
             """Delete worker from salary or driller list."""
-            worker_list = super(Reports, self).load_data(workers_base)
+            worker_list = super(Reports, self).load_data(data_path)
             if not worker_list:
                 worker_list = []
             print("Выберете работника для удаления:")
@@ -418,13 +382,13 @@ class Reports(BasicFunctions):
                 worker_list, none_option=True)
             if worker:
                 worker_list.remove(worker)
-                super(Reports, self).dump_data(workers_base, worker_list)
+                super(Reports, self).dump_data(data_path, worker_list)
                 log = " worker {} deleted".format(worker)
                 print(log)
                 super(Reports, self).save_log_to_temp_file(log)
 
         while True:
-            worker_list = super(Reports, self).load_data(workers_base)
+            worker_list = super(Reports, self).load_data(data_path)
             print(worker_list)
             edit_menu_dict = {'д': add_salary_or_driller,
                               'у': delete_salary_or_driller}
@@ -433,153 +397,9 @@ class Reports(BasicFunctions):
                 print("Вы отменили редактирование.")
                 break
             else:
-                edit_menu_dict[action_name](workers_base)
+                edit_menu_dict[action_name](data_path)
 
-    def give_main_results(self, year, month, shift):
-        """Return drill meters, result and rock_mass.
-        Return None, if report not exist."""
-        report_name = year + '-' + month + ' ' + shift
-        rpt_file = super().load_data(self.data_path)
-        result_tuplet = ()
-        for report in rpt_file:
-            if (report_name in report and
-                    rpt_file[report].count_rock_mass() != 0):
-                drill_meters = rpt_file[report].result['шпурометры']
-                result = rpt_file[report].count_result()
-                rock_mass = rpt_file[report].count_rock_mass()
-                result_tuplet = drill_meters, result, rock_mass
-        return result_tuplet
-
-    def give_avaliable_to_edit(self, *statuses):
-        """Give reports that avaliable to edit"""
-        avaliable_reports = []
-        rpt_file = super().load_data(self.data_path)
-        avaliable_reports = [report for status in statuses
-                             for report in rpt_file
-                             if status in report]
-        return avaliable_reports
-
-    def create_report(self):
-        """Create New main report."""
-        while True:
-            date = input("Введите дату отчета в формате 2018-12: ")
-            if not self.check_date_format(date):
-                print("Введите дату корректно.")
-                continue
-            print("Выберете бригаду:")
-            shift = super().choise_from_list(self.shifts)
-            if self._check_if_report_exist(shift, date):
-                break
-
-        workers_list = AllWorkers().give_workers_from_shift(shift)
-        print(shift)
-        for worker in workers_list:
-            print(worker)
-
-        # Add additional workers from another shift.
-        added_workers = self._add_worker_from_diff_shift(shift)
-        workers_list.extend(added_workers)
-        super().clear_screen()
-
-        report = MainReport('\033[91m[не завершен]\033[0m', shift, date)
-        workers_hours_list = self.create_workers_hours_list(workers_list)
-        report.workers_showing['факт']['часы'] = workers_hours_list
-        print("\nВведите результаты добычи бригады.")
-        report = self.input_result(report)
-        print("\nТабель бригады заполнен.\n")
-        rpt_file = super().load_data(self.data_path)
-        report_name = "{date} {shift} {status}".format(**report.status)
-        rpt_file[report_name] = report
-        super().dump_data(self.data_path, rpt_file)
-        super().save_log_to_temp_file(report_name)
-
-    def delete_report(self, report_name):
-        """Delete report."""
-        rpt_file = super().load_data(self.data_path)
-        if super().confirm_deletion(report_name):
-            rpt_file.pop(report_name, None)
-            super().dump_data(self.data_path, rpt_file)
-            super().save_log_to_temp_file(
-                "\033[91m - report deleted. \033[0m")
-
-    def edit_report(self):
-        """
-        Edition uncompleted report by user with 'master' accesse.
-        """
-
-        def change_hours(tmp_rpt):
-            """Change hours value."""
-            print("Выберете работника для редактирования:")
-            workers = tmp_rpt.workers_showing['факт']['часы']
-            worker = super(Reports, self).choise_from_list(workers)
-            new_hours = float(input("Введите новое значение часов: "))
-            tmp_rpt.workers_showing['факт']['часы'][worker] = new_hours
-            return tmp_rpt
-
-        avaliable_reports = self.give_avaliable_to_edit(
-            '[не завершен]')
-        print("""\
-Вам доступны для редактирования только отчеты со статусом: \
-\033[91m[не завершен]\033[0m
-Выберет отчет для редактирования:
-""")
-        report_name = super().choise_from_list(
-            avaliable_reports, none_option=True)
-        if report_name:
-            super().save_log_to_temp_file(report_name)
-        rpt_file = super().load_data(self.data_path)
-        super().clear_screen()
-        while report_name:
-            tmp_rpt = rpt_file[report_name]
-            print(tmp_rpt)
-            edit_menu_dict = {
-                'изменить часы': change_hours,
-                'удалить отчет': self.delete_report,
-                'изменить добычу': self.input_result,
-                '[закончить редактирование]': 'break'
-                }
-            print("Выберете пункт для редактирования:")
-            action_name = super().choise_from_list(edit_menu_dict)
-            print()
-            if action_name in ['[закончить редактирование]', '']:
-                break
-            elif action_name == 'удалить отчет':
-                tmp_rpt = edit_menu_dict[action_name](report_name)
-                break
-            tmp_rpt = edit_menu_dict[action_name](tmp_rpt)
-            rpt_file[report_name] = tmp_rpt
-            super().dump_data(self.data_path, rpt_file)
-            super().clear_screen()
-
-    def work_with_main_report(self, current_user):
-        """Finish MainReport"""
-        rpt_file = super().load_data(self.data_path)
-        years = set([report.split('-')[0] for report in rpt_file])
-        print("Выберете год:")
-        year = super().choise_from_list(years, none_option=True)
-        if year:
-            reports_by_years = [report for report in rpt_file
-                                if report.startswith(year)]
-            print("Выберет отчет:")
-            report_name = super().choise_from_list(reports_by_years,
-                                                   none_option=True)
-        else:
-            report_name = None
-        if report_name:
-            super().save_log_to_temp_file(' ' + report_name)
-            if '[не завершен]' in report_name:
-                self.make_status_in_process(report_name)
-            elif '[завершен]' in report_name:
-                print(rpt_file[report_name])
-                if current_user['accesse'] == 'admin':
-                    choise = input("""\
-\033[91m[un]\033[0m Возвратить статус '\033[93m[в процессе]\033[0m'\n""")
-                    if choise == 'un':
-                        self._uncomplete_main_report(report_name)
-            elif '[в процессе]' in report_name:
-                self.edit_main_report(report_name)
-
-    def edit_main_report(self, report_name):
+    def _edit_main_report(self, report_name):
         """
         Edition main report by boss or admin usser.
         """
@@ -644,9 +464,8 @@ class Reports(BasicFunctions):
                     ' --> ' + tmp_rpt.status['status'])
             return tmp_rpt
 
-        rpt_file = super().load_data(self.data_path)
         while True:
-            tmp_rpt = rpt_file[report_name]
+            tmp_rpt = self.data_base[report_name]
             print(tmp_rpt)
             if '[завершен]' in report_name:
                 break
@@ -655,7 +474,7 @@ class Reports(BasicFunctions):
                 'ввести итоговую сумму': enter_totall,
                 'ежемесячный бонус': enter_bonus,
                 'изменить КТУ работника': change_ktu,
-                'удалить отчет': self.delete_report,
+                'удалить отчет': self._delete_report,
                 '\033[92mсформировать отчет\033[0m': complete_main_report,
                 '[закончить редактирование]': 'break'
                 }
@@ -668,18 +487,17 @@ class Reports(BasicFunctions):
                 tmp_rpt = edit_menu_dict[action_name](report_name)
                 break
             tmp_rpt = edit_menu_dict[action_name](tmp_rpt)
-            rpt_file.pop(report_name, None)
+            self.data_base.pop(report_name, None)
             report_name = "{date} {shift} {status}".format(
                 **tmp_rpt.status)
-            rpt_file[report_name] = tmp_rpt
-            super().dump_data(self.data_path, rpt_file)
+            self.data_base[report_name] = tmp_rpt
+            super().dump_data(self.data_path, self.data_base)
             super().clear_screen()
 
-    def make_status_in_process(self, report_name):
+    def _make_status_in_process(self, report_name):
         """Change status from 'not complete' to 'in process'"""
-        rpt_file = super().load_data(self.data_path)
-        print(rpt_file[report_name])
-        tmp_report = rpt_file[report_name]
+        print(self.data_base[report_name])
+        tmp_report = self.data_base[report_name]
         print("Введите ОФИЦИАЛЬНЫЕ часы работы:")
         shift = tmp_report.status['shift']
         workers_list = AllWorkers().give_workers_from_shift(shift)
@@ -689,10 +507,150 @@ class Reports(BasicFunctions):
         tmp_report.create_ktu_list()
         tmp_report.count_all_workers_in_report()
         tmp_report.status['status'] = '\033[93m[в процессе]\033[0m'
-        rpt_file.pop(report_name, None)
+        self.data_base.pop(report_name, None)
         new_name = "{date} {shift} {status}".format(**tmp_report.status)
-        rpt_file[new_name] = tmp_report
-        super().dump_data(self.data_path, rpt_file)
+        self.data_base[new_name] = tmp_report
+        super().dump_data(self.data_path, self.data_base)
         super().save_log_to_temp_file(
             ' --> ' + tmp_report.status['status'])
-        self.edit_main_report(new_name)
+        self._edit_main_report(new_name)
+
+    def choose_salary_or_drillers(self):
+        """Chose list to edit, salary or drillers."""
+        choose = input("Редактировать окладников или бурильщиков? о/б: ")
+        if choose == 'о':
+            self._edit_salary_or_drillers(self.salary_path)
+            super().save_log_to_temp_file(' salary')
+        elif choose == 'б':
+            self._edit_salary_or_drillers(self.drillers_path)
+            super().save_log_to_temp_file(' drillers')
+
+    def give_main_results(self, year, month, shift):
+        """Return drill meters, result and rock_mass.
+        Return None, if report not exist."""
+        report_name = year + '-' + month + ' ' + shift
+        result_tuplet = ()
+        for report in self.data_base:
+            if (report_name in report and
+                    self.data_base[report].count_rock_mass() != 0):
+                drill_meters = self.data_base[report].result['шпурометры']
+                result = self.data_base[report].count_result()
+                rock_mass = self.data_base[report].count_rock_mass()
+                result_tuplet = drill_meters, result, rock_mass
+        return result_tuplet
+
+    def give_avaliable_to_edit(self, *statuses):
+        """Give reports that avaliable to edit"""
+        avaliable_reports = []
+        avaliable_reports = [report for status in statuses
+                             for report in self.data_base
+                             if status in report]
+        return avaliable_reports
+
+    def create_report(self):
+        """Create New main report."""
+        while True:
+            date = input("Введите дату отчета в формате 2018-12: ")
+            if not self.check_date_format(date):
+                print("Введите дату корректно.")
+                continue
+            print("Выберете бригаду:")
+            shift = super().choise_from_list(self.shifts)
+            if self._check_if_report_exist(shift, date):
+                break
+
+        workers_list = AllWorkers().give_workers_from_shift(shift)
+        print(shift)
+        for worker in workers_list:
+            print(worker)
+
+        # Add additional workers from another shift.
+        added_workers = self._add_worker_from_diff_shift(shift)
+        workers_list.extend(added_workers)
+        super().clear_screen()
+
+        report = MainReport('\033[91m[не завершен]\033[0m', shift, date)
+        workers_hours_list = self.create_workers_hours_list(workers_list)
+        report.workers_showing['факт']['часы'] = workers_hours_list
+        print("\nВведите результаты добычи бригады.")
+        report = self._input_result(report)
+        print("\nТабель бригады заполнен.\n")
+        report_name = "{date} {shift} {status}".format(**report.status)
+        self.data_base[report_name] = report
+        super().dump_data(self.data_path, self.data_base)
+        super().save_log_to_temp_file(report_name)
+
+    def edit_report(self):
+        """
+        Edition uncompleted report by user with 'master' accesse.
+        """
+
+        def change_hours(tmp_rpt):
+            """Change hours value."""
+            print("Выберете работника для редактирования:")
+            workers = tmp_rpt.workers_showing['факт']['часы']
+            worker = super(Reports, self).choise_from_list(workers)
+            new_hours = float(input("Введите новое значение часов: "))
+            tmp_rpt.workers_showing['факт']['часы'][worker] = new_hours
+            return tmp_rpt
+
+        avaliable_reports = self.give_avaliable_to_edit(
+            '[не завершен]')
+        print("""\
+Вам доступны для редактирования только отчеты со статусом: \
+\033[91m[не завершен]\033[0m
+Выберет отчет для редактирования:
+""")
+        report_name = super().choise_from_list(
+            avaliable_reports, none_option=True)
+        if report_name:
+            super().save_log_to_temp_file(report_name)
+        super().clear_screen()
+        while report_name:
+            tmp_rpt = self.data_base[report_name]
+            print(tmp_rpt)
+            edit_menu_dict = {
+                'изменить часы': change_hours,
+                'удалить отчет': self._delete_report,
+                'изменить добычу': self._input_result,
+                '[закончить редактирование]': 'break'
+                }
+            print("Выберете пункт для редактирования:")
+            action_name = super().choise_from_list(edit_menu_dict)
+            print()
+            if action_name in ['[закончить редактирование]', '']:
+                break
+            elif action_name == 'удалить отчет':
+                tmp_rpt = edit_menu_dict[action_name](report_name)
+                break
+            tmp_rpt = edit_menu_dict[action_name](tmp_rpt)
+            self.data_base[report_name] = tmp_rpt
+            super().dump_data(self.data_path, self.data_base)
+            super().clear_screen()
+
+    def work_with_main_report(self, current_user):
+        """Finish MainReport"""
+        years = set([report.split('-')[0] for report in self.data_base])
+        print("Выберете год:")
+        year = super().choise_from_list(years, none_option=True)
+        if year:
+            reports_by_years = [report for report in self.data_base
+                                if report.startswith(year)]
+            print("Выберет отчет:")
+            report_name = super().choise_from_list(reports_by_years,
+                                                   none_option=True)
+        else:
+            report_name = None
+        if report_name:
+            super().save_log_to_temp_file(' ' + report_name)
+            if '[не завершен]' in report_name:
+                self._make_status_in_process(report_name)
+            elif '[завершен]' in report_name:
+                print(self.data_base[report_name])
+                if current_user['accesse'] == 'admin':
+                    choise = input("""\
+\033[91m[un]\033[0m Возвратить статус '\033[93m[в процессе]\033[0m'\n""")
+                    if choise == 'un':
+                        self._uncomplete_main_report(report_name)
+            elif '[в процессе]' in report_name:
+                self._edit_main_report(report_name)

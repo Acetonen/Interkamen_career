@@ -14,54 +14,56 @@ class ReportAnalysis(Reports):
     """
     Class to anilise and visualisate data from reports.
     """
+
+    horizonts = ['+108', '+114', '+120', '+126', '+132']
+    month_list = ['01', '02', '03', '04', '05', '06',
+                  '07', '08', '09', '10', '11', '12']
+    shifts = ['Смена 1', 'Смена 2']
+    by_horizont = {
+        'res': {
+            '+108': [],
+            '+114': [],
+            '+120': [],
+            '+126': [],
+            '+132': [],
+            'totall': []
+        },
+        'pers': {
+            '+108': [],
+            '+114': [],
+            '+120': [],
+            '+126': [],
+            '+132': [],
+            'totall': []
+        },
+        'rock_mass': {
+            '+108': [],
+            '+114': [],
+            '+120': [],
+            '+126': [],
+            '+132': [],
+            'totall': []
+        }
+    }
+    by_shift = {
+        'res': {
+            'Смена 1': [],
+            'Смена 2': []
+            },
+        'pers': {
+            'Смена 1': [],
+            'Смена 2': []
+            },
+        'rock_mass': {
+            'Смена 1': [],
+            'Смена 2': []
+            }
+    }
+    year_reports = {}
+
     def __init__(self):
-        self.horizonts = ['+108', '+114', '+120', '+126', '+132']
-        self.month_list = ['01', '02', '03', '04', '05', '06',
-                           '07', '08', '09', '10', '11', '12']
-        self.shifts = ['Смена 1', 'Смена 1']
         super().__init__()
         self.base = super().load_data(self.data_path)
-        self.by_horizont = {
-            'res': {
-                '+108': [],
-                '+114': [],
-                '+120': [],
-                '+126': [],
-                '+132': [],
-                'totall': []
-            },
-            'pers': {
-                '+108': [],
-                '+114': [],
-                '+120': [],
-                '+126': [],
-                '+132': [],
-                'totall': []
-            },
-            'rock_mass': {
-                '+108': [],
-                '+114': [],
-                '+120': [],
-                '+126': [],
-                '+132': [],
-                'totall': []
-            }
-        }
-        self.by_shift = {
-            'res': {
-                'Смена 1': [],
-                'Смена 2': []
-                },
-            'pers': {
-                'Смена 1': [],
-                'Смена 2': []
-                },
-            'rock_mass': {
-                'Смена 1': [],
-                'Смена 2': []
-                }
-        }
-        self.year_reports = {}
 
     @classmethod
     def count_persent(cls, rock_mass, result):
@@ -98,42 +100,6 @@ class ReportAnalysis(Reports):
 
 """.format(sub_item, *data_dict[item][sub_item])
         print(output)
-
-    def result_analysis(self):
-        """Analysis by result"""
-        print("Выберете год:")
-        year = super().choise_from_list(self._chose_year())
-        self._give_reports_by_year(year)
-        super().clear_screen()
-        while True:
-            data_type = {
-                'Погоризонтная статистика': self._make_horizont_statistic,
-                'Повахтовая статистика': self._make_shift_statistic
-                }
-            print("\nВыберете необходимый очет:\n"
-                  "(ENTER - выход)")
-            choise = super().choise_from_list(data_type, none_option=True)
-            super().clear_screen()
-            if choise in data_type:
-                results_and_titles = data_type[choise]()
-                self._data_print(year, results_and_titles[0])
-                self._two_plots_show(year, results_and_titles)
-
-            elif not choise:
-                break
-            else:
-                print("Нет такого варианта.")
-                continue
-
-    def rock_mass_analysis(self):
-        """Analysis by rock mass."""
-        print("Выберете год:")
-        year = super().choise_from_list(self._chose_year())
-        self._give_reports_by_year(year)
-        super().clear_screen()
-        results_and_titles = self._make_rock_mass_statistic()
-        self._data_print(year, results_and_titles[0])
-        self._two_plots_show(year, results_and_titles)
 
     def _make_rock_mass_statistic(self):
         """Make horisont and shift statistic by month."""
@@ -248,3 +214,39 @@ class ReportAnalysis(Reports):
                 result_lists['rock_mass'][shift].append(
                     int(round(rock_mass_shift, 0)))
         return result_lists
+
+    def result_analysis(self):
+        """Analysis by result"""
+        print("Выберете год:")
+        year = super().choise_from_list(self._chose_year())
+        self._give_reports_by_year(year)
+        super().clear_screen()
+        while True:
+            data_type = {
+                'Погоризонтная статистика': self._make_horizont_statistic,
+                'Повахтовая статистика': self._make_shift_statistic
+                }
+            print("\nВыберете необходимый очет:\n"
+                  "(ENTER - выход)")
+            choise = super().choise_from_list(data_type, none_option=True)
+            super().clear_screen()
+            if choise in data_type:
+                results_and_titles = data_type[choise]()
+                self._data_print(year, results_and_titles[0])
+                self._two_plots_show(year, results_and_titles)
+
+            elif not choise:
+                break
+            else:
+                print("Нет такого варианта.")
+                continue
+
+    def rock_mass_analysis(self):
+        """Analysis by rock mass."""
+        print("Выберете год:")
+        year = super().choise_from_list(self._chose_year())
+        self._give_reports_by_year(year)
+        super().clear_screen()
+        results_and_titles = self._make_rock_mass_statistic()
+        self._data_print(year, results_and_titles[0])
+        self._two_plots_show(year, results_and_titles)

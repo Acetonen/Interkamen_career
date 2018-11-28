@@ -63,3 +63,6 @@ backup/
 #Jupyter files
 .ipynb_checkpoints
 .ipynb
+
+#TODO file
+TODO.txt

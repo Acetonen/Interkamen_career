@@ -45,7 +45,7 @@ def print_menu():
     print()
 
 
-def get_main_or_sub_menu(sub_menu):
+def get_main_or_sub_menu(sub_menu=None):
     """create main or sub-menu"""
     if sub_menu:
         program_menu = Accesse(USR_ACS).get_sub_menu(sub_menu)
@@ -107,7 +107,7 @@ if __name__ == '__main__':
         if '-->' in MENU_LIST[USER_CHOISE][0]:
             MENU_HEADER[1] = MENU_LIST[USER_CHOISE][0].split(' ')[1]
             MENU_NESTING.append(MENU_LIST[USER_CHOISE][0])
-            get_main_or_sub_menu(MENU_LIST[USER_CHOISE][0])
+            get_main_or_sub_menu(sub_menu=MENU_LIST[USER_CHOISE][0])
             continue
 
         # Exit sub-menu.
@@ -115,10 +115,10 @@ if __name__ == '__main__':
             MENU_NESTING = MENU_NESTING[:-1]
             if MENU_NESTING:
                 MENU_HEADER[1] = MENU_NESTING[-1].split(' ')[1]
-                get_main_or_sub_menu(MENU_NESTING[-1])
+                get_main_or_sub_menu(sub_menu=MENU_NESTING[-1])
             else:
                 MENU_HEADER[1] = '\033[4m ГЛАВНОЕ МЕНЮ \033[0m'
-                get_main_or_sub_menu(None)
+                get_main_or_sub_menu()
 
         # Exit program.
         elif MENU_LIST[USER_CHOISE][1] == 'exit program':
@@ -132,7 +132,7 @@ if __name__ == '__main__':
             ACTION(CURRENT_USER)
             input('\n[нажмите ENTER]')
             BasicFunctions().clear_screen()
+            Logs().create_log(
+                CURRENT_USER['login'], MENU_LIST[USER_CHOISE][0])
 
         CURRENT_USER = Users().sync_user(CURRENT_USER['login'])
-        Logs().create_log(
-            CURRENT_USER['login'], MENU_LIST[USER_CHOISE][0])

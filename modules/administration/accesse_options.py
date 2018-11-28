@@ -22,85 +22,87 @@ from modules.drill_instrument_report import DrillInstruments
 
 class Accesse:
     """Give to program 'choise tree' and 'meny' depend on user access"""
+    sub_menus = {
+        '\033[91m--> [administration]\033[0m': {
+            '\033[91m--> [log_menu] \033[0m': 'sub-menu',
+            '\033[91m--> [users_menu] \033[0m': 'sub-menu',
+            '\033[91m--> [databases] \033[0m': 'sub-menu',
+            '\033[91mbackup email settings\033[0m':
+            lambda *arg: EmailSender().edit_mail_propeties()
+        },
+        '\033[91m--> [log_menu] \033[0m': {
+            'search in logs': lambda *arg: Logs().search_in_logs(),
+            'delete all logs': lambda *arg: Logs().delete_all_logs(),
+            'show all logs': lambda *arg: Logs().show_all_logs(),
+        },
+        '\033[91m--> [users_menu] \033[0m': {
+            'create new user': lambda *arg: Users().create_new_user(),
+            'edit user': lambda *arg: Users().edit_user(),
+            'show all users': lambda *arg: Users().show_all_users()
+        },
+        '--> [Работники] ': {
+            'Новый работник':
+            lambda *arg: AllWorkers().add_new_worker(),
+            'Показать работников подразделения':
+            lambda *arg: AllWorkers().print_workers_from_division(),
+            'Показать уволеных работников':
+            lambda *arg: AllWorkers().print_archive_workers(),
+            'Вернуть работника из архива':
+            lambda *arg: AllWorkers().return_from_archive(),
+            'Редактировать работника':
+            lambda *arg: AllWorkers().edit_worker(),
+            'Редактировать окладников или бурильщиков':
+            lambda *arg: Reports().choose_salary_or_drillers(),
+            'Показать юбиляров этого года':
+            lambda *arg: AllWorkers().show_anniversary_workers()
+        },
+        '\033[91m--> [databases] \033[0m': {
+            'upd company structure':
+            lambda *arg: AllWorkers().upd_comp_structure(),
+            'print company structure':
+            lambda *arg: AllWorkers().print_comp_structure()
+        },
+        '--> [Статистика]': {
+            'Создать табель добычной бригады':
+            lambda arg: Reports().create_report(),
+            'Редактировать табель':
+            lambda arg: Reports().edit_report(),
+            'Статистика добычи по кубатуре':
+            lambda arg: ReportAnalysis().result_analysis(),
+            'Статистика по горной массе':
+            lambda arg: ReportAnalysis().rock_mass_analysis(),
+            'Создать отчет по буровым инструментам':
+            lambda arg: DrillInstruments().create_drill_report(),
+            'Статистика по буровому инструменту':
+            lambda arg: DrillInstruments().show_statistic_by_year()
+        },
+        '--> [Финансы]': {
+            'Наряд бригады':
+            lambda arg: Reports().work_with_main_report(arg)
+        }
+    }
+
+    sub_standart_options = {
+        '<-- [Предыдущее меню]': 'menu before',
+        '\033[93mВыйти из программы\033[0m': 'exit program',
+    }
+
+    menu_options = {
+        'basic': {
+            'Телефоны работников':
+            lambda arg: AllWorkers().print_telefon_numbers(),
+            'Поменять пароль':
+            lambda arg: Users().change_password(arg),
+            '\033[93mВыйти из программы\033[0m': 'exit program'
+        },
+        'mechanic': {},
+        'master': {'--> [Статистика]': 'sub-menu'},
+        'boss': {'--> [Работники] ': 'sub-menu',
+                 '--> [Финансы]': 'sub-menu'},
+        'admin': {'\033[91m--> [administration]\033[0m': 'sub-menu'}
+    }
+
     def __init__(self, accesse='mechanic'):
-
-        self.sub_menus = {
-            '\033[91m--> [administration]\033[0m': {
-                '\033[91m--> [log_menu] \033[0m': 'sub-menu',
-                '\033[91m--> [users_menu] \033[0m': 'sub-menu',
-                '\033[91m--> [databases] \033[0m': 'sub-menu',
-                '\033[91mbackup email settings\033[0m':
-                lambda *arg: EmailSender().edit_mail_propeties()
-            },
-            '\033[91m--> [log_menu] \033[0m': {
-                'search in logs': lambda *arg: Logs().search_in_logs(),
-                'delete all logs': lambda *arg: Logs().delete_all_logs(),
-                'show all logs': lambda *arg: Logs().show_all_logs(),
-            },
-            '\033[91m--> [users_menu] \033[0m': {
-                'create new user': lambda *arg: Users().create_new_user(),
-                'edit user': lambda *arg: Users().edit_user(),
-                'show all users': lambda *arg: Users().show_all_users()
-            },
-            '--> [Работники] ': {
-                'Новый работник': lambda *arg: AllWorkers().add_new_worker(),
-                'Показать работников подразделения':
-                lambda *arg: AllWorkers().print_workers_from_division(),
-                'Показать уволеных работников':
-                lambda *arg: AllWorkers().print_archive_workers(),
-                'Вернуть работника из архива':
-                lambda *arg: AllWorkers().return_from_archive(),
-                'Редактировать работника':
-                lambda *arg: AllWorkers().edit_worker(),
-                'Редактировать окладников или бурильщиков':
-                lambda *arg: Reports().choose_salary_or_drillers(),
-                'Показать юбиляров этого года':
-                lambda *arg: AllWorkers().show_anniversary_workers()
-            },
-            '\033[91m--> [databases] \033[0m': {
-                'upd company structure':
-                lambda *arg: AllWorkers().upd_company_structure(),
-                'print company structure':
-                lambda *arg: AllWorkers().print_company_structure()
-            },
-            '--> [Статистика]': {
-                'Создать табель добычной бригады':
-                lambda arg: Reports().create_report(),
-                'Редактировать табель':
-                lambda arg: Reports().edit_report(),
-                'Статистика добычи по кубатуре':
-                lambda arg: ReportAnalysis().result_analysis(),
-                'Статистика по горной массе':
-                lambda arg: ReportAnalysis().rock_mass_analysis(),
-                'Создать отчет по буровым инструментам':
-                lambda arg: DrillInstruments().create_drill_report(),
-                'Статистика по буровому инструменту':
-                lambda arg: DrillInstruments().show_statistic_by_year()
-            },
-            '--> [Финансы]': {
-                'Наряд бригады':
-                lambda arg: Reports().work_with_main_report(arg)
-            }
-        }
-
-        self.sub_standart_options = {
-            '<-- [Предыдущее меню]': 'menu before',
-            '\033[93mВыйти из программы\033[0m': 'exit program',
-        }
-
-        self.menu_options = {
-            'basic': {
-                'Телефоны работников':
-                lambda arg: AllWorkers().print_telefon_numbers(),
-                'Поменять пароль': lambda arg: Users().change_password(arg),
-                '\033[93mВыйти из программы\033[0m': 'exit program'
-            },
-            'mechanic': {},
-            'master': {'--> [Статистика]': 'sub-menu'},
-            'boss': {'--> [Работники] ': 'sub-menu',
-                     '--> [Финансы]': 'sub-menu'},
-            'admin': {'\033[91m--> [administration]\033[0m': 'sub-menu'}
-        }
         self.menu_list = self.create_list(accesse, self.menu_options)
 
     @classmethod
