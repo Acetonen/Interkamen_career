@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 This class provides to work with all logs.
-Classes: Logs: '_upload_temp_file_log',
+Classes: Logs: 'upload_temp_file_log',
                'choose_item',
                'delete_all_logs',
                'search_in_logs',
@@ -23,7 +23,6 @@ class Logs(BasicFunctions):
     """This class provides to work with all logs."""
 
     data_path = AbsolytePath('logs_base').get_absolyte_path()
-    log_constructor = []
     log_list = {
         'enter program': '\033[94m enter program \033[0m',
         'exit program': '\033[93m exit program \033[0m',
@@ -43,7 +42,8 @@ class Logs(BasicFunctions):
         'Создать табель добычной бригады': 'create new report',
         'Наряд бригады': 'edit report',
         'Создать отчет по буровым инструментам': 'create drill report',
-        'Редактировать окладников или бурильщиков': 'edit'
+        'Редактировать окладников или бурильщиков': 'edit',
+        'Создать отчет по ремонтам': 'create mechanics report'
         }
     notification_list = [
         'create drill report',
@@ -57,19 +57,20 @@ class Logs(BasicFunctions):
         self.search_list = list(self.log_list.keys())
         self.search_list.extend(Users().get_all_users_list())
 
-    def _upload_temp_file_log(self):
+    @classmethod
+    def upload_temp_file_log(cls, log_constructor):
         """Read detailed user log from temp file"""
         file_path = AbsolytePath('log.tmp').get_absolyte_path()
         if os.path.exists(file_path):
             with open(file_path, 'r', encoding='utf-8') as temp_file:
                 detail_log = temp_file.readlines()
-                self.log_constructor.extend(detail_log)
+                log_constructor.extend(detail_log)
             os.remove(file_path)
 
-    def _send_mail_notification(self, subject, message):
+    def _send_mail_notification(self, log_constructor, subject, message):
         """Send notification email if action in notification list."""
         for event in self.notification_list:
-            if event in ' '.join(self.log_constructor):
+            if event in ' '.join(log_constructor):
                 EmailSender().try_email(subject=subject, message=message)
 
     def _search_logs_by_item(self, search_item):
@@ -87,16 +88,17 @@ class Logs(BasicFunctions):
     def create_log(self, user_login, user_action):
         """Create detailed log for action"""
         if user_action in self.log_list:
-            self.log_constructor.append(user_login)
-            self.log_constructor.append(self.log_list[user_action])
-            self._upload_temp_file_log()
+            log_constructor = []
+            log_constructor.append(user_login)
+            log_constructor.append(self.log_list[user_action])
+            self.upload_temp_file_log(log_constructor)
             current_time = str(datetime.now().replace(microsecond=0))
-            self.log_base[current_time] = self.log_constructor
+            self.log_base[current_time] = log_constructor
             super().dump_data(self.data_path, self.log_base)
             self._send_mail_notification(
+                log_constructor,
                 'InterKamen program notification.',
-                ' '.join(self.log_constructor))
-            self.log_constructor = self.log_constructor[:]
+                ' '.join(log_constructor))
 
     def show_all_logs(self):
         """show_all_logs"""

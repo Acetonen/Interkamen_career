@@ -18,6 +18,7 @@ from modules.workers_module import AllWorkers
 from modules.main_career_report import Reports
 from modules.report_analysis import ReportAnalysis
 from modules.drill_instrument_report import DrillInstruments
+from modules.mechanic_report import MechReports
 
 
 class Accesse:
@@ -39,6 +40,14 @@ class Accesse:
             'create new user': lambda *arg: Users().create_new_user(),
             'edit user': lambda *arg: Users().edit_user(),
             'show all users': lambda *arg: Users().show_all_users()
+        },
+        '--> [Работа техники]': {
+            'Создать отчет по ремонтам':
+            lambda *arg: MechReports().create_report(),
+            'Показать определенный отчет':
+            lambda *arg: MechReports().show_report(),
+            'Показать статистику':
+            lambda *arg: MechReports().show_statistic()
         },
         '--> [Работники] ': {
             'Новый работник':
@@ -95,7 +104,7 @@ class Accesse:
             lambda arg: Users().change_password(arg),
             '\033[93mВыйти из программы\033[0m': 'exit program'
         },
-        'mechanic': {},
+        'mechanic': {'--> [Работа техники]': 'sub-menu'},
         'master': {'--> [Статистика]': 'sub-menu'},
         'boss': {'--> [Работники] ': 'sub-menu',
                  '--> [Финансы]': 'sub-menu'},

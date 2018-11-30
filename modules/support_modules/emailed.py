@@ -19,28 +19,28 @@ class EmailSender(BasicFunctions):
     """
     Class to working with e-mails.
     """
+    email_prop_path = AbsolytePath('email_prop').get_absolyte_path()
 
     def __init__(self):
-        self.email_prop_path = AbsolytePath('email_prop').get_absolyte_path()
-        email_prop = super().load_data(self.email_prop_path)
-        if not email_prop:
-            email_prop = {'email': '', 'password': '', 'resivers list': []}
-            super().dump_data(self.email_prop_path, email_prop)
+        self.email_prop = super().load_data(self.email_prop_path)
+        if not self.email_prop:
+            self.email_prop = {
+                'email': '', 'password': '', 'resivers list': []}
+            super().dump_data(self.email_prop_path, self.email_prop)
 
-        self.login = email_prop['email']
-        self.password = email_prop['password']
-        self.send_to = email_prop['resivers list']
+        self.login = self.email_prop['email']
+        self.password = self.email_prop['password']
+        self.send_to = self.email_prop['resivers list']
 
     def edit_mail_propeties(self):
         """Edit email settings."""
         while True:
-            email_prop = super().load_data(self.email_prop_path)
 
             print("Program email:\n\
     login   : {}\n\
     password: {}\n\
-    Send to:".format(email_prop['email'], email_prop['password']))
-            for email in email_prop['resivers list']:
+    Send to:".format(self.email_prop['email'], self.email_prop['password']))
+            for email in self.email_prop['resivers list']:
                 print('\t', email)
 
             action_dict = {
@@ -55,8 +55,8 @@ class EmailSender(BasicFunctions):
             if action_name in ['exit', '']:
                 break
             else:
-                action = action_dict[action_name](email_prop)
-            super().dump_data(self.email_prop_path, action)
+                self.email_prop = action_dict[action_name](self.email_prop)
+            super().dump_data(self.email_prop_path, self.email_prop)
 
     def _delete_resiver(self, email_prop):
         """Delete  resiver from send list"""
