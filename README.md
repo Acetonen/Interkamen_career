@@ -38,6 +38,16 @@ We use [SemVer](http://semver.org/) for versioning.
 1. Remove 1,5 coefficient from buh. salary.
 2. Add 'rock mass by month' plot in 'report_analysis'.
 3. Colorful salary workers and drillers.
+### what's new in 1.1.1:
+1. Restructuring program files.
+2. Add emailed module.
+3. Add Email settings into administrator menu.
+4. Add Mechanics report.
+5. New administrator menus.
+6. Make menu navigation simpler.
+7. Add Email notifications for main report.
+8. Add view reports by year in finance.
+9. Add Employing date and penalties to workers.
 
 ## Content and Instruction
 

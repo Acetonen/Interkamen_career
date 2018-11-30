@@ -20,11 +20,11 @@ class MechReports(BasicFunctions):
         'Хоз. Машина': ['УАЗ 390945', 'УАЗ 220695', 'ГАЗ-3307'],
         'Буровая': ['Commando - 110', 'Commando - 120'],
         'Погрузчик': ['Komazu WA470-3', 'Volvo L 150C'],
-        'Кран': ['КС- 5363А', 'КС- 5363Б', 'КС - 5363Б2 '],
+        'Кран': ['КС-5363А', 'КС-5363Б', 'КС-5363Б2 '],
         'Компрессор': ['Atlas Copca XAS 881', 'Atlas Copca XAS 882'],
         'Экскаватор': ['Hitachi zx350', 'Hitachi zx400'],
-        'Самосвал': ['КрАЗ 914', 'КрАЗ-413', 'КрАЗ-069'],
-        'Бульдозер': ['Б-10'],
+        'Самосвал': ['КрАЗ-914', 'КрАЗ-413', 'КрАЗ-069'],
+        'Бульдозер': ['Бул-10'],
         'Дизельная эл. ст.': ['ДЭС-AD']
     }
     columns = ['year', 'month', 'day', 'mach_type', 'mach_name',
@@ -327,8 +327,3 @@ class MechReports(BasicFunctions):
         stat = super().choise_from_list(stat_variants, none_option=True)
         if stat:
             stat_variants[stat]()
-
-
-if __name__ == '__main__':
-    TEST = MechReports()
-    TEST.show_statistic()
