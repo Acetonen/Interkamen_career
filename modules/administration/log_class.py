@@ -42,7 +42,7 @@ class Logs(BasicFunctions):
         'Создать табель добычной бригады': 'create new report',
         'Наряд бригады': 'edit report',
         'Создать отчет по буровым инструментам': 'create drill report',
-        'Редактировать окладников или бурильщиков': 'edit',
+        'Бригадиры, окладники, бурильщики': 'edit',
         'Создать отчет по ремонтам': 'create mechanics report'
         }
     notification_list = [

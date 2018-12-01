@@ -41,7 +41,7 @@ class Accesse:
             'edit user': lambda *arg: Users().edit_user(),
             'show all users': lambda *arg: Users().show_all_users()
         },
-        '--> [Работа техники]': {
+        '--> [Работа_техники]': {
             'Создать отчет по ремонтам':
             lambda *arg: MechReports().create_report(),
             'Показать определенный отчет':
@@ -60,7 +60,7 @@ class Accesse:
             lambda *arg: AllWorkers().return_from_archive(),
             'Редактировать работника':
             lambda *arg: AllWorkers().edit_worker(),
-            'Редактировать окладников или бурильщиков':
+            'Бригадиры, окладники, бурильщики':
             lambda *arg: Reports().choose_salary_or_drillers(),
             'Показать юбиляров этого года':
             lambda *arg: AllWorkers().show_anniversary_workers()
@@ -104,7 +104,7 @@ class Accesse:
             lambda arg: Users().change_password(arg),
             '\033[93mВыйти из программы\033[0m': 'exit program'
         },
-        'mechanic': {'--> [Работа техники]': 'sub-menu'},
+        'mechanic': {'--> [Работа_техники]': 'sub-menu'},
         'master': {'--> [Статистика]': 'sub-menu'},
         'boss': {'--> [Работники] ': 'sub-menu',
                  '--> [Финансы]': 'sub-menu'},

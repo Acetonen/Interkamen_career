@@ -75,6 +75,13 @@ class MainReport(BasicFunctions):
             output = ''.join(['\033[36m', output, '\033[0m'])
         return output
 
+    @classmethod
+    def _colorise_brigadiers(cls, name, output):
+        """Colorise sallary and drillers in report output."""
+        if name in Reports().brigadiers:
+            output = ''.join(['\033[91m', output, '\033[0m'])
+        return output
+
     def __str__(self):
         """Print main report"""
         output = "\n{date} {shift} {status}".format(**self.status)
@@ -126,6 +133,7 @@ class MainReport(BasicFunctions):
                 )
             )
             t_output = self._colorise_salary_and_drillers(name, t_output)
+            t_output = self._colorise_brigadiers(name, t_output)
             output += t_output
         unofficial_workers = self.unofficial_workers()
         for name in unofficial_workers:
@@ -135,6 +143,7 @@ class MainReport(BasicFunctions):
                 self.workers_showing['факт']['КТУ'][name],
                 self.workers_showing['факт']['зарплата'][name])
             t_output = self._colorise_salary_and_drillers(name, t_output)
+            t_output = self._colorise_brigadiers(name, t_output)
             output += t_output
         return output
 
@@ -162,6 +171,13 @@ class MainReport(BasicFunctions):
         """Add bonus if brigad win monthly challenge"""
         if self.bonuses['победа по критериям']:
             self.workers_showing['факт']['зарплата'][worker] += 3000
+
+    def _add_brigadiers_persent(self, worker, direction):
+        """Add persent if worker are brigadier."""
+        if worker in Reports().brigadiers:
+            oklad = self.workers_showing[direction]['зарплата'][worker] * 1.1
+            self.workers_showing[direction]['зарплата'][worker] = round(
+                oklad, 2)
 
     def _add_delta_ktu_to_worker(self, delta, direction):
         """Add delta ktu to worker"""
@@ -216,6 +232,7 @@ class MainReport(BasicFunctions):
                     coefficient = 1.5
                     self._count_salary(direction, worker, coefficient)
                 self._add_brigad_bonus(worker)
+                self._add_brigadiers_persent(worker, direction)
 
     def create_ktu_list(self):
         """Create ktu list"""
@@ -250,10 +267,12 @@ class Reports(BasicFunctions):
     data_path = AbsolytePath('main_career_report').get_absolyte_path()
     salary_path = AbsolytePath('salary_worker').get_absolyte_path()
     drillers_path = AbsolytePath('drillers').get_absolyte_path()
+    brigadiers_path = AbsolytePath('brigadiers').get_absolyte_path()
 
     def __init__(self):
         self.salary_workers = super().load_data(self.salary_path)
         self.drillers = super().load_data(self.drillers_path)
+        self.brigadiers = super().load_data(self.brigadiers_path)
         self.data_base = super().load_data(self.data_path)
 
     @classmethod
@@ -387,9 +406,12 @@ class Reports(BasicFunctions):
                 print(log)
                 super(Reports, self).save_log_to_temp_file(log)
 
+        super().clear_screen()
         while True:
             worker_list = super(Reports, self).load_data(data_path)
-            print(worker_list)
+            print("Работники в данной группе:")
+            for worker in worker_list:
+                print('\t', worker)
             edit_menu_dict = {'д': add_salary_or_driller,
                               'у': delete_salary_or_driller}
             action_name = input("Добавить или удалить работника (д/у): ")
@@ -515,15 +537,31 @@ class Reports(BasicFunctions):
             ' --> ' + tmp_report.status['status'])
         self._edit_main_report(new_name)
 
+    def _print_workers_group(self):
+        """Print additional workers group."""
+        workers_group = {
+            '[1] Окладники:': self.salary_workers,
+            '[2] Бурильщики:': self.drillers,
+            '[3] Бригадиры:': self.brigadiers
+        }
+        for workers_type in sorted(workers_group):
+            print(workers_type)
+            for worker in workers_group[workers_type]:
+                print('\t', worker)
+
     def choose_salary_or_drillers(self):
         """Chose list to edit, salary or drillers."""
-        choose = input("Редактировать окладников или бурильщиков? о/б: ")
-        if choose == 'о':
+        self._print_workers_group()
+        choose = input("\nВыберете тип работников для редактирования: ")
+        if choose == '1':
             self._edit_salary_or_drillers(self.salary_path)
             super().save_log_to_temp_file(' salary')
-        elif choose == 'б':
+        elif choose == '2':
             self._edit_salary_or_drillers(self.drillers_path)
             super().save_log_to_temp_file(' drillers')
+        elif choose == '3':
+            self._edit_salary_or_drillers(self.brigadiers_path)
+            super().save_log_to_temp_file(' brigadiers')
 
     def give_main_results(self, year, month, shift):
         """Return drill meters, result and rock_mass.
