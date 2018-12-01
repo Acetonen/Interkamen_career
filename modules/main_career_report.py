@@ -590,7 +590,7 @@ class Reports(BasicFunctions):
             print("Выберете работника для редактирования:")
             workers = tmp_rpt.workers_showing['факт']['часы']
             worker = super(Reports, self).choise_from_list(workers)
-            new_hours = float(input("Введите новое значение часов: "))
+            new_hours = int(input("Введите новое значение часов: "))
             tmp_rpt.workers_showing['факт']['часы'][worker] = new_hours
             return tmp_rpt
 

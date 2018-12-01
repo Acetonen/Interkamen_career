@@ -29,69 +29,77 @@ class DrillInstruments(BasicFunctions):
             super().dump_data(self.drill_path, self.drill_file)
 
     @classmethod
-    def create_meters_by_month(cls, data_by_year, shifts):
+    def create_meters_by_month(cls, figure, data_by_year, shifts):
         """Totall drill meters in month by each shift."""
-        plt.plot(data_by_year[shifts[0]].month, data_by_year[shifts[0]].meters,
-                 marker='D', markersize=4)
-        plt.plot(data_by_year[shifts[1]].month, data_by_year[shifts[1]].meters,
-                 marker='D', markersize=4)
-        plt.legend(['Смена 1', 'Смена 2'])
-        plt.ylabel('шпурометры, м.')
-        plt.grid(b=True, linestyle='--', linewidth=0.5)
-        plt.title('Пробурено за смену.')
+        met_bu_mon = figure.add_subplot(221)
+        met_bu_mon.plot(data_by_year[shifts[0]].month,
+                        data_by_year[shifts[0]].meters,
+                        marker='D', markersize=4)
+        met_bu_mon.plot(data_by_year[shifts[1]].month,
+                        data_by_year[shifts[1]].meters,
+                        marker='D', markersize=4)
+        met_bu_mon.legend(['Смена 1', 'Смена 2'])
+        met_bu_mon.set_ylabel('шпурометры, м.')
+        met_bu_mon.grid(b=True, linestyle='--', linewidth=0.5)
+        met_bu_mon.set_title('Пробурено за смену.')
 
     @classmethod
-    def create_all_bits(cls, data_by_year, shifts, bits):
+    def create_all_bits(cls, figure, data_by_year, shifts, bits):
         """Totall used bits by shift and bits in rock."""
-        plt.plot(data_by_year[shifts[0]].month, bits[0],
-                 marker='D', markersize=4)
-        plt.plot(data_by_year[shifts[1]].month, bits[1],
-                 marker='D', markersize=4)
-        plt.plot(data_by_year[shifts[0]].month,
-                 data_by_year[shifts[0]].bits_in_rock,
-                 marker='D', markersize=4)
-        plt.plot(data_by_year[shifts[1]].month,
-                 data_by_year[shifts[1]].bits_in_rock,
-                 marker='D', markersize=4)
-        plt.legend(['коронки, см.1', 'коронки, см.2',
-                    'коронки в скале, см.1', 'коронки в скале, см.2'])
-        plt.ylabel('количество, шт')
-        plt.grid(b=True, linestyle='--', linewidth=0.5)
-        plt.title('Истрачено коронок.')
+        all_bits = figure.add_subplot(222)
+        all_bits.plot(data_by_year[shifts[0]].month, bits[0],
+                      marker='D', markersize=4)
+        all_bits.plot(data_by_year[shifts[1]].month, bits[1],
+                      marker='D', markersize=4)
+        all_bits.plot(data_by_year[shifts[0]].month,
+                      data_by_year[shifts[0]].bits_in_rock,
+                      marker='D', markersize=4)
+        all_bits.plot(data_by_year[shifts[1]].month,
+                      data_by_year[shifts[1]].bits_in_rock,
+                      marker='D', markersize=4)
+        all_bits.legend(['коронки, см.1', 'коронки, см.2',
+                         'коронки в скале, см.1', 'коронки в скале, см.2'])
+        all_bits.set_ylabel('количество, шт')
+        all_bits.grid(b=True, linestyle='--', linewidth=0.5)
+        all_bits.set_title('Истрачено коронок.')
 
     @classmethod
-    def create_meters_by_bits(cls, data_by_year, shifts, bits):
+    def create_meters_by_bits(cls, figure, data_by_year, shifts, bits):
         """Meters passed by one average bit."""
+        met_by_bit = figure.add_subplot(223)
         meters_by_bits1 = data_by_year[shifts[0]].meters / bits[0]
         meters_by_bits2 = data_by_year[shifts[1]].meters / bits[1]
-        plt.plot(data_by_year[shifts[0]].month, meters_by_bits1,
-                 marker='D', markersize=4)
-        plt.plot(data_by_year[shifts[1]].month, meters_by_bits2,
-                 marker='D', markersize=4)
-        plt.legend(['Смена 1', 'Смена 2'])
-        plt.ylabel('метров / коронку')
-        plt.xlabel('месяцы')
-        plt.grid(b=True, linestyle='--', linewidth=0.5)
-        plt.title('Проход одной коронки.')
+        met_by_bit.plot(data_by_year[shifts[0]].month, meters_by_bits1,
+                        marker='D', markersize=4)
+        met_by_bit.plot(data_by_year[shifts[1]].month, meters_by_bits2,
+                        marker='D', markersize=4)
+        met_by_bit.legend(['Смена 1', 'Смена 2'])
+        met_by_bit.set_ylabel('метров / коронку')
+        met_by_bit.set_xlabel('месяцы')
+        met_by_bit.grid(b=True, linestyle='--', linewidth=0.5)
+        met_by_bit.set_title('Проход одной коронки.')
 
     @classmethod
-    def create_bits_by_thousand_rocks(cls, data_by_year, shifts, bits):
+    def create_bits_by_thousand_rocks(cls, figure, data_by_year, shifts, bits):
         """Bits by thousand rock mass."""
+        bit_by_rock = figure.add_subplot(224)
         bits_by_thousand_rocks1 = (
             bits[0] / (data_by_year[shifts[0]].rock_mass / 1000)
             )
         bits_by_thousand_rocks2 = (
             bits[1] / (data_by_year[shifts[1]].rock_mass / 1000)
             )
-        plt.plot(data_by_year[shifts[0]].month, bits_by_thousand_rocks1,
-                 marker='D', markersize=4)
-        plt.plot(data_by_year[shifts[1]].month, bits_by_thousand_rocks2,
-                 marker='D', markersize=4)
-        plt.legend(['Смена 1', 'Смена 2'])
-        plt.ylabel('коронок / 1000м\u00B3 горной массы')
-        plt.xlabel('месяцы')
-        plt.grid(b=True, linestyle='--', linewidth=0.5)
-        plt.title('Коронок на тысячу кубов горной массы.')
+        bit_by_rock.plot(data_by_year[shifts[0]].month,
+                         bits_by_thousand_rocks1,
+                         marker='D', markersize=4)
+        bit_by_rock.plot(data_by_year[shifts[1]].month,
+                         bits_by_thousand_rocks2,
+                         marker='D', markersize=4)
+        bit_by_rock.legend(['Смена 1', 'Смена 2'])
+        bit_by_rock.set_ylabel('коронок / 1000м\u00B3 горной массы')
+        bit_by_rock.set_xlabel('месяцы')
+        bit_by_rock.grid(b=True, linestyle='--', linewidth=0.5)
+        bit_by_rock.set_title('Коронок на тысячу кубов горной массы.')
 
     @classmethod
     def print_statistic_by_year(cls, data):
@@ -173,14 +181,18 @@ class DrillInstruments(BasicFunctions):
         window_parametrs['font.size'] = 12
         window_parametrs['legend.fontsize'] = 'large'
         window_parametrs['figure.titlesize'] = 'large'
-        plt.subplot(2, 2, 1)
-        self.create_meters_by_month(data_by_year, shifts)
-        plt.subplot(2, 2, 2)
-        self.create_all_bits(data_by_year, shifts, bits)
-        plt.subplot(2, 2, 3)
-        self.create_meters_by_bits(data_by_year, shifts, bits)
-        plt.subplot(2, 2, 4)
-        self.create_bits_by_thousand_rocks(data_by_year, shifts, bits)
+
+        figure = plt.figure()
+        suptitle = figure.suptitle("Отчет по буровому инструменту.",
+                                   fontsize="x-large")
+        self.create_meters_by_month(figure, data_by_year, shifts)
+        self.create_all_bits(figure, data_by_year, shifts, bits)
+        self.create_meters_by_bits(figure, data_by_year, shifts, bits)
+        self.create_bits_by_thousand_rocks(figure, data_by_year, shifts, bits)
+
+        figure.tight_layout()
+        suptitle.set_y(0.95)
+        figure.subplots_adjust(top=0.85)
         plt.show()
 
     def create_drill_report(self):

@@ -17,12 +17,12 @@ class MechReports(BasicFunctions):
     mech_path = AbsolytePath('mechanics_report').get_absolyte_path()
     mech_data = {}
     machine_list = {
-        'Хоз. Машина': ['УАЗ 390945', 'УАЗ 220695', 'ГАЗ-3307'],
-        'Буровая': ['Commando - 110', 'Commando - 120'],
-        'Погрузчик': ['Komazu WA470-3', 'Volvo L 150C'],
+        'Хоз. Машина': ['УАЗ-390945', 'УАЗ-220695', 'ГАЗ-3307'],
+        'Буровая': ['Commando-110', 'Commando-120'],
+        'Погрузчик': ['Komazu-WA470', 'Volvo-L150'],
         'Кран': ['КС-5363А', 'КС-5363Б', 'КС-5363Б2 '],
-        'Компрессор': ['Atlas Copca XAS 881', 'Atlas Copca XAS 882'],
-        'Экскаватор': ['Hitachi zx350', 'Hitachi zx400'],
+        'Компрессор': ['AtlasC-881', 'AtlasC-882'],
+        'Экскаватор': ['Hitachi-350', 'Hitachi-400'],
         'Самосвал': ['КрАЗ-914', 'КрАЗ-413', 'КрАЗ-069'],
         'Бульдозер': ['Бул-10'],
         'Дизельная эл. ст.': ['ДЭС-AD']
@@ -35,9 +35,9 @@ class MechReports(BasicFunctions):
         """Check if date format correct"""
         date_numbers = date.split('-')
         correct = (date[4] == '-' and
+                   len(date_numbers) == 2 and
                    date_numbers[0].isdigit() and
                    date_numbers[1].isdigit() and
-                   date_numbers[2].isdigit() and
                    int(date_numbers[1]) < 13 and
                    int(date_numbers[1]) > 0)
         return correct
@@ -54,6 +54,53 @@ class MechReports(BasicFunctions):
             except IndexError:
                 correct = False
         return correct
+
+    @classmethod
+    def create_ktg_compare(cls, figure, shift1_coef_df, x_kti,
+                           x_ktg, shift2_coef_df, shot_mach):
+        """Create plot for compare KTG by shifts."""
+        ktg_compare = figure.add_subplot(133)
+        ktg_compare.barh(x_ktg, shift1_coef_df.ktg, 0.35,
+                         alpha=0.4, color='b', label='КТГ бригады 1',
+                         tick_label=shot_mach)
+        ktg_compare.barh(x_kti, shift2_coef_df.ktg, 0.35,
+                         alpha=0.4, color='g', label='КТГ бригады 2')
+        ktg_compare.set_title('Сравнительные КТГ бригад.')
+        ktg_compare.set_xlabel('%')
+        ktg_compare.legend()
+        ktg_compare.grid(True, linestyle='--', which='major',
+                         color='grey', alpha=.25, axis='x')
+
+    @classmethod
+    def create_kti_compare(cls, figure, shift1_coef_df, x_kti,
+                           x_ktg, shift2_coef_df, shot_mach):
+        """Create plot for compare KTI by shifts."""
+        kti_compare = figure.add_subplot(132)
+        kti_compare.barh(x_ktg, shift1_coef_df.kti, 0.35,
+                         alpha=0.4, color='b', label='КТИ бригады 1',
+                         tick_label=shot_mach)
+        kti_compare.barh(x_kti, shift2_coef_df.kti, 0.35,
+                         alpha=0.4, color='g', label='КТИ бригады 2')
+        kti_compare.set_title('Сравнительные КТИ бригад.')
+        kti_compare.set_xlabel('%')
+        kti_compare.legend()
+        kti_compare.grid(True, linestyle='--', which='major',
+                         color='grey', alpha=.25, axis='x')
+
+    @classmethod
+    def create_month_coeffs(cls, figure, period_coef_df, x_ktg, x_kti):
+        """Create plot for KTG and KTI by month."""
+        month_coeffs = figure.add_subplot(131)
+        month_coeffs.barh(x_ktg, period_coef_df.ktg, 0.35,
+                          alpha=0.4, color='b', label='КТГ',
+                          tick_label=period_coef_df.mach)
+        month_coeffs.barh(x_kti, period_coef_df.rel_kti, 0.35,
+                          alpha=0.4, color='r', label='КТИ')
+        month_coeffs.set_title('КТГ и КТИ за выбранный период.')
+        month_coeffs.set_xlabel('%')
+        month_coeffs.legend()
+        month_coeffs.grid(True, linestyle='--', which='major',
+                          color='grey', alpha=.25, axis='x')
 
     def __init__(self):
         self.temp_df = pd.DataFrame()
@@ -85,7 +132,7 @@ class MechReports(BasicFunctions):
         """Input date."""
         check_date = False
         while not check_date:
-            rep_date = input("Введите число в формате 2018-12-31: ")
+            rep_date = input("Введите год и месяц формате 2018-12: ")
             check_date = self.check_date_format(rep_date)
         rep_date = list(map(int, rep_date.split('-')))
         return rep_date
@@ -137,8 +184,15 @@ class MechReports(BasicFunctions):
         elif len(rep_date) == 2:
             check = ((self.mech_file['year'] == rep_date[0]) &
                      (self.mech_file['month'] == rep_date[1])).any()
+            avail_days = self.mech_file[
+                (self.mech_file['year'] == rep_date[0]) &
+                (self.mech_file['month'] == rep_date[1])].day
+            print("Имеющиеся отчеты: {}".format(sorted(set(avail_days))))
         elif len(rep_date) == 1:
             check = (self.mech_file['year'] == rep_date[0]).any()
+            avail_months = self.mech_file[
+                (self.mech_file['year'] == rep_date[0])].month
+            print("Имеющиеся отчеты: {}".format(sorted(set(avail_months))))
         return check
 
     def _print_current_date_report(self, rep_date):
@@ -181,11 +235,9 @@ class MechReports(BasicFunctions):
 
     def _create_plot(self, period_coef_df, shift1_coef_df, shift2_coef_df):
         """Create statistic plots."""
-        bar_width = 0.35
-        opacity = 0.4
         machines = sorted(set(self.mech_file.mach_name))
         x_ktg = list(range(len(machines)))
-        x_kti = [x - bar_width for x in x_ktg]
+        x_kti = [x - 0.35 for x in x_ktg]
         shot_mach = [x[:3]+' '+x[-3:] for x in period_coef_df.mach]
 
         window_parametrs['figure.figsize'] = [22.0, 8.0]
@@ -195,41 +247,16 @@ class MechReports(BasicFunctions):
         window_parametrs['legend.fontsize'] = 'large'
         window_parametrs['figure.titlesize'] = 'large'
 
-        plt.subplot(1, 3, 1)
-        plt.barh(x_ktg, period_coef_df.ktg, bar_width,
-                 alpha=opacity, color='b', label='КТГ')
-        plt.barh(x_kti, period_coef_df.rel_kti, bar_width,
-                 alpha=opacity, color='r', label='КТИ')
-        plt.yticks(x_ktg, period_coef_df.mach)
-        plt.title('КТГ и КТИ за выбранный период.')
-        plt.xlabel('%')
-        plt.legend()
-        plt.grid(True, linestyle='--', which='major',
-                 color='grey', alpha=.25, axis='x')
-
-        plt.subplot(1, 3, 2)
-        plt.barh(x_ktg, shift1_coef_df.kti, bar_width,
-                 alpha=opacity, color='b', label='КТИ бригады 1')
-        plt.barh(x_kti, shift2_coef_df.kti, bar_width,
-                 alpha=opacity, color='g', label='КТИ бригады 2')
-        plt.title('Сравнительные КТИ бригад.')
-        plt.yticks(x_ktg, shot_mach)
-        plt.xlabel('%')
-        plt.legend()
-        plt.grid(True, linestyle='--', which='major',
-                 color='grey', alpha=.25, axis='x')
-
-        plt.subplot(1, 3, 3)
-        plt.barh(x_ktg, shift1_coef_df.ktg, bar_width,
-                 alpha=opacity, color='b', label='КТГ бригады 1')
-        plt.barh(x_kti, shift2_coef_df.ktg, bar_width,
-                 alpha=opacity, color='g', label='КТГ бригады 2')
-        plt.title('Сравнительные КТГ бригад.')
-        plt.yticks(x_ktg, shot_mach)
-        plt.xlabel('%')
-        plt.legend()
-        plt.grid(True, linestyle='--', which='major',
-                 color='grey', alpha=.25, axis='x')
+        figure = plt.figure()
+        suptitle = figure.suptitle("Ремонты техники.", fontsize="x-large")
+        self.create_month_coeffs(figure, period_coef_df, x_ktg, x_kti)
+        self.create_kti_compare(figure, shift1_coef_df, x_kti,
+                                x_ktg, shift2_coef_df, shot_mach)
+        self.create_ktg_compare(figure, shift1_coef_df, x_kti,
+                                x_ktg, shift2_coef_df, shot_mach)
+        figure.tight_layout()
+        suptitle.set_y(0.95)
+        figure.subplots_adjust(top=0.85)
         plt.show()
 
     def _count_data_for_period(self, year, month):
@@ -275,6 +302,9 @@ class MechReports(BasicFunctions):
         while check:
             rep_date = self._input_date()
             check = self._check_if_report_exist(*rep_date)
+            day = input("Введите день: ")
+            rep_date.append(int(day))
+            check = self._check_if_report_exist(*rep_date)
             if check:
                 print("Отчет за это число уже существует.")
 
@@ -312,10 +342,13 @@ class MechReports(BasicFunctions):
             rep_date = self._input_date()
             check = self._check_if_report_exist(*rep_date)
             if not check:
-                print("Отчет за это число отстутствует.")
-        super().clear_screen()
-        print('.'.join(map(str, rep_date)))
-        self._print_current_date_report(rep_date)
+                print("Отчеты за этот месяц отстутствует.")
+            else:
+                day = input("Введите день: ")
+                rep_date.append(int(day))
+                super().clear_screen()
+                print('.'.join(map(str, rep_date)))
+                self._print_current_date_report(rep_date)
 
     def show_statistic(self):
         """Show statistic for mechanics report."""
