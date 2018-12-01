@@ -1,6 +1,21 @@
 #!/usr/bin/env python3
 """
-Main career report
+Main career report.
+Reports :
+ 'brigadiers_path', - path to brigadier database.
+ 'check_comma_error', - check error for wrong result input (if comma in FPN).
+ 'check_date_format', - check correct date format.
+ 'choose_salary_or_drillers', - edit salary, drillers or brigadiers workers.
+ 'create_report', - create main report.
+ 'create_workers_hours_list', - input workers hours.
+ 'data_path', - path to main reports database.
+ 'drillers_path', - path to drillers database.
+ 'edit_report', - edit main report.
+ 'give_avaliable_to_edit', - give reports, avaliable to edit.
+ 'give_main_results', - give main results.
+ 'salary_path', - path to salary workers database.
+ 'shifts', - shifts list.
+ 'work_with_main_report' - complete main report.
 """
 
 from pprint import pprint
@@ -79,7 +94,10 @@ class MainReport(BasicFunctions):
     def _colorise_brigadiers(cls, name, output):
         """Colorise sallary and drillers in report output."""
         if name in Reports().brigadiers:
-            output = ''.join(['\033[91m', output, '\033[0m'])
+            if '\033[36m' in output:
+                output = output.replace('\033[36m', '\033[91m')
+            else:
+                output = ''.join(['\033[91m', output, '\033[0m'])
         return output
 
     def __str__(self):

@@ -1,4 +1,4 @@
-# Interkamen Program 1.0.1
+# Interkamen Program 1.1.1
 
 ![intro](readme_screenshots/intro.png)
 
@@ -38,7 +38,7 @@ We use [SemVer](http://semver.org/) for versioning.
 1. Remove 1,5 coefficient from buh. salary.
 2. Add 'rock mass by month' plot in 'report_analysis'.
 3. Colorful salary workers and drillers.
-### what's new in 1.1.1:
+### what's new in 1.1.0:
 1. Restructuring program files.
 2. Add emailed module.
 3. Add Email settings into administrator menu.
@@ -48,6 +48,10 @@ We use [SemVer](http://semver.org/) for versioning.
 7. Add Email notifications for main report.
 8. Add view reports by year in finance.
 9. Add Employing date and penalties to workers.
+### what's new in 1.1.1:
+1. OOP style in pyplots.
+2. Add "already exist" view for mechanics report.
+3. Add brigadiers to salary list.
 
 ## Content and Instruction
 
