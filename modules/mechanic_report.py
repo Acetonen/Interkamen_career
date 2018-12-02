@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Mechanics reports."""
+"""
+Mechanics reports.
+
+MechReports:
+ 'create_report', - create mechanics report.
+ 'machine_list', - all career machines.
+ 'show_report', - show choosen report.
+ 'show_statistic' - show month or year stats.
+"""
 
 import os
 import pandas as pd
@@ -30,6 +38,14 @@ class MechReports(BasicFunctions):
     columns = ['year', 'month', 'day', 'mach_type', 'mach_name',
                'st_plan', 'st_acs', 'st_sep', 'work', 'notes']
 
+    def __init__(self):
+        self.temp_df = pd.DataFrame()
+        if os.path.exists(self.mech_path):
+            self.mech_file = super().load_data(self.mech_path)
+        else:
+            self.mech_file = pd.DataFrame(self.mech_data, index=[0])
+            super().dump_data(self.mech_path, self.mech_file)
+
     @classmethod
     def check_date_format(cls, date):
         """Check if date format correct"""
@@ -56,59 +72,21 @@ class MechReports(BasicFunctions):
         return correct
 
     @classmethod
-    def create_ktg_compare(cls, figure, shift1_coef_df, x_kti,
-                           x_ktg, shift2_coef_df, shot_mach):
+    def create_coeff_compare(cls, fig_plot, coefs, tick_label, title):
         """Create plot for compare KTG by shifts."""
-        ktg_compare = figure.add_subplot(133)
-        ktg_compare.barh(x_ktg, shift1_coef_df.ktg, 0.35,
-                         alpha=0.4, color='b', label='КТГ бригады 1',
-                         tick_label=shot_mach)
-        ktg_compare.barh(x_kti, shift2_coef_df.ktg, 0.35,
-                         alpha=0.4, color='g', label='КТГ бригады 2')
-        ktg_compare.set_title('Сравнительные КТГ бригад.')
-        ktg_compare.set_xlabel('%')
-        ktg_compare.legend()
-        ktg_compare.grid(True, linestyle='--', which='major',
-                         color='grey', alpha=.25, axis='x')
+        x_ktg = list(range(len(tick_label)))
+        x_kti = [x - 0.35 for x in x_ktg]
 
-    @classmethod
-    def create_kti_compare(cls, figure, shift1_coef_df, x_kti,
-                           x_ktg, shift2_coef_df, shot_mach):
-        """Create plot for compare KTI by shifts."""
-        kti_compare = figure.add_subplot(132)
-        kti_compare.barh(x_ktg, shift1_coef_df.kti, 0.35,
-                         alpha=0.4, color='b', label='КТИ бригады 1',
-                         tick_label=shot_mach)
-        kti_compare.barh(x_kti, shift2_coef_df.kti, 0.35,
-                         alpha=0.4, color='g', label='КТИ бригады 2')
-        kti_compare.set_title('Сравнительные КТИ бригад.')
-        kti_compare.set_xlabel('%')
-        kti_compare.legend()
-        kti_compare.grid(True, linestyle='--', which='major',
-                         color='grey', alpha=.25, axis='x')
-
-    @classmethod
-    def create_month_coeffs(cls, figure, period_coef_df, x_ktg, x_kti):
-        """Create plot for KTG and KTI by month."""
-        month_coeffs = figure.add_subplot(131)
-        month_coeffs.barh(x_ktg, period_coef_df.ktg, 0.35,
-                          alpha=0.4, color='b', label='КТГ',
-                          tick_label=period_coef_df.mach)
-        month_coeffs.barh(x_kti, period_coef_df.rel_kti, 0.35,
-                          alpha=0.4, color='r', label='КТИ')
-        month_coeffs.set_title('КТГ и КТИ за выбранный период.')
-        month_coeffs.set_xlabel('%')
-        month_coeffs.legend()
-        month_coeffs.grid(True, linestyle='--', which='major',
-                          color='grey', alpha=.25, axis='x')
-
-    def __init__(self):
-        self.temp_df = pd.DataFrame()
-        if os.path.exists(self.mech_path):
-            self.mech_file = super().load_data(self.mech_path)
-        else:
-            self.mech_file = pd.DataFrame(self.mech_data, index=[0])
-            super().dump_data(self.mech_path, self.mech_file)
+        axle = fig_plot[0].add_subplot(fig_plot[1])
+        axle.barh(x_ktg, coefs[0], 0.35, alpha=0.4, color='b',
+                  label='КТГ бригады 1', tick_label=tick_label)
+        axle.barh(x_kti, coefs[1], 0.35, alpha=0.4, color='g',
+                  label='КТГ бригады 2')
+        axle.set_title(title)
+        axle.set_xlabel('%')
+        axle.legend()
+        axle.grid(True, linestyle='--', which='major', color='grey',
+                  alpha=.25, axis='x')
 
     def _create_blanc(self, rep_date):
         """Create blanc for report."""
@@ -235,10 +213,9 @@ class MechReports(BasicFunctions):
 
     def _create_plot(self, period_coef_df, shift1_coef_df, shift2_coef_df):
         """Create statistic plots."""
+        # Create compact machine names.
         machines = sorted(set(self.mech_file.mach_name))
-        x_ktg = list(range(len(machines)))
-        x_kti = [x - 0.35 for x in x_ktg]
-        shot_mach = [x[:3]+' '+x[-3:] for x in period_coef_df.mach]
+        shot_mach = [x[:3]+' '+x[-3:] for x in machines]
 
         window_parametrs['figure.figsize'] = [22.0, 8.0]
         window_parametrs['figure.dpi'] = 100
@@ -249,11 +226,21 @@ class MechReports(BasicFunctions):
 
         figure = plt.figure()
         suptitle = figure.suptitle("Ремонты техники.", fontsize="x-large")
-        self.create_month_coeffs(figure, period_coef_df, x_ktg, x_kti)
-        self.create_kti_compare(figure, shift1_coef_df, x_kti,
-                                x_ktg, shift2_coef_df, shot_mach)
-        self.create_ktg_compare(figure, shift1_coef_df, x_kti,
-                                x_ktg, shift2_coef_df, shot_mach)
+        self.create_coeff_compare(
+            (figure, 131), tick_label=period_coef_df.mach,
+            title='КТГ и КТИ за выбранный период.',
+            coefs=(period_coef_df.ktg, period_coef_df.rel_kti)
+            )
+        self.create_coeff_compare(
+            (figure, 132), tick_label=shot_mach,
+            title='Сравнительные КТИ бригад.',
+            coefs=(shift1_coef_df.kti, shift2_coef_df.kti)
+            )
+        self.create_coeff_compare(
+            (figure, 133), tick_label=shot_mach,
+            title='Сравнительные КТГ бригад.',
+            coefs=(shift1_coef_df.ktg, shift2_coef_df.ktg)
+            )
         figure.tight_layout()
         suptitle.set_y(0.95)
         figure.subplots_adjust(top=0.85)
@@ -315,7 +302,6 @@ class MechReports(BasicFunctions):
             print(self.temp_df[
                 ['mach_name', 'st_plan', 'st_acs', 'st_sep', 'work', 'notes']
                 ])
-
             choise = input("\nВыберете технику для внесения данных"
                            "\n(ENTER - выход без сохранения)"
                            "\n('c' - сохранить отчет): ")

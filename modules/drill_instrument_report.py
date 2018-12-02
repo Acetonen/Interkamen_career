@@ -17,6 +17,7 @@ class DrillInstruments(BasicFunctions):
     All information about drill instruments.
     """
     drill_path = AbsolytePath('drill_instruments').get_absolyte_path()
+    temp_drill_path = AbsolytePath('temp_drill_inst').get_absolyte_path()
     month_list = ['01', '02', '03', '04', '05', '06',
                   '07', '08', '09', '10', '11', '12']
     drill_data = {}
@@ -27,6 +28,8 @@ class DrillInstruments(BasicFunctions):
         else:
             self.drill_file = pd.DataFrame(self.drill_data, index=[0])
             super().dump_data(self.drill_path, self.drill_file)
+        # Try to complete drill report if temp file exist.
+        self._comlete_drill_report()
 
     @classmethod
     def create_meters_by_month(cls, figure, data_by_year, shifts):
@@ -109,52 +112,30 @@ class DrillInstruments(BasicFunctions):
         ):
             print(data)
 
-    def _check_if_report_avaliable(self):
-        """Check if main report exist and complate."""
-        self.drill_data['year'] = input("Введите год: ")
-        print("Выберете месяц:")
-        self.drill_data['month'] = super().choise_from_list(self.month_list)
-        print("Выберете смену:")
-        self.drill_data['shift'] = super().choise_from_list(Reports().shifts)
-        main_report_results = Reports().give_main_results(
-            self.drill_data['year'],
-            self.drill_data['month'],
-            self.drill_data['shift'])
-        return main_report_results
-
-    def _input_other_stats(self, main_report_results):
-        """Input other stats about drill instrument."""
-        (self.drill_data['meters'],
-         self.drill_data['result'],
-         self.drill_data['rock_mass']) = main_report_results
-        self.drill_data['bits32'] = int(input("коронки 32: "))
-        self.drill_data['bits35'] = int(input("коронки 35: "))
-        self.drill_data['bar3'] = int(input("штанги 3м: "))
-        self.drill_data['bar6'] = int(input("штанги 6м: "))
-        self.drill_data['bits_in_rock'] = int(input("коронки в скале: "))
-        self.drill_data['driller'] = Reports().drillers[
-            Reports().shifts.index(self.drill_data['shift'])]
-
-    def _check_correctly_input(self):
+    def _check_correctly_input(self, results_exist):
         """Check if data input corretly."""
         print("Отчет: ")
         for item in sorted(self.drill_data):
             print(item, ':', self.drill_data[item])
         confirm = input("\nПроверьте корректность ввода данных,\
 если данные введены верно введите 'д': ")
-        if confirm == 'д':
-
-            self.drill_file = self.drill_file.append(self.drill_data,
-                                                     ignore_index=True)
-            super().dump_data(self.drill_path, self.drill_file)
-
+        if confirm == 'д' and results_exist:
+            self._save_drill_report()
             print("Отчет по инструменту создан.")
-            super().save_log_to_temp_file(
-                '{}-{}-{}\033[94m created\033[0m'.format(
-                    self.drill_data['year'],
-                    self.drill_data['month'],
-                    self.drill_data['shift'])
-                )
+        elif confirm == 'д' and not results_exist:
+            self._save_drill_report_to_temp()
+
+    def _save_drill_report(self):
+        """Save drill report and create log file."""
+        self.drill_file = self.drill_file.append(self.drill_data,
+                                                 ignore_index=True)
+        super().dump_data(self.drill_path, self.drill_file)
+        super().save_log_to_temp_file(
+            '{}-{}-{}\033[94m created\033[0m'.format(
+                self.drill_data['year'],
+                self.drill_data['month'],
+                self.drill_data['shift'])
+            )
 
     def _visualise_statistic(self, year):
         """Visualise statistic."""
@@ -195,17 +176,63 @@ class DrillInstruments(BasicFunctions):
         figure.subplots_adjust(top=0.85)
         plt.show()
 
+    def _input_other_stats(self):
+        """Input other stats about drill instrument."""
+        self.drill_data['bits32'] = int(input("коронки 32: "))
+        self.drill_data['bits35'] = int(input("коронки 35: "))
+        self.drill_data['bar3'] = int(input("штанги 3м: "))
+        self.drill_data['bar6'] = int(input("штанги 6м: "))
+        self.drill_data['bits_in_rock'] = int(input("коронки в скале: "))
+        self.drill_data['driller'] = Reports().drillers[
+            Reports().shifts.index(self.drill_data['shift'])]
+
+    def _input_year_month_shift(self):
+        """Check if main report exist and complete."""
+        self.drill_data['year'] = input("Введите год: ")
+        print("Выберете месяц:")
+        self.drill_data['month'] = super().choise_from_list(self.month_list)
+        print("Выберете смену:")
+        self.drill_data['shift'] = super().choise_from_list(Reports().shifts)
+
+    def _bring_data_from_main_report(self):
+        """Bring meters, result and rock mass from main_career_report."""
+        main_report_results = Reports().give_main_results(
+            self.drill_data['year'],
+            self.drill_data['month'],
+            self.drill_data['shift'])
+        if main_report_results:
+            (self.drill_data['meters'],
+             self.drill_data['result'],
+             self.drill_data['rock_mass']) = main_report_results
+        return main_report_results
+
+    def _save_drill_report_to_temp(self):
+        """Save drill report to temp file, until main report be complete."""
+        super().dump_data(self.temp_drill_path, self.drill_data)
+
+    def _load_from_temp_drill(self):
+        """Load data from temp drill file."""
+        self.drill_data = super().load_data(self.temp_drill_path)
+
+    def _comlete_drill_report(self):
+        """Complete drill report with meters, result
+        and rock mass from main_career_report."""
+        if os.path.exists(self.temp_drill_path):
+            self._load_from_temp_drill()
+            main_report_results = self._bring_data_from_main_report()
+            if main_report_results:
+                self._save_drill_report()
+                os.remove(self.temp_drill_path)
+                print("Temp Drill report completed.")
+
     def create_drill_report(self):
         """Create drill report"""
-        main_report_results = self._check_if_report_avaliable()
-        if main_report_results:
-            print("Введите данные по инструменту:")
-            self._input_other_stats(main_report_results)
-            super().clear_screen()
-            self._check_correctly_input()
-        else:
-            print("Наряд данной смены еще не сфомирован, отчет о расходе \
-инструмента возможно сформировать только после оформления наряда.")
+        self._input_year_month_shift()
+        print("Введите данные по инструменту:")
+        self._input_other_stats()
+        results_exist = self._bring_data_from_main_report()
+        super().clear_screen()
+        self._check_correctly_input(results_exist)
 
     def show_statistic_by_year(self):
         """Showing statistic about drill instrument."""
