@@ -1,4 +1,4 @@
-# Interkamen Program 1.1.1
+# Interkamen Program 1.1.2
 
 ![intro](readme_screenshots/intro.png)
 
@@ -52,6 +52,9 @@ We use [SemVer](http://semver.org/) for versioning.
 1. OOP style in pyplots.
 2. Add "already exist" view for mechanics report.
 3. Add brigadiers to salary list.
+### what's new in 1.1.2:
+1. Add availability to create drill report if main report not exist yet.
+2. Fix backup bug.
 
 ## Content and Instruction
 
