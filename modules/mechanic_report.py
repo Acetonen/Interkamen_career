@@ -62,26 +62,25 @@ class MechReports(BasicFunctions):
     def check_hours_input(cls, hours):
         """Check input hours are correct"""
         hours = hours.split('-')
-        for hour in hours:
-            try:
-                correct = int(hour) < 13
-            except ValueError:
-                correct = False
-            except IndexError:
-                correct = False
+        try:
+            correct = sum(list(map(int, hours))) < 13 and len(hours) == 4
+        except ValueError:
+            correct = False
+        except IndexError:
+            correct = False
         return correct
 
     @classmethod
-    def create_coeff_compare(cls, fig_plot, coefs, tick_label, title):
+    def create_coeff_compare(cls, fig_plot, coefs, labels, title):
         """Create plot for compare KTG by shifts."""
-        x_ktg = list(range(len(tick_label)))
+        x_ktg = list(range(len(labels[0])))
         x_kti = [x - 0.35 for x in x_ktg]
 
         axle = fig_plot[0].add_subplot(fig_plot[1])
         axle.barh(x_ktg, coefs[0], 0.35, alpha=0.4, color='b',
-                  label='КТГ бригады 1', tick_label=tick_label)
+                  label=labels[1], tick_label=labels[0])
         axle.barh(x_kti, coefs[1], 0.35, alpha=0.4, color='g',
-                  label='КТГ бригады 2')
+                  label=labels[2])
         axle.set_title(title)
         axle.set_xlabel('%')
         axle.legend()
@@ -111,6 +110,8 @@ class MechReports(BasicFunctions):
         check_date = False
         while not check_date:
             rep_date = input("Введите год и месяц формате 2018-12: ")
+            if not rep_date:
+                return rep_date
             check_date = self.check_date_format(rep_date)
         rep_date = list(map(int, rep_date.split('-')))
         return rep_date
@@ -129,6 +130,8 @@ class MechReports(BasicFunctions):
             h_data = input(
                 "Введите часы через тире\n\tПлан-Авар-Зап-Раб: ")
             check_input = self.check_hours_input(h_data)
+            if not check_input:
+                print("Необходимо ввести 4 числа, сумма которых не более 12!")
         h_data = list(map(float, h_data.split('-')))
         return h_data
 
@@ -173,17 +176,6 @@ class MechReports(BasicFunctions):
             print("Имеющиеся отчеты: {}".format(sorted(set(avail_months))))
         return check
 
-    def _print_current_date_report(self, rep_date):
-        """Print current date report."""
-        data_frame = self.mech_file[
-            (self.mech_file['year'] == rep_date[0]) &
-            (self.mech_file['month'] == rep_date[1]) &
-            (self.mech_file['day'] == rep_date[2])
-            ]
-        print(data_frame[
-            ['mach_name', 'st_plan', 'st_acs', 'st_sep', 'work', 'notes']
-            ])
-
     def _stat_by_month(self):
         year = int(input("Введите год: "))
         month = int(input("Введите месяц: "))
@@ -201,7 +193,6 @@ class MechReports(BasicFunctions):
 
     def _visualise_stat(self, year, month=None):
         """Count KTI and KTG."""
-
         period_base, shift1_base, shift2_base = self._count_data_for_period(
             year, month)
         period_coef_df = self._create_coef_df(period_base)
@@ -227,17 +218,20 @@ class MechReports(BasicFunctions):
         figure = plt.figure()
         suptitle = figure.suptitle("Ремонты техники.", fontsize="x-large")
         self.create_coeff_compare(
-            (figure, 131), tick_label=period_coef_df.mach,
+            (figure, 131),
+            labels=(period_coef_df.mach, 'КТГ', 'КТИ'),
             title='КТГ и КТИ за выбранный период.',
             coefs=(period_coef_df.ktg, period_coef_df.rel_kti)
             )
         self.create_coeff_compare(
-            (figure, 132), tick_label=shot_mach,
+            (figure, 132),
+            labels=(shot_mach, 'Бригада 1', 'Бригада 2'),
             title='Сравнительные КТИ бригад.',
             coefs=(shift1_coef_df.kti, shift2_coef_df.kti)
             )
         self.create_coeff_compare(
-            (figure, 133), tick_label=shot_mach,
+            (figure, 133),
+            labels=(shot_mach, 'Бригада 1', 'Бригада 2'),
             title='Сравнительные КТГ бригад.',
             coefs=(shift1_coef_df.ktg, shift2_coef_df.ktg)
             )
@@ -269,12 +263,15 @@ class MechReports(BasicFunctions):
         }
         for mach in machines:
             mach_period = curr_base[curr_base.mach_name == mach]
-            kalendar_time = mach_period.shape[1] * 12
+            kalendar_time = mach_period.shape[0] * 12
             stand_time = sum(
                 mach_period.st_plan + mach_period.st_sep + mach_period.st_acs)
             avail_time = kalendar_time - stand_time
             ktg = avail_time / kalendar_time * 100
-            kti = sum(mach_period.work) / avail_time * 100
+            if avail_time:
+                kti = sum(mach_period.work) / avail_time * 100
+            else:
+                kti = 0
             rel_kti = ktg / 100 * kti
             temp_coef_list['mach'].append(mach)
             temp_coef_list['ktg'].append(round(ktg, 1))
@@ -283,19 +280,8 @@ class MechReports(BasicFunctions):
         coef_df = pd.DataFrame(temp_coef_list)
         return coef_df
 
-    def create_report(self):
-        """Create daily report."""
-        check = True
-        while check:
-            rep_date = self._input_date()
-            check = self._check_if_report_exist(*rep_date)
-            day = input("Введите день: ")
-            rep_date.append(int(day))
-            check = self._check_if_report_exist(*rep_date)
-            if check:
-                print("Отчет за это число уже существует.")
-
-        self._create_blanc(rep_date)
+    def _working_with_report(self, rep_date):
+        """Edit report."""
         while True:
             super().clear_screen()
             print('.'.join(map(str, rep_date)))
@@ -303,38 +289,66 @@ class MechReports(BasicFunctions):
                 ['mach_name', 'st_plan', 'st_acs', 'st_sep', 'work', 'notes']
                 ])
             choise = input("\nВыберете технику для внесения данных"
-                           "\n(ENTER - выход без сохранения)"
+                           "\n('в' - выйти и СТЕРЕТЬ ДАННЫЕ)"
                            "\n('c' - сохранить отчет): ")
             if choise in ['c', 'C', 'с', 'С']:
                 self._save_report()
                 super().save_log_to_temp_file('.'.join(map(str, rep_date)))
                 break
-            elif not choise:
+            elif choise in ['b', 'B', 'в', 'В']:
                 break
             elif not choise.isdigit():
                 continue
             elif int(choise) > 18:
                 continue
-
             select_mach = self._select_machine(choise)
             h_data = self._input_hours()
             self._add_hours_to_mach(select_mach, h_data)
             self._add_note_to_mach(select_mach)
 
-    def show_report(self):
-        """Show report for current date."""
-        check = False
-        while not check:
+    def _make_day_report_temp(self, rep_date):
+        """Make report of day temr and drop it from DF."""
+        self.temp_df = self.mech_file[
+            (self.mech_file['year'] == rep_date[0]) &
+            (self.mech_file['month'] == rep_date[1]) &
+            (self.mech_file['day'] == rep_date[2])
+            ]
+        self.mech_file = self.mech_file.append(
+            self.temp_df).drop_duplicates(keep=False)
+        super().dump_data(self.mech_path, self.mech_file)
+
+    def create_report(self):
+        """Create daily report."""
+        while True:
             rep_date = self._input_date()
+            if not rep_date:
+                break
+            check = self._check_if_report_exist(*rep_date)
+            day = input("Введите день: ")
+            rep_date.append(int(day))
+            check = self._check_if_report_exist(*rep_date)
+            if check:
+                print("Отчет за это число уже существует.")
+            else:
+                self._create_blanc(rep_date)
+                self._working_with_report(rep_date)
+                break
+
+    def edit_report(self):
+        """Show report for current date."""
+        while True:
+            rep_date = self._input_date()
+            if not rep_date:
+                break
             check = self._check_if_report_exist(*rep_date)
             if not check:
                 print("Отчеты за этот месяц отстутствует.")
             else:
                 day = input("Введите день: ")
                 rep_date.append(int(day))
-                super().clear_screen()
-                print('.'.join(map(str, rep_date)))
-                self._print_current_date_report(rep_date)
+                self._make_day_report_temp(rep_date)
+                self._working_with_report(rep_date)
+                break
 
     def show_statistic(self):
         """Show statistic for mechanics report."""

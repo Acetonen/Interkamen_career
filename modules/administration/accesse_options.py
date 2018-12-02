@@ -44,8 +44,8 @@ class Accesse:
         '--> [Работа_техники]': {
             'Создать отчет по ремонтам':
             lambda *arg: MechReports().create_report(),
-            'Показать определенный отчет':
-            lambda *arg: MechReports().show_report(),
+            'Редактировать отчет':
+            lambda *arg: MechReports().edit_report(),
             'Показать статистику':
             lambda *arg: MechReports().show_statistic()
         },
