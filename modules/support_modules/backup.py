@@ -32,7 +32,7 @@ def check_last_backup_date():
     if os.path.exists(log_file_name):
         with open(log_file_name, 'r') as backup_log:
             last_backup_date = backup_log.readlines()[-1]
-        last_data = datetime.strptime(last_backup_date[:-1], '%Y-%m-%d')
+        last_data = datetime.strptime(last_backup_date.rstrip(), '%Y-%m-%d')
         delta = datetime.now() - last_data
         if delta.days > 30:
             print("\033[5m\033[1mBackup done.\033[0m")
