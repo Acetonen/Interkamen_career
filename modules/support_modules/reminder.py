@@ -3,6 +3,7 @@
 
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.main_career_report import Reports
+from modules.mechanic_report import MechReports
 
 
 class Reminder(BasicFunctions):
@@ -11,13 +12,16 @@ class Reminder(BasicFunctions):
     def __init__(self, user_access):
 
         self.remind_by_access = {
-            'mechanic': [],
+            'mechanic': [
+                self.maintenance_remind
+            ],
             'master': [],
             'boss': [
                 self.main_report_remind
             ],
             'admin': [
-                self.main_report_remind
+                self.main_report_remind,
+                self.maintenance_remind
             ]
         }
 
@@ -36,6 +40,12 @@ class Reminder(BasicFunctions):
             header = "Недооформленные документы:\n" + '\n'.join(
                 sorted(reports_need_to_edit)
             )
+        return header
+
+    @classmethod
+    def maintenance_remind(cls):
+        """Remind for machine maintenance."""
+        header = MechReports().walk_thrue_maint_calendar()
         return header
 
     def give_remind(self):

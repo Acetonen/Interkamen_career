@@ -47,12 +47,11 @@ class MechReports(BasicFunctions):
             'КС-5363Б', 'КС-5363Б2 ', 'AtlasC-881', 'AtlasC-882',
             'Hitachi-350', 'Hitachi-400', 'КрАЗ-914', 'КрАЗ-413',
             'КрАЗ-069', 'Бул-10', 'ДЭС-AD'],
-        'cycle': [400, 400, 400, 250,
+        'cycle': [10, 10, 400, 250,
                   250, 250, 250, 400,
                   400, 400, 250, 250,
                   250, 250, 400, 400,
                   400, 500, 250],
-        'last_maintain_date': ['' for x in range(19)],
         'hours_pass': ['0' for x in range(19)],
     }
     columns = ['year', 'month', 'day', 'mach_type', 'mach_name',
@@ -77,7 +76,7 @@ class MechReports(BasicFunctions):
     def check_date_format(cls, rep_date):
         """Check if date format correct"""
         date_numbers = rep_date.split('-')
-        correct = (date[4] == '-' and
+        correct = (rep_date[4] == '-' and
                    len(date_numbers) == 2 and
                    date_numbers[0].isdigit() and
                    date_numbers[1].isdigit() and
@@ -198,20 +197,8 @@ class MechReports(BasicFunctions):
             self.mech_file = self.temp_df
         else:
             self.mech_file = self.mech_file.append(self.temp_df)
-        self._add_hours_to_maint_calendar(sub)
+        self.walk_thrue_maint_calendar(sub)
         super().dump_data(self.mech_path, self.mech_file)
-
-    def _add_hours_to_maint_calendar(self, oper):
-        """Add or minus hours from maintenance counter in calendar."""
-        for machine in self.temp_df.mach_name:
-            temp_mach = self.temp_df.mach_name == machine
-            maint_mach = self.maint_file.mach_name == machine
-            if not self.maint_file.loc[maint_mach, 'last_maintain_date'].empty:
-                self.maint_file.loc[maint_mach, 'hours_pass'] = oper(
-                    int(self.maint_file.loc[maint_mach, 'hours_pass']),
-                    int(self.temp_df.loc[temp_mach, 'work'])
-                )
-                super().dump_data(self.maint_path, self.maint_file)
 
     def _check_if_report_exist(self, *rep_date):
         """Check if report allready exist."""
@@ -377,7 +364,7 @@ class MechReports(BasicFunctions):
             (self.mech_file['month'] == rep_date[1]) &
             (self.mech_file['day'] == rep_date[2])
             ]
-        self._add_hours_to_maint_calendar(add)
+        self.walk_thrue_maint_calendar(add)
         self.mech_file = self.mech_file.append(
             self.temp_df).drop_duplicates(keep=False)
         super().dump_data(self.mech_path, self.mech_file)
@@ -442,3 +429,41 @@ class MechReports(BasicFunctions):
             select_mach = self.select_machine(choise, self.maint_file)
             self._start_maintainance(select_mach)
             input("обслуживание проведено.")
+
+    def _add_hours_to_maint_counter(self, oper, check,
+                                    add_hours, maint_mach):
+        """Add or minus hours from maintenance counter in calendar."""
+        if not check.isnull().any():
+            self.maint_file.loc[maint_mach, 'hours_pass'] = oper(
+                int(self.maint_file.loc[maint_mach, 'hours_pass']),
+                int(add_hours)
+                )
+            super().dump_data(self.maint_path, self.maint_file)
+
+    @classmethod
+    def check_maintenance_alarm(cls, check, machine, counter):
+        """Check, if it is time to maintaine machine."""
+        header = ''
+        if not check.isnull().any() and int(counter) <= 0:
+            header = (
+                '\n\033[91mПодошло ТО для:\033[0m ' + machine +
+                ' дата последнего ТО: ' + check.values[0]
+            )
+        return header
+
+    def walk_thrue_maint_calendar(self, oper=None):
+        """Work with maintaine calendar."""
+        header = ''
+        for machine in set(self.maint_file.mach_name):
+            if not self.temp_df.empty:
+                temp_mach = self.temp_df.mach_name == machine
+                add_hours = self.temp_df.loc[temp_mach, 'work']
+            maint_mach = self.maint_file.mach_name == machine
+            check = self.maint_file.loc[maint_mach, 'last_maintain_date']
+            counter = self.maint_file.loc[maint_mach, 'hours_pass']
+            if oper:
+                self._add_hours_to_maint_counter(oper, check,
+                                                 add_hours, maint_mach)
+            else:
+                header += self.check_maintenance_alarm(check, machine, counter)
+        return header
