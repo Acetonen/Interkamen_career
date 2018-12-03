@@ -10,11 +10,13 @@ MechReports:
 """
 
 import os
-import pandas as pd
+from datetime import date
 from operator import sub, add
+
+import pandas as pd
 from matplotlib import pyplot as plt
-from datetime import date, datetime
 from matplotlib import rcParams as window_parametrs
+
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsolytePath
 
@@ -71,28 +73,10 @@ class MechReports(BasicFunctions):
         else:
             self.maint_file = self._create_blanc_maint()
 
-    def _start_maintainance(self, select_mach):
-        """Start or reset maintainence of mach."""
-        current_date = str(date.today())
-        self.maint_file.loc[
-            select_mach, 'last_maintain_date'] = current_date
-        self.maint_file.loc[
-            select_mach, 'hours_pass'] = self.maint_file.loc[
-                select_mach, 'cycle']
-        super().dump_data(self.maint_path, self.maint_file)
-
-    def _create_blanc_maint(self):
-        """Crete new maintenance DF."""
-        maint_df = pd.DataFrame(
-            self.maint_dict, columns=[
-                'mach_name', 'cycle', 'last_maintain_date', 'hours_pass'])
-        super().dump_data(self.maint_path, maint_df)
-        return maint_df
-
     @classmethod
-    def check_date_format(cls, date):
+    def check_date_format(cls, rep_date):
         """Check if date format correct"""
-        date_numbers = date.split('-')
+        date_numbers = rep_date.split('-')
         correct = (date[4] == '-' and
                    len(date_numbers) == 2 and
                    date_numbers[0].isdigit() and
@@ -130,6 +114,32 @@ class MechReports(BasicFunctions):
         axle.grid(True, linestyle='--', which='major', color='grey',
                   alpha=.25, axis='x')
 
+    @classmethod
+    def select_machine(cls, choise, dataframe):
+        """Select machine from data frame."""
+        machine = list(dataframe.mach_name)[int(choise)]
+        select_mach = dataframe['mach_name'] == machine
+        print('\n', '\033[92m', machine, '\033[0m')
+        return select_mach
+
+    def _start_maintainance(self, select_mach):
+        """Start or reset maintainence of mach."""
+        current_date = str(date.today())
+        self.maint_file.loc[
+            select_mach, 'last_maintain_date'] = current_date
+        self.maint_file.loc[
+            select_mach, 'hours_pass'] = self.maint_file.loc[
+                select_mach, 'cycle']
+        super().dump_data(self.maint_path, self.maint_file)
+
+    def _create_blanc_maint(self):
+        """Crete new maintenance DF."""
+        maint_df = pd.DataFrame(
+            self.maint_dict, columns=[
+                'mach_name', 'cycle', 'last_maintain_date', 'hours_pass'])
+        super().dump_data(self.maint_path, maint_df)
+        return maint_df
+
     def _create_blanc(self, rep_date):
         """Create blanc for report."""
         for mach_type in self.machine_list:
@@ -158,13 +168,6 @@ class MechReports(BasicFunctions):
             check_date = self.check_date_format(rep_date)
         rep_date = list(map(int, rep_date.split('-')))
         return rep_date
-
-    def _select_machine(self, choise, dataframe):
-        """Select machine from data frame."""
-        machine = list(dataframe.mach_name)[int(choise)]
-        select_mach = dataframe['mach_name'] == machine
-        print('\n', '\033[92m', machine, '\033[0m')
-        return select_mach
 
     def _input_hours(self):
         """Input hours."""
@@ -362,7 +365,7 @@ class MechReports(BasicFunctions):
                 continue
             elif int(choise) > 18:
                 continue
-            select_mach = self._select_machine(choise, self.temp_df)
+            select_mach = self.select_machine(choise, self.temp_df)
             h_data = self._input_hours()
             self._add_hours_to_mach(select_mach, h_data)
             self._add_note_to_mach(select_mach)
@@ -436,6 +439,6 @@ class MechReports(BasicFunctions):
                 continue
             elif int(choise) > 18:
                 continue
-            select_mach = self._select_machine(choise, self.maint_file)
+            select_mach = self.select_machine(choise, self.maint_file)
             self._start_maintainance(select_mach)
             input("обслуживание проведено.")

@@ -7,7 +7,6 @@ Functions: 'print_menu'
            'login_program'
            'check_backup'
            'get_main_or_sub_menu'
-           'make_header'
 """
 
 import sys
@@ -15,12 +14,11 @@ import sys
 from modules.support_modules.hi import INTERKAMEN
 from modules.support_modules.backup import check_last_backup_date
 from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.reminder import Reminder
 
 from modules.administration.accesse_options import Accesse
 from modules.administration.users import Users
 from modules.administration.log_class import Logs
-
-from modules.main_career_report import Reports
 
 
 def login_program():
@@ -36,7 +34,7 @@ def login_program():
 
 def print_menu():
     """Print program menu."""
-    print(make_header() + '\n' + SEPARATOR + '\n')
+    print(Reminder(USR_ACS).give_remind() + '\n' + SEPARATOR + '\n')
     if MENU_NESTING:
         print(''.join(MENU_NESTING), '\n')
     print(' '.join(MENU_HEADER))
@@ -55,18 +53,6 @@ def get_main_or_sub_menu(sub_menu=None):
     PROGRAM_MENU.update(program_menu)
     del MENU_LIST[:]
     MENU_LIST.extend(list(PROGRAM_MENU.items()))
-
-
-def make_header():
-    """Make menu header"""
-    header = ''
-    reports_need_to_edit = Reports().give_avaliable_to_edit(
-        '[не завершен]', '[в процессе]')
-    if reports_need_to_edit:
-        header = "Недооформленные документы:\n" + '\n'.join(
-            sorted(reports_need_to_edit)
-        )
-    return header
 
 
 def check_backup():
