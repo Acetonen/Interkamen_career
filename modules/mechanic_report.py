@@ -288,14 +288,16 @@ class MechReports(BasicFunctions):
             print(self.temp_df[
                 ['mach_name', 'st_plan', 'st_acs', 'st_sep', 'work', 'notes']
                 ])
-            choise = input("\nВыберете технику для внесения данных"
-                           "\n('в' - выйти и СТЕРЕТЬ ДАННЫЕ)"
-                           "\n('c' - сохранить отчет): ")
+            choise = input("\n[у] - выйти и \033[91mУДАЛИТЬ\033[m данные."
+                           "\n[c] - \033[92mСОХРАНИТЬ\033[0m отчет.\n"
+                           "\nВыберете технику для внесения данных: ")
             if choise in ['c', 'C', 'с', 'С']:
                 self._save_report()
                 super().save_log_to_temp_file('.'.join(map(str, rep_date)))
+                print("\n\033[92mДанные сохранены.\033[0m")
                 break
-            elif choise in ['b', 'B', 'в', 'В']:
+            elif choise in ['у', 'У', 'y', 'Y']:
+                print("\n\033[91mДанные удалены.\033[0m")
                 break
             elif not choise.isdigit():
                 continue
