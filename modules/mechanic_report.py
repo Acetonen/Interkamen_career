@@ -11,7 +11,9 @@ MechReports:
 
 import os
 import pandas as pd
+from operator import sub, add
 from matplotlib import pyplot as plt
+from datetime import date, datetime
 from matplotlib import rcParams as window_parametrs
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsolytePath
@@ -23,7 +25,7 @@ class MechReports(BasicFunctions):
     """
 
     mech_path = AbsolytePath('mechanics_report').get_absolyte_path()
-    maintainence_path = AbsolytePath('maintainence').get_absolyte_path()
+    maint_path = AbsolytePath('maintainence').get_absolyte_path()
     mech_data = {}
     machine_list = {
         'Хоз. Машина': ['УАЗ-390945', 'УАЗ-220695', 'ГАЗ-3307'],
@@ -36,17 +38,56 @@ class MechReports(BasicFunctions):
         'Бульдозер': ['Бул-10'],
         'Дизельная эл. ст.': ['ДЭС-AD']
     }
+    maint_dict = {
+        'mach_name': [
+            'УАЗ-390945', 'УАЗ-220695', 'ГАЗ-3307', 'Commando-110',
+            'Commando-120', 'Komazu-WA470', 'Volvo-L150', 'КС-5363А',
+            'КС-5363Б', 'КС-5363Б2 ', 'AtlasC-881', 'AtlasC-882',
+            'Hitachi-350', 'Hitachi-400', 'КрАЗ-914', 'КрАЗ-413',
+            'КрАЗ-069', 'Бул-10', 'ДЭС-AD'],
+        'cycle': [400, 400, 400, 250,
+                  250, 250, 250, 400,
+                  400, 400, 250, 250,
+                  250, 250, 400, 400,
+                  400, 500, 250],
+        'last_maintain_date': ['' for x in range(19)],
+        'hours_pass': ['0' for x in range(19)],
+    }
     columns = ['year', 'month', 'day', 'mach_type', 'mach_name',
                'st_plan', 'st_acs', 'st_sep', 'work', 'notes']
 
     def __init__(self):
         self.temp_df = pd.DataFrame()
+        # Try to load mech reports file.
         if os.path.exists(self.mech_path):
             self.mech_file = super().load_data(self.mech_path)
         else:
             self.mech_file = pd.DataFrame(self.mech_data, index=[0])
             super().dump_data(self.mech_path, self.mech_file)
         self.machines = sorted(set(self.mech_file.mach_name))
+        # Try to load maintainence file.
+        if os.path.exists(self.maint_path):
+            self.maint_file = super().load_data(self.maint_path)
+        else:
+            self.maint_file = self._create_blanc_maint()
+
+    def _start_maintainance(self, select_mach):
+        """Start or reset maintainence of mach."""
+        current_date = str(date.today())
+        self.maint_file.loc[
+            select_mach, 'last_maintain_date'] = current_date
+        self.maint_file.loc[
+            select_mach, 'hours_pass'] = self.maint_file.loc[
+                select_mach, 'cycle']
+        super().dump_data(self.maint_path, self.maint_file)
+
+    def _create_blanc_maint(self):
+        """Crete new maintenance DF."""
+        maint_df = pd.DataFrame(
+            self.maint_dict, columns=[
+                'mach_name', 'cycle', 'last_maintain_date', 'hours_pass'])
+        super().dump_data(self.maint_path, maint_df)
+        return maint_df
 
     @classmethod
     def check_date_format(cls, date):
@@ -118,10 +159,10 @@ class MechReports(BasicFunctions):
         rep_date = list(map(int, rep_date.split('-')))
         return rep_date
 
-    def _select_machine(self, choise):
+    def _select_machine(self, choise, dataframe):
         """Select machine from data frame."""
-        machine = list(self.temp_df.mach_name)[int(choise)]
-        select_mach = self.temp_df['mach_name'] == machine
+        machine = list(dataframe.mach_name)[int(choise)]
+        select_mach = dataframe['mach_name'] == machine
         print('\n', '\033[92m', machine, '\033[0m')
         return select_mach
 
@@ -154,7 +195,20 @@ class MechReports(BasicFunctions):
             self.mech_file = self.temp_df
         else:
             self.mech_file = self.mech_file.append(self.temp_df)
+        self._add_hours_to_maint_calendar(sub)
         super().dump_data(self.mech_path, self.mech_file)
+
+    def _add_hours_to_maint_calendar(self, oper):
+        """Add or minus hours from maintenance counter in calendar."""
+        for machine in self.temp_df.mach_name:
+            temp_mach = self.temp_df.mach_name == machine
+            maint_mach = self.maint_file.mach_name == machine
+            if not self.maint_file.loc[maint_mach, 'last_maintain_date'].empty:
+                self.maint_file.loc[maint_mach, 'hours_pass'] = oper(
+                    int(self.maint_file.loc[maint_mach, 'hours_pass']),
+                    int(self.temp_df.loc[temp_mach, 'work'])
+                )
+                super().dump_data(self.maint_path, self.maint_file)
 
     def _check_if_report_exist(self, *rep_date):
         """Check if report allready exist."""
@@ -207,7 +261,6 @@ class MechReports(BasicFunctions):
     def _create_plot(self, period_coef_df, shift1_coef_df, shift2_coef_df):
         """Create statistic plots."""
         # Create compact machine names.
-        self.machines = sorted(set(self.mech_file.mach_name))
         shot_mach = [x[:3]+' '+x[-3:] for x in self.machines]
 
         window_parametrs['figure.figsize'] = [22.0, 8.0]
@@ -268,7 +321,10 @@ class MechReports(BasicFunctions):
             stand_time = sum(
                 mach_period.st_plan + mach_period.st_sep + mach_period.st_acs)
             avail_time = kalendar_time - stand_time
-            ktg = avail_time / kalendar_time * 100
+            if kalendar_time:
+                ktg = avail_time / kalendar_time * 100
+            else:
+                ktg = 0
             if avail_time:
                 kti = sum(mach_period.work) / avail_time * 100
             else:
@@ -306,7 +362,7 @@ class MechReports(BasicFunctions):
                 continue
             elif int(choise) > 18:
                 continue
-            select_mach = self._select_machine(choise)
+            select_mach = self._select_machine(choise, self.temp_df)
             h_data = self._input_hours()
             self._add_hours_to_mach(select_mach, h_data)
             self._add_note_to_mach(select_mach)
@@ -318,6 +374,7 @@ class MechReports(BasicFunctions):
             (self.mech_file['month'] == rep_date[1]) &
             (self.mech_file['day'] == rep_date[2])
             ]
+        self._add_hours_to_maint_calendar(add)
         self.mech_file = self.mech_file.append(
             self.temp_df).drop_duplicates(keep=False)
         super().dump_data(self.mech_path, self.mech_file)
@@ -365,3 +422,20 @@ class MechReports(BasicFunctions):
         stat = super().choise_from_list(stat_variants, none_option=True)
         if stat:
             stat_variants[stat]()
+
+    def maintenance_calendar(self):
+        """Work with maintenance calendar."""
+        while True:
+            super().clear_screen()
+            print(self.maint_file)
+            choise = input("\n[в] - выйти.\n"
+                           "\nВыберете технику для обслуживания: ")
+            if choise in ['в', 'В', 'b', 'B']:
+                break
+            elif not choise.isdigit():
+                continue
+            elif int(choise) > 18:
+                continue
+            select_mach = self._select_machine(choise, self.maint_file)
+            self._start_maintainance(select_mach)
+            input("обслуживание проведено.")

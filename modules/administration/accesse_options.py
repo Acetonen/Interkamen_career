@@ -50,7 +50,9 @@ class Accesse:
             'Редактировать отчет':
             lambda *arg: MechReports().edit_report(),
             'Показать статистику':
-            lambda *arg: MechReports().show_statistic()
+            lambda *arg: MechReports().show_statistic(),
+            'Календарь обслуживания':
+            lambda *arg: MechReports().maintenance_calendar()
         },
         '--> [Работники] ': {
             'Новый работник':
