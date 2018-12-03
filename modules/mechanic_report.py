@@ -4,7 +4,7 @@ Mechanics reports.
 
 MechReports:
  'create_report', - create mechanics report.
- 'machine_list', - all career machines.
+ 'machine_list', - all career self.machines.
  'show_report', - show choosen report.
  'show_statistic' - show month or year stats.
 """
@@ -23,6 +23,7 @@ class MechReports(BasicFunctions):
     """
 
     mech_path = AbsolytePath('mechanics_report').get_absolyte_path()
+    maintainence_path = AbsolytePath('maintainence').get_absolyte_path()
     mech_data = {}
     machine_list = {
         'Хоз. Машина': ['УАЗ-390945', 'УАЗ-220695', 'ГАЗ-3307'],
@@ -45,6 +46,7 @@ class MechReports(BasicFunctions):
         else:
             self.mech_file = pd.DataFrame(self.mech_data, index=[0])
             super().dump_data(self.mech_path, self.mech_file)
+        self.machines = sorted(set(self.mech_file.mach_name))
 
     @classmethod
     def check_date_format(cls, date):
@@ -205,8 +207,8 @@ class MechReports(BasicFunctions):
     def _create_plot(self, period_coef_df, shift1_coef_df, shift2_coef_df):
         """Create statistic plots."""
         # Create compact machine names.
-        machines = sorted(set(self.mech_file.mach_name))
-        shot_mach = [x[:3]+' '+x[-3:] for x in machines]
+        self.machines = sorted(set(self.mech_file.mach_name))
+        shot_mach = [x[:3]+' '+x[-3:] for x in self.machines]
 
         window_parametrs['figure.figsize'] = [22.0, 8.0]
         window_parametrs['figure.dpi'] = 100
@@ -254,14 +256,13 @@ class MechReports(BasicFunctions):
 
     def _create_coef_df(self, curr_base):
         """Create coef DF for cerrent period."""
-        machines = sorted(set(self.mech_file.mach_name))
         temp_coef_list = {
             'mach': [],
             'ktg': [],
             'kti': [],
             'rel_kti': []
         }
-        for mach in machines:
+        for mach in self.machines:
             mach_period = curr_base[curr_base.mach_name == mach]
             kalendar_time = mach_period.shape[0] * 12
             stand_time = sum(
@@ -300,6 +301,7 @@ class MechReports(BasicFunctions):
                 confirm = super().confirm_deletion('отчет')
                 if confirm:
                     break
+                continue
             elif not choise.isdigit():
                 continue
             elif int(choise) > 18:

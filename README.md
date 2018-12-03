@@ -1,4 +1,4 @@
-# Interkamen Program 1.1.2
+# Interkamen Program 1.2.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -55,6 +55,13 @@ We use [SemVer](http://semver.org/) for versioning.
 ### what's new in 1.1.2:
 1. Add availability to create drill report if main report not exist yet.
 2. Fix backup bug.
+### what's new in 1.2.0:
+1. Add "edit report" in mechanics reports.
+2. Remove 'exit by ENTER' from mechanics report.
+3. Add correct check input hours in mechanics report.
+4. Add more intuitive navigation in mechanic menu.
+5. Add manual backup in administrator menu.
+6. Replace txt backup log to pickle.
 
 ## Content and Instruction
 
