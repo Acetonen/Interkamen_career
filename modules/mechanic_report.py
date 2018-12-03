@@ -297,8 +297,9 @@ class MechReports(BasicFunctions):
                 print("\n\033[92mДанные сохранены.\033[0m")
                 break
             elif choise in ['у', 'У', 'y', 'Y']:
-                print("\n\033[91mДанные удалены.\033[0m")
-                break
+                confirm = super().confirm_deletion('отчет')
+                if confirm:
+                    break
             elif not choise.isdigit():
                 continue
             elif int(choise) > 18:
