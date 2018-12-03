@@ -19,6 +19,7 @@ from modules.main_career_report import Reports
 from modules.report_analysis import ReportAnalysis
 from modules.drill_instrument_report import DrillInstruments
 from modules.mechanic_report import MechReports
+from modules.support_modules.backup import make_backup
 
 
 class Accesse:
@@ -28,6 +29,8 @@ class Accesse:
             '\033[91m--> [log_menu] \033[0m': 'sub-menu',
             '\033[91m--> [users_menu] \033[0m': 'sub-menu',
             '\033[91m--> [databases] \033[0m': 'sub-menu',
+            '\033[91mmake backup now\033[0m':
+            lambda *arg: make_backup(),
             '\033[91mbackup email settings\033[0m':
             lambda *arg: EmailSender().edit_mail_propeties()
         },

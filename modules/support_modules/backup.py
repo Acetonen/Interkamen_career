@@ -18,11 +18,14 @@ def make_backup():
     with open(log_file_name, 'a', encoding='utf-8') as backup_log:
         backup_log.write(current_date)
     backup_log.close()
+    print("\033[5m\033[1mBackup done.\033[0m")
     EmailSender().try_email(
         subject='Data backup',
         message='Data backup for ' + current_date,
         add_file=''.join([data_path[:-5], backup_path, '.zip'])
     )
+    log_maden = True
+    return log_maden
 
 
 def check_last_backup_date():
@@ -35,11 +38,7 @@ def check_last_backup_date():
         last_data = datetime.strptime(last_backup_date.rstrip(), '%Y-%m-%d')
         delta = datetime.now() - last_data
         if delta.days > 30:
-            print("\033[5m\033[1mBackup done.\033[0m")
-            make_backup()
-            log_maden = True
+            log_maden = make_backup()
     else:
-        print("\033[5m\033[1mBackup done.\033[0m")
-        make_backup()
-        log_maden = True
+        log_maden = make_backup()
     return log_maden
