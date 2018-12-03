@@ -22,6 +22,7 @@ from pprint import pprint
 from modules.workers_module import AllWorkers
 from modules.support_modules.absolyte_path_module import AbsolytePath
 from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.backup import make_backup
 
 
 class MainReport(BasicFunctions):
@@ -502,6 +503,7 @@ class Reports(BasicFunctions):
                 )
                 super(Reports, self).save_log_to_temp_file(
                     ' --> ' + tmp_rpt.status['status'])
+                make_backup()
             return tmp_rpt
 
         while True:

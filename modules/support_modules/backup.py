@@ -11,9 +11,9 @@ from modules.support_modules.standart_functions import BasicFunctions
 
 DATA_PATH = AbsolytePath('').get_absolyte_path()
 LOG_FILE_PATH = DATA_PATH[:-5] + 'backup/backup_log'
+EMPTY_LIST = []
 
-
-def make_backup(backup_log_list=[]):
+def make_backup(backup_log_list=EMPTY_LIST):
     """Make backup file."""
     current_date = str(date.today())
     backup_path = 'backup/' + current_date
