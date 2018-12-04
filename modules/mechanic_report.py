@@ -40,6 +40,8 @@ class MechReports(BasicFunctions):
         'Бульдозер': ['Бул-10'],
         'Дизельная эл. ст.': ['ДЭС-AD']
     }
+    columns = ['year', 'month', 'day', 'mach_type', 'mach_name',
+               'st_plan', 'st_acs', 'st_sep', 'work', 'notes']
     maint_dict = {
         'mach_name': [
             'УАЗ-390945', 'УАЗ-220695', 'ГАЗ-3307', 'Commando-110',
@@ -47,15 +49,13 @@ class MechReports(BasicFunctions):
             'КС-5363Б', 'КС-5363Б2 ', 'AtlasC-881', 'AtlasC-882',
             'Hitachi-350', 'Hitachi-400', 'КрАЗ-914', 'КрАЗ-413',
             'КрАЗ-069', 'Бул-10', 'ДЭС-AD'],
-        'cycle': [10, 10, 400, 250,
+        'cycle': [400, 400, 400, 250,
                   250, 250, 250, 400,
                   400, 400, 250, 250,
                   250, 250, 400, 400,
                   400, 500, 250],
         'hours_pass': ['0' for x in range(19)],
     }
-    columns = ['year', 'month', 'day', 'mach_type', 'mach_name',
-               'st_plan', 'st_acs', 'st_sep', 'work', 'notes']
 
     def __init__(self):
         self.temp_df = pd.DataFrame()
@@ -120,6 +120,17 @@ class MechReports(BasicFunctions):
         select_mach = dataframe['mach_name'] == machine
         print('\n', '\033[92m', machine, '\033[0m')
         return select_mach
+
+    @classmethod
+    def check_maintenance_alarm(cls, check, machine, counter):
+        """Check, if it is time to maintaine machine."""
+        header = ''
+        if not check.isnull().any() and int(counter) <= 0:
+            header = (
+                '\n\033[91mПодошло ТО для:\033[0m ' + machine +
+                ' дата последнего ТО: ' + check.values[0]
+            )
+        return header
 
     def _start_maintainance(self, select_mach):
         """Start or reset maintainence of mach."""
@@ -208,36 +219,30 @@ class MechReports(BasicFunctions):
             check = ((self.mech_file['year'] == rep_date[0]) &
                      (self.mech_file['month'] == rep_date[1]) &
                      (self.mech_file['day'] == rep_date[2])).any()
-        elif len(rep_date) == 2:
+        elif len(rep_date) == 2 and rep_date[1]:
             check = ((self.mech_file['year'] == rep_date[0]) &
                      (self.mech_file['month'] == rep_date[1])).any()
             avail_days = self.mech_file[
                 (self.mech_file['year'] == rep_date[0]) &
                 (self.mech_file['month'] == rep_date[1])].day
             print("Имеющиеся отчеты: {}".format(sorted(set(avail_days))))
-        elif len(rep_date) == 1:
+        elif len(rep_date) == 1 or (len(rep_date) == 2 and not rep_date[1]):
             check = (self.mech_file['year'] == rep_date[0]).any()
             avail_months = self.mech_file[
                 (self.mech_file['year'] == rep_date[0])].month
             print("Имеющиеся отчеты: {}".format(sorted(set(avail_months))))
         return check
 
-    def _stat_by_month(self):
+    def _stat_by_period(self, month):
         year = int(input("Введите год: "))
-        month = int(input("Введите месяц: "))
+        if month:
+            month = int(input("Введите месяц: "))
         if self._check_if_report_exist(year, month):
-            self._visualise_stat(year, month=month)
+            self._visualise_stat(year, month)
         else:
             print("Отчета за этот период не существует.")
 
-    def _stat_by_year(self):
-        year = int(input("Введите год: "))
-        if self._check_if_report_exist(year):
-            self._visualise_stat(year)
-        else:
-            print("Отчета за этот период не существует.")
-
-    def _visualise_stat(self, year, month=None):
+    def _visualise_stat(self, year, month):
         """Count KTI and KTG."""
         period_base, shift1_base, shift2_base = self._count_data_for_period(
             year, month)
@@ -369,6 +374,16 @@ class MechReports(BasicFunctions):
             self.temp_df).drop_duplicates(keep=False)
         super().dump_data(self.mech_path, self.mech_file)
 
+    def _add_hours_to_maint_counter(self, oper, check,
+                                    add_hours, maint_mach):
+        """Add or minus hours from maintenance counter in calendar."""
+        if not check.isnull().any():
+            self.maint_file.loc[maint_mach, 'hours_pass'] = oper(
+                int(self.maint_file.loc[maint_mach, 'hours_pass']),
+                int(add_hours)
+                )
+            super().dump_data(self.maint_path, self.maint_file)
+
     def create_report(self):
         """Create daily report."""
         while True:
@@ -405,8 +420,8 @@ class MechReports(BasicFunctions):
     def show_statistic(self):
         """Show statistic for mechanics report."""
         stat_variants = {
-            'Месячная статистика': self._stat_by_month,
-            'Годовая статистика': self._stat_by_year
+            'Месячная статистика': lambda *arg: self._stat_by_period(True),
+            'Годовая статистика': lambda *arg: self._stat_by_period(None)
         }
         print("Выберете вид отчета:")
         stat = super().choise_from_list(stat_variants, none_option=True)
@@ -429,27 +444,6 @@ class MechReports(BasicFunctions):
             select_mach = self.select_machine(choise, self.maint_file)
             self._start_maintainance(select_mach)
             input("обслуживание проведено.")
-
-    def _add_hours_to_maint_counter(self, oper, check,
-                                    add_hours, maint_mach):
-        """Add or minus hours from maintenance counter in calendar."""
-        if not check.isnull().any():
-            self.maint_file.loc[maint_mach, 'hours_pass'] = oper(
-                int(self.maint_file.loc[maint_mach, 'hours_pass']),
-                int(add_hours)
-                )
-            super().dump_data(self.maint_path, self.maint_file)
-
-    @classmethod
-    def check_maintenance_alarm(cls, check, machine, counter):
-        """Check, if it is time to maintaine machine."""
-        header = ''
-        if not check.isnull().any() and int(counter) <= 0:
-            header = (
-                '\n\033[91mПодошло ТО для:\033[0m ' + machine +
-                ' дата последнего ТО: ' + check.values[0]
-            )
-        return header
 
     def walk_thrue_maint_calendar(self, oper=None):
         """Work with maintaine calendar."""
