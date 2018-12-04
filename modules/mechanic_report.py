@@ -53,7 +53,7 @@ class MechReports(BasicFunctions):
                   250, 250, 250, 400,
                   400, 400, 250, 250,
                   250, 250, 400, 400,
-                  400, 500, 250],
+                  400, 500, 60],
         'hours_pass': ['0' for x in range(19)],
     }
 
@@ -132,6 +132,16 @@ class MechReports(BasicFunctions):
             )
         return header
 
+    @classmethod
+    def make_windows_plot_param(cls):
+        """Make windows plot parametrs."""
+        window_parametrs['figure.figsize'] = [22.0, 8.0]
+        window_parametrs['figure.dpi'] = 100
+        window_parametrs['savefig.dpi'] = 100
+        window_parametrs['font.size'] = 12
+        window_parametrs['legend.fontsize'] = 'large'
+        window_parametrs['figure.titlesize'] = 'large'
+
     def _start_maintainance(self, select_mach):
         """Start or reset maintainence of mach."""
         current_date = str(date.today())
@@ -173,7 +183,9 @@ class MechReports(BasicFunctions):
         check_date = False
         while not check_date:
             rep_date = input("Введите год и месяц формате 2018-12: ")
-            if not rep_date:
+            if not rep_date or '-' not in rep_date:
+                print("Отменено.")
+                rep_date = None
                 return rep_date
             check_date = self.check_date_format(rep_date)
         rep_date = list(map(int, rep_date.split('-')))
@@ -233,19 +245,28 @@ class MechReports(BasicFunctions):
             print("Имеющиеся отчеты: {}".format(sorted(set(avail_months))))
         return check
 
-    def _stat_by_period(self, month):
+    def _stat_by_period(self, *stand_reason, month):
         year = int(input("Введите год: "))
         if month:
             month = int(input("Введите месяц: "))
         if self._check_if_report_exist(year, month):
-            self._visualise_stat(year, month)
+            if stand_reason:
+                self._visualise_reasons_stat(year, month)
+            else:
+                self._visualise_stat(year, month)
         else:
             print("Отчета за этот период не существует.")
+
+    def _visualise_reasons_stat(self, year, month):
+        """Visualise stats by reasons."""
+        period_base = self._count_data_for_period(year, month, reason=True)
+        period_reasons_df = self._create_reasons_df(period_base)
+        self._create_reasons_plot(period_reasons_df)
 
     def _visualise_stat(self, year, month):
         """Count KTI and KTG."""
         period_base, shift1_base, shift2_base = self._count_data_for_period(
-            year, month)
+            year, month, reason=None)
         period_coef_df = self._create_coef_df(period_base)
         shift1_coef_df = self._create_coef_df(shift1_base)
         shift2_coef_df = self._create_coef_df(shift2_base)
@@ -253,54 +274,25 @@ class MechReports(BasicFunctions):
             period_coef_df, shift1_coef_df, shift2_coef_df
         )
 
-    def _create_plot(self, period_coef_df, shift1_coef_df, shift2_coef_df):
-        """Create statistic plots."""
-        # Create compact machine names.
-        shot_mach = [x[:3]+' '+x[-3:] for x in self.machines]
-
-        window_parametrs['figure.figsize'] = [22.0, 8.0]
-        window_parametrs['figure.dpi'] = 100
-        window_parametrs['savefig.dpi'] = 100
-        window_parametrs['font.size'] = 12
-        window_parametrs['legend.fontsize'] = 'large'
-        window_parametrs['figure.titlesize'] = 'large'
-
-        figure = plt.figure()
-        suptitle = figure.suptitle("Ремонты техники.", fontsize="x-large")
-        self.create_coeff_compare(
-            (figure, 131),
-            labels=(period_coef_df.mach, 'КТГ', 'КТИ'),
-            title='КТГ и КТИ за выбранный период.',
-            coefs=(period_coef_df.ktg, period_coef_df.rel_kti)
-            )
-        self.create_coeff_compare(
-            (figure, 132),
-            labels=(shot_mach, 'Бригада 1', 'Бригада 2'),
-            title='Сравнительные КТИ бригад.',
-            coefs=(shift1_coef_df.kti, shift2_coef_df.kti)
-            )
-        self.create_coeff_compare(
-            (figure, 133),
-            labels=(shot_mach, 'Бригада 1', 'Бригада 2'),
-            title='Сравнительные КТГ бригад.',
-            coefs=(shift1_coef_df.ktg, shift2_coef_df.ktg)
-            )
-        figure.tight_layout()
-        suptitle.set_y(0.95)
-        figure.subplots_adjust(top=0.85)
-        plt.show()
-
-    def _count_data_for_period(self, year, month):
-        """Create data frames for current period)"""
-        if month:
-            period_base = self.mech_file[
-                (self.mech_file.year == year) & (self.mech_file.month == month)
-                ]
-        else:
-            period_base = self.mech_file[(self.mech_file.year == year)]
-        shift1_base = period_base[period_base.day < 16]
-        shift2_base = period_base[period_base.day > 15]
-        return period_base, shift1_base, shift2_base
+    def _create_reasons_df(self, curr_base):
+        """Create coef DF for cerrent period."""
+        temp_reasons_list = {
+            'mach': [],
+            'sum_plan': [],
+            'sum_acs': [],
+            'sum_sep': []
+        }
+        for mach in self.machines:
+            mach_period = curr_base[curr_base.mach_name == mach]
+            sum_plan = sum(mach_period.st_plan)
+            sum_acs = sum(mach_period.st_acs)
+            sum_sep = sum(mach_period.st_sep)
+            temp_reasons_list['mach'].append(mach)
+            temp_reasons_list['sum_plan'].append(sum_plan)
+            temp_reasons_list['sum_acs'].append(sum_acs)
+            temp_reasons_list['sum_sep'].append(sum_sep)
+        reasons_df = pd.DataFrame(temp_reasons_list)
+        return reasons_df
 
     def _create_coef_df(self, curr_base):
         """Create coef DF for cerrent period."""
@@ -331,6 +323,78 @@ class MechReports(BasicFunctions):
             temp_coef_list['rel_kti'].append(round(rel_kti, 1))
         coef_df = pd.DataFrame(temp_coef_list)
         return coef_df
+
+    def _create_reasons_plot(self, reasons_df):
+        """Create statistic by reasons plots."""
+        self.make_windows_plot_param()
+        figure = plt.figure()
+
+        x_plan = list(range(len(self.machines)))
+        x_acs = [x + 0.3 for x in x_plan]
+        x_sep = [x + 0.3 for x in x_acs]
+
+        axle = figure.add_subplot(111)
+        axle.bar(x_plan, reasons_df.sum_plan, 0.3, alpha=0.4, color='b',
+                 label='Плановый ремонт')
+        axle.bar(x_acs, reasons_df.sum_acs, 0.3, alpha=0.4, color='r',
+                  label='Аварийный ремонт', tick_label=reasons_df.mach)
+        axle.tick_params(labelrotation=90)
+        axle.bar(x_sep, reasons_df.sum_sep, 0.3, alpha=0.4, color='g',
+                  label='Ожидание запчастей')
+
+        axle.set_title("Причины простоев.", fontsize="x-large")
+        axle.set_ylabel('часы')
+        axle.legend()
+        axle.grid(True, linestyle='--', which='major', color='grey',
+                  alpha=.25, axis='y')
+
+        figure.tight_layout()
+        plt.show()
+
+    def _create_plot(self, period_coef_df, shift1_coef_df, shift2_coef_df):
+        """Create statistic plots."""
+        # Create compact machine names.
+        shot_mach = [x[:3]+' '+x[-3:] for x in self.machines]
+        self.make_windows_plot_param()
+        figure = plt.figure()
+        suptitle = figure.suptitle("Ремонты техники.", fontsize="x-large")
+        self.create_coeff_compare(
+            (figure, 131),
+            labels=(period_coef_df.mach, 'КТГ', 'КТИ'),
+            title='КТГ и КТИ за выбранный период.',
+            coefs=(period_coef_df.ktg, period_coef_df.rel_kti)
+            )
+        self.create_coeff_compare(
+            (figure, 132),
+            labels=(shot_mach, 'Бригада 1', 'Бригада 2'),
+            title='Сравнительные КТИ бригад.',
+            coefs=(shift1_coef_df.kti, shift2_coef_df.kti)
+            )
+        self.create_coeff_compare(
+            (figure, 133),
+            labels=(shot_mach, 'Бригада 1', 'Бригада 2'),
+            title='Сравнительные КТГ бригад.',
+            coefs=(shift1_coef_df.ktg, shift2_coef_df.ktg)
+            )
+        figure.tight_layout()
+        suptitle.set_y(0.95)
+        figure.subplots_adjust(top=0.85)
+        plt.show()
+
+    def _count_data_for_period(self, year, month, reason):
+        """Create data frames for current period)"""
+        if month:
+            period_base = self.mech_file[
+                (self.mech_file.year == year) & (self.mech_file.month == month)
+                ]
+        else:
+            period_base = self.mech_file[(self.mech_file.year == year)]
+        if not reason:
+            shift1_base = period_base[period_base.day < 16]
+            shift2_base = period_base[period_base.day > 15]
+            return period_base, shift1_base, shift2_base
+        else:
+            return period_base
 
     def _working_with_report(self, rep_date):
         """Edit report."""
@@ -417,16 +481,21 @@ class MechReports(BasicFunctions):
                 self._working_with_report(rep_date)
                 break
 
-    def show_statistic(self):
-        """Show statistic for mechanics report."""
+    def show_statistic(self, *stand_reason):
+        """
+        Show statistic for mechanics report. If no stand_reason arg, it'll
+        show coefficient stat, if are - stand reason comparison.
+        """
         stat_variants = {
-            'Месячная статистика': lambda *arg: self._stat_by_period(True),
-            'Годовая статистика': lambda *arg: self._stat_by_period(None)
+            'Месячная статистика':
+            lambda *arg: self._stat_by_period(*arg, month=True),
+            'Годовая статистика':
+            lambda *arg: self._stat_by_period(*arg, month=None)
         }
         print("Выберете вид отчета:")
         stat = super().choise_from_list(stat_variants, none_option=True)
         if stat:
-            stat_variants[stat]()
+            stat_variants[stat](*stand_reason)
 
     def maintenance_calendar(self):
         """Work with maintenance calendar."""

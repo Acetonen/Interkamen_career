@@ -49,8 +49,10 @@ class Accesse:
             lambda arg: MechReports().create_report(),
             'Редактировать отчет':
             lambda arg: MechReports().edit_report(),
-            'Показать статистику':
+            'Показать статистику КТГ и КТИ':
             lambda arg: MechReports().show_statistic(),
+            'Статистика по причинам простоев':
+            lambda arg: MechReports().show_statistic(True),
             'Календарь обслуживания':
             lambda arg: MechReports().maintenance_calendar()
         },
