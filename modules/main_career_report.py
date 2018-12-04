@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
 Main career report.
-Reports :
+This module for create main career report by 'master' and complate it by 'boss'
+users.
+It can count worker salary and compilate statistic of brigades results.
+
+class Reports :
  'brigadiers_path', - path to brigadier database.
  'check_comma_error', - check error for wrong result input (if comma in FPN).
  'check_date_format', - check correct date format.

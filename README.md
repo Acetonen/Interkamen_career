@@ -1,4 +1,5 @@
-# Interkamen Program 1.3.0
+# Interkamen Program 
+### ver 1.3.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -66,8 +67,8 @@ We use [SemVer](http://semver.org/) for versioning.
 1. Add maintenance calendar for mechanic.
 2. Add reminder module.
 3. Add reminder for maintenance.
-4. Add stand reason visualization to mechanics reports.
-5. Fix bug in mechanics report when try to show stat and brigade2 are empty.
+4. Add 'stand reason' visualization to mechanics reports.
+5. Fix bug in mechanics report when try to show stat and brigade 2 are empty.
 6. Make backup after complete main report.
 7. Merge stat_by_year and stat_by_month methods into stat_by_period.
 
