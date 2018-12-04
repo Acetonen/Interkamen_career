@@ -83,14 +83,19 @@ Password: 0000
 ### 2. Main menu
 ![main_menu](readme_screenshots/main_menu.png)
 
-From this menu you have access to different sub-menus (depend on user access) and basic functions such are: [8] - 'workers telephone numbers', [9] - 'change password', [10] - 'exit program'. Red menus are 'admin-only'
+In header of main menu you may see different remainder that depend on user 'access'.
+
+From this menu you have access to different sub-menus (depend on user access) and basic functions such are: [6] - 'workers telephone numbers', [7] - 'change password', [8] - 'exit program'. Red menus are 'admin-only'
+
 ### 3. Admin menus
 ![admin_menu](readme_screenshots/admin_menu.png)
 
 This menus give you access to:
-1. create/delete/edit new user
-2. read/delete/search in logs
+1. read/delete/search in logs
+2. create/delete/edit new user
 3. create/show company structure
+4. make backup of all data files
+5. edit email notification and backup settings
 ### 4. Workers menu [5]
 ![workers_menu](readme_screenshots/workers_menu.png)
 
@@ -101,20 +106,31 @@ In this menu u can:
 4. Return worker from archive
 5. Edit worker
 6. Edit list of special workers category
+7. Show anniversary workers
 ### 5. Statistic menu
 ![statistic_menu](readme_screenshots/statistic.png)
 
 In this menu u can:
 1. Create main career report
 2. Edit main career report
-3. Show statistic of career results by year
-4. Create drill instrument report
-5. Show statistic of drill instrument by year
-### 5. Finansial  menu
+3. Show statistic of career results
+4. Show statistic of career rockmass
+5. Create drill instrument report
+6. Show statistic of drill instrument
+### 5. Financial  menu
 ![finance_menu](readme_screenshots/finance.png)
 
 In this menu u can:
 1. Count workers salary
+### 5. Financial  menu
+![mechanics_menu](readme_screenshots/mechanics_menu.png)
+
+In this menu u can:
+1. Create repare report
+2. Edit repare report
+3. Show KTG and KTI statistic
+4. Show Stand reasons statistic
+5. Working with maintenance calendar
 
 ## Authors
 
