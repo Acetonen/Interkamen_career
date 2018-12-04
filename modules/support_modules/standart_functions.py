@@ -4,6 +4,7 @@
 import sys
 import os
 import pickle
+from matplotlib import rcParams as window_parametrs
 from modules.support_modules.absolyte_path_module import AbsolytePath
 
 
@@ -90,3 +91,13 @@ class BasicFunctions:
             if items_list[item] != 0:
                 counter += 1
         return counter
+
+    @classmethod
+    def make_windows_plot_param(cls):
+        """Make windows plot parametrs."""
+        window_parametrs['figure.figsize'] = [22.0, 8.0]
+        window_parametrs['figure.dpi'] = 100
+        window_parametrs['savefig.dpi'] = 200
+        window_parametrs['font.size'] = 12
+        window_parametrs['legend.fontsize'] = 'large'
+        window_parametrs['figure.titlesize'] = 'large'

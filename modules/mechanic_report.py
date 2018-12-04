@@ -132,16 +132,6 @@ class MechReports(BasicFunctions):
             )
         return header
 
-    @classmethod
-    def make_windows_plot_param(cls):
-        """Make windows plot parametrs."""
-        window_parametrs['figure.figsize'] = [22.0, 8.0]
-        window_parametrs['figure.dpi'] = 100
-        window_parametrs['savefig.dpi'] = 100
-        window_parametrs['font.size'] = 12
-        window_parametrs['legend.fontsize'] = 'large'
-        window_parametrs['figure.titlesize'] = 'large'
-
     def _start_maintainance(self, select_mach):
         """Start or reset maintainence of mach."""
         current_date = str(date.today())
@@ -326,7 +316,7 @@ class MechReports(BasicFunctions):
 
     def _create_reasons_plot(self, reasons_df):
         """Create statistic by reasons plots."""
-        self.make_windows_plot_param()
+        super().make_windows_plot_param()
         figure = plt.figure()
 
         x_plan = list(range(len(self.machines)))
@@ -337,10 +327,10 @@ class MechReports(BasicFunctions):
         axle.bar(x_plan, reasons_df.sum_plan, 0.3, alpha=0.4, color='b',
                  label='Плановый ремонт')
         axle.bar(x_acs, reasons_df.sum_acs, 0.3, alpha=0.4, color='r',
-                  label='Аварийный ремонт', tick_label=reasons_df.mach)
+                 label='Аварийный ремонт', tick_label=reasons_df.mach)
         axle.tick_params(labelrotation=90)
         axle.bar(x_sep, reasons_df.sum_sep, 0.3, alpha=0.4, color='g',
-                  label='Ожидание запчастей')
+                 label='Ожидание запчастей')
 
         axle.set_title("Причины простоев.", fontsize="x-large")
         axle.set_ylabel('часы')
@@ -355,7 +345,7 @@ class MechReports(BasicFunctions):
         """Create statistic plots."""
         # Create compact machine names.
         shot_mach = [x[:3]+' '+x[-3:] for x in self.machines]
-        self.make_windows_plot_param()
+        super().make_windows_plot_param()
         figure = plt.figure()
         suptitle = figure.suptitle("Ремонты техники.", fontsize="x-large")
         self.create_coeff_compare(

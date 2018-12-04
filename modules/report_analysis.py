@@ -6,7 +6,6 @@ classes: ReportAnalysis: result_analysis
 
 from copy import deepcopy
 from matplotlib import pyplot as plt
-from matplotlib import rcParams as window_parametrs
 from modules.main_career_report import Reports
 
 
@@ -113,6 +112,7 @@ class ReportAnalysis(Reports):
     def _make_shift_statistic(self):
         """Make result and persent statistic by shift."""
         result = self._give_by_shift()
+        # result == self.by_shift
         result.pop('rock_mass', None)
         title1 = 'Повахтовый выход, %'
         title2 = 'Повахтовая добыча м\u00B3'
@@ -121,6 +121,7 @@ class ReportAnalysis(Reports):
     def _make_horizont_statistic(self):
         """Make result and persent statistic by horizont."""
         result = self._give_by_horiz()
+        # result == self.by_horisond
         result.pop('rock_mass', None)
         title1 = 'Погоризонтный выход, %'
         title2 = 'Погоризонтная добыча, м\u00B3'
@@ -128,22 +129,23 @@ class ReportAnalysis(Reports):
 
     def _two_plots_show(self, year, results_and_titles):
         """Combine two subplots"""
-        window_parametrs['figure.figsize'] = [18.0, 8.0]
-        window_parametrs['figure.dpi'] = 100
-        window_parametrs['savefig.dpi'] = 100
-        window_parametrs['font.size'] = 12
-        window_parametrs['legend.fontsize'] = 'large'
-        window_parametrs['figure.titlesize'] = 'large'
+        super().make_windows_plot_param()
+        figure = plt.figure()
+        suptitle = figure.suptitle("Результаты работы.", fontsize="x-large")
 
         plot_number = 1
         for result in sorted(results_and_titles[0]):
-            plt.subplot(1, 2, plot_number)
-            self._subplot_result(year, results_and_titles[0][result],
+            self._subplot_result((figure, 120+plot_number), year,
+                                 results_and_titles[0][result],
                                  results_and_titles[plot_number])
             plot_number += 1
+
+        figure.tight_layout()
+        suptitle.set_y(0.95)
+        figure.subplots_adjust(top=0.85)
         plt.show()
 
-    def _subplot_result(self, year, result, title):
+    def _subplot_result(self, fig_plot, year, result, title):
         """visualise result."""
         # Count coefficient for annotations coordinate depend on scale.
         if title.split(' ')[1] in ['добыча,', 'масса']:
@@ -151,19 +153,22 @@ class ReportAnalysis(Reports):
         else:
             coef = 0.1
 
+        axle = fig_plot[0].add_subplot(fig_plot[1])
+
         for item in sorted(result):
-            plt.plot(self.month_list, result[item],
-                     marker='D', markersize=4)
+            axle.plot(self.month_list, result[item],
+                      marker='D', markersize=4)
             for point in zip(self.month_list, result[item]):
                 if point[1] != 0:
                     ann_text = str(point[1])
                     ann_coord = (point[0], point[1]+coef)
-                    plt.annotate(ann_text, xy=ann_coord, fontsize='small')
-        plt.legend(list(sorted(result.keys())))
-        plt.xlabel('месяц')
-        plt.ylabel(title.split(' ')[-1])
-        plt.title(year + 'г., ' + title)
-        plt.grid(b=True, linestyle='--', linewidth=0.5)
+                    axle.annotate(ann_text, xy=ann_coord, fontsize='small')
+
+        axle.legend(list(sorted(result.keys())))
+        axle.set_xlabel('месяц')
+        axle.set_ylabel(title.split(' ')[-1])
+        axle.set_title(year + 'г., ' + title)
+        axle.grid(b=True, linestyle='--', linewidth=0.5)
 
     def _give_by_horiz(self):
         """Give result and persent horizont"""

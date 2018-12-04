@@ -156,12 +156,7 @@ class DrillInstruments(BasicFunctions):
 
     def _create_plots(self, data_by_year, shifts, bits):
         """Create plots for drill data."""
-        window_parametrs['figure.figsize'] = [18.0, 10.0]
-        window_parametrs['figure.dpi'] = 100
-        window_parametrs['savefig.dpi'] = 100
-        window_parametrs['font.size'] = 12
-        window_parametrs['legend.fontsize'] = 'large'
-        window_parametrs['figure.titlesize'] = 'large'
+        super().make_windows_plot_param()
 
         figure = plt.figure()
         suptitle = figure.suptitle("Отчет по буровому инструменту.",
