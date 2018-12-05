@@ -43,7 +43,8 @@ class Logs(BasicFunctions):
         'Наряд бригады': 'edit report',
         'Создать отчет по буровым инструментам': 'create drill report',
         'Бригадиры, окладники, бурильщики': 'edit',
-        'Создать отчет по ремонтам': 'create mechanics report'
+        'Создать отчет по ремонтам': 'create mechanics report',
+        'Редактировать отчет': 'edit mechanics report'
         }
     notification_list = [
         'create drill report',
