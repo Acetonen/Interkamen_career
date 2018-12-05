@@ -231,11 +231,11 @@ class DrillInstruments(BasicFunctions):
 
     def show_statistic_by_year(self):
         """Showing statistic about drill instrument."""
-        year = input("Введите год: ")
-        drill_data_year = []
         if isinstance(self.drill_file, pd.DataFrame):
-            drill_data_year = list(self.drill_file.year)
-        if year in drill_data_year:
-            self._visualise_statistic(year)
+            print("Выберете год:")
+            year = super().choise_from_list(
+                sorted(set(self.drill_file.year)), none_option=True)
         else:
-            print("Отстутствует статистика за {} год".format(year))
+            print("Статистик по буровому инструменту отстутствует.")
+        if year:
+            self._visualise_statistic(year)

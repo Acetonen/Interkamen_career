@@ -189,19 +189,16 @@ class MechReports(BasicFunctions):
         super().dump_data(self.mech_path, self.mech_file)
 
     def _stat_by_period(self, *stand_reason, month):
-        year = int(input("Введите год: "))
+        print("Выберете год:")
+        year = super().choise_from_list(sorted(set(self.mech_file.year)))
         if month:
-            month = int(input("Введите месяц: "))
-        if super().check_date_in_dataframe(
-            self.mech_file, {'year': year,
-                             'month': month}):
-
-            if stand_reason:
-                self._visualise_reasons_stat(year, month)
-            else:
-                self._visualise_stat(year, month)
+            print("Выберете месяц:")
+            data_by_year = self.mech_file[self.mech_file.year == year]
+            month = super().choise_from_list(sorted(set(data_by_year.month)))
+        if stand_reason:
+            self._visualise_reasons_stat(year, month)
         else:
-            print("Отчета за этот период не существует.")
+            self._visualise_stat(year, month)
 
     def _visualise_reasons_stat(self, year, month):
         """Visualise stats by reasons."""
@@ -414,19 +411,18 @@ class MechReports(BasicFunctions):
 
     def edit_report(self):
         """Show report for current date."""
-        while True:
-            rep_date = super().input_date()
-            if not rep_date:
-                break
-            check = super().check_date_in_dataframe(self.mech_file, rep_date)
-            if not check:
-                print("Отчеты за этот месяц отстутствует.")
-            else:
-                day = input("Введите день: ")
-                rep_date.update({'day': int(day)})
-                self._make_day_report_temp(rep_date)
-                self._working_with_report(rep_date)
-                break
+        print("Выберете год:")
+        year = super().choise_from_list(sorted(set(self.mech_file.year)))
+        print("Выберете месяц:")
+        data_by_year = self.mech_file[self.mech_file.year == year]
+        month = super().choise_from_list(sorted(set(data_by_year.month)))
+        print("Доступные даты:",
+            set(sorted(data_by_year[data_by_year.month == month].day)))
+        day = input("Введите день: ")
+        if day:
+            rep_date = {'year': year, 'month': month, 'day': int(day)}
+            self._make_day_report_temp(rep_date)
+            self._working_with_report(rep_date)
 
     def show_statistic(self, *stand_reason):
         """
