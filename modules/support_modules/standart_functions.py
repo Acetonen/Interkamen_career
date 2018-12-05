@@ -101,3 +101,57 @@ class BasicFunctions:
         window_parametrs['font.size'] = 12
         window_parametrs['legend.fontsize'] = 'large'
         window_parametrs['figure.titlesize'] = 'large'
+
+    @classmethod
+    def input_date(cls):
+        """Input date."""
+        check_date = False
+        while not check_date:
+            rep_date = input("Введите год и месяц формате 2018-12: ")
+            if not rep_date or '-' not in rep_date:
+                print("Отменено.")
+                rep_date = None
+                return rep_date
+            check_date = cls.check_date_format(rep_date)
+        rep_date = list(map(int, rep_date.split('-')))
+        rep_dict = {'year': rep_date[0], 'month': rep_date[1]}
+        return rep_dict
+
+    @classmethod
+    def check_date_format(cls, rep_date):
+        """Check if date format correct"""
+        date_numbers = rep_date.split('-')
+        correct = (rep_date[4] == '-' and
+                   len(date_numbers) == 2 and
+                   date_numbers[0].isdigit() and
+                   date_numbers[1].isdigit() and
+                   int(date_numbers[1]) < 13 and
+                   int(date_numbers[1]) > 0)
+        return correct
+
+    @classmethod
+    def check_date_in_dataframe(cls, dataframe, rep_date):
+        """
+        Check if report allready exist.
+        rep_date is a dictionary, that contain keys: year, month, day or shift.
+        """
+        if dataframe.empty:
+            check = False
+        elif len(rep_date) == 3:
+            tmp_check = []
+            for key in rep_date:
+                tmp_check.append((dataframe[key] == rep_date[key]))
+            check = (tmp_check[0] & tmp_check[1] & tmp_check[2]).any()
+        elif len(rep_date) == 2 and rep_date['month']:
+            check_items = ((dataframe['year'] == rep_date['year']) &
+                           (dataframe['month'] == rep_date['month']))
+            avail_days = dataframe[check_items].day
+            check = check_items.any()
+            print("Имеющиеся отчеты: {}".format(sorted(set(avail_days))))
+        elif (len(rep_date) == 1 or
+              (len(rep_date) == 2 and not rep_date['month'])):
+            check_items = dataframe['year'] == rep_date['year']
+            check = (check_items).any()
+            avail_months = dataframe[check_items].month
+            print("Имеющиеся отчеты: {}".format(sorted(set(avail_months))))
+        return check

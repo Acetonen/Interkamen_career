@@ -73,18 +73,6 @@ class MechReports(BasicFunctions):
             self.maint_file = self._create_blanc_maint()
 
     @classmethod
-    def check_date_format(cls, rep_date):
-        """Check if date format correct"""
-        date_numbers = rep_date.split('-')
-        correct = (rep_date[4] == '-' and
-                   len(date_numbers) == 2 and
-                   date_numbers[0].isdigit() and
-                   date_numbers[1].isdigit() and
-                   int(date_numbers[1]) < 13 and
-                   int(date_numbers[1]) > 0)
-        return correct
-
-    @classmethod
     def check_hours_input(cls, hours):
         """Check input hours are correct"""
         hours = hours.split('-')
@@ -154,9 +142,9 @@ class MechReports(BasicFunctions):
         """Create blanc for report."""
         for mach_type in self.machine_list:
             for mach_name in self.machine_list[mach_type]:
-                self.mech_data['year'] = rep_date[0]
-                self.mech_data['month'] = rep_date[1]
-                self.mech_data['day'] = rep_date[2]
+                self.mech_data['year'] = rep_date['year']
+                self.mech_data['month'] = rep_date['month']
+                self.mech_data['day'] = rep_date['day']
                 self.mech_data['mach_type'] = mach_type
                 self.mech_data['mach_name'] = mach_name
                 self.mech_data['st_plan'] = 0
@@ -167,19 +155,6 @@ class MechReports(BasicFunctions):
                 self.temp_df = self.temp_df.append(self.mech_data,
                                                    ignore_index=True)
         self.temp_df = self.temp_df[self.columns]
-
-    def _input_date(self):
-        """Input date."""
-        check_date = False
-        while not check_date:
-            rep_date = input("Введите год и месяц формате 2018-12: ")
-            if not rep_date or '-' not in rep_date:
-                print("Отменено.")
-                rep_date = None
-                return rep_date
-            check_date = self.check_date_format(rep_date)
-        rep_date = list(map(int, rep_date.split('-')))
-        return rep_date
 
     def _input_hours(self):
         """Input hours."""
@@ -213,33 +188,14 @@ class MechReports(BasicFunctions):
         self.walk_thrue_maint_calendar(sub)
         super().dump_data(self.mech_path, self.mech_file)
 
-    def _check_if_report_exist(self, *rep_date):
-        """Check if report allready exist."""
-        if self.mech_file.empty:
-            check = False
-        elif len(rep_date) == 3:
-            check = ((self.mech_file['year'] == rep_date[0]) &
-                     (self.mech_file['month'] == rep_date[1]) &
-                     (self.mech_file['day'] == rep_date[2])).any()
-        elif len(rep_date) == 2 and rep_date[1]:
-            check = ((self.mech_file['year'] == rep_date[0]) &
-                     (self.mech_file['month'] == rep_date[1])).any()
-            avail_days = self.mech_file[
-                (self.mech_file['year'] == rep_date[0]) &
-                (self.mech_file['month'] == rep_date[1])].day
-            print("Имеющиеся отчеты: {}".format(sorted(set(avail_days))))
-        elif len(rep_date) == 1 or (len(rep_date) == 2 and not rep_date[1]):
-            check = (self.mech_file['year'] == rep_date[0]).any()
-            avail_months = self.mech_file[
-                (self.mech_file['year'] == rep_date[0])].month
-            print("Имеющиеся отчеты: {}".format(sorted(set(avail_months))))
-        return check
-
     def _stat_by_period(self, *stand_reason, month):
         year = int(input("Введите год: "))
         if month:
             month = int(input("Введите месяц: "))
-        if self._check_if_report_exist(year, month):
+        if super().check_date_in_dataframe(
+            self.mech_file, {'year': year,
+                             'month': month}):
+
             if stand_reason:
                 self._visualise_reasons_stat(year, month)
             else:
@@ -390,7 +346,7 @@ class MechReports(BasicFunctions):
         """Edit report."""
         while True:
             super().clear_screen()
-            print('.'.join(map(str, rep_date)))
+            print('{year}.{month}.{day}'.format(**rep_date))
             print(self.temp_df[
                 ['mach_name', 'st_plan', 'st_acs', 'st_sep', 'work', 'notes']
                 ])
@@ -399,7 +355,8 @@ class MechReports(BasicFunctions):
                            "\nВыберете технику для внесения данных: ")
             if choise in ['c', 'C', 'с', 'С']:
                 self._save_report()
-                super().save_log_to_temp_file('.'.join(map(str, rep_date)))
+                super().save_log_to_temp_file(
+                    '{year}.{month}.{day}'.format(**rep_date))
                 print("\n\033[92mДанные сохранены.\033[0m")
                 break
             elif choise in ['у', 'У', 'y', 'Y']:
@@ -419,9 +376,9 @@ class MechReports(BasicFunctions):
     def _make_day_report_temp(self, rep_date):
         """Make report of day temr and drop it from DF."""
         self.temp_df = self.mech_file[
-            (self.mech_file['year'] == rep_date[0]) &
-            (self.mech_file['month'] == rep_date[1]) &
-            (self.mech_file['day'] == rep_date[2])
+            (self.mech_file['year'] == rep_date['year']) &
+            (self.mech_file['month'] == rep_date['month']) &
+            (self.mech_file['day'] == rep_date['day'])
             ]
         self.walk_thrue_maint_calendar(add)
         self.mech_file = self.mech_file.append(
@@ -441,13 +398,13 @@ class MechReports(BasicFunctions):
     def create_report(self):
         """Create daily report."""
         while True:
-            rep_date = self._input_date()
+            rep_date = super().input_date()
             if not rep_date:
                 break
-            check = self._check_if_report_exist(*rep_date)
+            check = super().check_date_in_dataframe(self.mech_file, rep_date)
             day = input("Введите день: ")
-            rep_date.append(int(day))
-            check = self._check_if_report_exist(*rep_date)
+            rep_date.update({'day': int(day)})
+            check = super().check_date_in_dataframe(self.mech_file, rep_date)
             if check:
                 print("Отчет за это число уже существует.")
             else:
@@ -458,15 +415,15 @@ class MechReports(BasicFunctions):
     def edit_report(self):
         """Show report for current date."""
         while True:
-            rep_date = self._input_date()
+            rep_date = super().input_date()
             if not rep_date:
                 break
-            check = self._check_if_report_exist(*rep_date)
+            check = super().check_date_in_dataframe(self.mech_file, rep_date)
             if not check:
                 print("Отчеты за этот месяц отстутствует.")
             else:
                 day = input("Введите день: ")
-                rep_date.append(int(day))
+                rep_date.update({'day': int(day)})
                 self._make_day_report_temp(rep_date)
                 self._working_with_report(rep_date)
                 break
