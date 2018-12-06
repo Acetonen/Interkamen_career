@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.3.0
+### ver 1.4.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -71,6 +71,13 @@ We use [SemVer](http://semver.org/) for versioning.
 5. Fix bug in mechanics report when try to show stat and brigade 2 are empty.
 6. Make backup after complete main report.
 7. Merge stat_by_year and stat_by_month methods into stat_by_period.
+### what's new in 1.4.0:
+1. Add Brigade rating system.
+2. Fix plots in report analysis module.
+3. Move check_date_in_dataframe from mechanic_report to standart_functions.
+4. Fix mechanic log.
+5. Make standard date input.
+6. Make submenus in admin meny by directions.
 
 ## Content and Instruction
 
