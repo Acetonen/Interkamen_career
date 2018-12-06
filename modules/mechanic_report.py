@@ -207,15 +207,27 @@ class MechReports(BasicFunctions):
         self._create_reasons_plot(period_reasons_df)
 
     def _visualise_stat(self, year, month):
-        """Count KTI and KTG."""
+        """Visualisate statistic."""
+        coeff_dfs = self._create_coefficient_df(year, month)
+        self._create_plot(*coeff_dfs)
+
+    def _create_coefficient_df(self, year, month):
+        """Create coefficient dataframes for period."""
         period_base, shift1_base, shift2_base = self._count_data_for_period(
             year, month, reason=None)
         period_coef_df = self._create_coef_df(period_base)
         shift1_coef_df = self._create_coef_df(shift1_base)
         shift2_coef_df = self._create_coef_df(shift2_base)
-        self._create_plot(
-            period_coef_df, shift1_coef_df, shift2_coef_df
-        )
+        return period_coef_df, shift1_coef_df, shift2_coef_df
+
+    def give_average_shifs_kti(self, year, month):
+        """Give average shifts KTI for month."""
+        kti_dict = {'критерий': 'kti'}
+        coeff_dfs = self._create_coefficient_df(year, month)
+        shift1_df, shift2_df = coeff_dfs[1:]
+        kti_dict['Смена 1'] = round(shift1_df.kti.mean(), 1)
+        kti_dict['Смена 2'] = round(shift2_df.kti.mean(), 1)
+        return kti_dict
 
     def _create_reasons_df(self, curr_base):
         """Create coef DF for cerrent period."""
@@ -284,7 +296,6 @@ class MechReports(BasicFunctions):
         axle.tick_params(labelrotation=90)
         axle.bar(x_sep, reasons_df.sum_sep, 0.3, alpha=0.4, color='g',
                  label='Ожидание запчастей')
-
         axle.set_title("Причины простоев.", fontsize="x-large")
         axle.set_ylabel('часы')
         axle.legend()
@@ -458,7 +469,9 @@ class MechReports(BasicFunctions):
             input("обслуживание проведено.")
 
     def walk_thrue_maint_calendar(self, oper=None):
-        """Work with maintaine calendar."""
+        """Work with maintaine calendar.
+        oper - is a flag to do operations (add hours) with maint calendar.
+        if None method only check maintenance count."""
         header = ''
         for machine in set(self.maint_file.mach_name):
             if not self.temp_df.empty:

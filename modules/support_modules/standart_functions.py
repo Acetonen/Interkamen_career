@@ -41,7 +41,7 @@ class BasicFunctions:
 
     @classmethod
     def confirm_deletion(cls, item):
-        """Action conformation"""
+        """Deletion confirmation"""
         confirm = input(
             "Вы уверены что хотите удалить '{}'? Д/н: ".format(item))
         if confirm.lower() == 'д':
@@ -62,7 +62,7 @@ class BasicFunctions:
 
     @classmethod
     def load_data(cls, data_path):
-        """Load file from pickle"""
+        """Load data from pickle"""
         if os.path.exists(data_path):
             with open(data_path, 'rb') as base_file:
                 base = pickle.load(base_file)
@@ -85,7 +85,7 @@ class BasicFunctions:
 
     @classmethod
     def count_unzero_items(cls, items_list):
-        """Count workers that haven't zero hours."""
+        """Count nonzero items."""
         counter = 0
         for item in items_list:
             if items_list[item] != 0:
@@ -137,17 +137,22 @@ class BasicFunctions:
         """
         if dataframe.empty:
             check = False
-        elif len(rep_date) == 3:
+        elif len(rep_date) >= 3:
             tmp_check = []
             for key in rep_date:
                 tmp_check.append((dataframe[key] == rep_date[key]))
-            check = (tmp_check[0] & tmp_check[1] & tmp_check[2]).any()
+            check = tmp_check[0]
+            while tmp_check:
+                check = check & tmp_check[0]
+                tmp_check = tmp_check[1:]
+            check = check.any()
         elif len(rep_date) == 2 and rep_date['month']:
             check_items = ((dataframe['year'] == rep_date['year']) &
                            (dataframe['month'] == rep_date['month']))
-            avail_days = dataframe[check_items].day
+            if 'day' in dataframe[check_items]:
+                avail_days = dataframe[check_items].day
+                print("Имеющиеся отчеты: {}".format(sorted(set(avail_days))))
             check = check_items.any()
-            print("Имеющиеся отчеты: {}".format(sorted(set(avail_days))))
         elif (len(rep_date) == 1 or
               (len(rep_date) == 2 and not rep_date['month'])):
             check_items = dataframe['year'] == rep_date['year']

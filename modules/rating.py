@@ -7,6 +7,8 @@ import os
 import pandas as pd
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.mechanic_report import MechReports
+from modules.main_career_report import Reports
 
 
 class Rating(BasicFunctions):
@@ -14,8 +16,13 @@ class Rating(BasicFunctions):
 
     brig_rating_path = AbsolytePath('brig_rating').get_absolyte_path()
     brig_columns = ['year', 'month', 'shift', 'cleanness', 'discipline',
-                    'KTI', 'roads', 'maintainence', '']
+                    'roads', 'maintain', 'user']
     shifts = ['Смена 1', 'Смена 2']
+    totl_res = {
+        'критерий': [],
+        'Смена 1': [],
+        'Смена 2': []
+    }
 
     def __init__(self):
         if os.path.exists(self.brig_rating_path):
@@ -24,19 +31,127 @@ class Rating(BasicFunctions):
             self.brig_rating_file = pd.DataFrame(columns=self.brig_columns)
             super().dump_data(self.brig_rating_path, self.brig_rating_file)
 
+    def _create_rating(self, user, year, month, shift):
+        """Create rating record."""
+        super().clear_screen()
+        rating_name = "{}.{} {}".format(year, month, shift)
+        print(rating_name,
+              "\nВыставите оценки по по десятибальной "
+              "шкале по следующим критериям:")
+        tmp_rating = {
+            'year': year,
+            'month': month,
+            'shift': shift,
+            'user': user.split(' ')[0]
+        }
+        directions = {
+            'discipline': "Дисциплина: ",
+            'cleanness': "Чистота забоя: ",
+            'roads': "Содержание дорог и отвалов: ",
+            'maintain': "Обслуживание техники: "
+        }
+        for direction in directions:
+            while True:
+                rating = input(directions[direction])
+                check = super().check_number_in_range(rating, list(range(10)))
+                if check:
+                    tmp_rating[direction] = int(rating)
+                    break
+        confirm = input("\n[c] - сохранить оценки."
+                        "\nПроверьте правильность введенных данных: ")
+        if confirm in ['c', 'C', 'с', 'С']:
+            self._save_rating(tmp_rating)
+            super().save_log_to_temp_file(rating_name)
+
+    def _save_rating(self, tmp_rating):
+        """Save temp rating to data frame."""
+        self.brig_rating_file = self.brig_rating_file.append(
+            tmp_rating, ignore_index=True)
+        super().dump_data(self.brig_rating_path, self.brig_rating_file)
+        print("\033[92mОценки сохранены.\033[0m")
+
+    def _show_rating(self):
+        """Choose date to show."""
+        print("Выберете год:")
+        year = super().choise_from_list(
+            sorted(set(self.brig_rating_file.year)))
+        print("Выберете месяц:")
+        data_by_year = self.brig_rating_file[
+            self.brig_rating_file.year == year]
+        month = super().choise_from_list(sorted(set(data_by_year.month)))
+        super().clear_screen()
+        columns = ['shift', 'cleanness', 'discipline',
+                   'roads', 'maintain', 'user']
+        data_by_month = data_by_year[data_by_year.month == month]
+        print("{}.{}\n".format(year, month),
+              data_by_month[columns])
+        return year, month, data_by_month
+
+    def _count_average_rating(self, data_by_month):
+        """Count average rating from users rating."""
+        data_by_month = data_by_month.drop(columns=['year', 'month', 'user'])
+        for column in data_by_month.drop(columns='shift'):
+            self.totl_res['критерий'].append(column)
+            for shift in self.shifts:
+                result = data_by_month[data_by_month['shift'] == shift].drop(
+                    columns='shift')
+                self.totl_res[shift].append(round(result[column].mean(), 1))
+
+    def _add_main_brigades_results(self, year, month):
+        """Add main brigades results from Main Report to average rating."""
+        self.totl_res['критерий'].extend(['result', 'rock_mass'])
+        for shift in self.shifts:
+            brig_results = Reports().give_main_results(
+                str(year), str(month), shift)
+            self.totl_res[shift].extend(brig_results[1:])
+
+    def _add_average_kti(self, year, month):
+        """Add average kti from Mechanic Report to average rating."""
+        self.totl_res = pd.DataFrame(self.totl_res)
+        brigades_kti = MechReports().give_average_shifs_kti(year, month)
+        self.totl_res = self.totl_res.append(brigades_kti, ignore_index=True)
+
+    def _count_wining_points(self):
+        """Count winner."""
+        point1 = point2 = 0
+        for reason in self.totl_res['критерий']:
+            row = self.totl_res['критерий'] == reason
+            shift1_item = float(self.totl_res.loc[row, 'Смена 1'])
+            shift2_item = float(self.totl_res.loc[row, 'Смена 2'])
+            if shift1_item > shift2_item:
+                point1 += 1
+            else:
+                point2 += 1
+        print("\n          Итог:    {}        {}".format(point1, point2))
+
     def give_rating(self, user):
         """Give rating to shift."""
         while True:
-            rep_date = self._input_date()
+            rep_date = super().input_date()
             if not rep_date:
                 break
-            check = super().check_date_in_dataframe(self.mech_file, rep_date)
-            day = input("Введите день: ")
-            rep_date.update({'day': int(day)})
-            check = super().check_date_in_dataframe(self.mech_file, rep_date)
+            check = super().check_date_in_dataframe(
+                self.brig_rating_file, rep_date)
+            print("Выберете смену:")
+            shift = super().choise_from_list(self.shifts)
+            rep_date.update({
+                'shift': shift,
+                'user': user['name'].split(' ')[0]
+                })
+            check = super().check_date_in_dataframe(
+                self.brig_rating_file, rep_date)
             if check:
-                print("Отчет за это число уже существует.")
+                super().clear_screen()
+                print("Вы уже выставляли оценки за этот период.")
             else:
-                self._create_blanc(rep_date)
-                self._working_with_report(rep_date)
+                self._create_rating(**rep_date)
                 break
+
+    def count_brigade_winner(self):
+        """Show rating."""
+        users_rating = self._show_rating()
+        self._count_average_rating(users_rating[-1])
+        self._add_main_brigades_results(*users_rating[:-1])
+        self._add_average_kti(*users_rating[:-1])
+        print('\n', self.totl_res)
+        self._count_wining_points()

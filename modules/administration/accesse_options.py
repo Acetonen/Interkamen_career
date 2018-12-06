@@ -19,6 +19,7 @@ from modules.main_career_report import Reports
 from modules.report_analysis import ReportAnalysis
 from modules.drill_instrument_report import DrillInstruments
 from modules.mechanic_report import MechReports
+from modules.rating import Rating
 from modules.support_modules.backup import make_backup
 
 
@@ -90,11 +91,15 @@ class Accesse:
             'Создать отчет по буровым инструментам':
             lambda arg: DrillInstruments().create_drill_report(),
             'Статистика по буровому инструменту':
-            lambda arg: DrillInstruments().show_statistic_by_year()
+            lambda arg: DrillInstruments().show_statistic_by_year(),
+            'Поставить рейтинг бригаде':
+            lambda arg: Rating().give_rating(arg)
         },
         '--> [Финансы]': {
             'Наряд бригады':
-            lambda arg: Reports().work_with_main_report(arg)
+            lambda arg: Reports().work_with_main_report(arg),
+            'Сформировать итог по рейтингу':
+            lambda arg: Rating().count_brigade_winner()
         }
     }
 

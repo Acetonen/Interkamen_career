@@ -2,7 +2,7 @@
 """
 This class provides to work with all logs.
 Classes: Logs: 'upload_temp_file_log',
-               'choose_item',
+               '_choose_item',
                'delete_all_logs',
                'search_in_logs',
                '_search_logs_by_item',
@@ -44,7 +44,8 @@ class Logs(BasicFunctions):
         'Создать отчет по буровым инструментам': 'create drill report',
         'Бригадиры, окладники, бурильщики': 'edit',
         'Создать отчет по ремонтам': 'create mechanics report',
-        'Редактировать отчет': 'edit mechanics report'
+        'Редактировать отчет': 'edit mechanics report',
+        'Поставить рейтинг бригаде': 'give brigade rating'
         }
     notification_list = [
         'create drill report',
@@ -86,6 +87,16 @@ class Logs(BasicFunctions):
         if not search_list:
             print("No such item in logs.")
 
+    def _choose_item(self):
+        """Chose item to search"""
+        item = None
+        for index, option in enumerate(self.search_list, 1):
+            print("[{}] - {}".format(index, option))
+        choose = input("\nInput action to search:  ")
+        if super().check_number_in_range(choose, self.search_list):
+            item = self.search_list[int(choose)-1]
+        return item
+
     def create_log(self, user_login, user_action):
         """Create detailed log for action"""
         if user_action in self.log_list:
@@ -109,17 +120,7 @@ class Logs(BasicFunctions):
     def search_in_logs(self):
         """Search in logs."""
         print("Choose item to search:")
-        self._search_logs_by_item(self.choose_item())
-
-    def choose_item(self):
-        """Chose item to search"""
-        item = None
-        for index, option in enumerate(self.search_list, 1):
-            print("[{}] - {}".format(index, option))
-        choose = input("\nInput action to search:  ")
-        if super().check_number_in_range(choose, self.search_list):
-            item = self.search_list[int(choose)-1]
-        return item
+        self._search_logs_by_item(self._choose_item())
 
     def delete_all_logs(self):
         """delete logs for all users"""

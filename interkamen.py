@@ -27,8 +27,9 @@ def login_program():
     current_user = None
     while current_user is None:
         current_user = Users().try_to_enter_program()
-    Logs().create_log(
-        current_user['login'], 'enter program')
+    Logs().create_log(current_user['login'], 'enter program')
+    BasicFunctions().clear_screen()
+    print(INTERKAMEN)
     return current_user
 
 
