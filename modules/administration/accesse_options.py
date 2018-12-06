@@ -24,7 +24,55 @@ from modules.support_modules.backup import make_backup
 
 
 class Accesse:
-    """Give to program 'choise tree' and 'meny' depend on user access"""
+    """
+    Give to program 'choise tree' and 'meny' depend on user access.
+    """
+
+    menu_options = {
+        'basic': {
+            'Телефоны работников':
+            lambda arg: AllWorkers().print_telefon_numbers(),
+            'Поменять пароль':
+            lambda arg: Users().change_password(arg),
+            '\033[93mВыйти из программы\033[0m': 'exit program'
+        },
+        'mechanic': {
+            'Создать отчет по ремонтам':
+            lambda arg: MechReports().create_report(),
+            'Редактировать отчет':
+            lambda arg: MechReports().edit_report(),
+            'Показать статистику КТГ и КТИ':
+            lambda arg: MechReports().show_statistic(),
+            'Статистика по причинам простоев':
+            lambda arg: MechReports().show_statistic(True),
+            'Календарь обслуживания':
+            lambda arg: MechReports().maintenance_calendar()
+        },
+        'master': {
+            'Создать табель добычной бригады':
+            lambda arg: Reports().create_report(),
+            'Редактировать табель':
+            lambda arg: Reports().edit_report(),
+            'Статистика добычи по кубатуре':
+            lambda arg: ReportAnalysis().result_analysis(),
+            'Статистика по горной массе':
+            lambda arg: ReportAnalysis().rock_mass_analysis(),
+            'Создать отчет по буровым инструментам':
+            lambda arg: DrillInstruments().create_drill_report(),
+            'Статистика по буровому инструменту':
+            lambda arg: DrillInstruments().show_statistic_by_year(),
+            'Поставить рейтинг бригаде':
+            lambda arg: Rating().give_rating(arg)
+        },
+        'boss': {
+            '--> [Работники] ': 'sub-menu',
+            '--> [Финансы]': 'sub-menu',
+            '--> [Меню_механика]': 'sub-menu',
+            '--> [Меню_мастера]': 'sub-menu'
+        },
+        'admin': {'\033[91m--> [administration]\033[0m': 'sub-menu'}
+    }
+
     sub_menus = {
         '\033[91m--> [administration]\033[0m': {
             '\033[91m--> [log_menu] \033[0m': 'sub-menu',
@@ -44,18 +92,6 @@ class Accesse:
             'create new user': lambda arg: Users().create_new_user(),
             'edit user': lambda arg: Users().edit_user(),
             'show all users': lambda arg: Users().show_all_users()
-        },
-        '--> [Работа_техники]': {
-            'Создать отчет по ремонтам':
-            lambda arg: MechReports().create_report(),
-            'Редактировать отчет':
-            lambda arg: MechReports().edit_report(),
-            'Показать статистику КТГ и КТИ':
-            lambda arg: MechReports().show_statistic(),
-            'Статистика по причинам простоев':
-            lambda arg: MechReports().show_statistic(True),
-            'Календарь обслуживания':
-            lambda arg: MechReports().maintenance_calendar()
         },
         '--> [Работники] ': {
             'Новый работник':
@@ -79,48 +115,19 @@ class Accesse:
             'print company structure':
             lambda arg: AllWorkers().print_comp_structure()
         },
-        '--> [Статистика]': {
-            'Создать табель добычной бригады':
-            lambda arg: Reports().create_report(),
-            'Редактировать табель':
-            lambda arg: Reports().edit_report(),
-            'Статистика добычи по кубатуре':
-            lambda arg: ReportAnalysis().result_analysis(),
-            'Статистика по горной массе':
-            lambda arg: ReportAnalysis().rock_mass_analysis(),
-            'Создать отчет по буровым инструментам':
-            lambda arg: DrillInstruments().create_drill_report(),
-            'Статистика по буровому инструменту':
-            lambda arg: DrillInstruments().show_statistic_by_year(),
-            'Поставить рейтинг бригаде':
-            lambda arg: Rating().give_rating(arg)
-        },
         '--> [Финансы]': {
             'Наряд бригады':
             lambda arg: Reports().work_with_main_report(arg),
             'Сформировать итог по рейтингу':
             lambda arg: Rating().count_brigade_winner()
-        }
+        },
+        '--> [Меню_механика]': menu_options['mechanic'],
+        '--> [Меню_мастера]': menu_options['master'],
     }
 
     sub_standart_options = {
         '<-- [Предыдущее меню]': 'menu before',
         '\033[93mВыйти из программы\033[0m': 'exit program',
-    }
-
-    menu_options = {
-        'basic': {
-            'Телефоны работников':
-            lambda arg: AllWorkers().print_telefon_numbers(),
-            'Поменять пароль':
-            lambda arg: Users().change_password(arg),
-            '\033[93mВыйти из программы\033[0m': 'exit program'
-        },
-        'mechanic': {'--> [Работа_техники]': 'sub-menu'},
-        'master': {'--> [Статистика]': 'sub-menu'},
-        'boss': {'--> [Работники] ': 'sub-menu',
-                 '--> [Финансы]': 'sub-menu'},
-        'admin': {'\033[91m--> [administration]\033[0m': 'sub-menu'}
     }
 
     def __init__(self, accesse='mechanic'):
@@ -129,11 +136,9 @@ class Accesse:
     @classmethod
     def create_list(cls, accesse, options_list):
         """Create accesse and options menus"""
-        options_list['mechanic'].update(options_list['basic'])
-        options_list['boss'].update(options_list['master'])
-        options_list['boss'].update(options_list['mechanic'])
+        for name in ('mechanic', 'master', 'boss'):
+            options_list[name].update(options_list['basic'])
         options_list['admin'].update(options_list['boss'])
-        options_list['master'].update(options_list['basic'])
         return options_list[accesse]
 
     def get_sub_menu(self, sub_menu_name):
