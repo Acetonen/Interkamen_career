@@ -5,6 +5,7 @@ This module contain class that provide working with brigade rating.
 
 import os
 import pandas as pd
+from copy import deepcopy
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsolytePath
 from modules.mechanic_report import MechReports
@@ -18,13 +19,14 @@ class Rating(BasicFunctions):
     brig_columns = ['year', 'month', 'shift', 'cleanness', 'discipline',
                     'roads', 'maintain', 'user']
     shifts = ['Смена 1', 'Смена 2']
-    totl_res = {
+    temp_res = {
         'критерий': [],
         'Смена 1': [],
         'Смена 2': []
     }
 
     def __init__(self):
+        self.totl_res = deepcopy(self.temp_res)
         if os.path.exists(self.brig_rating_path):
             self.brig_rating_file = super().load_data(self.brig_rating_path)
         else:
@@ -103,7 +105,10 @@ class Rating(BasicFunctions):
         for shift in self.shifts:
             brig_results = Reports().give_main_results(
                 str(year), str(month), shift)
-            self.totl_res[shift].extend(brig_results[1:])
+            if brig_results:
+                self.totl_res[shift].extend(brig_results[1:])
+            else:
+                self.totl_res[shift].extend([0, 0])
 
     def _add_average_kti(self, year, month):
         """Add average kti from Mechanic Report to average rating."""
