@@ -354,7 +354,7 @@ class MechReports(BasicFunctions):
         """Edit report."""
         while True:
             super().clear_screen()
-            print('{year}.{month}.{day}'.format(**rep_date))
+            print('{}.{}.{}'.format(*map(int, rep_date.values())))
             print(self.temp_df[
                 ['mach_name', 'st_plan', 'st_acs', 'st_sep', 'work', 'notes']
                 ])

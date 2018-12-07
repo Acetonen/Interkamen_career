@@ -37,30 +37,22 @@ class Accesse:
             '\033[93mВыйти из программы\033[0m': 'exit program'
         },
         'mechanic': {
+            '--> [Статистика_ремонтов]': 'sub-menu',
             'Создать отчет по ремонтам':
             lambda arg: MechReports().create_report(),
             'Редактировать отчет':
             lambda arg: MechReports().edit_report(),
-            'Показать статистику КТГ и КТИ':
-            lambda arg: MechReports().show_statistic(),
-            'Статистика по причинам простоев':
-            lambda arg: MechReports().show_statistic(True),
             'Календарь обслуживания':
             lambda arg: MechReports().maintenance_calendar()
         },
         'master': {
+            '--> [Статистика_добычи]': 'sub-menu',
             'Создать табель добычной бригады':
             lambda arg: Reports().create_report(),
             'Редактировать табель':
             lambda arg: Reports().edit_report(),
-            'Статистика добычи по кубатуре':
-            lambda arg: ReportAnalysis().result_analysis(),
-            'Статистика по горной массе':
-            lambda arg: ReportAnalysis().rock_mass_analysis(),
             'Создать отчет по буровым инструментам':
             lambda arg: DrillInstruments().create_drill_report(),
-            'Статистика по буровому инструменту':
-            lambda arg: DrillInstruments().show_statistic_by_year(),
             'Поставить рейтинг бригаде':
             lambda arg: Rating().give_rating(arg)
         },
@@ -123,6 +115,20 @@ class Accesse:
         },
         '--> [Меню_механика]': menu_options['mechanic'],
         '--> [Меню_мастера]': menu_options['master'],
+        '--> [Статистика_ремонтов]': {
+            'Показать статистику КТГ и КТИ':
+            lambda arg: MechReports().show_statistic(),
+            'Статистика по причинам простоев':
+            lambda arg: MechReports().show_statistic(True)
+        },
+        '--> [Статистика_добычи]': {
+            'Статистика добычи по кубатуре':
+            lambda arg: ReportAnalysis().result_analysis(),
+            'Статистика по горной массе':
+            lambda arg: ReportAnalysis().rock_mass_analysis(),
+            'Статистика по буровому инструменту':
+            lambda arg: DrillInstruments().show_statistic_by_year(),
+        }
     }
 
     sub_standart_options = {
