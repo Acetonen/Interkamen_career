@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.4.0
+### ver 1.4.1
 
 ![intro](readme_screenshots/intro.png)
 
@@ -78,7 +78,9 @@ We use [SemVer](http://semver.org/) for versioning.
 4. Fix mechanic log.
 5. Make standard date input.
 6. Make submenus in admin meny by directions.
-
+### what's new in 1.4.1:
+1. Fix date view in mechanics report.
+2. Fix error when you try show rating and haven't brigades results yet.
 ## Content and Instruction
 
 ### 1. Log in program

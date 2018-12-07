@@ -8,7 +8,6 @@ It can count worker salary and compilate statistic of brigades results.
 class Reports :
  'brigadiers_path', - path to brigadier database.
  'check_comma_error', - check error for wrong result input (if comma in FPN).
- 'check_date_format', - check correct date format.
  'choose_salary_or_drillers', - edit salary, drillers or brigadiers workers.
  'create_report', - create main report.
  'create_workers_hours_list', - input workers hours.
@@ -297,17 +296,6 @@ class Reports(BasicFunctions):
         self.drillers = super().load_data(self.drillers_path)
         self.brigadiers = super().load_data(self.brigadiers_path)
         self.data_base = super().load_data(self.data_path)
-
-    @classmethod
-    def check_date_format(cls, date):
-        """Check if date format correct"""
-        date_numbers = date.split('-')
-        correct = (date[4] == '-' and
-                   date_numbers[0].isdigit() and
-                   date_numbers[1].isdigit() and
-                   int(date_numbers[1]) < 13 and
-                   int(date_numbers[1]) > 0)
-        return correct
 
     @classmethod
     def create_workers_hours_list(cls, workers_list):
@@ -612,13 +600,13 @@ class Reports(BasicFunctions):
     def create_report(self):
         """Create New main report."""
         while True:
-            date = input("Введите дату отчета в формате 2018-12: ")
-            if not self.check_date_format(date):
+            rep_date = input("Введите дату отчета в формате 2018-12: ")
+            if not super().check_date_format(rep_date):
                 print("Введите дату корректно.")
                 continue
             print("Выберете бригаду:")
             shift = super().choise_from_list(self.shifts)
-            if self._check_if_report_exist(shift, date):
+            if self._check_if_report_exist(shift, rep_date):
                 break
 
         workers_list = AllWorkers().give_workers_from_shift(shift)
@@ -631,7 +619,7 @@ class Reports(BasicFunctions):
         workers_list.extend(added_workers)
         super().clear_screen()
 
-        report = MainReport('\033[91m[не завершен]\033[0m', shift, date)
+        report = MainReport('\033[91m[не завершен]\033[0m', shift, rep_date)
         workers_hours_list = self.create_workers_hours_list(workers_list)
         report.workers_showing['факт']['часы'] = workers_hours_list
         print("\nВведите результаты добычи бригады.")

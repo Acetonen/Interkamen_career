@@ -109,9 +109,8 @@ class BasicFunctions:
         while not check_date:
             rep_date = input("Введите год и месяц формате 2018-12: ")
             if not rep_date or '-' not in rep_date:
-                print("Отменено.")
-                rep_date = None
-                return rep_date
+                print("Неверный формат.")
+                continue
             check_date = cls.check_date_format(rep_date)
         rep_date = list(map(int, rep_date.split('-')))
         rep_dict = {'year': rep_date[0], 'month': rep_date[1]}
