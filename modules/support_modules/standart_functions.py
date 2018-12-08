@@ -122,7 +122,7 @@ class BasicFunctions:
         date_numbers = rep_date.split('-')
         correct = (rep_date[4] == '-' and
                    len(date_numbers) == 2 and
-                   len(date_numbers[2]) == 2 and
+                   len(date_numbers[1]) == 2 and
                    date_numbers[0].isdigit() and
                    date_numbers[1].isdigit() and
                    int(date_numbers[1]) < 13 and

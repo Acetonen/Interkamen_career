@@ -21,6 +21,7 @@ from modules.drill_instrument_report import DrillInstruments
 from modules.mechanic_report import MechReports
 from modules.rating import Rating
 from modules.support_modules.backup import make_backup
+from modules.drill_passports import DrillPassports
 
 
 class Accesse:
@@ -54,7 +55,11 @@ class Accesse:
             'Создать отчет по буровым инструментам':
             lambda arg: DrillInstruments().create_drill_report(),
             'Поставить рейтинг бригаде':
-            lambda arg: Rating().give_rating(arg)
+            lambda arg: Rating().give_rating(arg),
+            'Создать буровой паспорт':
+            lambda arg: DrillPassports().create_drill_passport(arg),
+            'Редактировать буровой паспорт':
+            lambda arg: DrillPassports().edit_passport()
         },
         'boss': {
             '--> [Работники] ': 'sub-menu',
