@@ -107,7 +107,7 @@ class BasicFunctions:
         """Input date."""
         check_date = False
         while not check_date:
-            rep_date = input("Введите год и месяц формате 2018-12: ")
+            rep_date = input("Введите год и месяц формате 2018-01: ")
             if not rep_date or '-' not in rep_date:
                 print("Неверный формат.")
                 continue
@@ -122,6 +122,7 @@ class BasicFunctions:
         date_numbers = rep_date.split('-')
         correct = (rep_date[4] == '-' and
                    len(date_numbers) == 2 and
+                   len(date_numbers[2]) == 2 and
                    date_numbers[0].isdigit() and
                    date_numbers[1].isdigit() and
                    int(date_numbers[1]) < 13 and
