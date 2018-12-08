@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.4.1
+### ver 1.5.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -81,6 +81,10 @@ We use [SemVer](http://semver.org/) for versioning.
 ### what's new in 1.4.1:
 1. Fix date view in mechanics report.
 2. Fix error when you try show rating and haven't brigades results yet.
+### what's new in 1.5.0:
+1. Add Drill passport.
+2. Fix check date format.
+
 ## Content and Instruction
 
 ### 1. Log in program
