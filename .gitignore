@@ -67,4 +67,4 @@ backup/
 #TODO file
 TODO.txt
 
-project_volume.txt
+*.txt

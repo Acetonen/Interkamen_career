@@ -53,7 +53,9 @@ class Logs(BasicFunctions):
         'create drill report',
         '-->',
         'create new user',
-        'create new report'
+        'create new report',
+        'create mechanics report',
+        'create drill passport'
     ]
 
     def __init__(self):
