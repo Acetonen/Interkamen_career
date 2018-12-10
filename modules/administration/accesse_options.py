@@ -22,6 +22,7 @@ from modules.mechanic_report import MechReports
 from modules.rating import Rating
 from modules.support_modules.backup import make_backup
 from modules.drill_passports import DrillPassports
+from modules.work_calendar import WorkCalendars
 
 
 class Accesse:
@@ -33,6 +34,8 @@ class Accesse:
         'basic': {
             'Телефоны работников':
             lambda arg: AllWorkers().print_telefon_numbers(),
+            'Календарь пересменок':
+            lambda arg: WorkCalendars().show_year_shifts(),
             'Поменять пароль':
             lambda arg: Users().change_password(arg),
             '\033[93mВыйти из программы\033[0m': 'exit program'
@@ -104,7 +107,9 @@ class Accesse:
             'Бригадиры, окладники, бурильщики':
             lambda arg: Reports().choose_salary_or_drillers(),
             'Показать юбиляров этого года':
-            lambda arg: AllWorkers().show_anniversary_workers()
+            lambda arg: AllWorkers().show_anniversary_workers(),
+            'Создать календарь пересменок':
+            lambda arg: WorkCalendars().create_calendar()
         },
         '\033[91m--> [databases] \033[0m': {
             'upd company structure':
