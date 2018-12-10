@@ -431,7 +431,9 @@ class MechReports(BasicFunctions):
             set(sorted(data_by_year[data_by_year.month == month].day)))
         day = input("Введите день: ")
         if day:
-            rep_date = {'year': year, 'month': month, 'day': int(day)}
+            rep_date = {
+                'year': int(year), 'month': int(month), 'day': int(day)
+                }
             self._make_day_report_temp(rep_date)
             self._working_with_report(rep_date)
 

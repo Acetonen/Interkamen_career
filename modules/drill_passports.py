@@ -159,6 +159,7 @@ class DPassport(BasicFunctions):
             'Изменить расход ВВ и ЭД': self._set_pownder_parametrs,
             'Изменить бурильщика': self._set_driller,
             'Ввести новые длины шпуров': self._baareholes_and_dependencies,
+            'Удалить паспорт': 'del',
             '[закончить редактирование]': 'exit'
             }
         while True:
@@ -168,9 +169,9 @@ class DPassport(BasicFunctions):
             action_name = super().choise_from_list(edit_menu_dict)
             if action_name in ['[закончить редактирование]', '']:
                 break
-            elif action_name == 'удалить отчет':
+            elif action_name == 'Удалить паспорт':
                 if super().confirm_deletion('паспорт'):
-                    passport = None
+                    self.params.number = None
                     break
             else:
                 edit_menu_dict[action_name]()
@@ -256,7 +257,8 @@ class DrillPassports(BasicFunctions):
     def create_drill_passport(self, user):
         """Create drill passport."""
         if self.drill_pass_file:
-            print("Номер последнего паспорта: ", self._last_number_of_passport())
+            print("Номер последнего паспорта: ",
+                  self._last_number_of_passport())
         while True:
             number = input("\nВведите номер паспорта: ")
             if self._check_if_report_exist(number):
@@ -273,10 +275,10 @@ class DrillPassports(BasicFunctions):
         if passport_name:
             passport = self.drill_pass_file[passport_name]
             passport.change_parametrs()
-            if not passport:
+            if not passport.params.number:
                 self.drill_pass_file.pop(passport_name)
-                log = " \033[91mОтчет удален.\033[0m"
-                print(log)
+                super().dump_data(self.drill_pass_path, self.drill_pass_file)
+                log = " \033[91mpassport deleted.\033[0m"
                 super().save_log_to_temp_file(passport_name + log)
             else:
                 self._save_or_not(passport)

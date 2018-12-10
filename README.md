@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.5.0
+### ver 1.5.1
 
 ![intro](readme_screenshots/intro.png)
 
@@ -84,6 +84,9 @@ We use [SemVer](http://semver.org/) for versioning.
 ### what's new in 1.5.0:
 1. Add Drill passport.
 2. Fix check date format.
+### what's new in 1.5.1:
+1. Add Working calendar module.
+2. Add notifications for create mechanics and drill report.
 
 ## Content and Instruction
 
