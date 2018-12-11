@@ -23,6 +23,7 @@ from modules.rating import Rating
 from modules.support_modules.backup import make_backup
 from modules.drill_passports import DrillPassports
 from modules.work_calendar import WorkCalendars
+from modules.career_status import Statuses
 
 
 class Accesse:
@@ -62,13 +63,17 @@ class Accesse:
             'Создать буровой паспорт':
             lambda arg: DrillPassports().create_drill_passport(arg),
             'Редактировать буровой паспорт':
-            lambda arg: DrillPassports().edit_passport()
+            lambda arg: DrillPassports().edit_passport(),
+            'Ежедневный отчет мастера':
+            lambda arg: Statuses().create_career_status('master')
         },
         'boss': {
             '--> [Работники] ': 'sub-menu',
             '--> [Финансы]': 'sub-menu',
             '--> [Меню_механика]': 'sub-menu',
-            '--> [Меню_мастера]': 'sub-menu'
+            '--> [Меню_мастера]': 'sub-menu',
+            'Состояние карьера':
+            lambda arg: Statuses().show_status()
         },
         'admin': {'\033[91m--> [administration]\033[0m': 'sub-menu'}
     }

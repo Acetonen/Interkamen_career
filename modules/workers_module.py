@@ -373,15 +373,28 @@ class AllWorkers(BasicFunctions):
         for worker in sorted(workers_list):
             print(self.workers_base[worker])
 
-    def print_telefon_numbers(self):
+    def print_telefon_numbers(self, itr_shift=None):
         """Print telefone numbers of workers from division."""
-        workers_list = self.give_workers_from_division()
-        for worker in sorted(workers_list):
+        workers_list = []
+        space = 32
+        if itr_shift:
+            workers = self.comp_structure['Карьер'][
+                'Инженерная служба'][itr_shift]
+        else:
+            workers = self.give_workers_from_division()
+        for worker in sorted(workers):
             name = self.workers_base[worker].name
+            if itr_shift:
+                name = super().make_name_short(name)
+                space = 15
             profession = self.workers_base[worker].working_place['profession']
             telefone = self.workers_base[worker].telefone_number
-            print("{:<32}- {:<24}тел.: {}".format(
-                name, profession, telefone))
+            workers_list.append(
+                "{:<{space}}- {:<24}тел.: {}".format(
+                    name, profession, telefone, space=space))
+        if not itr_shift:
+            print('\n'.join(workers_list))
+        return workers_list
 
     def show_anniversary_workers(self):
         """Show workers with this year anniversary."""

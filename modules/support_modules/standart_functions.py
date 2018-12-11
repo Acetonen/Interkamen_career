@@ -171,5 +171,12 @@ class BasicFunctions:
         except ValueError:
             inp = inp.replace(',', '.')
             make_float = float(inp)
-            print("Запятая заменена на точку.")
+            print("\033[91mЗапятая заменена на точку.\033[0m")
         return make_float
+
+    @classmethod
+    def make_name_short(cls, name):
+        """Make short name."""
+        name = name.split(' ')
+        sh_name = name[0] + ' ' + name[1][0] + '.' + name[2][0] + '.'
+        return sh_name

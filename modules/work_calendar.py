@@ -144,13 +144,15 @@ class WCalendar(BasicFunctions):
         month_end = month_end * '   '
         return month_end
 
-    def show_month_shifts(self, month):
+    def give_month_shifts(self, month):
         """Print calendar."""
         self._colorized_month(month)
-        self.month_prnt = self.month_prnt.replace('\\n', '\n')
-        print(self.month_prnt,
-              "\n\033[34m*пересменка ИТР\033[0m",
-              "\n\033[91m*пересменка бригад\033[0m ")
+        self.month_prnt = self.month_prnt.replace('\\n', '\n\t')
+        curr_month_shifts = (
+            self.month_prnt +
+            "\n\t\033[93m*пересменка ИТР\033[0m" +
+            "\n\t\033[96m*пересменка бригад\033[0m ")
+        return curr_month_shifts
 
 
 class WorkCalendars(BasicFunctions):
@@ -178,3 +180,27 @@ class WorkCalendars(BasicFunctions):
         if year:
             super().clear_screen()
             print(self.calendar_file[year])
+
+    def give_current_brigade(self, cur_date):
+        """Return current brigade."""
+        shift_day = self.calendar_file[cur_date[0]].br_cal[cur_date[1]-1][0]
+        if cur_date[2] <= shift_day:
+            cur_brig = 'Бригада 1'
+        else:
+            cur_brig = 'Бригада 2'
+        return cur_brig
+
+    def give_current_itr(self, cur_date):
+        """Return current ITR."""
+        shift_days = self.calendar_file[cur_date[0]].itr_cal[cur_date[1]-1]
+        if cur_date[2] <= shift_days[0] or cur_date[2] >= shift_days[1]:
+            cur_itr = 'Смена 1'
+        else:
+            cur_itr = 'Смена 2'
+        return cur_itr
+
+    def give_current_month_shifts(self, cur_date):
+        """Return current month shifts."""
+        shifts_cal = (self.calendar_file[cur_date[0]]
+                      .give_month_shifts(cur_date[1]-1))
+        return shifts_cal

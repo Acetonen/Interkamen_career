@@ -19,6 +19,7 @@ from matplotlib import rcParams as window_parametrs
 
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.career_status import Statuses
 
 
 class MechReports(BasicFunctions):
@@ -418,6 +419,7 @@ class MechReports(BasicFunctions):
             else:
                 self._create_blanc(rep_date)
                 self._working_with_report(rep_date)
+                Statuses().create_career_status('mechanic')
                 break
 
     def edit_report(self):
