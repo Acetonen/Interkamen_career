@@ -71,12 +71,14 @@ class DPassport(BasicFunctions):
                 break
             elif '*' in barehole:
                 barehole = barehole.split('*')
-                totall_meters += float(barehole[0]) * float(barehole[1])
-                temp_bareholes[float(barehole[0])] = float(barehole[1])
-                bareholes_number += float(barehole[1])
+                bar_lenght = super().float_input(inp=barehole[0])
+                totall_meters += bar_lenght * int(barehole[1])
+                temp_bareholes[bar_lenght] = int(barehole[1])
+                bareholes_number += int(barehole[1])
             else:
-                totall_meters += float(barehole)
-                temp_bareholes[float(barehole)] = float(barehole)
+                bar_lenght = super().float_input(inp=barehole)
+                totall_meters += bar_lenght
+                temp_bareholes[bar_lenght] = bar_lenght
                 bareholes_number += 1
         self.bareholes = temp_bareholes
         self.params.totall_meters = totall_meters
@@ -112,7 +114,7 @@ class DPassport(BasicFunctions):
 
     def _set_block_parametrs(self, bareholes_number):
         """Block parametrs (height, width, volume)"""
-        block_height = float(input("Введите высоту блока: "))
+        block_height = super().float_input(msg="Введите высоту блока: ")
         self.params.block_height = block_height
         block_width = round(bareholes_number * 0.35 + 0.4, 1)
         self.params.block_width = block_width

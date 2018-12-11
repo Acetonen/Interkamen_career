@@ -160,3 +160,16 @@ class BasicFunctions:
             avail_months = dataframe[check_items].month
             print("Имеющиеся отчеты: {}".format(sorted(set(avail_months))))
         return check
+
+    @classmethod
+    def float_input(cls, msg=None, inp=None):
+        """Input float with comma, not point."""
+        if not inp:
+            inp = input(msg)
+        try:
+            make_float = float(inp)
+        except ValueError:
+            inp = inp.replace(',', '.')
+            make_float = float(inp)
+            print("Запятая заменена на точку.")
+        return make_float
