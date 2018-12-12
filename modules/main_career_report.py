@@ -307,28 +307,17 @@ class Reports(BasicFunctions):
             workers_hours[worker] = int(hours)
         return workers_hours
 
-    @classmethod
-    def check_comma_error(cls):
-        """Check input floats for commas."""
-        while True:
-            inpt = input()
-            if ',' in inpt or inpt == '':
-                print("Некорректный ввод, повторите:", end='')
-            else:
-                return inpt
-
     def _input_result(self, report):
         """Input working result"""
         for item in report.result:
             if isinstance(report.result[item], dict):
                 for sub_item in report.result[item]:
-                    print(sub_item, end=': ')
-                    inpt = self.check_comma_error()
-                    report.result[item][sub_item] = float(inpt)
+                    print(sub_item, end='')
+                    report.result[item][sub_item] = (super()
+                                                     .float_input(msg=': '))
             else:
-                print(item, end=': ')
-                inpt = self.check_comma_error()
-                report.result[item] = float(inpt)
+                print(item, end='')
+                report.result[item] = super().float_input(msg=': ')
         return report
 
     def _add_worker_from_diff_shift(self, shift):
@@ -440,13 +429,14 @@ class Reports(BasicFunctions):
             """Enter rock_mass"""
             print("Введите горную массу:")
             for gorizont in sorted(tmp_rpt.rock_mass):
-                print(gorizont, end=': ')
-                tmp_rpt.rock_mass[gorizont] = float(input())
+                print(gorizont, end='')
+                tmp_rpt.rock_mass[gorizont] = super().float_input(msg=': ')
             return tmp_rpt
 
         def enter_totall(tmp_rpt):
             """Enter totall money"""
-            tmp_rpt.totall = float(input("Введите итоговую сумму: "))
+            tmp_rpt.totall = (super()
+                              .float_input(msg="Введите итоговую сумму: "))
             return tmp_rpt
 
         def enter_bonus(tmp_rpt):
@@ -464,7 +454,7 @@ class Reports(BasicFunctions):
             print("Выберете работника:")
             workers = tmp_rpt.workers_showing[direction]['КТУ']
             ch_worker = super(Reports, self).choise_from_list(workers)
-            new_ktu = float(input("Введите новое значение КТУ: "))
+            new_ktu = super().float_input(msg="Введите новое значение КТУ: ")
             delta = (tmp_rpt.workers_showing[direction]['КТУ'][ch_worker]
                      - new_ktu)
 

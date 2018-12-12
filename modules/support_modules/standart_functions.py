@@ -27,8 +27,8 @@ class BasicFunctions:
                 break
         return chosen_item
 
-    @classmethod
-    def check_number_in_range(cls, user_input, list_range):
+    @staticmethod
+    def check_number_in_range(user_input, list_range):
         """Check is input a number in current range."""
         check_number = None
         if user_input.isdigit():
@@ -39,8 +39,8 @@ class BasicFunctions:
             print("\nВы должны ввести ЦИФРУ.\n")
         return check_number
 
-    @classmethod
-    def confirm_deletion(cls, item):
+    @staticmethod
+    def confirm_deletion(item):
         """Deletion confirmation"""
         confirm = input(
             "Вы уверены что хотите удалить '{}'? Д/н: ".format(item))
@@ -52,16 +52,16 @@ class BasicFunctions:
             print("\nВы отменили удаление.\n")
         return confirm
 
-    @classmethod
-    def clear_screen(cls):
+    @staticmethod
+    def clear_screen():
         """Clear shell screen"""
         if sys.platform[:3] == 'win':
             os.system('cls')
         else:
             os.system('clear')
 
-    @classmethod
-    def load_data(cls, data_path):
+    @staticmethod
+    def load_data(data_path):
         """Load data from pickle"""
         if os.path.exists(data_path):
             with open(data_path, 'rb') as base_file:
@@ -70,21 +70,21 @@ class BasicFunctions:
             base = {}
         return base
 
-    @classmethod
-    def dump_data(cls, data_path, base_to_dump):
+    @staticmethod
+    def dump_data(data_path, base_to_dump):
         """Dumb data to pickle."""
         with open(data_path, 'wb') as base_file:
             pickle.dump(base_to_dump, base_file)
 
-    @classmethod
-    def save_log_to_temp_file(cls, log):
+    @staticmethod
+    def save_log_to_temp_file(log):
         "Get detailed log for user actions."
         file_path = AbsolytePath('log.tmp').get_absolyte_path()
         with open(file_path, 'a', encoding='utf-8') as temp_file:
             temp_file.write(log)
 
-    @classmethod
-    def count_unzero_items(cls, items_list):
+    @staticmethod
+    def count_unzero_items(items_list):
         """Count nonzero items."""
         counter = 0
         for item in items_list:
@@ -92,8 +92,8 @@ class BasicFunctions:
                 counter += 1
         return counter
 
-    @classmethod
-    def make_windows_plot_param(cls):
+    @staticmethod
+    def make_windows_plot_param():
         """Make windows plot parametrs."""
         window_parametrs['figure.figsize'] = [22.0, 8.0]
         window_parametrs['figure.dpi'] = 100
@@ -116,8 +116,8 @@ class BasicFunctions:
         rep_dict = {'year': rep_date[0], 'month': rep_date[1]}
         return rep_dict
 
-    @classmethod
-    def check_date_format(cls, rep_date):
+    @staticmethod
+    def check_date_format(rep_date):
         """Check if date format correct"""
         date_numbers = rep_date.split('-')
         correct = (rep_date[4] == '-' and
@@ -129,8 +129,8 @@ class BasicFunctions:
                    int(date_numbers[1]) > 0)
         return correct
 
-    @classmethod
-    def check_date_in_dataframe(cls, dataframe, rep_date):
+    @staticmethod
+    def check_date_in_dataframe(dataframe, rep_date):
         """
         Check if report allready exist.
         rep_date is a dictionary, that contain keys: year, month, day or shift.
@@ -161,8 +161,8 @@ class BasicFunctions:
             print("Имеющиеся отчеты: {}".format(sorted(set(avail_months))))
         return check
 
-    @classmethod
-    def float_input(cls, msg=None, inp=None):
+    @staticmethod
+    def float_input(msg=None, inp=None):
         """Input float with comma, not point."""
         if not inp:
             inp = input(msg)
@@ -174,8 +174,8 @@ class BasicFunctions:
             print("\033[91mЗапятая заменена на точку.\033[0m")
         return make_float
 
-    @classmethod
-    def make_name_short(cls, name):
+    @staticmethod
+    def make_name_short(name):
         """Make short name."""
         name = name.split(' ')
         sh_name = name[0] + ' ' + name[1][0] + '.' + name[2][0] + '.'

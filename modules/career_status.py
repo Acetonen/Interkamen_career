@@ -47,14 +47,51 @@ class CareerStatus(BasicFunctions):
         }
         self.add_info(user_acs)
 
-    def add_info(self, user_acs):
-        """Add info depend on user access."""
-        info_type = {
-            'master': self._add_master_info,
-            'mechanic': self._add_mechanic_info
-        }
-
-        info_type[user_acs]()
+    def __repr__(self):
+        """Print status."""
+        output = (
+            f"\n\033[7mCостояние карьера на вечер: {self.date['today']}\033[0m"
+            "\n\n\033[4mРаботники:\033[0m"
+            f"\nСейчас на смене: {self.cur['brig']}"
+            f"\nСмена ИТР: {self.cur['itr']}"
+            "\nРаботники ИТР:\n"
+        )
+        output += '\n'.join(self.itr_list)
+        output += "\n\n\033[4mПересменки в этом месяце:\033[0m\n\t"
+        output += (
+            self.cur['month_shifts']
+            .replace(
+                ' ' + self.date['tomorrow'].split('-')[-1],
+                ' \033[41m' + self.date['tomorrow'].split('-')[-1] + '\033[0m'
+                )
+        )
+        output += (
+            "\n\n\033[4mДобыто блок-заготовок:\033[0m"
+            f"\n\tв текущем месяце: {self.res['month']} м.куб."
+            f"\n\tтекущей вахтой: {self.res['shift']} м.куб."
+            "\n\n\033[4mОбъем блоков на отгрузочном складе:\033[0m"
+            f"\n\tЦеховой камень: {self.storage['KOTC']} м.куб."
+            f"\n\tСторонний камень: {self.storage['sale']} м.куб."
+            "\n\n\033[4mСостояние техники:\033[0m"
+            "\n\tВыведена на ремонт:\n\t"
+        )
+        output += f'{self.mach["to_repare"]}'
+        output += "\n\tВведена в работу:\n\t"
+        output += f'{self.mach["to_work"]}'
+        output += (
+            f"\n\n\033[4mПлан работ на {self.date['tomorrow']}\033[0m"
+            "\n\t\tВзрывные работы."
+            "\n\tгоризонт  направление  качество\n\t"
+        )
+        output += f"{self.works_plan['expl_work']}"
+        output += (
+            "\n\n\t\tДобычные работы."
+            "\n\tгоризонт  направление  качество\n\t"
+        )
+        output += f"{self.works_plan['rock_work']}"
+        output = output.replace(
+            'None', '\033[91m<Информация отсутствует>\033[0m')
+        return output
 
     def _add_master_info(self):
         """Add info from master."""
@@ -150,51 +187,11 @@ class CareerStatus(BasicFunctions):
             mach_list.append('Отсутствуют.')
         return mach_list
 
-    def __repr__(self):
-        """Print status."""
-        output = (
-            f"\n\033[7mCостояние карьера на вечер: {self.date['today']}\033[0m"
-            "\n\n\033[4mРаботники:\033[0m"
-            f"\nСейчас на смене: {self.cur['brig']}"
-            f"\nСмена ИТР: {self.cur['itr']}"
-            "\nРаботники ИТР:\n"
-        )
-        output += '\n'.join(self.itr_list)
-        output += "\n\n\033[4mПересменки в этом месяце:\033[0m\n\t"
-        output += (
-            self.cur['month_shifts']
-            .replace(
-                ' ' + self.date['tomorrow'].split('-')[-1],
-                ' \033[41m' + self.date['tomorrow'].split('-')[-1] + '\033[0m'
-                )
-        )
-        output += (
-            "\n\n\033[4mДобыто блок-заготовок:\033[0m"
-            f"\n\tв текущем месяце: {self.res['month']} м.куб."
-            f"\n\tтекущей вахтой: {self.res['shift']} м.куб."
-            "\n\n\033[4mОбъем блоков на отгрузочном складе:\033[0m"
-            f"\n\tЦеховой камень: {self.storage['KOTC']} м.куб."
-            f"\n\tСторонний камень: {self.storage['sale']} м.куб."
-            "\n\n\033[4mСостояние техники:\033[0m"
-            "\n\tВыведена на ремонт:\n\t"
-        )
-        output += f'{self.mach["to_repare"]}'
-        output += "\n\tВведена в работу:\n\t"
-        output += f'{self.mach["to_work"]}'
-        output += (
-            f"\n\n\033[4mПлан работ на {self.date['tomorrow']}\033[0m"
-            "\n\t\tВзрывные работы."
-            "\n\tгоризонт  направление  качество\n\t"
-        )
-        output += f"{self.works_plan['expl_work']}"
-        output += (
-            "\n\n\t\tДобычные работы."
-            "\n\tгоризонт  направление  качество\n\t"
-        )
-        output += f"{self.works_plan['rock_work']}"
-        output = output.replace(
-            'None', '\033[91m<Информация отсутствует>\033[0m')
-        return output
+    def add_info(self, user_acs):
+        """Add info depend on user access."""
+        info_type = {'master': self._add_master_info,
+                     'mechanic': self._add_mechanic_info}
+        info_type[user_acs]()
 
 
 class Statuses(BasicFunctions):

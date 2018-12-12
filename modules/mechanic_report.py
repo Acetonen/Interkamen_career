@@ -166,7 +166,7 @@ class MechReports(BasicFunctions):
             check_input = self.check_hours_input(h_data)
             if not check_input:
                 print("Необходимо ввести 4 числа, сумма которых не более 12!")
-        h_data = list(map(float, h_data.split('-')))
+        h_data = list(map(int, h_data.split('-')))
         return h_data
 
     def _add_hours_to_mach(self, select_mach, h_data):
