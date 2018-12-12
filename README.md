@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.5.1
+### ver 1.6.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -87,6 +87,11 @@ We use [SemVer](http://semver.org/) for versioning.
 ### what's new in 1.5.1:
 1. Add Working calendar module.
 2. Add notifications for create mechanics and drill report.
+### what's new in 1.6.0:
+1. Add career status module.
+2. Add comma protect in all reports.
+3. Add user with 'info' access.
+
 
 ## Content and Instruction
 
