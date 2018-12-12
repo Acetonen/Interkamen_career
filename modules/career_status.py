@@ -57,14 +57,6 @@ class CareerStatus(BasicFunctions):
             "\nРаботники ИТР:\n"
         )
         output += '\n'.join(self.itr_list)
-        output += "\n\n\033[4mПересменки в этом месяце:\033[0m\n\t"
-        output += (
-            self.cur['month_shifts']
-            .replace(
-                ' ' + self.date['tomorrow'].split('-')[-1],
-                ' \033[41m' + self.date['tomorrow'].split('-')[-1] + '\033[0m'
-                )
-        )
         output += (
             "\n\n\033[4mДобыто блок-заготовок:\033[0m"
             f"\n\tв текущем месяце: {self.res['month']} м.куб."
@@ -93,17 +85,31 @@ class CareerStatus(BasicFunctions):
             'None', '\033[91m<Информация отсутствует>\033[0m')
         return output
 
+    def give_shift_calendar(self):
+        """Return shifts calendar."""
+        output = "\n\n\033[4mПересменки в этом месяце:\033[0m\n\t"
+        output += (
+            self.cur['month_shifts']
+            .replace(
+                ' ' + self.date['tomorrow'].split('-')[-1],
+                ' \033[41m' + self.date['tomorrow'].split('-')[-1] + '\033[0m'
+                )
+        )
+        return output
+
     def _add_master_info(self):
         """Add info from master."""
         self._input_current_result()
         self._input_strage_volume()
         works = ['разборка', 'пассировка', 'бурение']
         quolity = ['блоки', 'масса']
-        print("\033[4mБуровзрывные работы:\033[0m")
-        self.works_plan['expl_work'] = self._plan_works(quolity)
-        print("\033[4mДобычные работы:\033[0m")
-        self.works_plan['rock_work'] = self._plan_works(works)
-        print("Отчет создан.")
+        self.works_plan['expl_work'] = self._plan_works(
+            quolity,
+            title="\033[4mБуровзрывные работы:\033[0m")
+        self.works_plan['rock_work'] = self._plan_works(
+            works,
+            title="\033[4mДобычные работы:\033[0m")
+        print("\033[92mОтчет создан.\033[0m")
 
     def _input_strage_volume(self):
         """Add rocks from storage."""
@@ -122,32 +128,32 @@ class CareerStatus(BasicFunctions):
                 .give_main_results(*str(date.today()).split('-'), 'Смена 1')[1]
                 + self.res["shift"])
 
-    def _plan_works(self, quol):
+    def _plan_works(self, quol, *, title):
         """Input rock or expl work"""
         horizonds = ['+108', '+114', '+120', '+126', '+132']
         directions = ['восток', 'запад', 'север', 'юг']
-        print("Введите информацию по работам на {}"
-              .format(self.date['tomorrow']))
         work_list = []
         print_list = ''
         while True:
+            super().clear_screen()
+            print("Введите информацию по работам на {}"
+                  .format(self.date['tomorrow']))
+            print(title)
             print("\tгоризонт  направление  качество")
             print('\t' + print_list)
-            choose = input("Добавить работы на горизонте? д/н: ")
-            if choose.lower() == 'д':
-                print("Выберете горизонт:")
-                horizond = super().choise_from_list(horizonds)
-                print("Выберете направление:")
-                direction = super().choise_from_list(directions)
-                print("Выберете предполагаемое качество:")
-                quoli = super().choise_from_list(quol)
-                work_list.append(
-                    "{:^10} {:^10} {:^10}".format(horizond, direction, quoli))
-                print_list = '\n\t'.join(work_list)
-                super().clear_screen()
-            else:
-                super().clear_screen()
+            print("\n[ENTER] - закончить ввод\n"
+                  "Добавить работы:")
+            print("Выберете горизонт:")
+            horizond = super().choise_from_list(horizonds, none_option=True)
+            if not horizond:
                 break
+            print("Выберете направление:")
+            direction = super().choise_from_list(directions)
+            print("Выберете предполагаемое качество:")
+            quoli = super().choise_from_list(quol)
+            work_list.append(
+                "{:^10} {:^10} {:^10}".format(horizond, direction, quoli))
+            print_list = '\n\t'.join(work_list)
         if not work_list:
             work_list.append('Не запланированы.')
         else:
@@ -156,13 +162,13 @@ class CareerStatus(BasicFunctions):
 
     def _add_mechanic_info(self):
         """Add info from mechanic."""
-        print("\033[4mВыберете технику, выведенную в ремонт:\033[0m")
-        self.mach["to_repare"] = self._create_mach_list()
-        print("\033[4mВыберете технику, введенную в работу:\033[0m")
-        self.mach["to_work"] = self._create_mach_list()
-        print("Отчет создан.")
+        self.mach["to_repare"] = self._create_mach_list(
+            title="\033[4mВыберете технику, выведенную в ремонт:\033[0m")
+        self.mach["to_work"] = self._create_mach_list(
+            title="\033[4mВыберете технику, введенную в работу:\033[0m")
+        print("\033[92mОтчет создан.\033[0m")
 
-    def _create_mach_list(self):
+    def _create_mach_list(self, *, title):
         """Create mach list to repare or from repare."""
         mach_name = [
             'УАЗ-390945', 'УАЗ-220695', 'ГАЗ-3307', 'Commando-110',
@@ -173,16 +179,15 @@ class CareerStatus(BasicFunctions):
         ]
         mach_list = []
         while True:
+            super().clear_screen()
+            print(title)
             print(mach_list)
-            choose = input("Добавить технику? д/н: ")
-            if choose.lower() == 'д':
-                print("Выберете технику:")
-                mach = super().choise_from_list(mach_name)
-                mach_list.append(mach)
-                super().clear_screen()
-            else:
-                super().clear_screen()
+            print("\n[ENTER] - закончить ввод\n"
+                  "Выберете технику:")
+            mach = super().choise_from_list(mach_name, none_option=True)
+            if not mach:
                 break
+            mach_list.append(mach)
         if not mach_list:
             mach_list.append('Отсутствуют.')
         return mach_list
@@ -220,9 +225,7 @@ class Statuses(BasicFunctions):
         if status:
             super().clear_screen()
             print(self.car_stat_file[status])
-
-
-if __name__ == '__main__':
-    Statuses().create_career_status('master')
-    Statuses().create_career_status('mechanic')
-    Statuses().show_status()
+            calendar = input("[к] - показать календарь пересменок.\n"
+                             "[ENTER] - выйти: ")
+            if calendar in ['k', 'K', 'к', 'К']:
+                print(self.car_stat_file[status].give_shift_calendar())

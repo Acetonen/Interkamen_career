@@ -45,6 +45,8 @@ class Logs(BasicFunctions):
         'Создать отчет по ремонтам': 'create mechanics report',
         'Поставить рейтинг бригаде': 'give brigade rating',
         'Создать буровой паспорт': 'create drill passport',
+        'Ежедневный отчет мастера\n------------------------------':
+        'create day report'
         }
     notification_list = [
         'create drill report',
@@ -52,7 +54,8 @@ class Logs(BasicFunctions):
         'create new user',
         'create new report',
         'create mechanics report',
-        'create drill passport'
+        'create drill passport',
+        'create day report'
     ]
 
     def __init__(self):
