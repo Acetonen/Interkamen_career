@@ -38,16 +38,13 @@ class Logs(BasicFunctions):
         'Редактировать работника': 'edit worker',
         "Backup done.": '\033[1mbackup done.\033[0m',
         'Вернуть работника из архива': 'restore worker from archive',
-        'Редактировать табель': 'edit report',
         'Создать табель добычной бригады': 'create new report',
         'Наряд бригады': 'edit report',
         'Создать отчет по буровым инструментам': 'create drill report',
         'Бригадиры, окладники, бурильщики': 'edit',
         'Создать отчет по ремонтам': 'create mechanics report',
-        'Редактировать отчет': 'edit mechanics report',
         'Поставить рейтинг бригаде': 'give brigade rating',
         'Создать буровой паспорт': 'create drill passport',
-        'Редактировать буровой паспорт': 'edit drill passport'
         }
     notification_list = [
         'create drill report',

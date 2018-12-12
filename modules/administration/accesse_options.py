@@ -32,6 +32,12 @@ class Accesse:
     """
 
     menu_options = {
+        'info': {
+            '--> [Статистика_ремонтов]': 'sub-menu',
+            '--> [Статистика_добычи]': 'sub-menu',
+            'Состояние карьера':
+            lambda arg: Statuses().show_status()
+        },
         'basic': {
             'Телефоны работников':
             lambda arg: AllWorkers().print_telefon_numbers(),
@@ -45,26 +51,26 @@ class Accesse:
             '--> [Статистика_ремонтов]': 'sub-menu',
             'Создать отчет по ремонтам':
             lambda arg: MechReports().create_report(),
-            'Редактировать отчет':
+            'Редактировать отчет\n------------------------------':
             lambda arg: MechReports().edit_report(),
-            'Календарь обслуживания':
+            'Календарь обслуживания\n------------------------------':
             lambda arg: MechReports().maintenance_calendar()
         },
         'master': {
             '--> [Статистика_добычи]': 'sub-menu',
             'Создать табель добычной бригады':
             lambda arg: Reports().create_report(),
-            'Редактировать табель':
+            'Редактировать табель\n------------------------------':
             lambda arg: Reports().edit_report(),
+            'Создать буровой паспорт':
+            lambda arg: DrillPassports().create_drill_passport(arg),
+            'Редактировать буровой паспорт\n------------------------------':
+            lambda arg: DrillPassports().edit_passport(),
             'Создать отчет по буровым инструментам':
             lambda arg: DrillInstruments().create_drill_report(),
             'Поставить рейтинг бригаде':
             lambda arg: Rating().give_rating(arg),
-            'Создать буровой паспорт':
-            lambda arg: DrillPassports().create_drill_passport(arg),
-            'Редактировать буровой паспорт':
-            lambda arg: DrillPassports().edit_passport(),
-            'Ежедневный отчет мастера':
+            'Ежедневный отчет мастера\n------------------------------':
             lambda arg: Statuses().create_career_status('master')
         },
         'boss': {
@@ -157,7 +163,7 @@ class Accesse:
     @classmethod
     def create_list(cls, accesse, options_list):
         """Create accesse and options menus"""
-        for name in ('mechanic', 'master', 'boss'):
+        for name in ('mechanic', 'master', 'boss', 'info'):
             options_list[name].update(options_list['basic'])
         options_list['admin'].update(options_list['boss'])
         return options_list[accesse]

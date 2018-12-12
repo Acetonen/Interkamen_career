@@ -73,10 +73,10 @@ class CareerStatus(BasicFunctions):
             f"\n\tЦеховой камень: {self.storage['KOTC']} м.куб."
             f"\n\tСторонний камень: {self.storage['sale']} м.куб."
             "\n\n\033[4mСостояние техники:\033[0m"
-            "\n\tВыведена на ремонт:\n\t"
+            "\n\t\033[91mВыведена на ремонт:\033[0m\n\t"
         )
         output += f'{self.mach["to_repare"]}'
-        output += "\n\tВведена в работу:\n\t"
+        output += "\n\t\033[92mВведена в работу:\033[0m\n\t"
         output += f'{self.mach["to_work"]}'
         output += (
             f"\n\n\033[4mПлан работ на {self.date['tomorrow']}\033[0m"

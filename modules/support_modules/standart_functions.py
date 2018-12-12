@@ -41,7 +41,7 @@ class BasicFunctions:
 
     @staticmethod
     def confirm_deletion(item):
-        """Deletion confirmation"""
+        """Deletion confirmation."""
         confirm = input(
             "Вы уверены что хотите удалить '{}'? Д/н: ".format(item))
         if confirm.lower() == 'д':
@@ -85,7 +85,7 @@ class BasicFunctions:
 
     @staticmethod
     def count_unzero_items(items_list):
-        """Count nonzero items."""
+        """Count nonzero items in list."""
         counter = 0
         for item in items_list:
             if items_list[item] != 0:
@@ -132,7 +132,7 @@ class BasicFunctions:
     @staticmethod
     def check_date_in_dataframe(dataframe, rep_date):
         """
-        Check if report allready exist.
+        Check if report allready exist in DataFrame
         rep_date is a dictionary, that contain keys: year, month, day or shift.
         """
         if dataframe.empty:
@@ -176,7 +176,8 @@ class BasicFunctions:
 
     @staticmethod
     def make_name_short(name):
-        """Make short name."""
+        """Make short name for workers or users
+        Ковалев Антон Викторович -> Ковалев А.В."""
         name = name.split(' ')
         sh_name = name[0] + ' ' + name[1][0] + '.' + name[2][0] + '.'
         return sh_name

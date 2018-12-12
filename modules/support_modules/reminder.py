@@ -15,6 +15,7 @@ class Reminder(BasicFunctions):
             'mechanic': [
                 self.maintenance_remind
             ],
+            'info': [],
             'master': [],
             'boss': [
                 self.main_report_remind

@@ -14,7 +14,7 @@ class Users(BasicFunctions):
     """Users warking with program."""
 
     data_path = AbsolytePath('users_base').get_absolyte_path()
-    access_list = ['admin', 'boss', 'master', 'mechanic']
+    access_list = ['admin', 'boss', 'master', 'mechanic', 'info']
 
     def __init__(self):
         self.users_base = super().load_data(self.data_path)
