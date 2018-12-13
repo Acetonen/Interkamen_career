@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.6.0
+### ver 1.6.1
 
 ![intro](readme_screenshots/intro.png)
 
@@ -91,6 +91,8 @@ We use [SemVer](http://semver.org/) for versioning.
 1. Add career status module.
 2. Add comma protect in all reports.
 3. Add user with 'info' access.
+### what's new in 1.6.1:
+1. Make career status fill more user-friendly.
 
 
 ## Content and Instruction
