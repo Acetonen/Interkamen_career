@@ -12,7 +12,8 @@ class News(BasicFunctions):
     news_memory = AbsolytePath('news_memory').get_absolyte_path()
 
     def __init__(self):
-        if not os.listdir('news/') or not os.path.exists(self.news_memory):
+        if (not os.listdir(self.news_path) or
+                not os.path.exists(self.news_memory)):
             self.news_memory_file = {}
             super().dump_data(self.news_memory, self.news_memory_file)
         else:
@@ -47,21 +48,24 @@ class News(BasicFunctions):
         """Print news for user."""
         new_news = []
         user_news = self._check_if_user_in_file(user_login)
-        if os.listdir('news/'):
-            for news in sorted(os.listdir('news/')):
+        if os.listdir(self.news_path):
+            for news in sorted(os.listdir(self.news_path)):
                 if news not in user_news:
-                    with open(self.news_path + news, 'r') as file:
+                    with open(self.news_path + news, 'r',
+                              encoding='utf-8') as file:
                         new_news.append(file.read())
                     self._add_news_to_user(user_login, news)
                     super().dump_data(self.news_memory, self.news_memory_file)
-        self.show_new_news(new_news)
+        if new_news:
+            self.show_new_news(new_news)
 
     def show_actual_news(self):
         """Show all news that actual."""
         new_news = []
-        if os.listdir('news/'):
-            for news in sorted(os.listdir('news/')):
-                with open(self.news_path + news, 'r') as file:
+        if os.listdir(self.news_path):
+            for news in sorted(os.listdir(self.news_path)):
+                with open(self.news_path + news, 'r',
+                          encoding='utf-8') as file:
                     new_news.append(file.read())
         if new_news:
             self.show_new_news(new_news)
