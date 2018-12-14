@@ -25,6 +25,7 @@ from modules.drill_passports import DrillPassports
 from modules.work_calendar import WorkCalendars
 from modules.career_status import Statuses
 from modules.support_modules.reminder import Reminder
+from modules.support_modules.news import News
 
 
 class Accesse:
@@ -46,6 +47,8 @@ class Accesse:
             lambda arg: WorkCalendars().show_year_shifts(),
             'Поменять пароль':
             lambda arg: Users().change_password(arg),
+            'Показать новости':
+            lambda arg: News().show_actual_news(),
             '\033[93mВыйти из программы\033[0m': 'exit program'
         },
         'mechanic': {

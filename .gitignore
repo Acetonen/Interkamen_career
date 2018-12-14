@@ -59,6 +59,7 @@ target/
 # Data experiments
 data/
 backup/
+news/
 
 #Jupyter files
 .ipynb_checkpoints

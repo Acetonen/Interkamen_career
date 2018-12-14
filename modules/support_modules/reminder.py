@@ -3,7 +3,6 @@
 
 import os
 from datetime import date, timedelta
-from pprint import pprint
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.main_career_report import Reports
 from modules.mechanic_report import MechReports

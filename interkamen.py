@@ -15,6 +15,7 @@ from modules.support_modules.hi import INTERKAMEN
 from modules.support_modules.backup import check_last_backup_date
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.reminder import Reminder
+from modules.support_modules.news import News
 
 from modules.administration.accesse_options import Accesse
 from modules.administration.users import Users
@@ -63,6 +64,14 @@ def check_backup():
         Logs().create_log(CURRENT_USER['login'], "Backup done.")
 
 
+def show_news():
+    """Try to show news."""
+    if USR_ACS != 'info':
+        News().print_news(USR_ACS)
+        BasicFunctions().clear_screen()
+        print(INTERKAMEN)
+
+
 if __name__ == '__main__':
     MENU_HEADER = ['\033[1m \t', None, '\n \033[0m']
     SEPARATOR = "\033[36m------------------------------\033[0m"
@@ -72,6 +81,7 @@ if __name__ == '__main__':
     CURRENT_USER = login_program()
     USR_ACS = CURRENT_USER['accesse']
     check_backup()
+    show_news()
 
     # Create main menu (otput and actions dict).
     MENU_HEADER[1] = '\033[4m ГЛАВНОЕ МЕНЮ \033[0m'
