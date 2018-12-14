@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.6.1
+### ver 1.7.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -93,7 +93,10 @@ We use [SemVer](http://semver.org/) for versioning.
 3. Add user with 'info' access.
 ### what's new in 1.6.1:
 1. Make career status fill more user-friendly.
-
+### what's new in 1.7.0:
+1. Add news module.
+2. Custom reminder.
+3. Add stupid timer in master daily report.
 
 ## Content and Instruction
 
