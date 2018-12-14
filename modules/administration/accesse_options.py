@@ -24,6 +24,7 @@ from modules.support_modules.backup import make_backup
 from modules.drill_passports import DrillPassports
 from modules.work_calendar import WorkCalendars
 from modules.career_status import Statuses
+from modules.support_modules.reminder import Reminder
 
 
 class Accesse:
@@ -89,10 +90,17 @@ class Accesse:
             '\033[91m--> [log_menu] \033[0m': 'sub-menu',
             '\033[91m--> [users_menu] \033[0m': 'sub-menu',
             '\033[91m--> [databases] \033[0m': 'sub-menu',
+            '\033[91m--> [reminds] \033[0m': 'sub-menu',
             '\033[91mmake backup now\033[0m':
             lambda arg: make_backup(),
-            '\033[91mbackup email settings\033[0m':
+            '\033[91memail settings\033[0m':
             lambda arg: EmailSender().edit_mail_propeties()
+        },
+        '\033[91m--> [reminds] \033[0m': {
+            '\033[91mcreate reminder\033[0m':
+            lambda arg: Reminder().make_custom_remind(),
+            '\033[91mshow all reminds\033[0m':
+            lambda arg: Reminder().show_all_reminds(),
         },
         '\033[91m--> [log_menu] \033[0m': {
             'search in logs': lambda arg: Logs().search_in_logs(),

@@ -106,6 +106,9 @@ class CareerStatus(BasicFunctions):
         self.works_plan['expl_work'] = self._plan_works(
             quolity,
             title="\033[4mБуровзрывные работы:\033[0m")
+        super().stupid_timer(
+            count=5,
+            title="Приготовьтесь ввести данные по добычным работам!")
         self.works_plan['rock_work'] = self._plan_works(
             works,
             title="\033[4mДобычные работы:\033[0m")
@@ -225,7 +228,7 @@ class Statuses(BasicFunctions):
         if status:
             super().clear_screen()
             print(self.car_stat_file[status])
-            calendar = input("[к] - показать календарь пересменок.\n"
+            calendar = input("\n[к] - показать календарь пересменок.\n"
                              "[ENTER] - выйти: ")
             if calendar in ['k', 'K', 'к', 'К']:
                 print(self.car_stat_file[status].give_shift_calendar())

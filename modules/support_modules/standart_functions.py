@@ -4,6 +4,7 @@
 import sys
 import os
 import pickle
+import time
 from matplotlib import rcParams as window_parametrs
 from modules.support_modules.absolyte_path_module import AbsolytePath
 
@@ -181,3 +182,17 @@ class BasicFunctions:
         name = name.split(' ')
         sh_name = name[0] + ' ' + name[1][0] + '.' + name[2][0] + '.'
         return sh_name
+
+    @classmethod
+    def stupid_timer(cls, count, title):
+        """Stupid timer."""
+        cls.clear_screen()
+        print(title)
+        time.sleep(3)
+        for sec in range(count):
+            cls.clear_screen()
+            print(count - sec)
+            time.sleep(1)
+        cls.clear_screen()
+        print("GO!")
+        time.sleep(1)

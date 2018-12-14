@@ -35,7 +35,7 @@ def login_program():
 
 def print_menu():
     """Print program menu."""
-    print(Reminder(USR_ACS).give_remind() + '\n' + SEPARATOR + '\n')
+    print(Reminder().give_remind(USR_ACS) + '\n' + SEPARATOR + '\n')
     if MENU_NESTING:
         print(''.join(MENU_NESTING), '\n')
     print(' '.join(MENU_HEADER))
