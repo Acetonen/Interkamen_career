@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.7.0
+### ver 1.7.1
 
 ![intro](readme_screenshots/intro.png)
 
@@ -97,6 +97,9 @@ We use [SemVer](http://semver.org/) for versioning.
 1. Add news module.
 2. Custom reminder.
 3. Add stupid timer in master daily report.
+### what's new in 1.7.1:
+1. Fix news/ path bug.
+2. Add exel dump for drill passport.
 
 ## Content and Instruction
 
