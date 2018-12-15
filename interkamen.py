@@ -67,7 +67,7 @@ def check_backup():
 def show_news():
     """Try to show news."""
     if USR_ACS != 'info':
-        News().print_news(USR_ACS)
+        News().show_new_news(USR_ACS)
         BasicFunctions().clear_screen()
         print(INTERKAMEN)
 

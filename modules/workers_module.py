@@ -52,7 +52,7 @@ class Worker():
 
 
 class AllWorkers(BasicFunctions):
-    """Infofmation about all workers and tools to manipulate"""
+    """Infofmation about all workers and tools to manipulate."""
 
     workers_base_path = AbsolytePath('workers_base').get_absolyte_path()
     workers_archive_path = AbsolytePath('workers_archive').get_absolyte_path()
@@ -129,8 +129,7 @@ class AllWorkers(BasicFunctions):
             print(salary_date, '-', temp_worker.salary[salary_date], 'р.')
             salary_count += temp_worker.salary[salary_date]
         if temp_worker.salary:
-            unzero = super().count_unzero_items(
-                temp_worker.salary)
+            unzero = super().count_unzero_items(temp_worker.salary)
             average_sallary = round(salary_count / unzero)
             print("\033[93mСредняя з/п:\033[0m ", average_sallary, 'p.')
 
@@ -161,7 +160,7 @@ class AllWorkers(BasicFunctions):
         return working_place
 
     def _add_worker_to_structure(self, name, working_place):
-        """Change company structure"""
+        """Add worker to company structure."""
         division = working_place['division']
         subdivision = working_place['subdivision']
         shift = working_place['shift']
@@ -317,7 +316,7 @@ class AllWorkers(BasicFunctions):
 
     def add_salary_to_workers(self, salary_dict,
                               salary_date, unofficial_workers):
-        """Add monthly salary to workers"""
+        """Add monthly salary to workers."""
         for worker in salary_dict:
             if worker not in unofficial_workers:
                 temp_worker = self.workers_base[worker]
@@ -326,7 +325,7 @@ class AllWorkers(BasicFunctions):
         super().dump_data(self.workers_base_path, self.workers_base)
 
     def return_from_archive(self):
-        """Return worker from archive"""
+        """Return worker from archive."""
         print("Выберете работника для возвращения:")
         choose = super().choise_from_list(
             self.workers_archive, none_option=True)
@@ -343,7 +342,7 @@ class AllWorkers(BasicFunctions):
 
     def give_workers_from_shift(self, shift, division='Карьер',
                                 subdivision='Добычная бригада'):
-        """Give worker list from shift"""
+        """Give worker list from shift."""
         worker_list = self.comp_structure[division][subdivision][shift]
         return worker_list
 
@@ -356,7 +355,7 @@ class AllWorkers(BasicFunctions):
             worker for subdivision in self.comp_structure[division]
             for shift in self.comp_structure[division][subdivision]
             for worker in self.comp_structure[division][subdivision][shift]
-            ]
+        ]
         return worker_list
 
     def give_mining_workers(self):
@@ -364,7 +363,7 @@ class AllWorkers(BasicFunctions):
         mining_workers_list = (
             self.comp_structure['Карьер']['Добычная бригада']['Смена 1']
             + self.comp_structure['Карьер']['Добычная бригада']['Смена 2']
-            )
+        )
         return mining_workers_list
 
     def print_workers_from_division(self):
@@ -374,12 +373,13 @@ class AllWorkers(BasicFunctions):
             print(self.workers_base[worker])
 
     def print_telefon_numbers(self, itr_shift=None):
-        """Print telefone numbers of workers from division."""
+        """Print telefone numbers of workers from division.
+        if itr shift, print numbers from itr users with short names"""
         workers_list = []
         space = 32
         if itr_shift:
-            workers = self.comp_structure['Карьер'][
-                'Инженерная служба'][itr_shift]
+            workers = self.comp_structure[
+                'Карьер']['Инженерная служба'][itr_shift]
         else:
             workers = self.give_workers_from_division()
         for worker in sorted(workers):
@@ -389,9 +389,8 @@ class AllWorkers(BasicFunctions):
                 space = 15
             profession = self.workers_base[worker].working_place['profession']
             telefone = self.workers_base[worker].telefone_number
-            workers_list.append(
-                "{:<{space}}- {:<24}тел.: {}".format(
-                    name, profession, telefone, space=space))
+            workers_list.append("{:<{space}}- {:<24}тел.: {}".format(
+                name, profession, telefone, space=space))
         if not itr_shift:
             print('\n'.join(workers_list))
         return workers_list
@@ -400,21 +399,22 @@ class AllWorkers(BasicFunctions):
         """Show workers with this year anniversary."""
         anniv_list = []
         for wor in self.workers_base:
-            emp_date = (
-                self.workers_base[wor].employing_lay_off_dates['employing'][:4]
-            )
+            emp_date = (self.workers_base[wor]
+                        .employing_lay_off_dates['employing'][:4])
             if emp_date:
-                if date.today().year - int(emp_date) in [10, 15, 20, 25, 30]:
-                    anniv_list.append(
-                        ' '.join([
-                            self.workers_base[wor].name,
-                            self.workers_base[wor].employing_lay_off_dates[
-                                'employing']
-                        ])
-                    )
+                anniv_list.extend(self._give_anniv_workers(wor, emp_date))
         if anniv_list:
             print("Юбиляры этого года:")
             for worker in sorted(anniv_list):
                 print(worker)
         else:
             print("Нет юбиляров в этом году")
+
+    def _give_anniv_workers(self, wor, emp_date):
+        """Give anniversary workers for current year."""
+        temp_list = []
+        if date.today().year - int(emp_date) in [10, 15, 20, 25, 30]:
+            temp_list.append(' '.join([
+                self.workers_base[wor].name,
+                self.workers_base[wor].employing_lay_off_dates['employing']]))
+        return temp_list
