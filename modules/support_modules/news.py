@@ -63,7 +63,11 @@ class News(BasicFunctions):
                     self._add_news_to_user(user_login, news)
                     super().dump_data(self.news_memory, self.news_memory_file)
         if new_news:
+<<<<<<< HEAD
             self.print_news(new_news)
+=======
+            self.show_new_news(new_news)
+>>>>>>> 210ca143746be7f54631be31c3f7620bcf9b8bcb
 
     def show_actual_news(self):
         """Show all news that actual."""
