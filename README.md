@@ -16,6 +16,8 @@ For working with that program you need to install on your machine:
 And pythons frameworks:
 1. pandas
 2. matplotlib
+3. openpyxl
+4. Pillow
 
 ### Installing
 
@@ -27,6 +29,8 @@ And pythons frameworks:
 * [python3.6](https://www.python.org/) - Programming Language
 * [pandas](https://pandas.pydata.org/) - Python Data Analysis Library
 * [matplotlib](https://matplotlib.org/) - Python 2D plotting library
+* [openpyxl](https://openpyxl.readthedocs.io/en/stable/#) - A Python library to read/write Excel 2010 xlsx/xlsm files
+* [Pillow](https://pillow.readthedocs.io/en/5.3.x/) - PIL is the Python Imaging Library 
 
 ## Contributing
 
