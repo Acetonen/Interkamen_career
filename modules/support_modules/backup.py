@@ -4,19 +4,20 @@
 import shutil
 import os
 from datetime import date, datetime
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.emailed import EmailSender
 from modules.support_modules.standart_functions import BasicFunctions
 
 
-DATA_PATH = AbsolytePath('').get_absolyte_path()
-LOG_FILE_PATH = DATA_PATH[:-5] + 'backup/backup_log'
+DATA_PATH = AbsPath().get_path('data')
+LOG_FILE_PATH = AbsPath().get_path('backup', 'backup_log')
 EMPTY_LIST = []
+
 
 def make_backup(backup_log_list=EMPTY_LIST):
     """Make backup file."""
     current_date = str(date.today())
-    backup_path = 'backup/' + current_date
+    backup_path = os.path.join('backup', current_date)
     shutil.make_archive(backup_path, 'zip', DATA_PATH)
     backup_log_list.append(current_date)
     BasicFunctions.dump_data(LOG_FILE_PATH, backup_log_list)
@@ -24,7 +25,7 @@ def make_backup(backup_log_list=EMPTY_LIST):
     EmailSender().try_email(
         subject='Data backup',
         message='Data backup for ' + current_date,
-        add_file=''.join([DATA_PATH[:-5], backup_path, '.zip'])
+        add_file=AbsPath().get_path(backup_path) + '.zip'
     )
     log_maden = True
     return log_maden

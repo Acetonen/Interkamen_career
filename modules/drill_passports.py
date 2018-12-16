@@ -6,7 +6,7 @@ import os
 import pandas as pd
 from numpy import nan as Nan
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.dump_to_exl import DumpToExl
 
 
@@ -108,7 +108,7 @@ class DPassport(BasicFunctions):
 
     def _set_driller(self):
         """Choose driller."""
-        drillers_path = AbsolytePath('drillers').get_absolyte_path()
+        drillers_path = AbsPath().get_path('data', 'drillers')
         drillers = super().load_data(drillers_path)
         print("Выберете бурильщика:")
         self.params.driller = super().choise_from_list(drillers)
@@ -183,7 +183,7 @@ class DPassport(BasicFunctions):
 class DrillPassports(BasicFunctions):
     """Class to create and working with drill passports."""
 
-    drill_pass_path = AbsolytePath('drill_passports').get_absolyte_path()
+    drill_pass_path = AbsPath().get_path('data', 'drill_passports')
     pass_columns = [
         'number', 'year', 'month', 'day', 'horizond', 'totall_meters',
         'driller', 'block_height', 'block_width', 'block_depth', 'block_vol',

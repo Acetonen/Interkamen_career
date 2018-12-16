@@ -7,15 +7,15 @@ News module. Show news for users.
 
 import os
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 
 
 class News(BasicFunctions):
     """Show news to users."""
     # Path for news files.
-    news_path = AbsolytePath('').get_absolyte_path()[:-5] + 'news/'
+    news_path = AbsPath().get_path('news')
     # Path for information of showing to users.
-    news_memory = AbsolytePath('news_memory').get_absolyte_path()
+    news_memory = AbsPath().get_path('data', 'news_memory')
 
     def __init__(self):
         if (not os.listdir(self.news_path) or
@@ -57,7 +57,7 @@ class News(BasicFunctions):
         if os.listdir(self.news_path):
             for news in sorted(os.listdir(self.news_path)):
                 if news not in user_news:
-                    with open(self.news_path + news, 'r',
+                    with open(os.path.join(self.news_path, news), 'r',
                               encoding='utf-8') as file:
                         new_news.append(file.read())
                     self._add_news_to_user(user_login, news)
@@ -70,7 +70,7 @@ class News(BasicFunctions):
         new_news = []
         if os.listdir(self.news_path):
             for news in sorted(os.listdir(self.news_path)):
-                with open(self.news_path + news, 'r',
+                with open(os.path.join(self.news_path, news), 'r',
                           encoding='utf-8') as file:
                     new_news.append(file.read())
         if new_news:

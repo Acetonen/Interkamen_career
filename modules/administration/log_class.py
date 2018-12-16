@@ -15,14 +15,14 @@ from datetime import datetime
 from modules.administration.users import Users
 
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.emailed import EmailSender
 
 
 class Logs(BasicFunctions):
     """This class provides to work with all logs."""
 
-    data_path = AbsolytePath('logs_base').get_absolyte_path()
+    data_path = AbsPath().get_path('data', 'logs_base')
     log_list = {
         'enter program': '\033[94m enter program \033[0m',
         'exit program': '\033[93m exit program \033[0m',
@@ -66,7 +66,7 @@ class Logs(BasicFunctions):
     @classmethod
     def upload_temp_file_log(cls, log_constructor):
         """Read detailed user log from temp file"""
-        file_path = AbsolytePath('log.tmp').get_absolyte_path()
+        file_path = AbsPath().get_path('data', 'log.tmp')
         if os.path.exists(file_path):
             with open(file_path, 'r', encoding='utf-8') as temp_file:
                 detail_log = temp_file.readlines()

@@ -6,7 +6,7 @@ import os
 import pickle
 import time
 from matplotlib import rcParams as window_parametrs
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 
 
 class BasicFunctions:
@@ -80,7 +80,7 @@ class BasicFunctions:
     @staticmethod
     def save_log_to_temp_file(log):
         "Get detailed log for user actions."
-        file_path = AbsolytePath('log.tmp').get_absolyte_path()
+        file_path = AbsPath().get_path('data', 'log.tmp')
         with open(file_path, 'a', encoding='utf-8') as temp_file:
             temp_file.write(log)
 

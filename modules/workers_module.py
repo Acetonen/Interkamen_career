@@ -8,7 +8,7 @@ import os
 from pprint import pprint
 from datetime import date
 
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
 
 
@@ -54,9 +54,9 @@ class Worker():
 class AllWorkers(BasicFunctions):
     """Infofmation about all workers and tools to manipulate."""
 
-    workers_base_path = AbsolytePath('workers_base').get_absolyte_path()
-    workers_archive_path = AbsolytePath('workers_archive').get_absolyte_path()
-    comp_structure_path = AbsolytePath('company_structure').get_absolyte_path()
+    workers_base_path = AbsPath().get_path('data', 'workers_base')
+    workers_archive_path = AbsPath().get_path('data', 'workers_archive')
+    comp_structure_path = AbsPath().get_path('data', 'company_structure')
 
     interkamen = {
         'Карьер': {

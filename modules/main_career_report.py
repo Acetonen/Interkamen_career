@@ -23,7 +23,7 @@ class Reports :
 
 from pprint import pprint
 from modules.workers_module import AllWorkers
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.backup import make_backup
 
@@ -285,10 +285,10 @@ class Reports(BasicFunctions):
     """
 
     shifts = ['Смена 1', 'Смена 2']
-    data_path = AbsolytePath('main_career_report').get_absolyte_path()
-    salary_path = AbsolytePath('salary_worker').get_absolyte_path()
-    drillers_path = AbsolytePath('drillers').get_absolyte_path()
-    brigadiers_path = AbsolytePath('brigadiers').get_absolyte_path()
+    data_path = AbsPath().get_path('data', 'main_career_report')
+    salary_path = AbsPath().get_path('data', 'salary_worker')
+    drillers_path = AbsPath().get_path('data', 'drillers')
+    brigadiers_path = AbsPath().get_path('data', 'brigadiers')
 
     def __init__(self):
         self.salary_workers = super().load_data(self.salary_path)
@@ -319,6 +319,15 @@ class Reports(BasicFunctions):
                 print(item, end='')
                 report.result[item] = super().float_input(msg=': ')
         return report
+
+    def _change_hours(self, tmp_rpt):
+        """Change hours value."""
+        print("Выберете работника для редактирования:")
+        workers = tmp_rpt.workers_showing['факт']['часы']
+        worker = super().choise_from_list(workers)
+        new_hours = int(input("Введите новое значение часов: "))
+        tmp_rpt.workers_showing['факт']['часы'][worker] = new_hours
+        return tmp_rpt
 
     def _add_worker_from_diff_shift(self, shift):
         """Add worker from different shift to current."""
@@ -581,9 +590,11 @@ class Reports(BasicFunctions):
     def give_avaliable_to_edit(self, *statuses):
         """Give reports that avaliable to edit"""
         avaliable_reports = []
-        avaliable_reports = [report for status in statuses
-                             for report in self.data_base
-                             if status in report]
+        avaliable_reports = [
+            report for status in statuses
+            for report in self.data_base
+            if status in report
+        ]
         return avaliable_reports
 
     def create_report(self):
@@ -623,18 +634,7 @@ class Reports(BasicFunctions):
         """
         Edition uncompleted report by user with 'master' accesse.
         """
-
-        def change_hours(tmp_rpt):
-            """Change hours value."""
-            print("Выберете работника для редактирования:")
-            workers = tmp_rpt.workers_showing['факт']['часы']
-            worker = super(Reports, self).choise_from_list(workers)
-            new_hours = int(input("Введите новое значение часов: "))
-            tmp_rpt.workers_showing['факт']['часы'][worker] = new_hours
-            return tmp_rpt
-
-        avaliable_reports = self.give_avaliable_to_edit(
-            '[не завершен]')
+        avaliable_reports = self.give_avaliable_to_edit('[не завершен]')
         print("""\
 Вам доступны для редактирования только отчеты со статусом: \
 \033[91m[не завершен]\033[0m
@@ -649,7 +649,7 @@ class Reports(BasicFunctions):
             tmp_rpt = self.data_base[report_name]
             print(tmp_rpt)
             edit_menu_dict = {
-                'изменить часы': change_hours,
+                'изменить часы': self._change_hours,
                 'удалить отчет': self._delete_report,
                 'изменить добычу': self._input_result,
                 '[закончить редактирование]': 'break'

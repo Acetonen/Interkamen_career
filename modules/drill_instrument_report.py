@@ -7,7 +7,7 @@ import os
 from matplotlib import pyplot as plt
 from matplotlib import rcParams as window_parametrs
 import pandas as pd
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 from modules.main_career_report import Reports
 from modules.support_modules.standart_functions import BasicFunctions
 
@@ -16,8 +16,8 @@ class DrillInstruments(BasicFunctions):
     """
     All information about drill instruments.
     """
-    drill_path = AbsolytePath('drill_instruments').get_absolyte_path()
-    temp_drill_path = AbsolytePath('temp_drill_inst').get_absolyte_path()
+    drill_path = AbsPath().get_path('data', 'drill_instruments')
+    temp_drill_path = AbsPath().get_path('data', 'temp_drill_inst')
     month_list = ['01', '02', '03', '04', '05', '06',
                   '07', '08', '09', '10', '11', '12']
     drill_data = {}

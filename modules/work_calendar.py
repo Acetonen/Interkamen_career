@@ -4,7 +4,7 @@
 import os
 import calendar as cl
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 
 
 class WCalendar(BasicFunctions):
@@ -157,7 +157,7 @@ class WCalendar(BasicFunctions):
 
 class WorkCalendars(BasicFunctions):
     """Manage calendars."""
-    calendar_path = AbsolytePath('working_calendar').get_absolyte_path()
+    calendar_path = AbsPath().get_path('data', 'working_calendar')
 
     def __init__(self):
         self.calendar_file = {}

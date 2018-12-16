@@ -12,14 +12,14 @@ from email.utils import COMMASPACE, formatdate
 from email import encoders
 
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 
 
 class EmailSender(BasicFunctions):
     """
     Class to working with e-mails.
     """
-    email_prop_path = AbsolytePath('email_prop').get_absolyte_path()
+    email_prop_path = AbsPath().get_path('data', 'email_prop')
 
     def __init__(self):
         self.email_prop = super().load_data(self.email_prop_path)

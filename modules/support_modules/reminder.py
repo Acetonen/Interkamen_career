@@ -6,13 +6,13 @@ from datetime import date, timedelta
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.main_career_report import Reports
 from modules.mechanic_report import MechReports
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 
 
 class Reminder(BasicFunctions):
     """Make different reminder."""
 
-    reminder_path = AbsolytePath('reminds').get_absolyte_path()
+    reminder_path = AbsPath().get_path('data', 'reminds')
 
     def __init__(self):
 

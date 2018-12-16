@@ -7,7 +7,7 @@ import os
 import pandas as pd
 from copy import deepcopy
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 from modules.mechanic_report import MechReports
 from modules.main_career_report import Reports
 
@@ -15,7 +15,7 @@ from modules.main_career_report import Reports
 class Rating(BasicFunctions):
     """Working with ratings in DataFrame."""
 
-    brig_rating_path = AbsolytePath('brig_rating').get_absolyte_path()
+    brig_rating_path = AbsPath().get_path('data', 'brig_rating')
     brig_columns = ['year', 'month', 'shift', 'cleanness', 'discipline',
                     'roads', 'maintain', 'user']
     shifts = ['Смена 1', 'Смена 2']

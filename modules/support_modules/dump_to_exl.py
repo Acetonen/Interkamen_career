@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Dump data to xlsx file."""
 
-from openpyxl import load_workbook
+import os
+from openpyxl import load_workbook, Workbook
 from openpyxl.drawing.image import Image
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
 
 
@@ -13,12 +14,9 @@ class DumpToExl(BasicFunctions):
         '', 'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
         'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
     ]
-    drill_img_path = (AbsolytePath('').get_absolyte_path()[:-5]
-                      + 'exl_blancs/scheme.png')
-    blanc_drill_path = (AbsolytePath('').get_absolyte_path()[:-5]
-                        + 'exl_blancs/drill_passport.xlsx')
-    drill_pass_path = (AbsolytePath('').get_absolyte_path()[:-5]
-                       + 'Буровые_паспорта/')
+    drill_img_path = AbsPath().get_path('exl_blancs', 'scheme.png')
+    blanc_drill_path = AbsPath().get_path('exl_blancs', 'drill_passport.xlsx')
+    drill_pass_path = AbsPath().get_path('Буровые_паспорта')
 
     @classmethod
     def _create_pass_name(cls, passport):
@@ -64,5 +62,8 @@ class DumpToExl(BasicFunctions):
         worksheet['G49'] = master
         # Save file.
         pass_name = self._create_pass_name(passport)
-        workbook.save(self.drill_pass_path + pass_name + '.xlsx')
-        print("\nФайл сохранен:\n", self.drill_pass_path + pass_name + '.xlsx')
+        workbook.save(os.path.join(self.drill_pass_path, pass_name) + '.xlsx')
+        print(
+            "\nФайл сохранен:\n",
+            self.drill_pass_path + '/' + pass_name + '.xlsx'
+        )

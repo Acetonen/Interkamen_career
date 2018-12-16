@@ -18,7 +18,7 @@ from matplotlib import pyplot as plt
 from matplotlib import rcParams as window_parametrs
 
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 from modules.career_status import Statuses
 
 
@@ -27,8 +27,8 @@ class MechReports(BasicFunctions):
     Class to work with statistic of machine maintainence.
     """
 
-    mech_path = AbsolytePath('mechanics_report').get_absolyte_path()
-    maint_path = AbsolytePath('maintainence').get_absolyte_path()
+    mech_path = AbsPath().get_path('data', 'mechanics_report')
+    maint_path = AbsPath().get_path('data', 'maintainence')
     mech_data = {}
     machine_list = {
         'Хоз. Машина': ['УАЗ-390945', 'УАЗ-220695', 'ГАЗ-3307'],

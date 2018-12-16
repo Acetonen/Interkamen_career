@@ -4,7 +4,7 @@
 import os
 from datetime import date, timedelta
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsolytePath
+from modules.support_modules.absolyte_path_module import AbsPath
 from modules.work_calendar import WorkCalendars
 from modules.workers_module import AllWorkers
 from modules.main_career_report import Reports
@@ -204,7 +204,7 @@ class CareerStatus(BasicFunctions):
 
 class Statuses(BasicFunctions):
     """Create and save curent status reports."""
-    car_stat_path = AbsolytePath('carer_status').get_absolyte_path()
+    car_stat_path = AbsPath().get_path('data', 'carer_status')
 
     def __init__(self):
         if os.path.exists(self.car_stat_path):
