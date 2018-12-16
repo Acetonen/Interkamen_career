@@ -121,15 +121,14 @@ class CareerStatus(BasicFunctions):
         self.storage["sale"] = super().float_input(msg='На продажу: ')
 
     def _input_current_result(self):
-        """Add current result."""
+        """Add current \result."""
         self.res["shift"] = super().float_input(msg="Введите добычу вахты: ")
         if self.cur["brig"] == 'Бригада 1':
             self.res["month"] = self.res["shift"]
         else:
-            self.res["month"] = (
-                Reports()
-                .give_main_results(*str(date.today()).split('-'), 'Смена 1')[1]
-                + self.res["shift"])
+            shift1_res = Reports().give_main_results(
+                *str(date.today()).split('-')[:-1], 'Смена 1')[1]
+            self.res["month"] = (round(shift1_res, 1) + self.res["shift"])
 
     def _plan_works(self, quol, *, title):
         """Input rock or expl work"""
