@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.7.1
+### ver 1.7.2
 
 ![intro](readme_screenshots/intro.png)
 
@@ -104,6 +104,10 @@ We use [SemVer](http://semver.org/) for versioning.
 ### what's new in 1.7.1:
 1. Fix news/ path bug.
 2. Add exel dump for drill passport.
+### what's new in 1.7.2:
+1. Create new package to work with exl files.
+2. Remake AbsPath module.
+3. Fix daily report bug.
 
 ## Content and Instruction
 

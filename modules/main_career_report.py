@@ -577,7 +577,6 @@ class Reports(BasicFunctions):
         """Return drill meters, result and rock_mass.
         Return None, if report not exist."""
         report_name = year + '-' + month + ' ' + shift
-        print(report_name) # TODO: del
         result_tuplet = ()
         for report in self.data_base:
             if (report_name in report and
