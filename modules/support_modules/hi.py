@@ -13,5 +13,5 @@ INTERKAMEN = (
     + '\033[0m'
     + '\033[3m'
     + '\033[90m'
-    + '                                   ver1.7.2 \xA9 Kovalev A.V.'
+    + '                                   ver1.7.3 \xA9 Kovalev A.V.'
     + '\033[0m')

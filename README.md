@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.7.2
+### ver 1.7.3
 
 ![intro](readme_screenshots/intro.png)
 
@@ -108,6 +108,9 @@ We use [SemVer](http://semver.org/) for versioning.
 1. Create new package to work with exl files.
 2. Remake AbsPath module.
 3. Fix daily report bug.
+### what's new in 1.7.3:
+1. Add total destruction for program data.
+2. Add massive_type to drill pass parametrs.
 
 ## Content and Instruction
 
