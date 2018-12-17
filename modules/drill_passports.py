@@ -30,7 +30,9 @@ class DPassport(BasicFunctions):
             "Дата паспорта: {}"
             .format('.'.join(map(str, [
                 self.params.year, self.params.month, self.params.day]))) +
-            "\nНомер паспорта: {}".format(int(self.params.number)) +
+            "\nНомер паспорта: {}; Тип взрыва: {}".format(
+                int(self.params.number),
+                str(self.params.massive_type)) +
             "\nГорный мастер: {}".format(str(self.params.master)) +
             "\nБурильщик: {}".format(str(self.params.driller)) +
             "\nГоризонт: {}".format(str(self.params.horizond)) +
@@ -68,6 +70,8 @@ class DPassport(BasicFunctions):
         temp_bareholes = {}
         while True:
             barehole = input("Введите значения шпуров: ")
+            if barehole == '' and not temp_bareholes:
+                continue
             if barehole.lower() in ['з', '']:
                 break
             elif '*' in barehole:
@@ -144,10 +148,17 @@ class DPassport(BasicFunctions):
         self._set_block_parametrs(bareholes_number)
         self._count_expl_volume(bareholes_number)
 
+    def _set_massive_type(self):
+        """Choose massive type."""
+        massive_type = ['Массив', 'Повторный', 'Негабариты']
+        print("Выберете тип взрыва:")
+        self.params.massive_type = super().choise_from_list(massive_type)
+
     def fill_passport(self):
         """Fill passport."""
         self.params.number = self.pass_number
         self.params.master = self.master
+        self._set_massive_type()
         self._set_date()
         self._set_horizond()
         self._set_pownder_parametrs()
@@ -188,7 +199,7 @@ class DrillPassports(BasicFunctions):
         'number', 'year', 'month', 'day', 'horizond', 'totall_meters',
         'driller', 'block_height', 'block_width', 'block_depth', 'block_vol',
         'pownd_consump', 'pownder', 'detonators', 'd_sh', 'master',
-        'bits_in_rock'
+        'bits_in_rock', 'massive_type'
     ]
 
     def __init__(self):
@@ -202,11 +213,12 @@ class DrillPassports(BasicFunctions):
     @classmethod
     def _create_pass_name(cls, passport):
         """Create passport name."""
-        pass_name = ("{}-{}-{} {}"
+        pass_name = ("{}-{}-{} №{}-{}"
                      .format(passport.params.year,
                              passport.params.month,
                              passport.params.day,
-                             int(passport.params.number)))
+                             int(passport.params.number),
+                             passport.params.massive_type))
         return pass_name
 
     def _create_empty_df(self):
@@ -220,7 +232,7 @@ class DrillPassports(BasicFunctions):
         """Check if report exist in base"""
         check = True
         for report in self.drill_pass_file:
-            if number in report.split(' '):
+            if number in report.split(' ')[-1]:
                 check = False
                 print("Паспорт с этим номером уже существует.")
         return check

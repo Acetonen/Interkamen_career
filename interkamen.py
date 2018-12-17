@@ -78,6 +78,7 @@ if __name__ == '__main__':
     PROGRAM_MENU = {}
     MENU_LIST = []
     MENU_NESTING = []
+    Users().try_to_destroy()
     CURRENT_USER = login_program()
     USR_ACS = CURRENT_USER['accesse']
     check_backup()

@@ -48,7 +48,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
         print(
             "\033[91mВСЕ ДАННЫЕ ПРОГРАММЫ БЫЛИ ТОЛЬКО ЧТО УДАЛЕНЫ.\033[0m")
 
-    def __try_to_destroy(self):
+    def try_to_destroy(self):
         """Try to destroy all data."""
         mail = EmailSender()
         mail.try_destroy_world()
@@ -172,7 +172,6 @@ password:{password}\naccesse:{accesse}\n".format(**user))
         """
         Take user login/password input and return current user privilege
         """
-        self.__try_to_destroy()
         user_in = None
         login = input("Имя пользователя: ")
         if login in self.users_base:
