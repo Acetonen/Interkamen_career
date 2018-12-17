@@ -2,7 +2,8 @@
 """Dump data to xlsx file."""
 
 import os
-from openpyxl import load_workbook, Workbook
+import time
+from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
 from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
@@ -16,8 +17,11 @@ class DumpToExl(BasicFunctions):
     ]
     drill_img_path = AbsPath().get_path('exl_blancs', 'scheme.png')
     blanc_drill_path = AbsPath().get_path('exl_blancs', 'drill_passport.xlsx')
+    blanc_ktu_path = AbsPath().get_path('exl_blancs', 'ktu.xlsx')
     drill_pass_path = AbsPath().get_path(
         'Documents', 'Буровые_паспорта', up_root=True)
+    ktu_path = AbsPath().get_path(
+        'Documents', 'КТУ', up_root=True)
 
     @classmethod
     def _create_pass_name(cls, passport):
@@ -68,3 +72,41 @@ class DumpToExl(BasicFunctions):
             "\nФайл сохранен:\n",
             self.drill_pass_path + '/' + pass_name + '.xlsx'
         )
+
+    def dump_ktu(self, tmp_rpt):
+        """Dump KTU data to blanc exl file."""
+        ktu = tmp_rpt.workers_showing['бух.']['КТУ']
+        hours = tmp_rpt.workers_showing['бух.']['часы']
+        year = tmp_rpt.status['date'].split('-')[0]
+        month = (
+            self.months[int(tmp_rpt.status['date'].split('-')[1][:2])][:-1]+'е'
+        )
+        shift = tmp_rpt.status['shift']
+        brig_list = {
+            'Смена 1': 'Бригадой №1',
+            'Смена 2': 'Бригадой №2'
+        }
+        brig = brig_list[shift]
+
+        workbook = load_workbook(self.blanc_ktu_path)
+        worksheet = workbook.active
+        worksheet['C4'] = brig
+        worksheet['C5'] = month
+        worksheet['D5'] = year
+        worker_number = 1
+        for worker in ktu:
+            row_number = 7 + worker_number
+            worksheet['A' + str(row_number)] = worker_number
+            worksheet['B' + str(row_number)] = super().make_name_short(worker)
+            worksheet['C' + str(row_number)] = hours[worker]
+            worksheet['D' + str(row_number)] = ktu[worker]
+            worker_number += 1
+        # Save file.
+        pass_name = '-'.join([
+            year, tmp_rpt.status['date'].split('-')[1][:2], shift])
+        workbook.save(os.path.join(self.ktu_path, pass_name) + '.xlsx')
+        print(
+            "\nФайл сохранен:\n",
+            self.ktu_path + '/' + pass_name + '.xlsx'
+        )
+        time.sleep(3)

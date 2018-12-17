@@ -107,7 +107,7 @@ class CareerStatus(BasicFunctions):
             quolity,
             title="\033[4mБуровзрывные работы:\033[0m")
         super().stupid_timer(
-            count=5,
+            count=3,
             title="Приготовьтесь ввести данные по добычным работам!")
         self.works_plan['rock_work'] = self._plan_works(
             works,

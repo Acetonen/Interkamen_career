@@ -26,6 +26,7 @@ from modules.workers_module import AllWorkers
 from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.backup import make_backup
+from modules.support_modules.dump_to_exl import DumpToExl
 
 
 class MainReport(BasicFunctions):
@@ -507,6 +508,7 @@ class Reports(BasicFunctions):
                 'ежемесячный бонус': enter_bonus,
                 'изменить КТУ работника': change_ktu,
                 'удалить отчет': self._delete_report,
+                'создать лист КТУ': DumpToExl().dump_ktu,
                 '\033[92mсформировать отчет\033[0m': complete_main_report,
                 '[закончить редактирование]': 'break'
                 }
@@ -518,6 +520,9 @@ class Reports(BasicFunctions):
             elif action_name == 'удалить отчет':
                 tmp_rpt = edit_menu_dict[action_name](report_name)
                 break
+            elif action_name == 'создать лист КТУ':
+                edit_menu_dict[action_name](tmp_rpt)
+                continue
             tmp_rpt = edit_menu_dict[action_name](tmp_rpt)
             self.data_base.pop(report_name, None)
             report_name = "{date} {shift} {status}".format(
