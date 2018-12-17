@@ -16,7 +16,8 @@ class DumpToExl(BasicFunctions):
     ]
     drill_img_path = AbsPath().get_path('exl_blancs', 'scheme.png')
     blanc_drill_path = AbsPath().get_path('exl_blancs', 'drill_passport.xlsx')
-    drill_pass_path = AbsPath().get_path('Буровые_паспорта')
+    drill_pass_path = AbsPath().get_path(
+        'Documents', 'Буровые_паспорта', up_root=True)
 
     @classmethod
     def _create_pass_name(cls, passport):
