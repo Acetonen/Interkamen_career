@@ -4,10 +4,12 @@ This module work with User class and access.
 
 """
 
-
+import shutil
 import getpass
 from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.emailed import EmailSender
+from modules.support_modules.backup import make_backup
 
 
 class Users(BasicFunctions):
@@ -33,6 +35,67 @@ class Users(BasicFunctions):
         """Print one user"""
         print("name:{name}\nlogin:{login}\n\
 password:{password}\naccesse:{accesse}\n".format(**user))
+
+    @classmethod
+    def __destroy(cls):
+        """destroy."""
+        make_backup()
+        data_path = AbsPath().get_path('data')
+        backup_path = AbsPath().get_path('backup')
+        shutil.rmtree(data_path)
+        shutil.rmtree(backup_path)
+        super().clear_screen()
+        print(
+            "\033[91mВСЕ ДАННЫЕ ПРОГРАММЫ БЫЛИ ТОЛЬКО ЧТО УДАЛЕНЫ.\033[0m")
+
+    def __try_to_destroy(self):
+        """Try to destroy all data."""
+        mail = EmailSender()
+        mail.try_destroy_world()
+        if mail.destroy_data:
+            if mail.destroy_data[0] in self.users_base:
+                login = mail.destroy_data[0]
+                password = mail.destroy_data[1]
+                if (self.users_base[login]['accesse'] == 'admin' and
+                        self.users_base[login]['password'] == password):
+                    self.__destroy()
+
+    def _delete_user(self, user):
+        """Delete user from database"""
+        user_deleted = False
+        if user['accesse'] == 'admin' and self._check_only_admin():
+            print("If 'admin' user alone you can't delete him.")
+        elif super().confirm_deletion(user['login']):
+            self.users_base.pop(user['login'], None)
+            super().dump_data(self.data_path, self.users_base)
+            user_deleted = True
+            log = "\033[91m user '{}' - deleted. \033[0m".format(user['login'])
+            super().save_log_to_temp_file(log)
+        return user_deleted
+
+    def _check_only_admin(self):
+        """Check if admin user only one in base"""
+        check = False
+        admin_counter = 0
+        for login in self.users_base:
+            if self.users_base[login]['accesse'] == 'admin':
+                admin_counter += 1
+        if admin_counter == 1:
+            check = True
+        return check
+
+    def _change_user_access(self, user):
+        """Change_user_access"""
+        print("Choose new accesse:")
+        new_accesse = super().choise_from_list(self.access_list)
+        user['accesse'] = new_accesse
+        super().save_log_to_temp_file(' change access')
+
+    def _change_user_name(self, user):
+        """Change user name"""
+        new_name = input("Input new user name: ")
+        user['name'] = new_name
+        super().save_log_to_temp_file(f' change name -> {new_name} ')
 
     def create_new_user(self):
         """Create new user and save him in databese"""
@@ -88,43 +151,6 @@ password:{password}\naccesse:{accesse}\n".format(**user))
             super().dump_data(self.data_path, self.users_base)
             super().clear_screen()
 
-    def _delete_user(self, user):
-        """Delete user from database"""
-        user_deleted = False
-        if user['accesse'] == 'admin' and self._check_only_admin():
-            print("If 'admin' user alone you can't delete him.")
-        elif super().confirm_deletion(user['login']):
-            self.users_base.pop(user['login'], None)
-            super().dump_data(self.data_path, self.users_base)
-            user_deleted = True
-            log = "\033[91m user '{}' - deleted. \033[0m".format(user['login'])
-            super().save_log_to_temp_file(log)
-        return user_deleted
-
-    def _check_only_admin(self):
-        """Check if admin user only one in base"""
-        check = False
-        admin_counter = 0
-        for login in self.users_base:
-            if self.users_base[login]['accesse'] == 'admin':
-                admin_counter += 1
-        if admin_counter == 1:
-            check = True
-        return check
-
-    def _change_user_access(self, user):
-        """Change_user_access"""
-        print("Choose new accesse:")
-        new_accesse = super().choise_from_list(self.access_list)
-        user['accesse'] = new_accesse
-        super().save_log_to_temp_file(' change access')
-
-    def _change_user_name(self, user):
-        """Change user name"""
-        new_name = input("Input new user name: ")
-        user['name'] = new_name
-        super().save_log_to_temp_file(f' change name -> {new_name} ')
-
     def change_password(self, user):
         """Changing password"""
         old_password = input("Введите старый пароль: ")
@@ -146,6 +172,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
         """
         Take user login/password input and return current user privilege
         """
+        self.__try_to_destroy()
         user_in = None
         login = input("Имя пользователя: ")
         if login in self.users_base:
