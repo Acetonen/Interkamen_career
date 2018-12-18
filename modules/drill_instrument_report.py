@@ -195,7 +195,7 @@ class DrillInstruments(BasicFunctions):
             self.drill_data['year'],
             self.drill_data['month'],
             self.drill_data['shift'])
-        if main_report_results:
+        if main_report_results and main_report_results[2] != 0:
             (self.drill_data['meters'],
              self.drill_data['result'],
              self.drill_data['rock_mass']) = main_report_results
