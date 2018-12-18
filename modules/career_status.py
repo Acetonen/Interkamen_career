@@ -5,6 +5,7 @@ import os
 from datetime import date, timedelta
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsPath
+from modules.support_modules.emailed import EmailSender
 from modules.work_calendar import WorkCalendars
 from modules.workers_module import AllWorkers
 from modules.main_career_report import Reports
@@ -113,6 +114,7 @@ class CareerStatus(BasicFunctions):
             works,
             title="\033[4mДобычные работы:\033[0m")
         print("\033[92mОтчет создан.\033[0m")
+        self._try_to_emailed_status()
 
     def _input_strage_volume(self):
         """Add rocks from storage."""
@@ -169,6 +171,7 @@ class CareerStatus(BasicFunctions):
         self.mach["to_work"] = self._create_mach_list(
             title="\033[4mВыберете технику, введенную в работу:\033[0m")
         print("\033[92mОтчет создан.\033[0m")
+        self._try_to_emailed_status()
 
     def _create_mach_list(self, *, title):
         """Create mach list to repare or from repare."""
@@ -193,6 +196,24 @@ class CareerStatus(BasicFunctions):
         if not mach_list:
             mach_list.append('Отсутствуют.')
         return mach_list
+
+    def _try_to_emailed_status(self):
+        """Try to send status via email."""
+        if self.mach["to_repare"] and self.works_plan["rock_work"]:
+            html = self._create_html_status()
+            EmailSender().try_email(subject='Состояние карьера', add_html=html)
+
+    def _create_html_status(self):
+        """Create career status in  html."""
+        pass
+        # html = """{}{}{}{}""".format(
+        #     self.date['today'], self.cur['brig'], self.cur['itr'],
+        #     '\n'.join(self.itr_list), self.res['month'],
+        #     self.res['shift'], self.storage['KOTC'], self.storage['sale'],
+        #     self.mach["to_repare"], self.mach["to_work"],
+        #     self.date['tomorrow'], self.works_plan['expl_work'],
+        #     self.works_plan['rock_work'])
+        # return html
 
     def add_info(self, user_acs):
         """Add info depend on user access."""
@@ -222,8 +243,7 @@ class Statuses(BasicFunctions):
 
     def show_status(self):
         """Show career status."""
-        print("Выберете дату:")
-        status = super().choise_from_list(self.car_stat_file, none_option=True)
+        status = sorted(self.car_stat_file)[-1]
         if status:
             super().clear_screen()
             print(self.car_stat_file[status])

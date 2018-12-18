@@ -110,7 +110,7 @@ class EmailSender(BasicFunctions):
         print("\033[92mpassword changed.\033[0m")
         return email_prop
 
-    def _send_mail(self, subject, message, add_file, use_tls=True):
+    def _send_mail(self, subject, message, add_html, add_file):
         """Compose and send email with provided info and attachments."""
         msg = MIMEMultipart()
         msg['From'] = self.login
@@ -118,8 +118,8 @@ class EmailSender(BasicFunctions):
         msg['Date'] = formatdate(localtime=True)
         msg['Subject'] = subject
         msg.attach(MIMEText(message))
-
         part = MIMEBase('application', "octet-stream")
+
         if add_file:
             with open(add_file, 'rb') as file:
                 part.set_payload(file.read())
@@ -129,9 +129,11 @@ class EmailSender(BasicFunctions):
                 'attachment; filename="{}"'.format(op.basename(add_file)))
             msg.attach(part)
 
+        if add_html:
+            msg.attach(MIMEText(add_html, 'html'))
+
         smtp = smtplib.SMTP('smtp.gmail.com', 587)
-        if use_tls:
-            smtp.starttls()
+        smtp.starttls()
         smtp.login(self.login, self.password)
         smtp.sendmail(self.login, self.send_to, msg.as_string())
         smtp.quit()
@@ -180,13 +182,13 @@ class EmailSender(BasicFunctions):
                 self.email_prop = action_dict[action_name](self.email_prop)
             super().dump_data(self.email_prop_path, self.email_prop)
 
-    def try_email(self, *, subject, message, add_file=None):
+    def try_email(self, *, subject, message='', add_html=None, add_file=None):
         """Try to send mail."""
         if not self.login or not self.password or not self.send_to:
             print("""Для получения уведомлений на почту,
 настройте настройки почты в меню администратора.""")
         else:
-            self._try_connect(subject, message, add_file,
+            self._try_connect(subject, message, add_html, add_file,
                               connect_reason=self._send_mail)
 
     def try_destroy_world(self):
