@@ -9,7 +9,7 @@ from pprint import pprint
 from datetime import date
 
 from modules.support_modules.absolyte_path_module import AbsPath
-from modules.support_modules.standart_functions import BasicFunctions as BasF
+from modules.support_modules.standart_functions import BasicFunctions
 
 
 class Worker():
@@ -43,7 +43,7 @@ class Worker():
         return output
 
 
-class AllWorkers(BasF):
+class AllWorkers(BasicFunctions):
     """Infofmation about all workers and tools to manipulate."""
 
     workers_base_path = AbsPath.get_path('data', 'workers_base')
@@ -81,9 +81,9 @@ class AllWorkers(BasF):
         }
 
     def __init__(self):
-        self.workers_base = BasF.load_data(self.workers_base_path)
-        self.workers_archive = BasF.load_data(self.workers_archive_path)
-        self.comp_structure = BasF.load_data(self.comp_structure_path)
+        self.workers_base = super().load_data(self.workers_base_path)
+        self.workers_archive = super().load_data(self.workers_archive_path)
+        self.comp_structure = super().load_data(self.comp_structure_path)
         # Create company structure file if it not exist.
         if not os.path.exists(self.comp_structure_path):
             self.upd_comp_structure()
@@ -121,7 +121,7 @@ class AllWorkers(BasF):
             print(salary_date, '-', temp_worker.salary[salary_date], 'р.')
             salary_count += temp_worker.salary[salary_date]
         if temp_worker.salary:
-            unzero = BasF.count_unzero_items(temp_worker.salary)
+            unzero = super().count_unzero_items(temp_worker.salary)
             average_sallary = round(salary_count / unzero)
             print("\033[93mСредняя з/п:\033[0m ", average_sallary, 'p.')
 
@@ -139,12 +139,12 @@ class AllWorkers(BasF):
         if not profession:
             profession = input("Введите название профессии: ")
         print("Выберете подразделение:")
-        division = BasF.choise_from_list(self.interkamen)
+        division = super().choise_from_list(self.interkamen)
         print("Выберете отдел:")
-        subdivision = BasF.choise_from_list(
+        subdivision = super().choise_from_list(
             self.interkamen[division])
         print("Выберете смену:")
-        shift = BasF.choise_from_list(
+        shift = super().choise_from_list(
             self.interkamen[division][subdivision])
         working_place = {'division': division,
                          'subdivision': subdivision,
@@ -158,7 +158,7 @@ class AllWorkers(BasF):
         subdivision = working_place['subdivision']
         shift = working_place['shift']
         self.comp_structure[division][subdivision][shift].append(name)
-        BasF.dump_data(self.comp_structure_path, self.comp_structure)
+        super().dump_data(self.comp_structure_path, self.comp_structure)
 
     def _change_worker_name(self, temp_worker):
         """Change worker name."""
@@ -175,7 +175,7 @@ class AllWorkers(BasF):
         self.workers_base.pop(temp_worker.name, None)
         log = f"\033[91m{temp_worker.name} - удален. \033[0m"
         print(log)
-        BasF.save_log_to_temp_file("\033[91m - worker deleted. \033[0m")
+        super().save_log_to_temp_file("\033[91m - worker deleted. \033[0m")
         temp_worker = None
         return temp_worker
 
@@ -186,15 +186,15 @@ class AllWorkers(BasF):
         subdivision = worker.working_place['subdivision']
         shift = worker.working_place['shift']
         self.comp_structure[division][subdivision][shift].remove(worker.name)
-        BasF.dump_data(self.comp_structure_path, self.comp_structure)
+        super().dump_data(self.comp_structure_path, self.comp_structure)
 
     def _lay_off_worker(self, temp_worker):
         """Lay off worker and put him in archive"""
         temp_worker.employing_lay_off_dates['lay_off'] = str(date.today())
         self.workers_archive[temp_worker.name] = temp_worker
-        BasF.dump_data(self.workers_archive_path, self.workers_archive)
+        super().dump_data(self.workers_archive_path, self.workers_archive)
         print(f"\033[91m{temp_worker.name} - уволен. \033[0m")
-        BasF.save_log_to_temp_file("\033[91m - layed off\033[0m")
+        super().save_log_to_temp_file("\033[91m - layed off\033[0m")
         temp_worker = self._delete_worker(temp_worker)
         return temp_worker
 
@@ -204,14 +204,14 @@ class AllWorkers(BasF):
         division = temp_worker.working_place['division']
         subdivision = temp_worker.working_place['subdivision']
         print("Выберете смену:")
-        new_shift = BasF.choise_from_list(
+        new_shift = super().choise_from_list(
             self.interkamen[division][subdivision])
         temp_worker.working_place['shift'] = new_shift
         self._add_worker_to_structure(
             temp_worker.name, temp_worker.working_place)
         log = f"{temp_worker.name} - переведен в '{new_shift}'."
         print(log)
-        BasF.save_log_to_temp_file(f" - shifted in '{new_shift}'.")
+        super().save_log_to_temp_file(f" - shifted in '{new_shift}'.")
         return temp_worker
 
     def _change_working_place(self, temp_worker):
@@ -224,7 +224,7 @@ class AllWorkers(BasF):
             temp_worker.name, temp_worker.working_place)
         log = f"{temp_worker.name} - перемещен'."
         print(log)
-        BasF.save_log_to_temp_file(f" - shifted.")
+        super().save_log_to_temp_file(f" - shifted.")
         return temp_worker
 
     def edit_worker(self):
@@ -233,11 +233,11 @@ class AllWorkers(BasF):
         """
         print("Выберете работника для редактирования:")
         division_workers = self.give_workers_from_division()
-        worker = BasF.choise_from_list(division_workers, none_option=True)
+        worker = super().choise_from_list(division_workers, none_option=True)
         if worker:
-            BasF.save_log_to_temp_file(worker)
+            super().save_log_to_temp_file(worker)
         print("Редактирование отменено.")
-        BasF.clear_screen()
+        super().clear_screen()
         while worker:
             temp_worker = self.workers_base[worker]
             print(temp_worker)
@@ -254,7 +254,7 @@ class AllWorkers(BasF):
                 '[закончить редактирование]': 'break'
                 }
             print("\nВыберете пункт для редактирования:")
-            action_name = BasF.choise_from_list(edit_menu_dict)
+            action_name = super().choise_from_list(edit_menu_dict)
             print()
             if action_name in ['[закончить редактирование]', '']:
                 break
@@ -266,8 +266,8 @@ class AllWorkers(BasF):
                 break
             worker = temp_worker.name
             self.workers_base[worker] = temp_worker
-            BasF.dump_data(self.workers_base_path, self.workers_base)
-            BasF.clear_screen()
+            super().dump_data(self.workers_base_path, self.workers_base)
+            super().clear_screen()
 
     def upd_comp_structure(self):
         """Add new division in base"""
@@ -275,7 +275,7 @@ class AllWorkers(BasF):
             if division not in self.comp_structure:
                 self.comp_structure[division] = self.interkamen[division]
                 print(f"{division} added.")
-        BasF.dump_data(self.comp_structure_path, self.comp_structure)
+        super().dump_data(self.comp_structure_path, self.comp_structure)
 
     def print_comp_structure(self):
         """Print company structure"""
@@ -289,11 +289,11 @@ class AllWorkers(BasF):
         working_place = self._add_working_place(None)
         new_worker = Worker(name, working_place)
         self.workers_base[name] = new_worker
-        BasF.dump_data(self.workers_base_path, self.workers_base)
+        super().dump_data(self.workers_base_path, self.workers_base)
         self._add_worker_to_structure(name, working_place)
         log = f"\033[92m Добавлен сотрудник '{name}'. \033[0m"
         print(log)
-        BasF.save_log_to_temp_file(f"\033[92m '{name}' \033[0m")
+        super().save_log_to_temp_file(f"\033[92m '{name}' \033[0m")
 
     def print_archive_workers(self):
         """Print layed off workers"""
@@ -311,21 +311,22 @@ class AllWorkers(BasF):
                 temp_worker = self.workers_base[worker]
                 temp_worker.salary[salary_date] = salary_dict[worker]
                 self.workers_base[worker] = temp_worker
-        BasF.dump_data(self.workers_base_path, self.workers_base)
+        super().dump_data(self.workers_base_path, self.workers_base)
 
     def return_from_archive(self):
         """Return worker from archive."""
         print("Выберете работника для возвращения:")
-        choose = BasF.choise_from_list(self.workers_archive, none_option=True)
+        choose = super().choise_from_list(self.workers_archive,
+                                          none_option=True)
         if choose:
             worker = self.workers_archive[choose]
             self.workers_archive.pop(choose, None)
-            BasF.dump_data(self.workers_archive_path, self.workers_archive)
+            super().dump_data(self.workers_archive_path, self.workers_archive)
             self.workers_base[worker.name] = worker
-            BasF.dump_data(self.workers_base_path, self.workers_base)
+            super().dump_data(self.workers_base_path, self.workers_base)
             self._add_worker_to_structure(worker.name, worker.working_place)
             print(f"\033[92mCотрудник '{worker.name}' возвращен\033[0m")
-            BasF.save_log_to_temp_file(
+            super().save_log_to_temp_file(
                 f"\033[92m'{worker.name}' returned.\033[0m")
 
     def give_workers_from_shift(self, shift, division='Карьер',
@@ -337,7 +338,8 @@ class AllWorkers(BasF):
     def give_workers_from_division(self):
         """Print all users from base"""
         print("Выберете подразделение:")
-        division = BasF.choise_from_list(self.comp_structure, none_option=True)
+        division = super().choise_from_list(self.comp_structure,
+                                            none_option=True)
         worker_list = [
             worker for subdivision in self.comp_structure[division]
             for shift in self.comp_structure[division][subdivision]
@@ -372,7 +374,7 @@ class AllWorkers(BasF):
         for worker in sorted(workers):
             name = self.workers_base[worker].name
             if itr_shift:
-                name = BasF.make_name_short(name)
+                name = super().make_name_short(name)
                 space = 15
             profession = self.workers_base[worker].working_place['profession']
             telefone = self.workers_base[worker].telefone_number

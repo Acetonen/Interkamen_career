@@ -74,7 +74,7 @@ class MechReports(BasicFunctions):
             self.maint_file = self._create_blanc_maint()
 
     @classmethod
-    def check_hours_input(cls, hours):
+    def _check_hours_input(cls, hours):
         """Check input hours are correct"""
         hours = hours.split('-')
         try:
@@ -86,7 +86,7 @@ class MechReports(BasicFunctions):
         return correct
 
     @classmethod
-    def create_coeff_compare(cls, fig_plot, coefs, labels, title):
+    def _create_coeff_compare(cls, fig_plot, coefs, labels, title):
         """Create plot for compare KTG by shifts."""
         x_ktg = list(range(len(labels[0])))
         x_kti = [x - 0.35 for x in x_ktg]
@@ -99,11 +99,11 @@ class MechReports(BasicFunctions):
         axle.set_title(title)
         axle.set_xlabel('%')
         axle.legend()
-        axle.grid(True, linestyle='--', which='major', color='grey',
-                  alpha=.25, axis='x')
+        axle.grid(True, linestyle='--', which='major',
+                  color='grey', alpha=.25, axis='x')
 
     @classmethod
-    def select_machine(cls, choise, dataframe):
+    def _select_machine(cls, choise, dataframe):
         """Select machine from data frame."""
         machine = list(dataframe.mach_name)[int(choise)]
         select_mach = dataframe['mach_name'] == machine
@@ -111,7 +111,7 @@ class MechReports(BasicFunctions):
         return select_mach
 
     @classmethod
-    def check_maintenance_alarm(cls, check, machine, counter):
+    def _check_maintenance_alarm(cls, check, machine, counter):
         """Check, if it is time to maintaine machine."""
         header = ''
         if not check.isnull().any() and int(counter) <= 0:
@@ -134,8 +134,8 @@ class MechReports(BasicFunctions):
     def _create_blanc_maint(self):
         """Crete new maintenance DF."""
         maint_df = pd.DataFrame(
-            self.maint_dict, columns=[
-                'mach_name', 'cycle', 'last_maintain_date', 'hours_pass'])
+            self.maint_dict, columns=['mach_name', 'cycle',
+                                      'last_maintain_date', 'hours_pass'])
         super().dump_data(self.maint_path, maint_df)
         return maint_df
 
@@ -163,17 +163,17 @@ class MechReports(BasicFunctions):
         while not check_input:
             h_data = input(
                 "Введите часы через тире\n\tПлан-Авар-Зап-Раб: ")
-            check_input = self.check_hours_input(h_data)
+            check_input = self._check_hours_input(h_data)
             if not check_input:
                 print("Необходимо ввести 4 числа, сумма которых не более 12!")
         h_data = list(map(int, h_data.split('-')))
         return h_data
 
-    def _add_hours_to_mach(self, select_mach, h_data):
+    def _add_hours_to_mach(self, select_mach, hours_data):
         """Add hous to machine."""
         for item in ['st_plan', 'st_acs', 'st_sep', 'work']:
-            self.temp_df.loc[select_mach, item] = h_data[0]
-            h_data = h_data[1:]
+            self.temp_df.loc[select_mach, item] = hours_data[0]
+            hours_data = hours_data[1:]
 
     def _add_note_to_mach(self, select_mach):
         """Add note to mach."""
@@ -300,34 +300,37 @@ class MechReports(BasicFunctions):
         axle.set_title("Причины простоев.", fontsize="x-large")
         axle.set_ylabel('часы')
         axle.legend()
-        axle.grid(True, linestyle='--', which='major', color='grey',
-                  alpha=.25, axis='y')
-
+        axle.grid(True, linestyle='--', which='major',
+                  color='grey', alpha=.25, axis='y')
         figure.tight_layout()
         plt.show()
 
+    def _create_short_mach_names(self):
+        """ Create compact machine names."""
+        short_mach = [x[:3]+' '+x[-3:] for x in self.machines]
+        return short_mach
+
     def _create_plot(self, period_coef_df, shift1_coef_df, shift2_coef_df):
         """Create statistic plots."""
-        # Create compact machine names.
-        shot_mach = [x[:3]+' '+x[-3:] for x in self.machines]
+        short_mach = self._create_short_mach_names()
         super().make_windows_plot_param()
         figure = plt.figure()
         suptitle = figure.suptitle("Ремонты техники.", fontsize="x-large")
-        self.create_coeff_compare(
+        self._create_coeff_compare(
             (figure, 131),
             labels=(period_coef_df.mach, 'КТГ', 'КТИ'),
             title='КТГ и КТИ за выбранный период.',
             coefs=(period_coef_df.ktg, period_coef_df.rel_kti)
             )
-        self.create_coeff_compare(
+        self._create_coeff_compare(
             (figure, 132),
-            labels=(shot_mach, 'Бригада 1', 'Бригада 2'),
+            labels=(short_mach, 'Бригада 1', 'Бригада 2'),
             title='Сравнительные КТИ бригад.',
             coefs=(shift1_coef_df.kti, shift2_coef_df.kti)
             )
-        self.create_coeff_compare(
+        self._create_coeff_compare(
             (figure, 133),
-            labels=(shot_mach, 'Бригада 1', 'Бригада 2'),
+            labels=(short_mach, 'Бригада 1', 'Бригада 2'),
             title='Сравнительные КТГ бригад.',
             coefs=(shift1_coef_df.ktg, shift2_coef_df.ktg)
             )
@@ -347,9 +350,10 @@ class MechReports(BasicFunctions):
         if not reason:
             shift1_base = period_base[period_base.day < 16]
             shift2_base = period_base[period_base.day > 15]
-            return period_base, shift1_base, shift2_base
+            data = (period_base, shift1_base, shift2_base)
         else:
-            return period_base
+            data = period_base
+        return data
 
     def _working_with_report(self, rep_date):
         """Edit report."""
@@ -377,9 +381,9 @@ class MechReports(BasicFunctions):
                 continue
             elif int(choise) > 18:
                 continue
-            select_mach = self.select_machine(choise, self.temp_df)
+            select_mach = self._select_machine(choise, self.temp_df)
             h_data = self._input_hours()
-            self._add_hours_to_mach(select_mach, h_data)
+            self._add_hours_to_mach(select_mach, hours_data)
             self._add_note_to_mach(select_mach)
 
     def _make_day_report_temp(self, rep_date):
@@ -468,7 +472,7 @@ class MechReports(BasicFunctions):
                 continue
             elif int(choise) > 18:
                 continue
-            select_mach = self.select_machine(choise, self.maint_file)
+            select_mach = self._select_machine(choise, self.maint_file)
             self._start_maintainance(select_mach)
             input("обслуживание проведено.")
 
@@ -488,5 +492,6 @@ class MechReports(BasicFunctions):
                 self._add_hours_to_maint_counter(oper, check,
                                                  add_hours, maint_mach)
             else:
-                header += self.check_maintenance_alarm(check, machine, counter)
+                header += self._check_maintenance_alarm(
+                    check, machine, counter)
         return header

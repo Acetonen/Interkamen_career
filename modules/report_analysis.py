@@ -4,6 +4,7 @@ Module that provide to analyse and visualise MainReport data.
 classes: ReportAnalysis: result_analysis
 """
 
+from collections import namedtuple
 from copy import deepcopy
 from matplotlib import pyplot as plt
 from modules.main_career_report import Reports
@@ -13,7 +14,7 @@ class ReportAnalysis(Reports):
     """
     Class to anilise and visualisate data from reports.
     """
-
+    statistic = namedtuple('Statistic', ['result', 'title1', 'title2'])
     horizonts = ['+108', '+114', '+120', '+126', '+132']
     month_list = ['01', '02', '03', '04', '05', '06',
                   '07', '08', '09', '10', '11', '12']
@@ -86,7 +87,10 @@ class ReportAnalysis(Reports):
                 self.year_reports[report] = self.base[report]
 
     def _data_print(self, year, data_dict):
-        """Pretty data print"""
+        """
+        Pretty data print.
+        data_dict is dictionary with keys: percent, result, rock_mass.
+        """
         output = "\033[92m" + year + ' год\n' + "\033[0m"
         output += "{:^100}\n".format('месяц')
         output += "           {}\n".format('     '.join(self.month_list))
@@ -107,7 +111,8 @@ class ReportAnalysis(Reports):
         result['horiz'] = self._give_by_horiz()['rock_mass']
         title1 = 'Горная масса по горизонтам, м\u00B3'
         title2 = 'Горная масса по вахтам, м\u00B3'
-        return (result, title1, title2)
+        stat = self.statistic(result, title1, title2)
+        return stat
 
     def _make_shift_statistic(self):
         """Make result and persent statistic by shift."""
@@ -116,7 +121,8 @@ class ReportAnalysis(Reports):
         result.pop('rock_mass', None)
         title1 = 'Повахтовый выход, %'
         title2 = 'Повахтовая добыча м\u00B3'
-        return (result, title1, title2)
+        stat = self.statistic(result, title1, title2)
+        return stat
 
     def _make_horizont_statistic(self):
         """Make result and persent statistic by horizont."""
@@ -125,19 +131,21 @@ class ReportAnalysis(Reports):
         result.pop('rock_mass', None)
         title1 = 'Погоризонтный выход, %'
         title2 = 'Погоризонтная добыча, м\u00B3'
-        return (result, title1, title2)
+        stat = self.statistic(result, title1, title2)
+        return stat
 
-    def _two_plots_show(self, year, results_and_titles):
+    def _two_plots_show(self, year, stat):
         """Combine two subplots"""
         super().make_windows_plot_param()
         figure = plt.figure()
         suptitle = figure.suptitle("Результаты работы.", fontsize="x-large")
 
         plot_number = 1
-        for result in sorted(results_and_titles[0]):
-            self._subplot_result((figure, 120+plot_number), year,
-                                 results_and_titles[0][result],
-                                 results_and_titles[plot_number])
+        for result in sorted(stat.result):
+            self._subplot_result((figure, 120+plot_number),
+                                 year,
+                                 stat.result[result],
+                                 stat[plot_number])
             plot_number += 1
 
         figure.tight_layout()
@@ -231,14 +239,16 @@ class ReportAnalysis(Reports):
                 'Погоризонтная статистика': self._make_horizont_statistic,
                 'Повахтовая статистика': self._make_shift_statistic
                 }
-            print("\nВыберете необходимый очет:\n"
-                  "(ENTER - выход)")
+            print("\n[ENTER] - выход"
+                  "\nВыберете необходимый очет: ")
             choise = super().choise_from_list(data_type, none_option=True)
             super().clear_screen()
+
             if choise in data_type:
-                results_and_titles = data_type[choise]()
-                self._data_print(year, results_and_titles[0])
-                self._two_plots_show(year, results_and_titles)
+                stat = data_type[choise]()
+
+                self._data_print(year, stat.result)
+                self._two_plots_show(year, stat)
 
             elif not choise:
                 break
@@ -252,6 +262,6 @@ class ReportAnalysis(Reports):
         year = super().choise_from_list(self._chose_year())
         self._give_reports_by_year(year)
         super().clear_screen()
-        results_and_titles = self._make_rock_mass_statistic()
-        self._data_print(year, results_and_titles[0])
-        self._two_plots_show(year, results_and_titles)
+        rock_stat = self._make_rock_mass_statistic()
+        self._data_print(year, rock_stat.result)
+        self._two_plots_show(year, rock_stat)

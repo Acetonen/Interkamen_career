@@ -3,11 +3,11 @@
 
 import os
 import calendar as cl
-from modules.support_modules.standart_functions import BasicFunctions as BasF
+from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsPath
 
 
-class WCalendar(BasF):
+class WCalendar(BasicFunctions):
     """Career working calendar ofr current year."""
 
     month_prnt = ''
@@ -17,10 +17,10 @@ class WCalendar(BasF):
         shifts = ["Смена 1", "Смена 2"]
         print("Выберете смену БРИГАДЫ"
               f", которая будет длинной в январе {year} года:")
-        br_long = BasF.choise_from_list(shifts)
+        br_long = super().choise_from_list(shifts)
         print("Выберете смену ИТР"
               f", которая будет длинной в январе {year} года:")
-        itr_long = BasF.choise_from_list(shifts)
+        itr_long = super().choise_from_list(shifts)
 
         self.br_cal = self._set_cal(year=year,
                                     whos_long=br_long,
@@ -160,30 +160,30 @@ class WCalendar(BasF):
         return curr_month_shifts
 
 
-class WorkCalendars(BasF):
+class WorkCalendars(BasicFunctions):
     """Manage calendars."""
     calendar_path = AbsPath.get_path('data', 'working_calendar')
 
     def __init__(self):
         self.calendar_file = {}
         if os.path.exists(self.calendar_path):
-            self.calendar_file = BasF.load_data(self.calendar_path)
+            self.calendar_file = super().load_data(self.calendar_path)
 
     def create_calendar(self):
         """Create working calendar."""
         year = int(input("Введите год: "))
         work_calendar = WCalendar(year)
         self.calendar_file[year] = work_calendar
-        BasF.dump_data(self.calendar_path, self.calendar_file)
+        super().dump_data(self.calendar_path, self.calendar_file)
         print(f"Рабочий календарь {year} создан.")
         print(work_calendar)
 
     def show_year_shifts(self):
         """Show shift calendar by year."""
         print("Выберете год:")
-        year = BasF.choise_from_list(self.calendar_file, none_option=True)
+        year = super().choise_from_list(self.calendar_file, none_option=True)
         if year:
-            BasF.clear_screen()
+            super().clear_screen()
             print(self.calendar_file[year])
 
     def give_current_brigade(self, cur_date):
