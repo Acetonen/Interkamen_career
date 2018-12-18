@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 This class provides to work with all logs.
-Classes: Logs: 'upload_temp_file_log',
+Classes: Logs: '_upload_temp_file_log',
                '_choose_item',
                'delete_all_logs',
                'search_in_logs',
@@ -64,7 +64,7 @@ class Logs(BasicFunctions):
         self.search_list.extend(Users().get_all_users_list())
 
     @classmethod
-    def upload_temp_file_log(cls, log_constructor):
+    def _upload_temp_file_log(cls, log_constructor):
         """Read detailed user log from temp file"""
         file_path = AbsPath().get_path('data', 'log.tmp')
         if os.path.exists(file_path):
@@ -107,7 +107,7 @@ class Logs(BasicFunctions):
             log_constructor = []
             log_constructor.append(user_login)
             log_constructor.append(self.log_list[user_action])
-            self.upload_temp_file_log(log_constructor)
+            self._upload_temp_file_log(log_constructor)
             current_time = str(datetime.now().replace(microsecond=0))
             self.log_base[current_time] = log_constructor
             super().dump_data(self.data_path, self.log_base)

@@ -21,7 +21,7 @@ class Users(BasicFunctions):
     def __init__(self):
         self.users_base = super().load_data(self.data_path)
 
-    def __str__(self):
+    def __repr__(self):
         output = ['']
         for login in self.users_base:
             for parametr in self.users_base[login]:
@@ -31,7 +31,7 @@ class Users(BasicFunctions):
         return ' '.join(output)
 
     @classmethod
-    def print_user(cls, user):
+    def _print_user(cls, user):
         """Print one user"""
         print("name:{name}\nlogin:{login}\n\
 password:{password}\naccesse:{accesse}\n".format(**user))
@@ -132,7 +132,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
         while choosen_user:
             temp_user = self.users_base[choosen_user]
             print()
-            self.print_user(self.users_base[choosen_user])
+            self._print_user(self.users_base[choosen_user])
             edit_menu_dict = {'change user access': self._change_user_access,
                               'change user name': self._change_user_name,
                               'change user password': self.change_password,
@@ -194,7 +194,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
     def show_all_users(self):
         """Print all users from base"""
         for login in self.users_base:
-            self.print_user(self.users_base[login])
+            self._print_user(self.users_base[login])
 
     def get_all_users_list(self):
         """Get all users list"""

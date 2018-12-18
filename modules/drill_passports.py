@@ -175,7 +175,7 @@ class DPassport(BasicFunctions):
             'Ввести новые длины шпуров': self._baareholes_and_dependencies,
             'Удалить паспорт': 'del',
             '[закончить редактирование]': 'exit'
-            }
+        }
         while True:
             super().clear_screen()
             print(self.__repr__())
@@ -224,9 +224,8 @@ class DrillPassports(BasicFunctions):
     def _create_empty_df(self):
         """Create blanc DF list."""
         self.empty_df = pd.DataFrame(columns=self.pass_columns)
-        self.empty_ser = pd.Series(
-            [Nan for name in self.pass_columns], index=self.pass_columns
-            )
+        self.empty_ser = pd.Series([Nan for name in self.pass_columns],
+                                   index=self.pass_columns)
 
     def _check_if_report_exist(self, number):
         """Check if report exist in base"""

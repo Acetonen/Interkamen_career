@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 News module. Show news for users.
-'print_news' - print news at the start of program after login.
+'_print_news' - print news at the start of program after login.
 'show_actual_news' - show news after response from menu.
 """
 
@@ -26,7 +26,7 @@ class News(BasicFunctions):
             self.news_memory_file = super().load_data(self.news_memory)
 
     @classmethod
-    def print_news(cls, new_news):
+    def _print_news(cls, new_news):
         """Print news to screen."""
         print("\033[93m[НОВОСТИ]\033[0m\n")
         while True:
@@ -63,7 +63,7 @@ class News(BasicFunctions):
                     self._add_news_to_user(user_login, news)
                     super().dump_data(self.news_memory, self.news_memory_file)
         if new_news:
-            self.print_news(new_news)
+            self._print_news(new_news)
 
     def show_actual_news(self):
         """Show all news that actual."""
@@ -74,6 +74,6 @@ class News(BasicFunctions):
                           encoding='utf-8') as file:
                     new_news.append(file.read())
         if new_news:
-            self.print_news(new_news)
+            self._print_news(new_news)
         else:
             print("Новых новостей нет.")

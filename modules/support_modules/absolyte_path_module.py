@@ -2,7 +2,7 @@
 """
 Make absolyte path to working with database on different platforms.
 
-Classes: AbsPath: 'make_absolyte_path',
+Classes: AbsPath: '_make_absolyte_path',
                   'get_path'
 
 """
@@ -15,7 +15,7 @@ class AbsPath:
     """Make absolyte path to working with database on different platforms."""
 
     @classmethod
-    def make_absolyte_path(cls, up_root=False):
+    def _make_absolyte_path(cls, up_root=False):
         """
         Make absolyte path to root program directory,
         or upper directory if up_root option is True.
@@ -31,6 +31,6 @@ class AbsPath:
     @classmethod
     def get_path(cls, *paths, up_root=False):
         """Get absolyte path to data file"""
-        absolute_path = cls.make_absolyte_path(up_root)
+        absolute_path = cls._make_absolyte_path(up_root)
         file_path = os.path.join(absolute_path, *paths)
         return file_path

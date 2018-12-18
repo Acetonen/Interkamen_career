@@ -17,18 +17,12 @@ class Reminder(BasicFunctions):
     def __init__(self):
 
         self.remind_by_access = {
-            'mechanic': [
-                self.maintenance_remind
-            ],
+            'mechanic': [self._maintenance_remind],
             'info': [],
             'master': [],
-            'boss': [
-                self.main_report_remind
-            ],
-            'admin': [
-                self.main_report_remind,
-                self.maintenance_remind
-            ]
+            'boss': [self._main_report_remind],
+            'admin': [self._main_report_remind,
+                      self._maintenance_remind]
         }
 
         if os.path.exists(self.reminder_path):
@@ -40,7 +34,7 @@ class Reminder(BasicFunctions):
             super().dump_data(self.reminder_path, self.reminder_file)
 
     @classmethod
-    def main_report_remind(cls):
+    def _main_report_remind(cls):
         """Remind if main report uncomplete."""
         header = ''
         reports_need_to_edit = Reports().give_avaliable_to_edit(
@@ -52,7 +46,7 @@ class Reminder(BasicFunctions):
         return header
 
     @classmethod
-    def maintenance_remind(cls):
+    def _maintenance_remind(cls):
         """Remind for machine maintenance."""
         header = MechReports().walk_thrue_maint_calendar()
         return header
@@ -80,6 +74,30 @@ class Reminder(BasicFunctions):
         users = super().choise_from_list(ch_list)
         return users
 
+    def _save_custom_remind(self, users, deadline, remind):
+        """Save custom remind."""
+        if users == 'all':
+            for user in self.reminder_file:
+                self.reminder_file[user][remind] = deadline
+        else:
+            self.reminder_file[users][remind] = deadline
+        super().dump_data(self.reminder_path, self.reminder_file)
+        print("remind save: ", remind, str(deadline))
+
+    def _delete_remind(self):
+        """Delete remind."""
+        users = self._choose_users_to_remind()
+        if users == 'all':
+            users = 'admin'
+        remind = super().choise_from_list(self.reminder_file[users])
+        if users == 'admin':
+            for user_access in self.reminder_file:
+                self.reminder_file[user_access].pop(remind, None)
+        else:
+            self.reminder_file[users].pop(remind)
+        super().dump_data(self.reminder_path, self.reminder_file)
+        print("remind deleted.")
+
     def make_custom_remind(self):
         """Make custom remind for type of user."""
         users = self._choose_users_to_remind()
@@ -97,37 +115,12 @@ class Reminder(BasicFunctions):
         deadline = date.today() + timedelta(days=deadline)
         self._save_custom_remind(users, deadline, remind)
 
-    def _save_custom_remind(self, users, deadline, remind):
-        """Save custom remind."""
-        if users == 'all':
-            for user in self.reminder_file:
-                self.reminder_file[user][remind] = deadline
-        else:
-            self.reminder_file[users][remind] = deadline
-        super().dump_data(self.reminder_path, self.reminder_file)
-        print("remind save: ", remind, str(deadline))
-
     def show_all_reminds(self):
         """Show All reminds."""
         for users in self.reminder_file:
             print('\033[4m' + users + '\033[0m:')
             for remind in self.reminder_file[users]:
-                print(
-                    '\t', str(self.reminder_file[users][remind]), remind)
+                print('\t', str(self.reminder_file[users][remind]), remind)
         delete = input("\n[d] - to delete remind: ")
         if delete.lower() == 'd':
             self._delete_remind()
-
-    def _delete_remind(self):
-        """Delete remind."""
-        users = self._choose_users_to_remind()
-        if users == 'all':
-            users = 'admin'
-        remind = super().choise_from_list(self.reminder_file[users])
-        if users == 'admin':
-            for user_access in self.reminder_file:
-                self.reminder_file[user_access].pop(remind, None)
-        else:
-            self.reminder_file[users].pop(remind)
-        super().dump_data(self.reminder_path, self.reminder_file)
-        print("remind deleted.")

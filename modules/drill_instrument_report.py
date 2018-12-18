@@ -32,7 +32,7 @@ class DrillInstruments(BasicFunctions):
         self._comlete_drill_report()
 
     @classmethod
-    def create_meters_by_month(cls, figure, data_by_year, shifts):
+    def _create_meters_by_month(cls, figure, data_by_year, shifts):
         """Totall drill meters in month by each shift."""
         met_bu_mon = figure.add_subplot(221)
         met_bu_mon.plot(data_by_year[shifts[0]].month,
@@ -47,7 +47,7 @@ class DrillInstruments(BasicFunctions):
         met_bu_mon.set_title('Пробурено за смену.')
 
     @classmethod
-    def create_all_bits(cls, figure, data_by_year, shifts, bits):
+    def _create_all_bits(cls, figure, data_by_year, shifts, bits):
         """Totall used bits by shift and bits in rock."""
         all_bits = figure.add_subplot(222)
         all_bits.plot(data_by_year[shifts[0]].month, bits[0],
@@ -67,7 +67,7 @@ class DrillInstruments(BasicFunctions):
         all_bits.set_title('Истрачено коронок.')
 
     @classmethod
-    def create_meters_by_bits(cls, figure, data_by_year, shifts, bits):
+    def _create_meters_by_bits(cls, figure, data_by_year, shifts, bits):
         """Meters passed by one average bit."""
         met_by_bit = figure.add_subplot(223)
         meters_by_bits1 = data_by_year[shifts[0]].meters / bits[0]
@@ -83,7 +83,8 @@ class DrillInstruments(BasicFunctions):
         met_by_bit.set_title('Проход одной коронки.')
 
     @classmethod
-    def create_bits_by_thousand_rocks(cls, figure, data_by_year, shifts, bits):
+    def _create_bits_by_thousand_rocks(cls, figure, data_by_year,
+                                       shifts, bits):
         """Bits by thousand rock mass."""
         bit_by_rock = figure.add_subplot(224)
         bits_by_thousand_rocks1 = (
@@ -105,11 +106,10 @@ class DrillInstruments(BasicFunctions):
         bit_by_rock.set_title('Коронок на тысячу кубов горной массы.')
 
     @classmethod
-    def print_statistic_by_year(cls, data):
+    def _print_statistic_by_year(cls, data):
         """Showing all drill data"""
-        with pd.option_context(
-            'display.max_rows', None, 'display.max_columns', None
-        ):
+        with pd.option_context('display.max_rows', None,
+                               'display.max_columns', None):
             print(data)
 
     def _check_correctly_input(self, results_exist):
@@ -130,18 +130,16 @@ class DrillInstruments(BasicFunctions):
         self.drill_file = self.drill_file.append(self.drill_data,
                                                  ignore_index=True)
         super().dump_data(self.drill_path, self.drill_file)
-        super().save_log_to_temp_file(
-            '{}-{}-{}\033[94m created\033[0m'.format(
-                self.drill_data['year'],
-                self.drill_data['month'],
-                self.drill_data['shift'])
-            )
+        super().save_log_to_temp_file('{}-{}-{}\033[94m created\033[0m'
+                                      .format(self.drill_data['year'],
+                                              self.drill_data['month'],
+                                              self.drill_data['shift']))
 
     def _visualise_statistic(self, year):
         """Visualise statistic."""
         drill_year = self.drill_file.year == year
         data_by_year = self.drill_file[drill_year].sort_values(by=['month'])
-        self.print_statistic_by_year(data_by_year)
+        self._print_statistic_by_year(data_by_year)
         shift1 = data_by_year['shift'] == 'Смена 1'
         shift2 = data_by_year['shift'] == 'Смена 2'
         all_bits1 = (data_by_year[shift1].bits32
@@ -161,10 +159,11 @@ class DrillInstruments(BasicFunctions):
         figure = plt.figure()
         suptitle = figure.suptitle("Отчет по буровому инструменту.",
                                    fontsize="x-large")
-        self.create_meters_by_month(figure, data_by_year, shifts)
-        self.create_all_bits(figure, data_by_year, shifts, bits)
-        self.create_meters_by_bits(figure, data_by_year, shifts, bits)
-        self.create_bits_by_thousand_rocks(figure, data_by_year, shifts, bits)
+        data_to_plot = (figure, data_by_year, shifts, bits)
+        self._create_meters_by_month(*data_to_plot[:-1])
+        self._create_all_bits(*data_to_plot)
+        self._create_meters_by_bits(*data_to_plot)
+        self._create_bits_by_thousand_rocks(*data_to_plot)
 
         figure.tight_layout()
         suptitle.set_y(0.95)
@@ -233,8 +232,8 @@ class DrillInstruments(BasicFunctions):
         """Showing statistic about drill instrument."""
         if isinstance(self.drill_file, pd.DataFrame):
             print("Выберете год:")
-            year = super().choise_from_list(
-                sorted(set(self.drill_file.year)), none_option=True)
+            year = super().choise_from_list(sorted(set(self.drill_file.year)),
+                                            none_option=True)
         else:
             print("Статистик по буровому инструменту отстутствует.")
         if year:

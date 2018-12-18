@@ -47,7 +47,7 @@ class EmailSender(BasicFunctions):
             print("\033[91mcan't sent e-mail, no connection\033[0m")
 
     @classmethod
-    def find_command_to_destruct(cls, msg):
+    def __find_command_to_destruct(cls, msg):
         """If find command to destruct in header."""
         body = None
         if msg["Subject"] == 'destruct':
@@ -148,7 +148,7 @@ class EmailSender(BasicFunctions):
         for num in msgnums[0].split():
             rawmsg = imap.fetch(num, '(RFC822)')[1]
             msg = email.message_from_bytes(rawmsg[0][1])
-            data = self.find_command_to_destruct(msg)
+            data = self.__find_command_to_destruct(msg)
         imap.close()
         imap.logout()
         if data:
