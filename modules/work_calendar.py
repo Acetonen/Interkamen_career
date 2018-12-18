@@ -3,11 +3,11 @@
 
 import os
 import calendar as cl
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import BasicFunctions as BasF
 from modules.support_modules.absolyte_path_module import AbsPath
 
 
-class WCalendar(BasicFunctions):
+class WCalendar(BasF):
     """Career working calendar ofr current year."""
 
     month_prnt = ''
@@ -17,13 +17,17 @@ class WCalendar(BasicFunctions):
         shifts = ["Смена 1", "Смена 2"]
         print("Выберете смену БРИГАДЫ"
               f", которая будет длинной в январе {year} года:")
-        br_long = super().choise_from_list(shifts)
+        br_long = BasF.choise_from_list(shifts)
         print("Выберете смену ИТР"
               f", которая будет длинной в январе {year} года:")
-        itr_long = super().choise_from_list(shifts)
+        itr_long = BasF.choise_from_list(shifts)
 
-        self.br_cal = self._set_cal(year, br_long, "brig")
-        self.itr_cal = self._set_cal(year, itr_long, "itr")
+        self.br_cal = self._set_cal(year=year,
+                                    whos_long=br_long,
+                                    workers="brig")
+        self.itr_cal = self._set_cal(year=year,
+                                     whos_long=itr_long,
+                                     workers="itr")
 
     def __repr__(self):
         year = str(self.year)
@@ -151,34 +155,35 @@ class WCalendar(BasicFunctions):
         curr_month_shifts = (
             self.month_prnt +
             "\n\t\033[93m*пересменка ИТР\033[0m" +
-            "\n\t\033[96m*пересменка бригад\033[0m ")
+            "\n\t\033[96m*пересменка бригад\033[0m "
+        )
         return curr_month_shifts
 
 
-class WorkCalendars(BasicFunctions):
+class WorkCalendars(BasF):
     """Manage calendars."""
-    calendar_path = AbsPath().get_path('data', 'working_calendar')
+    calendar_path = AbsPath.get_path('data', 'working_calendar')
 
     def __init__(self):
         self.calendar_file = {}
         if os.path.exists(self.calendar_path):
-            self.calendar_file = super().load_data(self.calendar_path)
+            self.calendar_file = BasF.load_data(self.calendar_path)
 
     def create_calendar(self):
         """Create working calendar."""
         year = int(input("Введите год: "))
         work_calendar = WCalendar(year)
         self.calendar_file[year] = work_calendar
-        super().dump_data(self.calendar_path, self.calendar_file)
+        BasF.dump_data(self.calendar_path, self.calendar_file)
         print(f"Рабочий календарь {year} создан.")
         print(work_calendar)
 
     def show_year_shifts(self):
         """Show shift calendar by year."""
         print("Выберете год:")
-        year = super().choise_from_list(self.calendar_file, none_option=True)
+        year = BasF.choise_from_list(self.calendar_file, none_option=True)
         if year:
-            super().clear_screen()
+            BasF.clear_screen()
             print(self.calendar_file[year])
 
     def give_current_brigade(self, cur_date):
