@@ -382,7 +382,7 @@ class MechReports(BasicFunctions):
             elif int(choise) > 18:
                 continue
             select_mach = self._select_machine(choise, self.temp_df)
-            h_data = self._input_hours()
+            hours_data = self._input_hours()
             self._add_hours_to_mach(select_mach, hours_data)
             self._add_note_to_mach(select_mach)
 
@@ -434,7 +434,7 @@ class MechReports(BasicFunctions):
         data_by_year = self.mech_file[self.mech_file.year == year]
         month = super().choise_from_list(sorted(set(data_by_year.month)))
         print("Доступные даты:",
-            set(sorted(data_by_year[data_by_year.month == month].day)))
+              set(sorted(data_by_year[data_by_year.month == month].day)))
         day = input("Введите день: ")
         if day:
             rep_date = {
