@@ -365,24 +365,25 @@ class AllWorkers(BasicFunctions):
         """Print telefone numbers of workers from division.
         if itr shift, print numbers from itr users with short names"""
         workers_list = []
-        space = 32
         if itr_shift:
             workers = self.comp_structure[
                 'Карьер']['Инженерная служба'][itr_shift]
+            itr_list = []
         else:
             workers = self.give_workers_from_division()
         for worker in sorted(workers):
             name = self.workers_base[worker].name
-            if itr_shift:
-                name = super().make_name_short(name)
-                space = 15
             profession = self.workers_base[worker].working_place['profession']
             telefone = self.workers_base[worker].telefone_number
-            workers_list.append("{:<{space}}- {:<24}тел.: {}".format(
-                name, profession, telefone, space=space))
+            if itr_shift:
+                name = super().make_name_short(name)
+                itr_list.append((name, profession, telefone))
+            workers_list.append("{:<32}- {:<24}тел.: {}".format(
+                name, profession, telefone))
         if not itr_shift:
             print('\n'.join(workers_list))
-        return workers_list
+        else:
+            return itr_list
 
     def show_anniversary_workers(self):
         """Show workers with this year anniversary."""

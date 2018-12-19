@@ -2,6 +2,7 @@
 """Everyday career status."""
 
 import os
+from itertools import zip_longest
 from datetime import date, timedelta
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsPath
@@ -26,25 +27,25 @@ class CareerStatus(BasicFunctions):
             "itr":
             WorkCalendars().give_current_itr(date_numbers),
             'month_shifts':
-            WorkCalendars().give_current_month_shifts(date_numbers)
+            WorkCalendars().give_current_month_shifts(date_numbers),
         }
         self.itr_list = AllWorkers().print_telefon_numbers(
             itr_shift=self.cur["itr"])
         self.mach = {
             "to_repare": None,
-            "to_work": None
+            "to_work": None,
         }
         self.storage = {
             "KOTC": None,
-            "sale": None
+            "sale": None,
         }
         self.works_plan = {
-            "expl_work": None,
-            "rock_work": None
+            "expl_work": [],
+            "rock_work": [],
         }
         self.res = {
             "month": None,
-            "shift": None
+            "shift": None,
         }
         self.add_info(user_acs)
 
@@ -57,7 +58,13 @@ class CareerStatus(BasicFunctions):
             f"\nСмена ИТР: {self.cur['itr']}"
             "\nРаботники ИТР:\n"
         )
-        output += '\n'.join(self.itr_list)
+
+        itr_list = []
+        for worker in self.itr_list:
+            itr_list.append("{:<15}- {:<24}тел.: {}".format(*worker))
+        itr_list = '\n'.join(itr_list)
+
+        output += itr_list
         output += (
             "\n\n\033[4mДобыто блок-заготовок:\033[0m"
             f"\n\tв текущем месяце: {self.res['month']} м.куб."
@@ -74,14 +81,28 @@ class CareerStatus(BasicFunctions):
         output += (
             f"\n\n\033[4mПлан работ на {self.date['tomorrow']}\033[0m"
             "\n\t\tВзрывные работы."
-            "\n\tгоризонт  направление  качество\n\t"
+            "\n\tгоризонт  направление  качество  квадрант\n\t"
         )
-        output += f"{self.works_plan['expl_work']}"
+
+        work_list = []
+        for direction in self.works_plan['expl_work']:
+            work_list.append("{:^10} {:^10} {:^10} {:^10}"
+                             .format(*direction))
+        work_list = '\n\t'.join(work_list)
+
+        output += f"{work_list}"
         output += (
             "\n\n\t\tДобычные работы."
-            "\n\tгоризонт  направление  качество\n\t"
+            "\n\tгоризонт  направление  качество  квадрант\n\t"
         )
-        output += f"{self.works_plan['rock_work']}"
+
+        work_list = []
+        for direction in self.works_plan['rock_work']:
+            work_list.append("{:^10} {:^10} {:^10} {:^10}"
+                             .format(*direction))
+        work_list = '\n\t'.join(work_list)
+
+        output += f"{work_list}"
         output = output.replace(
             'None', '\033[91m<Информация отсутствует>\033[0m')
         return output
@@ -102,7 +123,7 @@ class CareerStatus(BasicFunctions):
         """Add info from master."""
         self._input_current_result()
         self._input_strage_volume()
-        works = ['разборка', 'пассировка', 'бурение']
+        works = ['разборка', 'пассир.', 'бурение']
         quolity = ['блоки', 'масса']
         self.works_plan['expl_work'] = self._plan_works(
             quolity,
@@ -137,13 +158,14 @@ class CareerStatus(BasicFunctions):
         horizonds = ['+108', '+114', '+120', '+126', '+132']
         directions = ['восток', 'запад', 'север', 'юг']
         work_list = []
+        work_directions = []
         print_list = ''
         while True:
             super().clear_screen()
             print("Введите информацию по работам на {}"
                   .format(self.date['tomorrow']))
             print(title)
-            print("\tгоризонт  направление  качество")
+            print("\tгоризонт  направление  качество  квадрант")
             print('\t' + print_list)
             print("\n[ENTER] - закончить ввод\n"
                   "Добавить работы:")
@@ -155,13 +177,14 @@ class CareerStatus(BasicFunctions):
             direction = super().choise_from_list(directions)
             print("Выберете предполагаемое качество:")
             quoli = super().choise_from_list(quol)
-            work_list.append(
-                "{:^10} {:^10} {:^10}".format(horizond, direction, quoli))
-            print_list = '\n\t'.join(work_list)
-        if not work_list:
+            coord = input("Введите квадрант: ")
+            work_directions.append(
+                "{:^10} {:^10} {:^10} {:^10}".format(horizond, direction,
+                                                     quoli, coord))
+            work_list.append((horizond, direction, quoli, coord))
+            print_list = '\n\t'.join(work_directions)
+        if not work_directions:
             work_list.append('Не запланированы.')
-        else:
-            work_list = '\n\t'.join(work_list)
         return work_list
 
     def _add_mechanic_info(self):
@@ -201,19 +224,63 @@ class CareerStatus(BasicFunctions):
         """Try to send status via email."""
         if self.mach["to_repare"] and self.works_plan["rock_work"]:
             html = self._create_html_status()
-            EmailSender().try_email(subject='Состояние карьера', add_html=html)
+            EmailSender().try_email(
+                recivers="career status recivers",
+                subject='Состояние карьера',
+                add_html=html,
+                html_img=AbsPath.get_path('support_img', 'inter_header.png'),
+                add_file=AbsPath.get_path('html_blancs', 'map.pdf'),
+            )
 
     def _create_html_status(self):
         """Create career status in  html."""
-        pass
-        # html = """{}{}{}{}""".format(
-        #     self.date['today'], self.cur['brig'], self.cur['itr'],
-        #     '\n'.join(self.itr_list), self.res['month'],
-        #     self.res['shift'], self.storage['KOTC'], self.storage['sale'],
-        #     self.mach["to_repare"], self.mach["to_work"],
-        #     self.date['tomorrow'], self.works_plan['expl_work'],
-        #     self.works_plan['rock_work'])
-        # return html
+        blanc_html = AbsPath.get_path('html_blancs', 'career_status.html')
+        with open(blanc_html) as file:
+            html = file.read()
+        mach_table = self._create_mach_html()
+        expl_table = self._create_plan_html(self.works_plan['expl_work'])
+        rock_table = self._create_plan_html(self.works_plan['rock_work'])
+        contact_table = self._create_contact_table()
+        html = html.format(
+            self.date['today'], self.cur['brig'], self.cur['itr'],
+            self.res['month'], self.res['shift'],
+            self.storage['KOTC'], self.storage['sale'], mach_table,
+            self.date['tomorrow'], expl_table, rock_table, contact_table
+        )
+        return html
+
+    def _create_contact_table(self):
+        """Create contact table of ITR workers."""
+        contact_table = [x + '- ' + y + '<br />тел.: ' + z
+                         for (x, y, z) in self.itr_list]
+        contact_table = '<br />'.join(contact_table)
+        table = '<p>' + contact_table + '</p>'
+        return table
+
+    @classmethod
+    def _create_plan_html(cls, works_list):
+        """Create HTML table for plan works."""
+        try:
+            works_list = ['</td><td>'.join((x, y, z, n))
+                          for (x, y, z, n) in works_list]
+        except ValueError:
+            works_list = ['</td><td>'.join(('-', '-', '-', '-'))]
+        works_list = '</td></tr><tr align="center"><td>'.join(works_list)
+        plan_table = '<tr align="center"><td>' + works_list + '</td></tr>'
+        return plan_table
+
+    def _create_mach_html(self):
+        """Create HTML table from machine list."""
+        mach_list = list(zip_longest(
+            self.mach["to_repare"],
+            self.mach["to_work"],
+        ))
+        mach_list = ['</td><td>'.join((str(x), str(y)))
+                     for (x, y) in mach_list]
+        mach_list = '</td></tr><tr align="center"><td>'.join(mach_list)
+        mach_list = mach_list.replace('None', '')
+        table = '<tr align="center"><td>' + mach_list + '</tr>'
+        return table
 
     def add_info(self, user_acs):
         """Add info depend on user access."""
@@ -226,7 +293,7 @@ class CareerStatus(BasicFunctions):
 
 class Statuses(BasicFunctions):
     """Create and save curent status reports."""
-    car_stat_path = AbsPath().get_path('data', 'carer_status')
+    car_stat_path = AbsPath.get_path('data', 'carer_status')
 
     def __init__(self):
         if os.path.exists(self.car_stat_path):
@@ -237,15 +304,17 @@ class Statuses(BasicFunctions):
 
     def create_career_status(self, user_acs):
         """Create status if not exist."""
-        try:
+        if str(date.today()) in self.car_stat_file:
             self.car_stat_file[str(date.today())].add_info(user_acs)
-        except KeyError:
+        else:
             self.car_stat_file[str(date.today())] = CareerStatus(user_acs)
         super().dump_data(self.car_stat_path, self.car_stat_file)
 
     def show_status(self):
         """Show career status."""
-        status = sorted(self.car_stat_file)[-1]
+        status = None
+        if self.car_stat_file:
+            status = sorted(self.car_stat_file)[-1]
         if status:
             super().clear_screen()
             print(self.car_stat_file[status])
@@ -253,3 +322,5 @@ class Statuses(BasicFunctions):
                              "[ENTER] - выйти: ")
             if calendar in ['k', 'K', 'к', 'К']:
                 print(self.car_stat_file[status].give_shift_calendar())
+        else:
+            print("Ежедневные отчеты отсутствуют.")

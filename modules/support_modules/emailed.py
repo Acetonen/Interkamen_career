@@ -258,5 +258,5 @@ if __name__ == '__main__':
         add_html="""\
 <b>Some <i>HTML</i> text</b> and an image.<br>\
 <img src="cid:image1"><br>Nifty!""",
-        html_img=AbsPath.get_path('support_img', 'inter_header.png')
+        html_img=AbsPath.get_path('support_img', 'inter_header.png'),
     )
