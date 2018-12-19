@@ -38,7 +38,7 @@ class Accesse:
             '--> [Статистика_ремонтов]': 'sub-menu',
             '--> [Статистика_добычи]': 'sub-menu',
             'Состояние карьера':
-            lambda arg: Statuses().show_status()
+            lambda arg: Statuses().show_status(),
         },
         'basic': {
             'Телефоны работников':
@@ -49,7 +49,7 @@ class Accesse:
             lambda arg: Users().change_password(arg),
             'Показать новости':
             lambda arg: News().show_actual_news(),
-            '\033[93mВыйти из программы\033[0m': 'exit program'
+            '\033[93mВыйти из программы\033[0m': 'exit program',
         },
         'mechanic': {
             '--> [Статистика_ремонтов]': 'sub-menu',
@@ -58,7 +58,7 @@ class Accesse:
             'Редактировать отчет\n------------------------------':
             lambda arg: MechReports().edit_report(),
             'Календарь обслуживания\n------------------------------':
-            lambda arg: MechReports().maintenance_calendar()
+            lambda arg: MechReports().maintenance_calendar(),
         },
         'master': {
             '--> [Статистика_добычи]': 'sub-menu',
@@ -75,7 +75,7 @@ class Accesse:
             'Поставить рейтинг бригаде':
             lambda arg: Rating().give_rating(arg),
             'Ежедневный отчет мастера\n------------------------------':
-            lambda arg: Statuses().create_career_status('master')
+            lambda arg: Statuses().create_career_status('master'),
         },
         'boss': {
             '--> [Работники] ': 'sub-menu',
@@ -83,7 +83,7 @@ class Accesse:
             '--> [Меню_механика]': 'sub-menu',
             '--> [Меню_мастера]': 'sub-menu',
             'Состояние карьера':
-            lambda arg: Statuses().show_status()
+            lambda arg: Statuses().show_status(),
         },
         'admin': {'\033[91m--> [administration]\033[0m': 'sub-menu'}
     }
@@ -96,8 +96,10 @@ class Accesse:
             '\033[91m--> [reminds] \033[0m': 'sub-menu',
             '\033[91mmake backup now\033[0m':
             lambda arg: make_backup(),
-            '\033[91memail settings\033[0m':
-            lambda arg: EmailSender().edit_mail_propeties()
+            '\033[91mmain email settings\033[0m':
+            lambda arg: EmailSender().edit_main_propeties(),
+            '\033[91mcareer report recivers\033[0m':
+            lambda arg: EmailSender().edit_career_status_recivers(),
         },
         '\033[91m--> [reminds] \033[0m': {
             '\033[91mcreate reminder\033[0m':
@@ -113,7 +115,7 @@ class Accesse:
         '\033[91m--> [users_menu] \033[0m': {
             'create new user': lambda arg: Users().create_new_user(),
             'edit user': lambda arg: Users().edit_user(),
-            'show all users': lambda arg: Users().show_all_users()
+            'show all users': lambda arg: Users().show_all_users(),
         },
         '--> [Работники] ': {
             'Новый работник':
@@ -131,19 +133,19 @@ class Accesse:
             'Показать юбиляров этого года':
             lambda arg: AllWorkers().show_anniversary_workers(),
             'Создать календарь пересменок':
-            lambda arg: WorkCalendars().create_calendar()
+            lambda arg: WorkCalendars().create_calendar(),
         },
         '\033[91m--> [databases] \033[0m': {
             'upd company structure':
             lambda arg: AllWorkers().upd_comp_structure(),
             'print company structure':
-            lambda arg: AllWorkers().print_comp_structure()
+            lambda arg: AllWorkers().print_comp_structure(),
         },
         '--> [Финансы]': {
             'Наряд бригады':
             lambda arg: Reports().work_with_main_report(arg),
             'Сформировать итог по рейтингу':
-            lambda arg: Rating().count_brigade_winner()
+            lambda arg: Rating().count_brigade_winner(),
         },
         '--> [Меню_механика]': menu_options['mechanic'],
         '--> [Меню_мастера]': menu_options['master'],
@@ -151,7 +153,7 @@ class Accesse:
             'Показать статистику КТГ и КТИ':
             lambda arg: MechReports().show_statistic(),
             'Статистика по причинам простоев':
-            lambda arg: MechReports().show_statistic(True)
+            lambda arg: MechReports().show_statistic(True),
         },
         '--> [Статистика_добычи]': {
             'Статистика добычи по кубатуре':

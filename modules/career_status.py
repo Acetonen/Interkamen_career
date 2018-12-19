@@ -217,8 +217,10 @@ class CareerStatus(BasicFunctions):
 
     def add_info(self, user_acs):
         """Add info depend on user access."""
-        info_type = {'master': self._add_master_info,
-                     'mechanic': self._add_mechanic_info}
+        info_type = {
+            'master': self._add_master_info,
+            'mechanic': self._add_mechanic_info,
+        }
         info_type[user_acs]()
 
 
