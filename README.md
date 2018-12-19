@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.7.3
+### ver 1.8.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -111,6 +111,13 @@ We use [SemVer](http://semver.org/) for versioning.
 ### what's new in 1.7.3:
 1. Add total destruction for program data.
 2. Add massive_type to drill pass parametrs.
+### what's new in 1.8.0:
+1. Create HTML dayli report to email send.
+2. Change exl files destination.
+3. Add dump ktu to exl in main report.
+4. Fix adding temp drill report if rock mass not exist.
+5. Add send html in email.
+6. Add coordinates to working plans in daily report.
 
 ## Content and Instruction
 
