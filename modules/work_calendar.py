@@ -22,6 +22,8 @@ class WCalendar(BasicFunctions):
               f", которая будет длинной в январе {year} года:")
         itr_long = super().choise_from_list(shifts)
 
+        self.working_days_in_month = []
+        self.month_length = []
         self.br_cal = self._set_cal(year=year,
                                     whos_long=br_long,
                                     workers="brig")
@@ -68,10 +70,14 @@ class WCalendar(BasicFunctions):
             return tmp_stat
         return change
 
-    def _set_cal(self, year, whos_long, workers):
+    def _set_cal(self, *, year, whos_long, workers):
+        self._calculate_same_or_dif(year)
+        changes_dates = self._count_changes_dates(whos_long, workers)
+        return changes_dates
+
+    def _calculate_same_or_dif(self, year):
+        """Calculate same or diff shift lenght in month."""
         cal = cl.TextCalendar()
-        self.working_days_in_month = []
-        self.month_length = []
         for month in range(1, 12):
             days = [day for day in cal.itermonthdays(year, month) if day != 0]
             self.month_length.append(len(days))
@@ -82,9 +88,6 @@ class WCalendar(BasicFunctions):
         # In december both brigades have same days.
         self.working_days_in_month.append('same')
         self.month_length.append(30)
-
-        changes_dates = self._count_changes_dates(whos_long, workers)
-        return changes_dates
 
     def _count_changes_dates(self, whos_long, workers):
         """Count changes days in months."""

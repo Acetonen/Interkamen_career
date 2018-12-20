@@ -134,12 +134,20 @@ class DPassport(BasicFunctions):
 
     def _count_expl_volume(self, bareholes_number):
         """Count amounts of DH and pownder."""
-        self.params.pownder = round(
+        pownder = round(
             self.params.block_vol * self.params.pownd_consump / 1000, 1)
+        self.params.pownder = self._round_to_half(pownder)
         self.params.d_sh = (
             float(self.params.totall_meters) + (bareholes_number * 0.3)
             + self.params.block_width + 30
         )
+
+    @classmethod
+    def _round_to_half(cls, number):
+        number = (number // 0.5 * 0.5
+                  if number % 0.5 < 0.29
+                  else number // 0.5 * 0.5 + 0.5)
+        return number
 
     def _baareholes_and_dependencies(self):
         """Count bareholes parametrs and dependenses.

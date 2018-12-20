@@ -107,18 +107,6 @@ class CareerStatus(BasicFunctions):
             'None', '\033[91m<Информация отсутствует>\033[0m')
         return output
 
-    def give_shift_calendar(self):
-        """Return shifts calendar."""
-        output = "\n\n\033[4mПересменки в этом месяце:\033[0m\n\t"
-        output += (
-            self.cur['month_shifts']
-            .replace(
-                ' ' + self.date['tomorrow'].split('-')[-1],
-                ' \033[41m' + self.date['tomorrow'].split('-')[-1] + '\033[0m'
-                )
-        )
-        return output
-
     def _add_master_info(self):
         """Add info from master."""
         self._input_current_result()
@@ -235,7 +223,7 @@ class CareerStatus(BasicFunctions):
     def _create_html_status(self):
         """Create career status in  html."""
         blanc_html = AbsPath.get_path('html_blancs', 'career_status.html')
-        with open(blanc_html) as file:
+        with open(blanc_html, 'r', encoding='utf-8') as file:
             html = file.read()
         mach_table = self._create_mach_html()
         expl_table = self._create_plan_html(self.works_plan['expl_work'])
@@ -289,6 +277,18 @@ class CareerStatus(BasicFunctions):
             'mechanic': self._add_mechanic_info,
         }
         info_type[user_acs]()
+
+    def give_shift_calendar(self):
+        """Return shifts calendar."""
+        output = "\n\n\033[4mПересменки в этом месяце:\033[0m\n\t"
+        output += (
+            self.cur['month_shifts']
+            .replace(
+                ' ' + self.date['tomorrow'].split('-')[-1],
+                ' \033[41m' + self.date['tomorrow'].split('-')[-1] + '\033[0m'
+                )
+        )
+        return output
 
 
 class Statuses(BasicFunctions):
