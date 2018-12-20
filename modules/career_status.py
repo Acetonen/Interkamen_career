@@ -20,14 +20,14 @@ class CareerStatus(BasicFunctions):
             "today": str(date.today()),
             "tomorrow": str(date.today() + timedelta(days=1))
         }
-        date_numbers = list(map(int, self.date['today'].split('-')))
+        self.date_numbers = list(map(int, self.date['today'].split('-')))
         self.cur = {
             "brig":
-            WorkCalendars().give_current_brigade(date_numbers),
+            WorkCalendars().give_current_brigade(self.date_numbers),
             "itr":
-            WorkCalendars().give_current_itr(date_numbers),
+            WorkCalendars().give_current_itr(self.date_numbers),
             'month_shifts':
-            WorkCalendars().give_current_month_shifts(date_numbers),
+            WorkCalendars().give_current_month_shifts(self.date_numbers),
         }
         self.itr_list = AllWorkers().print_telefon_numbers(
             itr_shift=self.cur["itr"])
@@ -225,17 +225,25 @@ class CareerStatus(BasicFunctions):
         blanc_html = AbsPath.get_path('html_blancs', 'career_status.html')
         with open(blanc_html, 'r', encoding='utf-8') as file:
             html = file.read()
+        shift_calendar = self._create_shift_calendar()
         mach_table = self._create_mach_html()
         expl_table = self._create_plan_html(self.works_plan['expl_work'])
         rock_table = self._create_plan_html(self.works_plan['rock_work'])
         contact_table = self._create_contact_table()
         html = html.format(
             self.date['today'], self.cur['brig'], self.cur['itr'],
-            self.res['month'], self.res['shift'],
+            round(self.res['month'], 2), round(self.res['shift'], 2),
             self.storage['KOTC'], self.storage['sale'], mach_table,
-            self.date['tomorrow'], expl_table, rock_table, contact_table
+            self.date['tomorrow'], expl_table, rock_table, shift_calendar,
+            contact_table
         )
         return html
+
+    def _create_shift_calendar(self):
+        """Create calendar of ITR and brigade shifts."""
+        calendar = WorkCalendars().give_current_month_shifts(
+            self.date_numbers, cal_format='html')
+        return calendar
 
     def _create_contact_table(self):
         """Create contact table of ITR workers."""

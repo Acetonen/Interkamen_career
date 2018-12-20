@@ -122,22 +122,6 @@ class WCalendar(BasicFunctions):
                 end = end + 2
         return begin, end
 
-    def _colorized_days(self, days, color):
-        """Colorize days in calendar."""
-        for day in days:
-            st_day = str(day)
-            if len(st_day) == 1:
-                st_day = ' ' + st_day
-            self.month_prnt = self.month_prnt.replace(
-                st_day, color + st_day + '\033[0m')
-
-    def _colorized_month(self, month):
-        """Colorize month."""
-        cal = cl.TextCalendar()
-        self.month_prnt = cal.formatmonth(self.year, month+1).__repr__()
-        self._colorized_days(self.br_cal[month], '\033[96m')
-        self._colorized_days(self.itr_cal[month], '\033[93m')
-
     def _count_end_spaces(self, month):
         """Count spaces at the end of month."""
         cal = cl.TextCalendar()
@@ -151,15 +135,56 @@ class WCalendar(BasicFunctions):
         month_end = month_end * '   '
         return month_end
 
-    def give_month_shifts(self, month):
-        """Print calendar."""
-        self._colorized_month(month)
-        self.month_prnt = self.month_prnt.replace('\\n', '\n\t')
-        curr_month_shifts = (
-            self.month_prnt +
-            "\n\t\033[93m*пересменка ИТР\033[0m" +
-            "\n\t\033[96m*пересменка бригад\033[0m "
-        )
+    def _colorized_days_in_text(self, days, color):
+        """Colorize days in calendar."""
+        for day in days:
+            st_day = str(day)
+            if len(st_day) == 1:
+                st_day = ' ' + st_day
+            self.month_prnt = self.month_prnt.replace(
+                st_day, color + st_day + '\033[0m')
+
+    def _colorized_days_in_html(self, days, color):
+        """Colorised days in html calendar."""
+        for day in days:
+            st_day = str(day)
+            self.month_prnt = self.month_prnt.replace(
+                f'>{st_day}<', f' style="color:{color}"><b>{st_day}</b><')
+
+    def _colorized_month(self, month, cal_format='text'):
+        """Colorize month."""
+        if cal_format == 'text':
+            cal = cl.TextCalendar()
+            self.month_prnt = cal.formatmonth(self.year, month+1).__repr__()
+            function = self._colorized_days_in_text
+            color_br = '\033[96m'
+            color_itr = '\033[93m'
+        elif cal_format == 'html':
+            cal = cl.HTMLCalendar()
+            self.month_prnt = cal.formatmonth(self.year, month+1)
+            function = self._colorized_days_in_html
+            color_br = 'green'
+            color_itr = 'blue'
+        function(self.br_cal[month], color_br)
+        function(self.itr_cal[month], color_itr)
+
+    def give_month_shifts(self, month, cal_format='text'):
+        """Print calendar.
+        format = text/html"""
+        self._colorized_month(month, cal_format)
+        if cal_format == 'text':
+            self.month_prnt = self.month_prnt.replace('\\n', '\n\t')
+            curr_month_shifts = (
+                self.month_prnt +
+                "\n\t\033[93m*пересменка ИТР\033[0m" +
+                "\n\t\033[96m*пересменка бригад\033[0m "
+            )
+        elif cal_format == 'html':
+            curr_month_shifts = (
+                self.month_prnt +
+                '<p></p><p style="color:blue">*пересменка ИТР</p>' +
+                '<p style="color:green">*пересменка бригад</p>'
+            )
         return curr_month_shifts
 
 
@@ -207,8 +232,8 @@ class WorkCalendars(BasicFunctions):
             cur_itr = 'Смена 2'
         return cur_itr
 
-    def give_current_month_shifts(self, cur_date):
+    def give_current_month_shifts(self, cur_date, cal_format='text'):
         """Return current month shifts."""
         shifts_cal = (self.calendar_file[cur_date[0]]
-                      .give_month_shifts(cur_date[1]-1))
+                      .give_month_shifts(cur_date[1]-1, cal_format))
         return shifts_cal
