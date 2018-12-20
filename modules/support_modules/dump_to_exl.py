@@ -38,7 +38,7 @@ class DumpToExl(BasicFunctions):
         workbook = load_workbook(self.blanc_drill_path)
         worksheet = workbook.active
         img = Image(self.drill_img_path)  # Add image.
-        worksheet.add_image(img, 'A28')
+        worksheet.add_image(img, 'A29')
         worksheet['F1'] = int(passport.params.number)  # Passport number.
         worksheet['F5'] = str(passport.params.day)  # Day.
         worksheet['G5'] = self.months[int(passport.params.month)]  # Month.
@@ -53,18 +53,21 @@ class DumpToExl(BasicFunctions):
             worksheet['C' + str(row_number)] = length
             worksheet['A' + str(row_number)] = int(passport.bareholes[length])
             row_number += 1
-        # Volume.
+        worksheet['C22'] = round(float(passport.params.totall_meters), 1)
+        worksheet['A22'] = int(round(
+            (passport.params.block_width - 0.4) / 0.35, 0))
+        # Volume
         volume = float(passport.params.pownder) * 5
-        worksheet['F25'] = volume
+        worksheet['F26'] = volume
         # Block params.
         height = float(passport.params.block_height)
-        worksheet['H23'] = height
+        worksheet['H24'] = height
         depth = float(passport.params.block_depth)
-        worksheet['J23'] = depth
-        worksheet['L23'] = round(volume / height / depth, 1)
+        worksheet['J24'] = depth
+        worksheet['L24'] = round(volume / height / depth, 1)
         # Master.
         master = super().make_name_short(str(passport.params.master))
-        worksheet['G49'] = master
+        worksheet['G50'] = master
         # Save file.
         pass_name = self._create_pass_name(passport)
         workbook.save(os.path.join(self.drill_pass_path, pass_name) + '.xlsx')

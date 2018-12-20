@@ -62,8 +62,8 @@ class DPassport(BasicFunctions):
         """Input totall bareholes."""
         print("\nВведите шпуры.\n"
               "Если вы хотите ввести несколько шпуров одной длины, \n"
-              "введите их в следующем формате: длина*колличество.\n"
-              "Например: 5.5*6"
+              "введите их в следующем формате: колличество*длинна.\n"
+              "Например: 6*5.5"
               "\n[з] - закончить ввод\n")
         bareholes_number = 0
         totall_meters = 0
@@ -76,10 +76,10 @@ class DPassport(BasicFunctions):
                 break
             elif '*' in barehole:
                 barehole = barehole.split('*')
-                bar_lenght = super().float_input(inp=barehole[0])
-                totall_meters += bar_lenght * int(barehole[1])
-                temp_bareholes[bar_lenght] = int(barehole[1])
-                bareholes_number += int(barehole[1])
+                bar_lenght = super().float_input(inp=barehole[1])
+                totall_meters += bar_lenght * int(barehole[0])
+                temp_bareholes[bar_lenght] = int(barehole[0])
+                bareholes_number += int(barehole[0])
             else:
                 bar_lenght = super().float_input(inp=barehole)
                 totall_meters += bar_lenght
@@ -149,7 +149,7 @@ class DPassport(BasicFunctions):
                   else number // 0.5 * 0.5 + 0.5)
         return number
 
-    def _baareholes_and_dependencies(self):
+    def _bareholes_and_dependencies(self):
         """Count bareholes parametrs and dependenses.
         (block param, expl vol)"""
         bareholes_number = self._input_bareholes()
@@ -171,7 +171,7 @@ class DPassport(BasicFunctions):
         self._set_horizond()
         self._set_pownder_parametrs()
         self._set_driller()
-        self._baareholes_and_dependencies()
+        self._bareholes_and_dependencies()
         self._set_bits_in_rock()
 
     def change_parametrs(self):
@@ -180,7 +180,7 @@ class DPassport(BasicFunctions):
             'Изменить горизонт': self._set_horizond,
             'Изменить расход ВВ и ЭД': self._set_pownder_parametrs,
             'Изменить бурильщика': self._set_driller,
-            'Ввести новые длины шпуров': self._baareholes_and_dependencies,
+            'Ввести новые длины шпуров': self._bareholes_and_dependencies,
             'Удалить паспорт': 'del',
             '[закончить редактирование]': 'exit'
         }
