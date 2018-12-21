@@ -15,11 +15,12 @@ class DPassport(BasicFunctions):
 
     horizonds = ['+108', '+114', '+120', '+126', '+132']
 
-    def __init__(self, pass_number, master, empty_df):
+    def __init__(self, pass_number, master, empty_df, massive_type):
         self.pass_number = pass_number
         self.master = master
         self.params = empty_df
         self.bareholes = {}
+        self.params.massive_type = massive_type
 
     def __repr__(self):
         bareholes_table = '\nдлина, м  количество, шт'
@@ -156,17 +157,10 @@ class DPassport(BasicFunctions):
         self._set_block_parametrs(bareholes_number)
         self._count_expl_volume(bareholes_number)
 
-    def _set_massive_type(self):
-        """Choose massive type."""
-        massive_type = ['Массив', 'Повторный', 'Негабариты']
-        print("Выберете тип взрыва:")
-        self.params.massive_type = super().choise_from_list(massive_type)
-
     def fill_passport(self):
         """Fill passport."""
         self.params.number = self.pass_number
         self.params.master = self.master
-        self._set_massive_type()
         self._set_date()
         self._set_horizond()
         self._set_pownder_parametrs()
@@ -199,9 +193,29 @@ class DPassport(BasicFunctions):
                 edit_menu_dict[action_name]()
 
 
+class NPassport(DPassport):
+    """Nongabarites passport."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.nk_count = self._input_count()
+
+    @classmethod
+    def _input_count(cls):
+        """Input NG count."""
+        count = int(input("Введите число негабаритов: "))
+        return count
+
+    def __repr__(self):
+        output = super().__repr__()
+        output = output.replace(
+            "\nГорный мастер:",
+            f": {self.nk_count}шт.\nГорный мастер:")
+        return output
+
+
 class DrillPassports(BasicFunctions):
     """Class to create and working with drill passports."""
-
+    massive_type = ['Массив', 'Повторный', 'Негабариты']
     drill_pass_path = AbsPath().get_path('data', 'drill_passports')
     pass_columns = [
         'number', 'year', 'month', 'day', 'horizond', 'totall_meters',
@@ -232,8 +246,8 @@ class DrillPassports(BasicFunctions):
     def _create_empty_df(self):
         """Create blanc DF list."""
         self.empty_df = pd.DataFrame(columns=self.pass_columns)
-        self.empty_ser = pd.Series([Nan for name in self.pass_columns],
-                                   index=self.pass_columns)
+        self.empty_serial = pd.Series([Nan for name in self.pass_columns],
+                                      index=self.pass_columns)
 
     def _check_if_report_exist(self, number):
         """Check if report exist in base"""
@@ -294,7 +308,19 @@ class DrillPassports(BasicFunctions):
             number = input("\nВведите номер паспорта: ")
             if self._check_if_report_exist(number):
                 break
-        passport = DPassport(number, user['name'], self.empty_ser)
+
+        print("Выберете тип паспорта:")
+        pass_type = super().choise_from_list(self.massive_type)
+        if pass_type == 'Негабариты':
+            pass_blanc = NPassport
+        else:
+            pass_blanc = DPassport
+        passport = pass_blanc(
+            pass_number=number,
+            master=user['name'],
+            empty_df=self.empty_serial,
+            massive_type=pass_type,
+            )
         passport.fill_passport()
         super().clear_screen()
         print(passport)

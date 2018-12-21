@@ -243,6 +243,10 @@ class CareerStatus(BasicFunctions):
         """Create calendar of ITR and brigade shifts."""
         calendar = WorkCalendars().give_current_month_shifts(
             self.date_numbers, cal_format='html')
+        tomorrow = self.date['tomorrow'].split('-')[-1]
+        calendar = calendar.replace(
+            f'>{tomorrow}<', f' style="color:red"><b>{tomorrow}</b><'
+        )
         return calendar
 
     def _create_contact_table(self):
