@@ -69,7 +69,8 @@ class DumpToExl(BasicFunctions):
             worksheet['A' + str(row_number)] = int(norm_bareholes[length])
             row_number += 1
         # Volume
-        volume = float(passport.params.pownder) * 5
+        volume = round(float(passport.params.pownder) * 5 +
+                       float(passport.params.d_sh) / 10, 1)
         worksheet['F26'] = volume
         # Block params.
         height = float(passport.params.block_height)
