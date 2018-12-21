@@ -33,6 +33,20 @@ class DumpToExl(BasicFunctions):
                              int(passport.params.number)))
         return pass_name
 
+    @classmethod
+    def _normilise_barehole(cls, bareholes):
+        """Normalise 5+ meters bareholes to 5 meters."""
+        count = 0
+        new_bareholes = {}
+        for key in bareholes:
+            if key >= 5:
+                count += bareholes[key]
+            else:
+                new_bareholes[key] = bareholes[key]
+        if count:
+            new_bareholes[5] = count
+        return new_bareholes
+
     def dump_drill_pass(self, passport):
         """Dump drill passport data to blanc exl file."""
         workbook = load_workbook(self.blanc_drill_path)
@@ -49,13 +63,11 @@ class DumpToExl(BasicFunctions):
         worksheet['K11'] = int(passport.params.detonators)  # Detonators.
         # Bareholes.
         row_number = 17
-        for length in passport.bareholes:
+        norm_bareholes = self._normilise_barehole(passport.bareholes)
+        for length in norm_bareholes:
             worksheet['C' + str(row_number)] = length
-            worksheet['A' + str(row_number)] = int(passport.bareholes[length])
+            worksheet['A' + str(row_number)] = int(norm_bareholes[length])
             row_number += 1
-        worksheet['C22'] = round(float(passport.params.totall_meters), 1)
-        worksheet['A22'] = int(round(
-            (passport.params.block_width - 0.4) / 0.35, 0))
         # Volume
         volume = float(passport.params.pownder) * 5
         worksheet['F26'] = volume

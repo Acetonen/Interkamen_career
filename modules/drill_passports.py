@@ -269,7 +269,10 @@ class DrillPassports(BasicFunctions):
             super().save_log_to_temp_file(pass_name)
             exel = input("\nЖелаете создать exel файл? д/н: ")
             if exel == 'д':
-                DumpToExl().dump_drill_pass(passport)
+                if passport.__class__.__name__ == 'DPassport':
+                    DumpToExl().dump_drill_pass(passport)
+                else:
+                    pass
         else:
             print("Вы отменили сохранение.")
 
