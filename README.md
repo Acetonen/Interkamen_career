@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.8.0
+### ver 1.8.1
 
 ![intro](readme_screenshots/intro.png)
 
@@ -118,6 +118,14 @@ We use [SemVer](http://semver.org/) for versioning.
 4. Fix adding temp drill report if rock mass not exist.
 5. Add send html in email.
 6. Add coordinates to working plans in daily report.
+### what's new in 1.8.1:
+1. Add Round to 0,5 in explosive.
+2. Add totall in drill passports.
+3. Add calendar in HTML career status.
+4. Add non gabarites type of drill passport.
+5. Normalise 5+ meters bareholes to 5 meters in exel drill passports.
+6. Change volume count in exel drill passport.
+7. Add except ConnectionResetError in email module.
 
 ## Content and Instruction
 
