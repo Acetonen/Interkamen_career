@@ -53,34 +53,36 @@ class DumpToExl(BasicFunctions):
         worksheet = workbook.active
         img = Image(self.drill_img_path)  # Add image.
         worksheet.add_image(img, 'A29')
-        worksheet['F1'] = int(passport.params.number)  # Passport number.
-        worksheet['F5'] = str(passport.params.day)  # Day.
-        worksheet['G5'] = self.months[int(passport.params.month)]  # Month.
-        worksheet['H5'] = str(passport.params.year)  # Year.
-        worksheet['K7'] = str(passport.params.horizond)  # Horizond.
-        worksheet['D11'] = float(passport.params.pownder)  # Pownder.
-        worksheet['H11'] = int(passport.params.d_sh)  # D_SH.
-        worksheet['K11'] = int(passport.params.detonators)  # Detonators.
+        worksheet['K1'] = int(passport.params.number)  # Passport number.
+        worksheet['J5'] = str(passport.params.day)  # Day.
+        worksheet['K5'] = self.months[int(passport.params.month)]  # Month.
+        worksheet['M5'] = str(passport.params.year)  # Year.
+        worksheet['Q6'] = str(passport.params.horizond)  # Horizond.
+        worksheet['F9'] = float(passport.params.pownder)  # Pownder.
+        worksheet['K9'] = int(passport.params.d_sh)  # D_SH.
+        worksheet['P9'] = int(passport.params.detonators)  # Detonators.
         # Bareholes.
-        row_number = 17
+        row_number = 15
         norm_bareholes = self._normilise_barehole(passport.bareholes)
         for length in norm_bareholes:
-            worksheet['C' + str(row_number)] = length
-            worksheet['A' + str(row_number)] = int(norm_bareholes[length])
+            worksheet['G' + str(row_number)] = length
+            worksheet['D' + str(row_number)] = int(norm_bareholes[length])
             row_number += 1
         # Volume
         volume = round(float(passport.params.pownder) * 5 +
                        float(passport.params.d_sh) / 10, 1)
-        worksheet['F26'] = volume
+        worksheet['K27'] = volume
         # Block params.
         height = float(passport.params.block_height)
-        worksheet['H24'] = height
+        worksheet['H25'] = height
         depth = float(passport.params.block_depth)
-        worksheet['J24'] = depth
-        worksheet['L24'] = round(volume / height / depth, 1)
+        worksheet['P25'] = depth
+        worksheet['L25'] = round(volume / height / depth, 1)
+        worksheet['M8'] = round((worksheet['L25'].value - 0.4) / int(round(
+            (passport.params.block_width - 0.4) / 0.35, 0)), 3) * 1000
         # Master.
         master = super().make_name_short(str(passport.params.master))
-        worksheet['G50'] = master
+        worksheet['J47'] = master
         # Save file.
         pass_name = self._create_pass_name(passport)
         workbook.save(os.path.join(self.drill_pass_path, pass_name) + '.xlsx')

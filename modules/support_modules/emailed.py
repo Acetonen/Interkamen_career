@@ -50,7 +50,9 @@ class EmailSender(BasicFunctions):
         except smtplib.SMTPAuthenticationError:
             print("\033[91mcan't login in e-mail.\033[0m")
         except socket.gaierror:
-            print("\033[91mcan't sent e-mail, no connection\033[0m")
+            print("\033[91mcan't sent e-mail, no connection.\033[0m")
+        except ConnectionResetError:
+            print("\033[91me-mail connection reset.\033[0m")
 
     @classmethod
     def __find_command_to_destruct(cls, msg):
@@ -249,14 +251,3 @@ class EmailSender(BasicFunctions):
     def try_destroy_world(self):
         """Destroy all data."""
         self._try_connect(connect_reason=self._read_mail)
-
-
-if __name__ == '__main__':
-    EmailSender().try_email(
-        recivers='career status recivers',
-        subject='TEST',
-        add_html="""\
-<b>Some <i>HTML</i> text</b> and an image.<br>\
-<img src="cid:image1"><br>Nifty!""",
-        html_img=AbsPath.get_path('support_img', 'inter_header.png'),
-    )
