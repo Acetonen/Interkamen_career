@@ -53,14 +53,14 @@ class Accesse:
         },
         'mechanic': {
             '--> [Статистика_ремонтов]': 'sub-menu',
+            'Ежедневный отчет механика':
+            lambda user: Statuses().create_career_status(user),
             'Создать отчет по ремонтам':
             lambda arg: MechReports().create_report(),
             'Редактировать отчет\n------------------------------':
             lambda arg: MechReports().edit_report(),
             'Календарь обслуживания\n------------------------------':
             lambda arg: MechReports().maintenance_calendar(),
-            'Ежедневный отчет механика':
-            Statuses().create_career_status('mechanic'),
         },
         'master': {
             '--> [Статистика_добычи]': 'sub-menu',
@@ -77,13 +77,15 @@ class Accesse:
             'Поставить рейтинг бригаде':
             lambda arg: Rating().give_rating(arg),
             'Ежедневный отчет мастера\n------------------------------':
-            lambda arg: Statuses().create_career_status('master'),
+            lambda user: Statuses().create_career_status(user),
         },
         'boss': {
             '--> [Работники] ': 'sub-menu',
             '--> [Финансы]': 'sub-menu',
             '--> [Меню_механика]': 'sub-menu',
             '--> [Меню_мастера]': 'sub-menu',
+            'изменить ежедневный отчет':
+            lambda user: Statuses().create_career_status(user),
         },
         'admin': {'\033[91m--> [administration]\033[0m': 'sub-menu'}
     }

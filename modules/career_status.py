@@ -123,7 +123,6 @@ class CareerStatus(BasicFunctions):
             works,
             title="\033[4mДобычные работы:\033[0m")
         print("\033[92mОтчет создан.\033[0m")
-        self._try_to_emailed_status()
 
     def _input_strage_volume(self):
         """Add rocks from storage."""
@@ -182,7 +181,6 @@ class CareerStatus(BasicFunctions):
         self.mach["to_work"] = self._create_mach_list(
             title="\033[4mВыберете технику, введенную в работу:\033[0m")
         print("\033[92mОтчет создан.\033[0m")
-        self._try_to_emailed_status()
 
     def _create_mach_list(self, *, title):
         """Create mach list to repare or from repare."""
@@ -208,12 +206,25 @@ class CareerStatus(BasicFunctions):
             mach_list.append('Отсутствуют.')
         return mach_list
 
-    def _try_to_emailed_status(self):
+    def _try_to_emailed_status(self, name):
         """Try to send status via email."""
         if self.mach["to_repare"] and self.works_plan["rock_work"]:
             html = self._create_html_status()
+            if name:
+                message = f"ВНИМАНИЕ! {name} внес корректировки в отчет:"
+                html = html.replace(
+                    '>future_correction<',
+                    f' style="color:red"><b>(Скорректировал - {name})</b><'
+                )
+            else:
+                message = ''
+                html = html.replace(
+                    '>future_correction<',
+                    '> <'
+                )
             EmailSender().try_email(
                 recivers="career status recivers",
+                message=message,
                 subject='Состояние карьера',
                 add_html=html,
                 html_img=AbsPath.get_path('support_img', 'inter_header.png'),
@@ -282,13 +293,42 @@ class CareerStatus(BasicFunctions):
         table = '<tr align="center"><td>' + mach_list + '</tr>'
         return table
 
-    def add_info(self, user_acs):
-        """Add info depend on user access."""
+    def _ask_for_recreate(self):
+        """If daily career status already exist and comlate.
+        But user want to make changes."""
+        super().clear_screen()
+        ask = input("Ежедневный отчет уже сформирован и разослан руководству,"
+                    "\nВы уверены, что хоти внести корректировки? Д/н: ")
+        answer = bool(ask.lower() == 'д')
+        return answer
+
+    def _choose_info_to_add(self):
+        """Admin can choose what kind info he want to add."""
         info_type = {
             'master': self._add_master_info,
             'mechanic': self._add_mechanic_info,
         }
-        info_type[user_acs]()
+        accesse = super().choise_from_list(info_type)
+        info_type[accesse]()
+        super().clear_screen()
+
+    def add_info(self, user):
+        """Add info depend on user access."""
+        answer = True
+        name = None
+        if self.mach["to_repare"] and self.works_plan["rock_work"]:
+            answer = self._ask_for_recreate()
+            name = super().make_name_short(user['name'])
+        if answer:
+            info_type = {
+                'master': self._add_master_info,
+                'mechanic': self._add_mechanic_info,
+                'admin': self._choose_info_to_add,
+            }
+            info_type[user['accesse']]()
+            self._try_to_emailed_status(name)
+        else:
+            print("Вы отменили изменение отчета.")
 
     def give_shift_calendar(self):
         """Return shifts calendar."""
@@ -298,7 +338,7 @@ class CareerStatus(BasicFunctions):
             .replace(
                 ' ' + self.date['tomorrow'].split('-')[-1],
                 ' \033[41m' + self.date['tomorrow'].split('-')[-1] + '\033[0m'
-                )
+            )
         )
         return output
 
