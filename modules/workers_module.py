@@ -227,6 +227,13 @@ class AllWorkers(BasicFunctions):
         super().save_log_to_temp_file(f" - shifted.")
         return temp_worker
 
+    @classmethod
+    def _change_profession(cls, temp_worker):
+        """Change worker profession."""
+        new_profession = input("Введите новую профессию: ")
+        temp_worker.working_place['profession'] = new_profession
+        return temp_worker
+
     def edit_worker(self):
         """
         Edit worker information.
@@ -251,7 +258,8 @@ class AllWorkers(BasicFunctions):
                 'показать зарплату': self._show_salary,
                 'дата устройства на работу': self._add_worker_emp_date,
                 'показать взыскания': self._show_penalties,
-                '[закончить редактирование]': 'break'
+                'изменить профессию': self._change_profession,
+                '[закончить редактирование]': 'break',
                 }
             print("\nВыберете пункт для редактирования:")
             action_name = super().choise_from_list(edit_menu_dict)
