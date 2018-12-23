@@ -22,7 +22,8 @@ from modules.support_modules.emailed import EmailSender
 class Logs(BasicFunctions):
     """This class provides to work with all logs."""
 
-    data_path = AbsPath().get_path('data', 'logs_base')
+    data_path = AbsPath.get_path('data', 'logs_base')
+    log_file_path = AbsPath.get_path('data', 'log.tmp')
     log_list = {
         'enter program': '\033[94m enter program \033[0m',
         'exit program': '\033[93m exit program \033[0m',
@@ -61,15 +62,18 @@ class Logs(BasicFunctions):
         self.search_list = list(self.log_list.keys())
         self.search_list.extend(Users().get_all_users_list())
 
-    @classmethod
-    def _upload_temp_file_log(cls, log_constructor):
+    def _upload_temp_file_log(self, log_constructor):
         """Read detailed user log from temp file"""
-        file_path = AbsPath().get_path('data', 'log.tmp')
-        if os.path.exists(file_path):
-            with open(file_path, 'r', encoding='utf-8') as temp_file:
+        if os.path.exists(self.log_file_path):
+            with open(self.log_file_path, 'r', encoding='utf-8') as temp_file:
                 detail_log = temp_file.readlines()
                 log_constructor.extend(detail_log)
-            os.remove(file_path)
+            self._clean_log_file()
+
+    def _clean_log_file(self):
+        """Delete log file."""
+        if os.path.exists(self.log_file_path):
+            os.remove(self.log_file_path)
 
     def _send_mail_notification(self, log_constructor, subject, message):
         """Send notification email if action in notification list."""
@@ -105,6 +109,8 @@ class Logs(BasicFunctions):
 
     def create_log(self, user_login, user_action):
         """Create detailed log for action"""
+        if user_action == 'enter program':
+            self._clean_log_file()
         if user_action in self.log_list:
             log_constructor = []
             log_constructor.append(user_login)
