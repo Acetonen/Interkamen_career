@@ -423,7 +423,6 @@ class MechReports(BasicFunctions):
             else:
                 self._create_blanc(rep_date)
                 self._working_with_report(rep_date)
-                Statuses().create_career_status('mechanic')
                 break
 
     def edit_report(self):

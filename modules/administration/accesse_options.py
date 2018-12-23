@@ -59,6 +59,8 @@ class Accesse:
             lambda arg: MechReports().edit_report(),
             'Календарь обслуживания\n------------------------------':
             lambda arg: MechReports().maintenance_calendar(),
+            'Ежедневный отчет механика':
+            Statuses().create_career_status('mechanic'),
         },
         'master': {
             '--> [Статистика_добычи]': 'sub-menu',
