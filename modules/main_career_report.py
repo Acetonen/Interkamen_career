@@ -190,7 +190,13 @@ class MainReport(BasicFunctions):
     def _add_brigadiers_persent(self, worker, direction):
         """Add persent if worker are brigadier."""
         if worker in Reports().brigadiers:
-            oklad = self.workers_showing[direction]['зарплата'][worker] * 1.1
+            if direction == 'бух.':
+                persent = 1.15
+            elif direction == 'факт':
+                persent = 1.1
+            oklad = (
+                self.workers_showing[direction]['зарплата'][worker] * persent
+            )
             self.workers_showing[direction]['зарплата'][worker] = round(
                 oklad, 2)
 
