@@ -2,6 +2,7 @@
 """Add reminder under maim meny, different for different user access"""
 
 import os
+import time
 from datetime import date, timedelta
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.main_career_report import Reports
@@ -12,7 +13,7 @@ from modules.support_modules.absolyte_path_module import AbsPath
 class Reminder(BasicFunctions):
     """Make different reminder."""
 
-    reminder_path = AbsPath().get_path('data', 'reminds')
+    reminder_path = AbsPath.get_path('data', 'reminds')
 
     def __init__(self):
 
@@ -21,8 +22,11 @@ class Reminder(BasicFunctions):
             'info': [],
             'master': [],
             'boss': [self._main_report_remind],
-            'admin': [self._main_report_remind,
-                      self._maintenance_remind]
+            'admin': [
+                self._main_report_remind,
+                self._maintenance_remind,
+                self._update_career_map,
+            ]
         }
 
         if os.path.exists(self.reminder_path):
@@ -32,6 +36,18 @@ class Reminder(BasicFunctions):
             for users in self.remind_by_access:
                 self.reminder_file[users] = {}
             super().dump_data(self.reminder_path, self.reminder_file)
+
+    @classmethod
+    def _update_career_map(cls):
+        """Reminder to update career map for daily report."""
+        header = ''
+        map_path = AbsPath.get_path('html_blancs', 'map.pdf')
+        if os.path.exists(map_path):
+            map_date = time.gmtime(os.path.getmtime(map_path)).tm_yday
+            today = date.today().timetuple().tm_yday
+            if today - map_date > 30:
+                header = '\033[91mНеобходимо обновить карту карьера.\033[0m'
+        return header
 
     @classmethod
     def _main_report_remind(cls):
