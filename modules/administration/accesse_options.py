@@ -37,8 +37,6 @@ class Accesse:
         'info': {
             '--> [Статистика_ремонтов]': 'sub-menu',
             '--> [Статистика_добычи]': 'sub-menu',
-            'Состояние карьера':
-            lambda arg: Statuses().show_status(),
         },
         'basic': {
             'Телефоны работников':
@@ -49,6 +47,8 @@ class Accesse:
             lambda arg: Users().change_password(arg),
             'Показать новости':
             lambda arg: News().show_actual_news(),
+            'Состояние карьера':
+            lambda arg: Statuses().show_status(),
             '\033[93mВыйти из программы\033[0m': 'exit program',
         },
         'mechanic': {
@@ -82,8 +82,6 @@ class Accesse:
             '--> [Финансы]': 'sub-menu',
             '--> [Меню_механика]': 'sub-menu',
             '--> [Меню_мастера]': 'sub-menu',
-            'Состояние карьера':
-            lambda arg: Statuses().show_status(),
         },
         'admin': {'\033[91m--> [administration]\033[0m': 'sub-menu'}
     }
