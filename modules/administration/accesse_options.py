@@ -26,6 +26,7 @@ from modules.work_calendar import WorkCalendars
 from modules.career_status import Statuses
 from modules.support_modules.reminder import Reminder
 from modules.support_modules.news import News
+from modules.workers_salary import WorkersSalary
 
 
 class Accesse:
@@ -130,8 +131,6 @@ class Accesse:
             lambda arg: AllWorkers().return_from_archive(),
             'Редактировать работника':
             lambda arg: AllWorkers().edit_worker(),
-            'Бригадиры, окладники, бурильщики':
-            lambda arg: Reports().choose_salary_or_drillers(),
             'Показать юбиляров этого года':
             lambda arg: AllWorkers().show_anniversary_workers(),
             'Создать календарь пересменок':
@@ -148,6 +147,10 @@ class Accesse:
             lambda arg: Reports().work_with_main_report(arg),
             'Сформировать итог по рейтингу':
             lambda arg: Rating().count_brigade_winner(),
+            'Редактировать список окладов':
+            lambda arg: WorkersSalary().manage_salary_list(),
+            'Бригадиры, окладники, бурильщики':
+            lambda arg: Reports().choose_salary_or_drillers(),
         },
         '--> [Меню_механика]': menu_options['mechanic'],
         '--> [Меню_мастера]': menu_options['master'],
