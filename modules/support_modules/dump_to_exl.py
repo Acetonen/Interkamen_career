@@ -15,7 +15,6 @@ class DumpToExl(BasicFunctions):
         '', 'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
         'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
     ]
-    drill_img_path = AbsPath().get_path('exl_blancs', 'scheme.png')
     blanc_drill_path = AbsPath().get_path('exl_blancs', 'drill_passport.xlsx')
     blanc_ktu_path = AbsPath().get_path('exl_blancs', 'ktu.xlsx')
     drill_pass_path = AbsPath().get_path(
@@ -47,11 +46,17 @@ class DumpToExl(BasicFunctions):
             new_bareholes[5] = count
         return new_bareholes
 
-    def dump_drill_pass(self, passport):
+    def dump_drill_pass(self, passport, negab=None):
         """Dump drill passport data to blanc exl file."""
         workbook = load_workbook(self.blanc_drill_path)
         worksheet = workbook.active
-        img = Image(self.drill_img_path)  # Add image.
+        if negab:
+            img = Image(AbsPath.get_path('exl_blancs', 'scheme_ng.png'))
+            worksheet['F4'] = 'колличество негабаритов:'
+            worksheet['K4'] = int(negab)
+        else:
+            img = Image(AbsPath.get_path('exl_blancs', 'scheme.png'))
+
         worksheet.add_image(img, 'A29')
         worksheet['K1'] = int(passport.params.number)  # Passport number.
         worksheet['J5'] = str(passport.params.day)  # Day.

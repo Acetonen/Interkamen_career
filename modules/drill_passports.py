@@ -272,7 +272,8 @@ class DrillPassports(BasicFunctions):
                 if passport.__class__.__name__ == 'DPassport':
                     DumpToExl().dump_drill_pass(passport)
                 else:
-                    pass
+                    DumpToExl().dump_drill_pass(passport,
+                                                negab=passport.nk_count)
         else:
             print("Вы отменили сохранение.")
 
