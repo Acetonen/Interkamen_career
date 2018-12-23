@@ -35,7 +35,10 @@ class News(BasicFunctions):
                 break
             print(new_news[0])
             new_news = new_news[1:]
-            input("\n[ENTER] - дальше")
+            choose = input("\n[B] - выход"
+                           "\n[ENTER] - дальше")
+            if choose.lower() in ['b', 'B', 'в', 'В']:
+                break
 
     def _add_news_to_user(self, user_login, news):
         """Add information about showing news to user."""
