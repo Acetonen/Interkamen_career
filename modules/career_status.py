@@ -222,7 +222,7 @@ class CareerStatus(BasicFunctions):
                     '>future_correction<',
                     '> <'
                 )
-            EmailSender().try_email(
+            unsucsesse = EmailSender().try_email(
                 recivers="career status recivers",
                 message=message,
                 subject='Состояние карьера',
@@ -230,6 +230,8 @@ class CareerStatus(BasicFunctions):
                 html_img=AbsPath.get_path('support_img', 'inter_header.png'),
                 add_file=AbsPath.get_path('html_blancs', 'map.pdf'),
             )
+            if unsucsesse:
+                print(unsucsesse)
 
     def _create_html_status(self):
         """Create career status in  html."""

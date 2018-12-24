@@ -79,11 +79,13 @@ class Logs(BasicFunctions):
         """Send notification email if action in notification list."""
         for event in self.notification_list:
             if event in ' '.join(log_constructor):
-                EmailSender().try_email(
+                unsucsesse = EmailSender().try_email(
                     recivers='resivers list',
                     subject=subject,
                     message=message,
                 )
+                if unsucsesse:
+                    print(unsucsesse)
 
     def _search_logs_by_item(self, search_item):
         """Search particular information from logs."""

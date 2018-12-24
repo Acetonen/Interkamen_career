@@ -36,7 +36,7 @@ class News(BasicFunctions):
             print(new_news[0])
             new_news = new_news[1:]
             choose = input("\n[B] - выход"
-                           "\n[ENTER] - дальше")
+                           "\n[ENTER] - дальше: ")
             if choose.lower() in ['b', 'B', 'в', 'В']:
                 break
 

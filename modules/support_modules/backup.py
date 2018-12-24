@@ -22,12 +22,14 @@ def make_backup(backup_log_list=EMPTY_LIST):
     backup_log_list.append(current_date)
     BasicFunctions.dump_data(LOG_FILE_PATH, backup_log_list)
     print("\033[5m\033[1mBackup done.\033[0m")
-    EmailSender().try_email(
+    unsucsesse = EmailSender().try_email(
         recivers='resivers list',
         subject='Data backup',
         message='Data backup for ' + current_date,
         add_file=AbsPath().get_path(backup_path) + '.zip',
     )
+    if unsucsesse:
+        print(unsucsesse)
     log_maden = True
     return log_maden
 

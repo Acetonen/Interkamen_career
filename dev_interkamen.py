@@ -10,107 +10,115 @@ Functions: 'print_menu'
 """
 
 import sys
+import logging
 
 from modules.support_modules.hi import INTERKAMEN
 from modules.support_modules.standart_functions import BasicFunctions as BasF
 from modules.support_modules.reminder import Reminder
 from modules.support_modules.news import News
+from modules.administration.error_handle import ErrorCatch
 
 from modules.administration.accesse_options import Accesse
-from modules.administration.users import Users
 from modules.administration.log_class import Logs
 
 
-def print_menu():
-    """Print program menu."""
-    print(Reminder().give_remind(USR_ACS) + '\n' + SEPARATOR + '\n')
-    if MENU_NESTING:
-        print(''.join(MENU_NESTING), '\n')
-    print(' '.join(MENU_HEADER))
-    for index, item in enumerate(PROGRAM_MENU, 1):
-        print("[{}] - {}".format(index, item))
-    print()
-    print(SEPARATOR)
-
-
-def get_main_or_sub_menu(sub_menu=False):
-    """create main or sub-menu sub_menu=True"""
-    if sub_menu:
-        program_menu = Accesse(USR_ACS).get_sub_menu(sub_menu)
-    else:
-        program_menu = Accesse(USR_ACS).get_menu_dict()
-    PROGRAM_MENU.clear()
-    PROGRAM_MENU.update(program_menu)
-    del MENU_LIST[:]
-    MENU_LIST.extend(list(PROGRAM_MENU.items()))
-
-
-def show_news():
-    """Try to show news."""
-    if USR_ACS != 'info':
-        News().show_new_news(USR_ACS)
-        BasF().clear_screen()
-        print(INTERKAMEN)
-
-
-if __name__ == '__main__':
-    MENU_HEADER = ['\033[1m \t', None, '\n \033[0m']
-    SEPARATOR = "\033[36m------------------------------\033[0m"
-    PROGRAM_MENU = {}
-    MENU_LIST = []
-    MENU_NESTING = []
-    CURRENT_USER = {
+def main():
+    """Main flow."""
+    menu_list = []
+    menu_nesting = []
+    menu_header = ['\033[1m \t', '\033[4m ГЛАВНОЕ МЕНЮ \033[0m', '\n \033[0m']
+    current_user = {
         'login': 'admin',
         'name': 'admin',
         'accesse': 'admin',
         'password': 'admin',
     }
-    USR_ACS = CURRENT_USER['accesse']
-    show_news()
-
-    # Create main menu (otput and actions dict).
-    MENU_HEADER[1] = '\033[4m ГЛАВНОЕ МЕНЮ \033[0m'
-    get_main_or_sub_menu(None)
+    usr_acs = current_user['accesse']
+    show_news(usr_acs)
+    program_menu = get_main_or_sub_menu(usr_acs, menu_list, None)
 
     while True:
-
-        print_menu()
-        USER_CHOISE = input("\nВыберете действие: ")
+        print_menu(usr_acs, menu_header, menu_nesting, program_menu)
+        user_choise = input("\nВыберете действие: ")
         BasF.clear_screen()
 
-        if not BasF.check_number_in_range(USER_CHOISE, PROGRAM_MENU):
+        if not BasF.check_number_in_range(user_choise, program_menu):
             continue
 
-        USER_CHOISE = int(USER_CHOISE) - 1  # User choise == Index
+        user_choise = int(user_choise) - 1  # User choise == Index
 
         # Enter sub-menu.
-        if '-->' in MENU_LIST[USER_CHOISE][0]:
-            MENU_HEADER[1] = MENU_LIST[USER_CHOISE][0].split(' ')[1]
-            MENU_NESTING.append(MENU_LIST[USER_CHOISE][0])
-            get_main_or_sub_menu(sub_menu=MENU_LIST[USER_CHOISE][0])
+        if '-->' in menu_list[user_choise][0]:
+            menu_header[1] = menu_list[user_choise][0].split(' ')[1]
+            menu_nesting.append(menu_list[user_choise][0])
+            program_menu = get_main_or_sub_menu(
+                usr_acs, menu_list,
+                sub_menu=menu_list[user_choise][0]
+            )
             continue
 
         # Exit sub-menu.
-        elif '<--' in MENU_LIST[USER_CHOISE][0]:
-            MENU_NESTING = MENU_NESTING[:-1]  # Go one menu up.
-            if MENU_NESTING:
-                MENU_HEADER[1] = MENU_NESTING[-1].split(' ')[1]
-                get_main_or_sub_menu(sub_menu=MENU_NESTING[-1])
+        elif '<--' in menu_list[user_choise][0]:
+            menu_nesting = menu_nesting[:-1]  # Go one menu up.
+            if menu_nesting:
+                menu_header[1] = menu_nesting[-1].split(' ')[1]
+                program_menu = get_main_or_sub_menu(
+                    usr_acs, menu_list,
+                    sub_menu=menu_nesting[-1]
+                )
             else:
-                MENU_HEADER[1] = '\033[4m ГЛАВНОЕ МЕНЮ \033[0m'
-                get_main_or_sub_menu()
+                menu_header[1] = '\033[4m ГЛАВНОЕ МЕНЮ \033[0m'
+                program_menu = get_main_or_sub_menu(
+                    usr_acs, menu_list)
 
         # Exit program.
-        elif MENU_LIST[USER_CHOISE][1] == 'exit program':
-            Logs().create_log(CURRENT_USER['login'], 'exit program')
+        elif menu_list[user_choise][1] == 'exit program':
+            Logs().create_log(current_user['login'], 'exit program')
             sys.exit()
 
         # Make action.
         else:
-            ACTION = MENU_LIST[USER_CHOISE][1]
-            ACTION(CURRENT_USER)
+            action = menu_list[user_choise][1]
+            action(current_user)
             input('\n[нажмите ENTER]')  # Show menu on screen.
             BasF.clear_screen()
-            Logs().create_log(CURRENT_USER['login'], MENU_LIST[USER_CHOISE][0])
+            Logs().create_log(
+                current_user['login'],
+                menu_list[user_choise][0],
+            )
 
-        CURRENT_USER = Users().sync_user(CURRENT_USER['login'])
+
+def print_menu(usr_acs, menu_header, menu_nesting, program_menu):
+    """Print program menu."""
+    separator = "\033[36m------------------------------\033[0m"
+    print(Reminder().give_remind(usr_acs) + '\n' + separator + '\n')
+    if menu_nesting:
+        print(''.join(menu_nesting), '\n')
+    print(' '.join(menu_header))
+    for index, item in enumerate(program_menu, 1):
+        print("[{}] - {}".format(index, item))
+    print()
+    print(separator)
+
+
+def get_main_or_sub_menu(usr_acs, menu_list, sub_menu=False):
+    """create main or sub-menu sub_menu=True"""
+    if sub_menu:
+        program_menu = Accesse(usr_acs).get_sub_menu(sub_menu)
+    else:
+        program_menu = Accesse(usr_acs).get_menu_dict()
+    del menu_list[:]
+    menu_list.extend(list(program_menu.items()))
+    return program_menu
+
+
+def show_news(usr_acs):
+    """Try to show news."""
+    if usr_acs != 'info':
+        News().show_new_news(usr_acs)
+        BasF().clear_screen()
+        print(INTERKAMEN)
+
+
+if __name__ == '__main__':
+    main()

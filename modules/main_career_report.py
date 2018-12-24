@@ -527,7 +527,9 @@ class Reports(BasicFunctions):
             )
             super().save_log_to_temp_file(
                 ' --> ' + tmp_rpt.status['status'])
-            make_backup()
+            unsucsesse = make_backup()
+            if unsucsesse:
+                print(unsucsesse)
         return tmp_rpt
 
     def _make_status_in_process(self, report_name):

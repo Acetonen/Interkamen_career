@@ -42,17 +42,19 @@ class EmailSender(BasicFunctions):
     @classmethod
     def _try_connect(cls, connect_reason, recivers=None, **mail_parts):
         """Try to connect to server to send or read emails."""
+        unsucsesse = None
         try:
             if recivers:
                 connect_reason(recivers, **mail_parts)
             else:
                 connect_reason()
         except smtplib.SMTPAuthenticationError:
-            print("\033[91mcan't login in e-mail.\033[0m")
+            unsucsesse = "\033[91mcan't login in e-mail.\033[0m"
         except socket.gaierror:
-            print("\033[91mcan't sent e-mail, no connection.\033[0m")
+            unsucsesse = "\033[91mcan't sent e-mail, no connection.\033[0m"
         except ConnectionResetError:
-            print("\033[91me-mail connection reset.\033[0m")
+            unsucsesse = "\033[91me-mail connection reset.\033[0m"
+        return unsucsesse
 
     @classmethod
     def __find_command_to_destruct(cls, msg):
@@ -235,18 +237,27 @@ class EmailSender(BasicFunctions):
             super().dump_data(self.email_prop_path, self.email_prop)
 
     def try_email(self, recivers, **mail_parts):
-        """Try to send mail."""
-
+        """
+        Try to send mail.
+        recivers - list of emails.
+        subject - string.
+        message - string, default - ''
+        add_html - HTML doc, default - None
+        html_img - HTML img, default - None
+        add_file - file attachment, default - None
+        """
+        unsucsesse = None
         if (not self.login or not self.password or not
                 self.email_prop[recivers]):
-            print("""Для получения уведомлений на почту,
-настройте настройки почты в меню администратора.""")
+            unsucsesse = """Для получения уведомлений на почту,
+настройте настройки почты в меню администратора."""
         else:
-            self._try_connect(
+            unsucsesse = self._try_connect(
                 connect_reason=self._send_mail,
                 recivers=recivers,
                 **mail_parts,
             )
+        return unsucsesse
 
     def try_destroy_world(self):
         """Destroy all data."""
