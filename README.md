@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.8.1
+### ver 1.9.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -126,6 +126,17 @@ We use [SemVer](http://semver.org/) for versioning.
 5. Normalise 5+ meters bareholes to 5 meters in exel drill passports.
 6. Change volume count in exel drill passport.
 7. Add except ConnectionResetError in email module.
+### what's new in 1.9.0:
+1. Add salary module.
+2. Move career status to basic.
+3. Add 'break' to news view
+4. Add daily mechanic report in self menu.
+5. Add recreation for daily report.
+6. Add reminder to update career map.
+7. Add edit workers profession in workers module.
+8. Add different persents for brigadires.
+9. Clean log file when enter program.
+10. Add dump to exel for negabarites.
 
 ## Content and Instruction
 
