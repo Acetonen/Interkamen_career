@@ -15,11 +15,9 @@ from operator import sub, add
 
 import pandas as pd
 from matplotlib import pyplot as plt
-from matplotlib import rcParams as window_parametrs
 
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsPath
-from modules.career_status import Statuses
 from modules.administration.logger_cfg import Logs
 
 

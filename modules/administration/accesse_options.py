@@ -66,9 +66,9 @@ class Accesse:
         'master': {
             '--> [Статистика_добычи]': 'sub-menu',
             'Создать табель добычной бригады':
-            lambda user: Reports().create_report(),
+            lambda user: Reports(user).create_report(),
             'Редактировать табель\n------------------------------':
-            lambda user: Reports().edit_report(),
+            lambda user: Reports(user).edit_report(),
             'Создать буровой паспорт':
             lambda user: DrillPassports().create_drill_passport(user),
             'Редактировать буровой паспорт\n------------------------------':
@@ -144,13 +144,13 @@ class Accesse:
         },
         '--> [Финансы]': {
             'Наряд бригады':
-            lambda user: Reports().work_with_main_report(user),
+            lambda user: Reports(user).work_with_main_report(),
             'Сформировать итог по рейтингу':
             lambda user: Rating().count_brigade_winner(),
             'Редактировать список окладов':
             lambda user: WorkersSalary().manage_salary_list(),
             'Бригадиры, окладники, бурильщики':
-            lambda user: Reports().choose_salary_or_drillers(),
+            lambda user: Reports(user).choose_salary_or_drillers(),
         },
         '--> [Меню_механика]': menu_options['mechanic'],
         '--> [Меню_мастера]': menu_options['master'],

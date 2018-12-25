@@ -53,7 +53,7 @@ class Reminder(BasicFunctions):
     def _main_report_remind(cls):
         """Remind if main report uncomplete."""
         header = ''
-        reports_need_to_edit = Reports().give_avaliable_to_edit(
+        reports_need_to_edit = Reports(None).give_avaliable_to_edit(
             '[не завершен]', '[в процессе]')
         if reports_need_to_edit:
             header = "Недооформленные документы:\n" + '\n'.join(

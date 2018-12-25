@@ -27,6 +27,10 @@ from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.backup import make_backup
 from modules.support_modules.dump_to_exl import DumpToExl
+from modules.administration.logger_cfg import Logs
+
+
+LOGGER = Logs().give_logger(__name__)
 
 
 class MainReport(BasicFunctions):
@@ -83,14 +87,15 @@ class MainReport(BasicFunctions):
     @classmethod
     def _colorise_salary_and_drillers(cls, name, output):
         """Colorise sallary and drillers in report output."""
-        if name in Reports().salary_workers or name in Reports().drillers:
+        if (name in Reports(None).salary_workers or
+                name in Reports(None).drillers):
             output = ''.join(['\033[36m', output, '\033[0m'])
         return output
 
     @classmethod
     def _colorise_brigadiers(cls, name, output):
         """Colorise sallary and drillers in report output."""
-        if name in Reports().brigadiers:
+        if name in Reports(None).brigadiers:
             if '\033[36m' in output:
                 output = output.replace('\033[36m', '\033[91m')
             else:
@@ -172,10 +177,10 @@ class MainReport(BasicFunctions):
     def _count_sal_workers_and_drill(self, worker):
         """Count sallary workers and drillers"""
         oklad = 0
-        if worker in Reports().salary_workers:
+        if worker in Reports(None).salary_workers:
             oklad = (self.workers_showing['факт']['часы'][worker]
                      / 11 * 50000 / 15)
-        elif worker in Reports().drillers:
+        elif worker in Reports(None).drillers:
             oklad = (self.result['шпурометры'] * 36)
         if self.bonuses['более 250 кубов']:
             oklad += (5000 / 15 / 11
@@ -189,7 +194,7 @@ class MainReport(BasicFunctions):
 
     def _add_brigadiers_persent(self, worker, direction):
         """Add persent if worker are brigadier."""
-        if worker in Reports().brigadiers:
+        if worker in Reports(None).brigadiers:
             if direction == 'бух.':
                 persent = 1.15
             elif direction == 'факт':
@@ -242,8 +247,8 @@ class MainReport(BasicFunctions):
         self.count_result()
         for direction in self.workers_showing:
             for worker in self.workers_showing[direction]['КТУ']:
-                if ((worker in Reports().salary_workers or
-                     worker in Reports().drillers) and
+                if ((worker in Reports(None).salary_workers or
+                     worker in Reports(None).drillers) and
                         direction == 'факт'):
                     self._count_sal_workers_and_drill(worker)
                 elif direction == 'бух.':
@@ -284,13 +289,14 @@ class Reports(BasicFunctions):
     Class to manage with reports.
     """
 
-    shifts = ['Смена 1', 'Смена 2']
     data_path = AbsPath().get_path('data', 'main_career_report')
     salary_path = AbsPath().get_path('data', 'salary_worker')
     drillers_path = AbsPath().get_path('data', 'drillers')
     brigadiers_path = AbsPath().get_path('data', 'brigadiers')
 
-    def __init__(self):
+    def __init__(self, user):
+        self.shifts = ['Смена 1', 'Смена 2']
+        self.user = user
         self.salary_workers = super().load_data(self.salary_path)
         self.drillers = super().load_data(self.drillers_path)
         self.brigadiers = super().load_data(self.brigadiers_path)
@@ -369,16 +375,18 @@ class Reports(BasicFunctions):
             self.data_base[new_name] = tmp_rpt
             self.data_base.pop(report_name, None)
             super().dump_data(self.data_path, self.data_base)
-            super().save_log_to_temp_file(
-                ' --> ' + tmp_rpt.status['status'])
+            LOGGER.warning(
+                f"User '{self.user['login']}' uncomplete report: {new_name}"
+            )
 
     def _delete_report(self, report_name):
         """Delete report."""
         if super().confirm_deletion(report_name):
             self.data_base.pop(report_name, None)
             super().dump_data(self.data_path, self.data_base)
-            super().save_log_to_temp_file(
-                "\033[91m - report deleted. \033[0m")
+            LOGGER.warning(
+                f"User '{self.user['login']}' delete report: {report_name}"
+            )
 
     def _edit_salary_or_drillers(self, data_path):
         """Edit sallary or drillers lists."""
@@ -409,9 +417,10 @@ class Reports(BasicFunctions):
         if worker:
             worker_list.append(worker)
             super().dump_data(data_path, worker_list)
-            log = " worker {} aded".format(worker)
-            print(log)
-            super().save_log_to_temp_file(log)
+            print("worker {} aded".format(worker))
+            LOGGER.warning(
+                f"User '{self.user['login']}' add worker {worker} to list"
+            )
 
     def _delete_salary_or_driller(self, data_path):
         """Delete worker from salary or driller list."""
@@ -424,9 +433,10 @@ class Reports(BasicFunctions):
         if worker:
             worker_list.remove(worker)
             super().dump_data(data_path, worker_list)
-            log = " worker {} deleted".format(worker)
-            print(log)
-            super().save_log_to_temp_file(log)
+            print("worker {} deleted".format(worker))
+            LOGGER.warning(
+                f"User '{self.user['login']}' delete worker {worker} from list"
+            )
 
     def _edit_main_report(self, report_name):
         """
@@ -525,8 +535,10 @@ class Reports(BasicFunctions):
                 tmp_rpt.status['date'],
                 tmp_rpt.unofficial_workers()
             )
-            super().save_log_to_temp_file(
-                ' --> ' + tmp_rpt.status['status'])
+            LOGGER.warning(
+                f"User '{self.user['login']}' complete main report: "
+                + f"{tmp_rpt.status['date']}"
+            )
             unsucsesse = make_backup()
             if unsucsesse:
                 print(unsucsesse)
@@ -549,8 +561,10 @@ class Reports(BasicFunctions):
         new_name = "{date} {shift} {status}".format(**tmp_report.status)
         self.data_base[new_name] = tmp_report
         super().dump_data(self.data_path, self.data_base)
-        super().save_log_to_temp_file(
-            ' --> ' + tmp_report.status['status'])
+        LOGGER.warning(
+            f"User '{self.user['login']}' make report 'in process': "
+            + f"{new_name}"
+        )
         self._edit_main_report(new_name)
 
     def _print_workers_group(self):
@@ -571,13 +585,16 @@ class Reports(BasicFunctions):
         choose = input("\nВыберете тип работников для редактирования: ")
         if choose == '1':
             self._edit_salary_or_drillers(self.salary_path)
-            super().save_log_to_temp_file(' salary')
+            LOGGER.warning(
+                f"User '{self.user['login']}' working with salary list")
         elif choose == '2':
             self._edit_salary_or_drillers(self.drillers_path)
-            super().save_log_to_temp_file(' drillers')
+            LOGGER.warning(
+                f"User '{self.user['login']}' working with drillers list")
         elif choose == '3':
             self._edit_salary_or_drillers(self.brigadiers_path)
-            super().save_log_to_temp_file(' brigadiers')
+            LOGGER.warning(
+                f"User '{self.user['login']}' working with brigadiers list")
 
     def give_main_results(self, year, month, shift):
         """Return drill meters, result and rock_mass.
@@ -632,7 +649,8 @@ class Reports(BasicFunctions):
         report_name = "{date} {shift} {status}".format(**report.status)
         self.data_base[report_name] = report
         super().dump_data(self.data_path, self.data_base)
-        super().save_log_to_temp_file(report_name)
+        LOGGER.warning(
+            f"User '{self.user['login']}' create main report: {report_name}")
 
     def edit_report(self):
         """
@@ -647,7 +665,8 @@ class Reports(BasicFunctions):
         report_name = super().choise_from_list(
             avaliable_reports, none_option=True)
         if report_name:
-            super().save_log_to_temp_file(report_name)
+            LOGGER.warning(
+                f"User '{self.user['login']}' edit main report: {report_name}")
         super().clear_screen()
         while report_name:
             tmp_rpt = self.data_base[report_name]
@@ -671,7 +690,7 @@ class Reports(BasicFunctions):
             super().dump_data(self.data_path, self.data_base)
             super().clear_screen()
 
-    def work_with_main_report(self, current_user):
+    def work_with_main_report(self):
         """Finish MainReport"""
         years = set([report.split('-')[0] for report in self.data_base])
         print("Выберете год:")
@@ -685,12 +704,11 @@ class Reports(BasicFunctions):
         else:
             report_name = None
         if report_name:
-            super().save_log_to_temp_file(' ' + report_name)
             if '[не завершен]' in report_name:
                 self._make_status_in_process(report_name)
             elif '[завершен]' in report_name:
                 print(self.data_base[report_name])
-                if current_user['accesse'] == 'admin':
+                if self.user['accesse'] == 'admin':
                     choise = input("""\
 \033[91m[un]\033[0m Возвратить статус '\033[93m[в процессе]\033[0m'\n""")
                     if choise == 'un':
