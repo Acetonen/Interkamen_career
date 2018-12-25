@@ -5,11 +5,14 @@ Working with statistic of drill instrument.
 
 import os
 from matplotlib import pyplot as plt
-from matplotlib import rcParams as window_parametrs
 import pandas as pd
 from modules.support_modules.absolyte_path_module import AbsPath
 from modules.main_career_report import Reports
 from modules.support_modules.standart_functions import BasicFunctions
+from modules.administration.logger_cfg import Logs
+
+
+LOGGER = Logs().give_logger(__name__)
 
 
 class DrillInstruments(BasicFunctions):
@@ -22,7 +25,8 @@ class DrillInstruments(BasicFunctions):
                   '07', '08', '09', '10', '11', '12']
     drill_data = {}
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         if os.path.exists(self.drill_path):
             self.drill_file = super().load_data(self.drill_path)
         else:
@@ -130,10 +134,12 @@ class DrillInstruments(BasicFunctions):
         self.drill_file = self.drill_file.append(self.drill_data,
                                                  ignore_index=True)
         super().dump_data(self.drill_path, self.drill_file)
-        super().save_log_to_temp_file('{}-{}-{}\033[94m created\033[0m'
-                                      .format(self.drill_data['year'],
-                                              self.drill_data['month'],
-                                              self.drill_data['shift']))
+        report_name = '{}-{}-{}'.format(self.drill_data['year'],
+                                        self.drill_data['month'],
+                                        self.drill_data['shift'])
+        LOGGER.warning(
+            f"User '{self.user['login']}' create drill inst.: {report_name}"
+        )
 
     def _visualise_statistic(self, year):
         """Visualise statistic."""
@@ -177,8 +183,8 @@ class DrillInstruments(BasicFunctions):
         self.drill_data['bar3'] = int(input("штанги 3м: "))
         self.drill_data['bar6'] = int(input("штанги 6м: "))
         self.drill_data['bits_in_rock'] = int(input("коронки в скале: "))
-        self.drill_data['driller'] = Reports().drillers[
-            Reports().shifts.index(self.drill_data['shift'])]
+        self.drill_data['driller'] = Reports(None).drillers[
+            Reports(None).shifts.index(self.drill_data['shift'])]
 
     def _input_year_month_shift(self):
         """Check if main report exist and complete."""
@@ -186,11 +192,12 @@ class DrillInstruments(BasicFunctions):
         print("Выберете месяц:")
         self.drill_data['month'] = super().choise_from_list(self.month_list)
         print("Выберете смену:")
-        self.drill_data['shift'] = super().choise_from_list(Reports().shifts)
+        self.drill_data['shift'] = super().choise_from_list(
+            Reports(None).shifts)
 
     def _bring_data_from_main_report(self):
         """Bring meters, result and rock mass from main_career_report."""
-        main_report_results = Reports().give_main_results(
+        main_report_results = Reports(None).give_main_results(
             self.drill_data['year'],
             self.drill_data['month'],
             self.drill_data['shift'])

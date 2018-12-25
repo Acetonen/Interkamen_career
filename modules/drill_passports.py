@@ -346,7 +346,6 @@ class DrillPassports(BasicFunctions):
             if not passport.params.number:
                 self.drill_pass_file.pop(passport_name)
                 super().dump_data(self.drill_pass_path, self.drill_pass_file)
-                log = " \033[91mpassport deleted.\033[0m"
                 LOGGER.warning(
                     f"User '{self.user['login']}' delete drill pass.: "
                     + f"{passport_name}"

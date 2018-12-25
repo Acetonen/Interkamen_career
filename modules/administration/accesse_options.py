@@ -74,7 +74,7 @@ class Accesse:
             'Редактировать буровой паспорт\n------------------------------':
             lambda user: DrillPassports(user).edit_passport(),
             'Создать отчет по буровым инструментам':
-            lambda user: DrillInstruments().create_drill_report(),
+            lambda user: DrillInstruments(user).create_drill_report(),
             'Поставить рейтинг бригаде':
             lambda user: Rating().give_rating(user),
             'Ежедневный отчет мастера\n------------------------------':
@@ -166,7 +166,7 @@ class Accesse:
             'Статистика по горной массе':
             lambda user: ReportAnalysis().rock_mass_analysis(),
             'Статистика по буровому инструменту':
-            lambda user: DrillInstruments().show_statistic_by_year(),
+            lambda user: DrillInstruments(None).show_statistic_by_year(),
         }
     }
 
