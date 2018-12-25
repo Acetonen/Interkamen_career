@@ -45,7 +45,7 @@ class Accesse:
             'Календарь пересменок':
             lambda user: WorkCalendars().show_year_shifts(),
             'Поменять пароль':
-            lambda user: Users(user).change_password(),
+            lambda user: Users(user).change_password(user),
             'Показать новости':
             lambda user: News().show_actual_news(),
             'Состояние карьера':

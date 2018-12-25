@@ -13,6 +13,9 @@ from modules.main_career_report import Reports
 from modules.administration.logger_cfg import Logs
 
 
+LOGGER = Logs().give_logger(__name__)
+
+
 class CareerStatus(BasicFunctions):
     """Current career status."""
 
@@ -122,9 +125,7 @@ class CareerStatus(BasicFunctions):
             works,
             title="\033[4mДобычные работы:\033[0m")
         print("\033[92mОтчет создан.\033[0m")
-        Logs().give_logger(__name__ + 'master').warning(
-            f"User '{user_id}' create career status from master"
-        )
+        LOGGER.warning(f"User '{user_id}' create career status from master")
 
     def _input_strage_volume(self):
         """Add rocks from storage."""
@@ -182,9 +183,7 @@ class CareerStatus(BasicFunctions):
         self.mach["to_work"] = self._create_mach_list(
             title="\033[4mВыберете технику, введенную в работу:\033[0m")
         print("\033[92mОтчет создан.\033[0m")
-        Logs().give_logger(__name__ + 'mech').warning(
-            f"User '{user_id}' create career status from mechanic"
-        )
+        LOGGER.warning(f"User '{user_id}' create career status from mechanic")
 
     def _create_mach_list(self, *, title):
         """Create mach list to repare or from repare."""
