@@ -10,6 +10,10 @@ from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsPath
 from modules.mechanic_report import MechReports
 from modules.main_career_report import Reports
+from modules.administration.logger_cfg import Logs
+
+
+LOGGER = Logs().give_logger(__name__)
 
 
 class Rating(BasicFunctions):
@@ -25,7 +29,8 @@ class Rating(BasicFunctions):
         'Смена 2': []
     }
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.totl_res = deepcopy(self.temp_res)
         if os.path.exists(self.brig_rating_path):
             self.brig_rating_file = super().load_data(self.brig_rating_path)
@@ -63,7 +68,9 @@ class Rating(BasicFunctions):
                         "\nПроверьте правильность введенных данных: ")
         if confirm in ['c', 'C', 'с', 'С']:
             self._save_rating(tmp_rating)
-            super().save_log_to_temp_file(rating_name)
+            LOGGER.warning(
+                f"User '{self.user['login']}' give rating: {rating_name}"
+            )
 
     def _save_rating(self, tmp_rating):
         """Save temp rating to data frame."""
@@ -129,7 +136,7 @@ class Rating(BasicFunctions):
                 point2 += 1
         print("\n          Итог:    {}        {}".format(point1, point2))
 
-    def give_rating(self, user):
+    def give_rating(self):
         """Give rating to shift."""
         while True:
             rep_date = super().input_date()
@@ -141,7 +148,7 @@ class Rating(BasicFunctions):
             shift = super().choise_from_list(self.shifts)
             rep_date.update({
                 'shift': shift,
-                'user': user['name'].split(' ')[0]
+                'user': self.user['name'].split(' ')[0]
                 })
             check = super().check_date_in_dataframe(
                 self.brig_rating_file, rep_date)

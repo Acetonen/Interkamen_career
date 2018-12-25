@@ -76,7 +76,7 @@ class Accesse:
             'Создать отчет по буровым инструментам':
             lambda user: DrillInstruments(user).create_drill_report(),
             'Поставить рейтинг бригаде':
-            lambda user: Rating().give_rating(user),
+            lambda user: Rating(user).give_rating(),
             'Ежедневный отчет мастера\n------------------------------':
             lambda user: Statuses(user).create_career_status(),
         },
@@ -111,14 +111,20 @@ class Accesse:
             lambda user: Reminder().show_all_reminds(),
         },
         '\033[91m--> [log_menu] \033[0m': {
-            'search in logs': lambda user: Logs().search_in_logs(),
-            'delete all logs': lambda user: Logs().delete_all_logs(),
-            'show all logs': lambda user: Logs().show_all_logs(),
+            'search in logs':
+            lambda user: Logs().search_in_logs(),
+            'delete all logs':
+            lambda user: Logs().delete_all_logs(),
+            'show all logs':
+            lambda user: Logs().show_all_logs(),
         },
         '\033[91m--> [users_menu] \033[0m': {
-            'create new user': lambda user: Users(user).create_new_user(),
-            'edit user': lambda user: Users(user).edit_user(),
-            'show all users': lambda user: Users(user).show_all_users(),
+            'create new user':
+            lambda user: Users(user).create_new_user(),
+            'edit user':
+            lambda user: Users(user).edit_user(),
+            'show all users':
+            lambda user: Users(user).show_all_users(),
         },
         '--> [Работники] ': {
             'Новый работник':
@@ -146,7 +152,7 @@ class Accesse:
             'Наряд бригады':
             lambda user: Reports(user).work_with_main_report(),
             'Сформировать итог по рейтингу':
-            lambda user: Rating().count_brigade_winner(),
+            lambda user: Rating(user).count_brigade_winner(),
             'Редактировать список окладов':
             lambda user: WorkersSalary().manage_salary_list(),
             'Бригадиры, окладники, бурильщики':
