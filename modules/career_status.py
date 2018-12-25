@@ -84,29 +84,27 @@ class CareerStatus(BasicFunctions):
             "\n\t\tВзрывные работы."
             "\n\tгоризонт  направление  качество  квадрант\n\t"
         )
-
-        work_list = []
-        for direction in self.works_plan['expl_work']:
-            work_list.append("{:^10} {:^10} {:^10} {:^10}"
-                             .format(*direction))
-        work_list = '\n\t'.join(work_list)
-
-        output += f"{work_list}"
+        output += f"{self._format_works_list('expl_work')}"
         output += (
             "\n\n\t\tДобычные работы."
             "\n\tгоризонт  направление  качество  квадрант\n\t"
         )
-
-        work_list = []
-        for direction in self.works_plan['rock_work']:
-            work_list.append("{:^10} {:^10} {:^10} {:^10}"
-                             .format(*direction))
-        work_list = '\n\t'.join(work_list)
-
-        output += f"{work_list}"
+        output += f"{self._format_works_list('rock_work')}"
         output = output.replace(
             'None', '\033[91m<Информация отсутствует>\033[0m')
         return output
+
+    def _format_works_list(self, works_kind):
+        """Format planed works list to output."""
+        work_list = []
+        if self.works_plan[works_kind][0] == 'Не запланированы.':
+            work_list = 'Не запланированы.'
+        else:
+            for direction in self.works_plan[works_kind]:
+                work_list.append("{:^10} {:^10} {:^10} {:^10}"
+                                 .format(*direction))
+            work_list = '\n\t'.join(work_list)
+        return work_list
 
     def _add_master_info(self, user_id):
         """Add info from master."""
@@ -169,12 +167,11 @@ class CareerStatus(BasicFunctions):
             print("Выберете предполагаемое качество:")
             quoli = super().choise_from_list(quol)
             coord = input("Введите квадрант: ")
-            work_directions.append(
-                "{:^10} {:^10} {:^10} {:^10}".format(horizond, direction,
-                                                     quoli, coord))
-            work_list.append((horizond, direction, quoli, coord))
+            work = (horizond, direction, quoli, coord)
+            work_directions.append("{:^10} {:^10} {:^10} {:^10}".format(*work))
             print_list = '\n\t'.join(work_directions)
-        if not work_directions:
+            work_list.append(work)
+        if not work_list:
             work_list.append('Не запланированы.')
         return work_list
 
