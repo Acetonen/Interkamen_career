@@ -64,7 +64,7 @@ class Reminder(BasicFunctions):
     @classmethod
     def _maintenance_remind(cls):
         """Remind for machine maintenance."""
-        header = MechReports().walk_thrue_maint_calendar()
+        header = MechReports(None).walk_thrue_maint_calendar()
         return header
 
     def give_remind(self, user_access):

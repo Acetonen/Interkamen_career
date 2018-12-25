@@ -57,11 +57,11 @@ class Accesse:
             'Ежедневный отчет механика':
             lambda user: Statuses(user).create_career_status(),
             'Создать отчет по ремонтам':
-            lambda user: MechReports().create_report(),
+            lambda user: MechReports(user).create_report(),
             'Редактировать отчет\n------------------------------':
-            lambda user: MechReports().edit_report(),
+            lambda user: MechReports(user).edit_report(),
             'Календарь обслуживания\n------------------------------':
-            lambda user: MechReports().maintenance_calendar(),
+            lambda user: MechReports(user).maintenance_calendar(),
         },
         'master': {
             '--> [Статистика_добычи]': 'sub-menu',
@@ -156,9 +156,9 @@ class Accesse:
         '--> [Меню_мастера]': menu_options['master'],
         '--> [Статистика_ремонтов]': {
             'Показать статистику КТГ и КТИ':
-            lambda user: MechReports().show_statistic(),
+            lambda user: MechReports(None).show_statistic(),
             'Статистика по причинам простоев':
-            lambda user: MechReports().show_statistic(True),
+            lambda user: MechReports(None).show_statistic(True),
         },
         '--> [Статистика_добычи]': {
             'Статистика добычи по кубатуре':

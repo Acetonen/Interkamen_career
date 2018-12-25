@@ -20,6 +20,10 @@ from matplotlib import rcParams as window_parametrs
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsPath
 from modules.career_status import Statuses
+from modules.administration.logger_cfg import Logs
+
+
+LOGGER = Logs().give_logger(__name__)
 
 
 class MechReports(BasicFunctions):
@@ -58,7 +62,8 @@ class MechReports(BasicFunctions):
         'hours_pass': ['0' for x in range(19)],
     }
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.temp_df = pd.DataFrame()
         # Try to load mech reports file.
         if os.path.exists(self.mech_path):
@@ -368,8 +373,10 @@ class MechReports(BasicFunctions):
                            "\nВыберете технику для внесения данных: ")
             if choise in ['c', 'C', 'с', 'С']:
                 self._save_report()
-                super().save_log_to_temp_file(
-                    '{year}.{month}.{day}'.format(**rep_date))
+                LOGGER.warning(
+                    f"User '{self.user['login']}' create mechanics report: "
+                    + '{year}.{month}.{day}'.format(**rep_date)
+                )
                 print("\n\033[92mДанные сохранены.\033[0m")
                 break
             elif choise in ['у', 'У', 'y', 'Y']:
