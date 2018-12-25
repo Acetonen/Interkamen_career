@@ -20,6 +20,7 @@ class Users(BasicFunctions):
     access_list = ['admin', 'boss', 'master', 'mechanic', 'info']
 
     def __init__(self, user):
+        self.logger = Logs().give_logger(__name__)
         self.user = user
         self.users_base = super().load_data(self.data_path)
 
@@ -71,7 +72,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
             self.users_base.pop(user['login'], None)
             super().dump_data(self.data_path, self.users_base)
             user_deleted = True
-            Logs().give_logger(__name__).warning(
+            self.logger.warning(
                 f"User '{self.user['login']}' delete user '{user['login']}'")
         return user_deleted
 
@@ -91,7 +92,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
         print("Choose new accesse:")
         new_accesse = super().choise_from_list(self.access_list)
         user['accesse'] = new_accesse
-        Logs().give_logger(__name__).warning(
+        self.logger.warning(
             f"User '{self.user['login']}' change access {user['login']}")
 
     def _change_user_name(self, user):
@@ -99,7 +100,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
         new_name = input("Input new user name: ")
         old_name = user['name']
         user['name'] = new_name
-        Logs().give_logger(__name__).warning(
+        self.logger.warning(
             f"User '{self.user['login']}' change name {old_name} -> {new_name}"
         )
 
@@ -120,7 +121,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
                                   'accesse': access,
                                   'password': password}
         print(f"\033[92m user '{login}' created. \033[0m")
-        Logs().give_logger(__name__).warning(
+        self.logger.warning(
             f"User '{self.user['login']}' create new user: '{login}'")
         super().dump_data(self.data_path, self.users_base)
 
@@ -166,7 +167,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
                 self.users_base[self.user['login']] = self.user
                 super().dump_data(self.data_path, self.users_base)
                 print("Новый пароль сохранен.")
-                Logs().give_logger(__name__).warning(
+                self.logger.warning(
                     f"User '{self.user['login']}' change password")
             else:
                 print("Введенные пароли не совпадают.")
