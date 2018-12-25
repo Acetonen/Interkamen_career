@@ -70,9 +70,9 @@ class Accesse:
             'Редактировать табель\n------------------------------':
             lambda user: Reports(user).edit_report(),
             'Создать буровой паспорт':
-            lambda user: DrillPassports().create_drill_passport(user),
+            lambda user: DrillPassports(user).create_drill_passport(),
             'Редактировать буровой паспорт\n------------------------------':
-            lambda user: DrillPassports().edit_passport(),
+            lambda user: DrillPassports(user).edit_passport(),
             'Создать отчет по буровым инструментам':
             lambda user: DrillInstruments().create_drill_report(),
             'Поставить рейтинг бригаде':

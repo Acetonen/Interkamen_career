@@ -8,6 +8,10 @@ from numpy import nan as Nan
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.dump_to_exl import DumpToExl
+from modules.administration.logger_cfg import Logs
+
+
+LOGGER = Logs().give_logger(__name__)
 
 
 class DPassport(BasicFunctions):
@@ -224,7 +228,8 @@ class DrillPassports(BasicFunctions):
         'bits_in_rock', 'massive_type'
     ]
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self._create_empty_df()
         if os.path.exists(self.drill_pass_path):
             self.drill_pass_file = super().load_data(self.drill_pass_path)
@@ -266,7 +271,9 @@ class DrillPassports(BasicFunctions):
             print('\033[92m', pass_name, ' - cохранен.\033[0m')
             self.drill_pass_file[pass_name] = passport
             super().dump_data(self.drill_pass_path, self.drill_pass_file)
-            super().save_log_to_temp_file(pass_name)
+            LOGGER.warning(
+                f"User '{self.user['login']}' create drill pass.: {pass_name}"
+            )
             exel = input("\nЖелаете создать exel файл? д/н: ")
             if exel == 'д':
                 if passport.__class__.__name__ == 'DPassport':
@@ -303,7 +310,7 @@ class DrillPassports(BasicFunctions):
         last_number = last_passport.split(' ')[-1]
         return last_number
 
-    def create_drill_passport(self, user):
+    def create_drill_passport(self):
         """Create drill passport."""
         if self.drill_pass_file:
             print("Номер последнего паспорта: ",
@@ -321,7 +328,7 @@ class DrillPassports(BasicFunctions):
             pass_blanc = DPassport
         passport = pass_blanc(
             pass_number=number,
-            master=user['name'],
+            master=self.user['name'],
             empty_df=self.empty_serial,
             massive_type=pass_type,
             )
@@ -340,6 +347,9 @@ class DrillPassports(BasicFunctions):
                 self.drill_pass_file.pop(passport_name)
                 super().dump_data(self.drill_pass_path, self.drill_pass_file)
                 log = " \033[91mpassport deleted.\033[0m"
-                super().save_log_to_temp_file(passport_name + log)
+                LOGGER.warning(
+                    f"User '{self.user['login']}' delete drill pass.: "
+                    + f"{passport_name}"
+                )
             else:
                 self._save_or_not(passport)
