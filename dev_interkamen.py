@@ -10,29 +10,29 @@ Functions: 'print_menu'
 """
 
 import sys
-import logging
 
 from modules.support_modules.hi import INTERKAMEN
 from modules.support_modules.standart_functions import BasicFunctions as BasF
 from modules.support_modules.reminder import Reminder
 from modules.support_modules.news import News
-from modules.administration.error_handle import ErrorCatch
 
 from modules.administration.accesse_options import Accesse
-from modules.administration.log_class import Logs
+from modules.administration.logger_cfg import Logs
 
 
 def main():
     """Main flow."""
+    current_user = {
+        'name': 'Test Test Test',
+        'login': 'admin',
+        'password': 'admin',
+        'accesse': 'admin',
+    }
+    logger = Logs().give_logger(__name__)
+    logger.warning(f"User '{current_user['login']}' enter program")
     menu_list = []
     menu_nesting = []
     menu_header = ['\033[1m \t', '\033[4m ГЛАВНОЕ МЕНЮ \033[0m', '\n \033[0m']
-    current_user = {
-        'login': 'admin',
-        'name': 'admin',
-        'accesse': 'admin',
-        'password': 'admin',
-    }
     usr_acs = current_user['accesse']
     show_news(usr_acs)
     program_menu = get_main_or_sub_menu(usr_acs, menu_list, None)
@@ -73,7 +73,6 @@ def main():
 
         # Exit program.
         elif menu_list[user_choise][1] == 'exit program':
-            Logs().create_log(current_user['login'], 'exit program')
             sys.exit()
 
         # Make action.
@@ -82,10 +81,14 @@ def main():
             action(current_user)
             input('\n[нажмите ENTER]')  # Show menu on screen.
             BasF.clear_screen()
-            Logs().create_log(
-                current_user['login'],
-                menu_list[user_choise][0],
-            )
+
+
+def show_news(usr_acs):
+    """Try to show news."""
+    if usr_acs != 'info':
+        News().show_new_news(usr_acs)
+        BasF().clear_screen()
+        print(INTERKAMEN)
 
 
 def print_menu(usr_acs, menu_header, menu_nesting, program_menu):
@@ -110,14 +113,6 @@ def get_main_or_sub_menu(usr_acs, menu_list, sub_menu=False):
     del menu_list[:]
     menu_list.extend(list(program_menu.items()))
     return program_menu
-
-
-def show_news(usr_acs):
-    """Try to show news."""
-    if usr_acs != 'info':
-        News().show_new_news(usr_acs)
-        BasF().clear_screen()
-        print(INTERKAMEN)
 
 
 if __name__ == '__main__':

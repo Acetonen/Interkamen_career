@@ -10,12 +10,13 @@ from modules.support_modules.emailed import EmailSender
 from modules.work_calendar import WorkCalendars
 from modules.workers_module import AllWorkers
 from modules.main_career_report import Reports
+from modules.administration.logger_cfg import Logs
 
 
 class CareerStatus(BasicFunctions):
     """Current career status."""
 
-    def __init__(self, user_acs):
+    def __init__(self, user):
         self.date = {
             "today": str(date.today()),
             "tomorrow": str(date.today() + timedelta(days=1))
@@ -47,7 +48,7 @@ class CareerStatus(BasicFunctions):
             "month": None,
             "shift": None,
         }
-        self.add_info(user_acs)
+        self.add_info(user)
 
     def __repr__(self):
         """Print status."""
@@ -107,7 +108,7 @@ class CareerStatus(BasicFunctions):
             'None', '\033[91m<Информация отсутствует>\033[0m')
         return output
 
-    def _add_master_info(self):
+    def _add_master_info(self, user_id):
         """Add info from master."""
         self._input_current_result()
         self._input_strage_volume()
@@ -123,6 +124,9 @@ class CareerStatus(BasicFunctions):
             works,
             title="\033[4mДобычные работы:\033[0m")
         print("\033[92mОтчет создан.\033[0m")
+        Logs().give_logger(__name__ + 'master').warning(
+            f"User '{user_id}' create career status from master"
+        )
 
     def _input_strage_volume(self):
         """Add rocks from storage."""
@@ -174,13 +178,16 @@ class CareerStatus(BasicFunctions):
             work_list.append('Не запланированы.')
         return work_list
 
-    def _add_mechanic_info(self):
+    def _add_mechanic_info(self, user_id):
         """Add info from mechanic."""
         self.mach["to_repare"] = self._create_mach_list(
             title="\033[4mВыберете технику, выведенную в ремонт:\033[0m")
         self.mach["to_work"] = self._create_mach_list(
             title="\033[4mВыберете технику, введенную в работу:\033[0m")
         print("\033[92mОтчет создан.\033[0m")
+        Logs().give_logger(__name__ + 'mech').warning(
+            f"User '{user_id}' create career status from mechanic"
+        )
 
     def _create_mach_list(self, *, title):
         """Create mach list to repare or from repare."""
@@ -304,14 +311,14 @@ class CareerStatus(BasicFunctions):
         answer = bool(ask.lower() == 'д')
         return answer
 
-    def _choose_info_to_add(self):
+    def _choose_info_to_add(self, user_id):
         """Admin can choose what kind info he want to add."""
         info_type = {
             'master': self._add_master_info,
             'mechanic': self._add_mechanic_info,
         }
         accesse = super().choise_from_list(info_type)
-        info_type[accesse]()
+        info_type[accesse](user_id)
         super().clear_screen()
 
     def add_info(self, user):
@@ -327,7 +334,7 @@ class CareerStatus(BasicFunctions):
                 'mechanic': self._add_mechanic_info,
                 'admin': self._choose_info_to_add,
             }
-            info_type[user['accesse']]()
+            info_type[user['accesse']](user['login'])
             self._try_to_emailed_status(name)
         else:
             print("Вы отменили изменение отчета.")
@@ -349,19 +356,20 @@ class Statuses(BasicFunctions):
     """Create and save curent status reports."""
     car_stat_path = AbsPath.get_path('data', 'carer_status')
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         if os.path.exists(self.car_stat_path):
             self.car_stat_file = super().load_data(self.car_stat_path)
         else:
             self.car_stat_file = {}
             super().dump_data(self.car_stat_path, self.car_stat_file)
 
-    def create_career_status(self, user_acs):
+    def create_career_status(self):
         """Create status if not exist."""
         if str(date.today()) in self.car_stat_file:
-            self.car_stat_file[str(date.today())].add_info(user_acs)
+            self.car_stat_file[str(date.today())].add_info(self.user)
         else:
-            self.car_stat_file[str(date.today())] = CareerStatus(user_acs)
+            self.car_stat_file[str(date.today())] = CareerStatus(self.user)
         super().dump_data(self.car_stat_path, self.car_stat_file)
 
     def show_status(self):

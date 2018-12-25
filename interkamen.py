@@ -10,30 +10,30 @@ Functions: 'print_menu'
 """
 
 import sys
-import logging
 
 from modules.support_modules.hi import INTERKAMEN
 from modules.support_modules.backup import check_last_backup_date
 from modules.support_modules.standart_functions import BasicFunctions as BasF
 from modules.support_modules.reminder import Reminder
 from modules.support_modules.news import News
-from modules.administration.error_handle import ErrorCatch
 
 from modules.administration.accesse_options import Accesse
 from modules.administration.users import Users
-from modules.administration.log_class import Logs
+from modules.administration.logger_cfg import Logs
 
 
-def main():
+def main(current_user):
     """Main flow."""
+    Logs().emailed_error_log()
+    logger = Logs().give_logger(__name__)
+    logger.warning(f"User '{current_user['login']}' enter program")
     menu_list = []
     menu_nesting = []
     menu_header = ['\033[1m \t', '\033[4m ГЛАВНОЕ МЕНЮ \033[0m', '\n \033[0m']
-    current_user = login_program()
     usr_acs = current_user['accesse']
     show_news(usr_acs)
-    check_backup(current_user)
-    Users().try_to_destroy()
+    check_backup(current_user, logger)
+    Users(None).try_to_destroy()
     program_menu = get_main_or_sub_menu(usr_acs, menu_list, None)
 
     while True:
@@ -72,7 +72,6 @@ def main():
 
         # Exit program.
         elif menu_list[user_choise][1] == 'exit program':
-            Logs().create_log(current_user['login'], 'exit program')
             sys.exit()
 
         # Make action.
@@ -81,11 +80,7 @@ def main():
             action(current_user)
             input('\n[нажмите ENTER]')  # Show menu on screen.
             BasF.clear_screen()
-            Logs().create_log(
-                current_user['login'],
-                menu_list[user_choise][0],
-            )
-        current_user = Users().sync_user(current_user['login'])
+        current_user = Users(current_user).sync_user()
 
 
 def login_program():
@@ -93,11 +88,25 @@ def login_program():
     print(INTERKAMEN)
     current_user = None
     while current_user is None:
-        current_user = Users().try_to_enter_program()
-    Logs().create_log(current_user['login'], 'enter program')
+        current_user = Users(None).try_to_enter_program()
     BasF().clear_screen()
     print(INTERKAMEN)
     return current_user
+
+
+def check_backup(current_user, logger):
+    """Check if user 'admin', and make backup if positive."""
+    log_maden = check_last_backup_date()
+    if log_maden:
+        logger.warning(f"User '{current_user['login']}' Backup done.")
+
+
+def show_news(usr_acs):
+    """Try to show news."""
+    if usr_acs != 'info':
+        News().show_new_news(usr_acs)
+        BasF().clear_screen()
+        print(INTERKAMEN)
 
 
 def print_menu(usr_acs, menu_header, menu_nesting, program_menu):
@@ -124,20 +133,9 @@ def get_main_or_sub_menu(usr_acs, menu_list, sub_menu=False):
     return program_menu
 
 
-def check_backup(current_user):
-    """Check if user 'admin', and make backup if positive."""
-    log_maden = check_last_backup_date()
-    if log_maden:
-        Logs().create_log(current_user['login'], "Backup done.")
-
-
-def show_news(usr_acs):
-    """Try to show news."""
-    if usr_acs != 'info':
-        News().show_new_news(usr_acs)
-        BasF().clear_screen()
-        print(INTERKAMEN)
-
-
 if __name__ == '__main__':
-    main()
+    CURRENT_USER = login_program()
+    try:
+        main(CURRENT_USER)
+    except Exception:
+        Logs().loged_error(CURRENT_USER)

@@ -10,6 +10,7 @@ from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.emailed import EmailSender
 from modules.support_modules.backup import make_backup
+from modules.administration.logger_cfg import Logs
 
 
 class Users(BasicFunctions):
@@ -18,7 +19,8 @@ class Users(BasicFunctions):
     data_path = AbsPath().get_path('data', 'users_base')
     access_list = ['admin', 'boss', 'master', 'mechanic', 'info']
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.users_base = super().load_data(self.data_path)
 
     def __repr__(self):
@@ -69,8 +71,8 @@ password:{password}\naccesse:{accesse}\n".format(**user))
             self.users_base.pop(user['login'], None)
             super().dump_data(self.data_path, self.users_base)
             user_deleted = True
-            log = "\033[91m user '{}' - deleted. \033[0m".format(user['login'])
-            super().save_log_to_temp_file(log)
+            Logs().give_logger(__name__).warning(
+                f"User '{self.user['login']}' delete user '{user['login']}'")
         return user_deleted
 
     def _check_only_admin(self):
@@ -89,13 +91,17 @@ password:{password}\naccesse:{accesse}\n".format(**user))
         print("Choose new accesse:")
         new_accesse = super().choise_from_list(self.access_list)
         user['accesse'] = new_accesse
-        super().save_log_to_temp_file(' change access')
+        Logs().give_logger(__name__).warning(
+            f"User '{self.user['login']}' change access {user['login']}")
 
     def _change_user_name(self, user):
         """Change user name"""
         new_name = input("Input new user name: ")
+        old_name = user['name']
         user['name'] = new_name
-        super().save_log_to_temp_file(f' change name -> {new_name} ')
+        Logs().give_logger(__name__).warning(
+            f"User '{self.user['login']}' change name {old_name} -> {new_name}"
+        )
 
     def create_new_user(self):
         """Create new user and save him in databese"""
@@ -113,9 +119,9 @@ password:{password}\naccesse:{accesse}\n".format(**user))
                                   'name': name,
                                   'accesse': access,
                                   'password': password}
-        log = f"\033[92m user '{login}' created. \033[0m"
-        print(log)
-        super().save_log_to_temp_file(log)
+        print(f"\033[92m user '{login}' created. \033[0m")
+        Logs().give_logger(__name__).warning(
+            f"User '{self.user['login']}' create new user: '{login}'")
         super().dump_data(self.data_path, self.users_base)
 
     def edit_user(self):
@@ -126,8 +132,6 @@ password:{password}\naccesse:{accesse}\n".format(**user))
         print("Input number of user to edit:")
         choosen_user = super().choise_from_list(
             self.users_base, none_option=True)
-        if choosen_user:
-            super().save_log_to_temp_file(choosen_user)
         super().clear_screen()
         while choosen_user:
             temp_user = self.users_base[choosen_user]
@@ -151,18 +155,19 @@ password:{password}\naccesse:{accesse}\n".format(**user))
             super().dump_data(self.data_path, self.users_base)
             super().clear_screen()
 
-    def change_password(self, user):
+    def change_password(self):
         """Changing password"""
         old_password = input("Введите старый пароль: ")
-        if old_password == user['password']:
+        if old_password == self.user['password']:
             new_password = getpass.getpass("Введите новый пароль: ")
             repeat_password = getpass.getpass("Повторите новый пароль: ")
             if new_password == repeat_password:
-                user['password'] = new_password
-                self.users_base[user['login']] = user
+                self.user['password'] = new_password
+                self.users_base[self.user['login']] = self.user
                 super().dump_data(self.data_path, self.users_base)
                 print("Новый пароль сохранен.")
-                super().save_log_to_temp_file(' change password')
+                Logs().give_logger(__name__).warning(
+                    f"User '{self.user['login']}' change password")
             else:
                 print("Введенные пароли не совпадают.")
         else:
@@ -186,10 +191,10 @@ password:{password}\naccesse:{accesse}\n".format(**user))
             print("Такого пользователя не существует.")
         return user_in
 
-    def sync_user(self, user_login):
+    def sync_user(self):
         """Sync current user with base"""
         self.users_base = super().load_data(self.data_path)
-        return self.users_base[user_login]
+        return self.users_base[self.user['login']]
 
     def show_all_users(self):
         """Print all users from base"""

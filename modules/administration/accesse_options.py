@@ -41,44 +41,44 @@ class Accesse:
         },
         'basic': {
             'Телефоны работников':
-            lambda arg: AllWorkers().print_telefon_numbers(),
+            lambda user: AllWorkers().print_telefon_numbers(),
             'Календарь пересменок':
-            lambda arg: WorkCalendars().show_year_shifts(),
+            lambda user: WorkCalendars().show_year_shifts(),
             'Поменять пароль':
-            lambda arg: Users().change_password(arg),
+            lambda user: Users(user).change_password(),
             'Показать новости':
-            lambda arg: News().show_actual_news(),
+            lambda user: News().show_actual_news(),
             'Состояние карьера':
-            lambda arg: Statuses().show_status(),
+            lambda user: Statuses(None).show_status(),
             '\033[93mВыйти из программы\033[0m': 'exit program',
         },
         'mechanic': {
             '--> [Статистика_ремонтов]': 'sub-menu',
             'Ежедневный отчет механика':
-            lambda user: Statuses().create_career_status(user),
+            lambda user: Statuses(user).create_career_status(),
             'Создать отчет по ремонтам':
-            lambda arg: MechReports().create_report(),
+            lambda user: MechReports().create_report(),
             'Редактировать отчет\n------------------------------':
-            lambda arg: MechReports().edit_report(),
+            lambda user: MechReports().edit_report(),
             'Календарь обслуживания\n------------------------------':
-            lambda arg: MechReports().maintenance_calendar(),
+            lambda user: MechReports().maintenance_calendar(),
         },
         'master': {
             '--> [Статистика_добычи]': 'sub-menu',
             'Создать табель добычной бригады':
-            lambda arg: Reports().create_report(),
+            lambda user: Reports().create_report(),
             'Редактировать табель\n------------------------------':
-            lambda arg: Reports().edit_report(),
+            lambda user: Reports().edit_report(),
             'Создать буровой паспорт':
-            lambda arg: DrillPassports().create_drill_passport(arg),
+            lambda user: DrillPassports().create_drill_passport(user),
             'Редактировать буровой паспорт\n------------------------------':
-            lambda arg: DrillPassports().edit_passport(),
+            lambda user: DrillPassports().edit_passport(),
             'Создать отчет по буровым инструментам':
-            lambda arg: DrillInstruments().create_drill_report(),
+            lambda user: DrillInstruments().create_drill_report(),
             'Поставить рейтинг бригаде':
-            lambda arg: Rating().give_rating(arg),
+            lambda user: Rating().give_rating(user),
             'Ежедневный отчет мастера\n------------------------------':
-            lambda user: Statuses().create_career_status(user),
+            lambda user: Statuses(user).create_career_status(),
         },
         'boss': {
             '--> [Работники] ': 'sub-menu',
@@ -86,7 +86,7 @@ class Accesse:
             '--> [Меню_механика]': 'sub-menu',
             '--> [Меню_мастера]': 'sub-menu',
             'изменить ежедневный отчет':
-            lambda user: Statuses().create_career_status(user),
+            lambda user: Statuses(user).create_career_status(),
         },
         'admin': {'\033[91m--> [administration]\033[0m': 'sub-menu'}
     }
@@ -98,75 +98,75 @@ class Accesse:
             '\033[91m--> [databases] \033[0m': 'sub-menu',
             '\033[91m--> [reminds] \033[0m': 'sub-menu',
             '\033[91mmake backup now\033[0m':
-            lambda arg: make_backup(),
+            lambda user: make_backup(),
             '\033[91mmain email settings\033[0m':
-            lambda arg: EmailSender().edit_main_propeties(),
+            lambda user: EmailSender().edit_main_propeties(),
             '\033[91mcareer report recivers\033[0m':
-            lambda arg: EmailSender().edit_career_status_recivers(),
+            lambda user: EmailSender().edit_career_status_recivers(),
         },
         '\033[91m--> [reminds] \033[0m': {
             '\033[91mcreate reminder\033[0m':
-            lambda arg: Reminder().make_custom_remind(),
+            lambda user: Reminder().make_custom_remind(),
             '\033[91mshow all reminds\033[0m':
-            lambda arg: Reminder().show_all_reminds(),
+            lambda user: Reminder().show_all_reminds(),
         },
         '\033[91m--> [log_menu] \033[0m': {
-            'search in logs': lambda arg: Logs().search_in_logs(),
-            'delete all logs': lambda arg: Logs().delete_all_logs(),
-            'show all logs': lambda arg: Logs().show_all_logs(),
+            'search in logs': lambda user: Logs().search_in_logs(),
+            'delete all logs': lambda user: Logs().delete_all_logs(),
+            'show all logs': lambda user: Logs().show_all_logs(),
         },
         '\033[91m--> [users_menu] \033[0m': {
-            'create new user': lambda arg: Users().create_new_user(),
-            'edit user': lambda arg: Users().edit_user(),
-            'show all users': lambda arg: Users().show_all_users(),
+            'create new user': lambda user: Users(user).create_new_user(),
+            'edit user': lambda user: Users(user).edit_user(),
+            'show all users': lambda user: Users(user).show_all_users(),
         },
         '--> [Работники] ': {
             'Новый работник':
-            lambda arg: AllWorkers().add_new_worker(),
+            lambda user: AllWorkers().add_new_worker(),
             'Показать работников подразделения':
-            lambda arg: AllWorkers().print_workers_from_division(),
+            lambda user: AllWorkers().print_workers_from_division(),
             'Показать уволеных работников':
-            lambda arg: AllWorkers().print_archive_workers(),
+            lambda user: AllWorkers().print_archive_workers(),
             'Вернуть работника из архива':
-            lambda arg: AllWorkers().return_from_archive(),
+            lambda user: AllWorkers().return_from_archive(),
             'Редактировать работника':
-            lambda arg: AllWorkers().edit_worker(),
+            lambda user: AllWorkers().edit_worker(),
             'Показать юбиляров этого года':
-            lambda arg: AllWorkers().show_anniversary_workers(),
+            lambda user: AllWorkers().show_anniversary_workers(),
             'Создать календарь пересменок':
-            lambda arg: WorkCalendars().create_calendar(),
+            lambda user: WorkCalendars().create_calendar(),
         },
         '\033[91m--> [databases] \033[0m': {
             'upd company structure':
-            lambda arg: AllWorkers().upd_comp_structure(),
+            lambda user: AllWorkers().upd_comp_structure(),
             'print company structure':
-            lambda arg: AllWorkers().print_comp_structure(),
+            lambda user: AllWorkers().print_comp_structure(),
         },
         '--> [Финансы]': {
             'Наряд бригады':
-            lambda arg: Reports().work_with_main_report(arg),
+            lambda user: Reports().work_with_main_report(user),
             'Сформировать итог по рейтингу':
-            lambda arg: Rating().count_brigade_winner(),
+            lambda user: Rating().count_brigade_winner(),
             'Редактировать список окладов':
-            lambda arg: WorkersSalary().manage_salary_list(),
+            lambda user: WorkersSalary().manage_salary_list(),
             'Бригадиры, окладники, бурильщики':
-            lambda arg: Reports().choose_salary_or_drillers(),
+            lambda user: Reports().choose_salary_or_drillers(),
         },
         '--> [Меню_механика]': menu_options['mechanic'],
         '--> [Меню_мастера]': menu_options['master'],
         '--> [Статистика_ремонтов]': {
             'Показать статистику КТГ и КТИ':
-            lambda arg: MechReports().show_statistic(),
+            lambda user: MechReports().show_statistic(),
             'Статистика по причинам простоев':
-            lambda arg: MechReports().show_statistic(True),
+            lambda user: MechReports().show_statistic(True),
         },
         '--> [Статистика_добычи]': {
             'Статистика добычи по кубатуре':
-            lambda arg: ReportAnalysis().result_analysis(),
+            lambda user: ReportAnalysis().result_analysis(),
             'Статистика по горной массе':
-            lambda arg: ReportAnalysis().rock_mass_analysis(),
+            lambda user: ReportAnalysis().rock_mass_analysis(),
             'Статистика по буровому инструменту':
-            lambda arg: DrillInstruments().show_statistic_by_year(),
+            lambda user: DrillInstruments().show_statistic_by_year(),
         }
     }
 
