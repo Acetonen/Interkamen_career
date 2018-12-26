@@ -32,7 +32,7 @@ def main(current_user):
     menu_header = ['\033[1m \t', '\033[4m ГЛАВНОЕ МЕНЮ \033[0m', '\n \033[0m']
     usr_acs = current_user['accesse']
     show_news(usr_acs)
-    check_backup(current_user, logger)
+    check_last_backup_date(current_user)
     Users(None).try_to_destroy()
     program_menu = get_main_or_sub_menu(usr_acs, menu_list, None)
 
@@ -92,13 +92,6 @@ def login_program():
     BasF().clear_screen()
     print(INTERKAMEN)
     return current_user
-
-
-def check_backup(current_user, logger):
-    """Check if user 'admin', and make backup if positive."""
-    log_maden = check_last_backup_date()
-    if log_maden:
-        logger.warning(f"User '{current_user['login']}' Backup done.")
 
 
 def show_news(usr_acs):

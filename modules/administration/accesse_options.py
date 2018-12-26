@@ -9,7 +9,7 @@ Classes: Accesse: 'create_list',
                   'get_sub_menu'
 """
 
-from modules.administration.log_class import Logs
+from modules.administration.logger_cfg import Logs
 from modules.administration.users import Users
 
 from modules.support_modules.emailed import EmailSender
@@ -98,7 +98,7 @@ class Accesse:
             '\033[91m--> [databases] \033[0m': 'sub-menu',
             '\033[91m--> [reminds] \033[0m': 'sub-menu',
             '\033[91mmake backup now\033[0m':
-            lambda user: make_backup(),
+            lambda user: make_backup(user),
             '\033[91mmain email settings\033[0m':
             lambda user: EmailSender().edit_main_propeties(),
             '\033[91mcareer report recivers\033[0m':
@@ -111,12 +111,12 @@ class Accesse:
             lambda user: Reminder().show_all_reminds(),
         },
         '\033[91m--> [log_menu] \033[0m': {
-            'search in logs':
-            lambda user: Logs().search_in_logs(),
-            'delete all logs':
-            lambda user: Logs().delete_all_logs(),
-            'show all logs':
-            lambda user: Logs().show_all_logs(),
+            # 'search in logs':
+            # lambda user: Logs().search_in_logs(),
+            # 'delete all logs':
+            # lambda user: Logs().delete_all_logs(),
+            # 'show all logs':
+            # lambda user: Logs().show_all_logs(),
         },
         '\033[91m--> [users_menu] \033[0m': {
             'create new user':
