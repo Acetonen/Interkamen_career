@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 """Count and change workers salsry."""
 
-import os
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsPath
 
 
 class WorkersSalary(BasicFunctions):
     """
     Count and manage workers salary.
     """
-    salary_list_path = AbsPath.get_path('data', 'salary_list')
 
     def __init__(self):
-        if os.path.exists(self.salary_list_path):
+        self.salary_list_path = (
+            super().get_root_path() / 'data' / 'salary_list')
+        if self.salary_list_path.exists():
             self.salary_list = super().load_data(self.salary_list_path)
         else:
             self.salary_list = {

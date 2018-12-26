@@ -9,7 +9,6 @@ MechReports:
  'show_statistic' - show month or year stats.
 """
 
-import os
 from datetime import date
 from operator import sub, add
 
@@ -17,7 +16,6 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsPath
 from modules.administration.logger_cfg import Logs
 
 
@@ -29,8 +27,6 @@ class MechReports(BasicFunctions):
     Class to work with statistic of machine maintainence.
     """
 
-    mech_path = AbsPath().get_path('data', 'mechanics_report')
-    maint_path = AbsPath().get_path('data', 'maintainence')
     mech_data = {}
     machine_list = {
         'Хоз. Машина': ['УАЗ-390945', 'УАЗ-220695', 'ГАЗ-3307'],
@@ -61,17 +57,19 @@ class MechReports(BasicFunctions):
     }
 
     def __init__(self, user):
+        self.mech_path = super().get_root_path() / 'data' / 'mechanics_report'
+        self.maint_path = super().get_root_path() / 'data' / 'maintainence'
         self.user = user
         self.temp_df = pd.DataFrame()
         # Try to load mech reports file.
-        if os.path.exists(self.mech_path):
+        if self.mech_path.exists():
             self.mech_file = super().load_data(self.mech_path)
         else:
             self.mech_file = pd.DataFrame(self.mech_data, index=[0])
             super().dump_data(self.mech_path, self.mech_file)
         self.machines = sorted(set(self.mech_file.mach_name))
         # Try to load maintainence file.
-        if os.path.exists(self.maint_path):
+        if self.maint_path.exists():
             self.maint_file = super().load_data(self.maint_path)
         else:
             self.maint_file = self._create_blanc_maint()

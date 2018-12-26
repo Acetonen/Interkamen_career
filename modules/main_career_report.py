@@ -23,7 +23,6 @@ class Reports :
 
 from pprint import pprint
 from modules.workers_module import AllWorkers
-from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.backup import make_backup
 from modules.support_modules.dump_to_exl import DumpToExl
@@ -289,12 +288,12 @@ class Reports(BasicFunctions):
     Class to manage with reports.
     """
 
-    data_path = AbsPath().get_path('data', 'main_career_report')
-    salary_path = AbsPath().get_path('data', 'salary_worker')
-    drillers_path = AbsPath().get_path('data', 'drillers')
-    brigadiers_path = AbsPath().get_path('data', 'brigadiers')
-
     def __init__(self, user):
+        self.data_path = (
+            super().get_root_path() / 'data' / 'main_career_report')
+        self.salary_path = super().get_root_path() / 'data' / 'salary_worker'
+        self.drillers_path = super().get_root_path() / 'data' / 'drillers'
+        self.brigadiers_path = super().get_root_path() / 'data' / 'brigadiers'
         self.shifts = ['Смена 1', 'Смена 2']
         self.user = user
         self.salary_workers = super().load_data(self.salary_path)
@@ -341,7 +340,7 @@ class Reports(BasicFunctions):
         self.shifts.remove(shift)
         different_shift = self.shifts[0]
         other_shift_workers = (
-            AllWorkers().give_workers_from_shift(different_shift))
+            AllWorkers(None).give_workers_from_shift(different_shift))
         while True:
             add_worker = input(
                 "\nДобавить работника из другой бригады? д/н: ")
@@ -412,7 +411,7 @@ class Reports(BasicFunctions):
             worker_list = []
         print("Выберете работника:")
         worker = super(Reports, self).choise_from_list(
-            AllWorkers().give_mining_workers(), none_option=True
+            AllWorkers(None).give_mining_workers(), none_option=True
         )
         if worker:
             worker_list.append(worker)
@@ -530,7 +529,7 @@ class Reports(BasicFunctions):
         if choise.lower() == 'д':
             tmp_rpt.count_all_workers_in_report()
             tmp_rpt.status['status'] = '\033[92m[завершен]\033[0m'
-            AllWorkers().add_salary_to_workers(
+            AllWorkers(None).add_salary_to_workers(
                 tmp_rpt.workers_showing['факт']['зарплата'],
                 tmp_rpt.status['date'],
                 tmp_rpt.unofficial_workers()
@@ -539,9 +538,7 @@ class Reports(BasicFunctions):
                 f"User '{self.user['login']}' complete main report: "
                 + f"{tmp_rpt.status['date']}"
             )
-            unsucsesse = make_backup()
-            if unsucsesse:
-                print(unsucsesse)
+            make_backup(self.user)
         return tmp_rpt
 
     def _make_status_in_process(self, report_name):
@@ -550,7 +547,7 @@ class Reports(BasicFunctions):
         tmp_report = self.data_base[report_name]
         print("Введите ОФИЦИАЛЬНЫЕ часы работы:")
         shift = tmp_report.status['shift']
-        workers_list = AllWorkers().give_workers_from_shift(shift)
+        workers_list = AllWorkers(None).give_workers_from_shift(shift)
         workers_hours_list = self._create_workers_hours_list(workers_list)
         tmp_report.workers_showing['бух.']['часы'] = workers_hours_list
         super().clear_screen()
@@ -630,7 +627,7 @@ class Reports(BasicFunctions):
             if self._check_if_report_exist(shift, rep_date):
                 break
 
-        workers_list = AllWorkers().give_workers_from_shift(shift)
+        workers_list = AllWorkers(None).give_workers_from_shift(shift)
         print(shift)
         for worker in workers_list:
             print(worker)

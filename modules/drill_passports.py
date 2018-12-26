@@ -2,11 +2,9 @@
 """Module to work with drill passports."""
 
 
-import os
 import pandas as pd
 from numpy import nan as Nan
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.dump_to_exl import DumpToExl
 from modules.administration.logger_cfg import Logs
 
@@ -117,7 +115,7 @@ class DPassport(BasicFunctions):
 
     def _set_driller(self):
         """Choose driller."""
-        drillers_path = AbsPath().get_path('data', 'drillers')
+        drillers_path = super().get_root_path() / 'data' / 'drillers'
         drillers = super().load_data(drillers_path)
         print("Выберете бурильщика:")
         self.params.driller = super().choise_from_list(drillers)
@@ -220,7 +218,6 @@ class NPassport(DPassport):
 class DrillPassports(BasicFunctions):
     """Class to create and working with drill passports."""
     massive_type = ['Массив', 'Повторный', 'Негабариты']
-    drill_pass_path = AbsPath().get_path('data', 'drill_passports')
     pass_columns = [
         'number', 'year', 'month', 'day', 'horizond', 'totall_meters',
         'driller', 'block_height', 'block_width', 'block_depth', 'block_vol',
@@ -229,9 +226,11 @@ class DrillPassports(BasicFunctions):
     ]
 
     def __init__(self, user):
+        self.drill_pass_path = (
+            super().get_root_path() / 'data' / 'drill_passports')
         self.user = user
         self._create_empty_df()
-        if os.path.exists(self.drill_pass_path):
+        if self.drill_pass_path.exists():
             self.drill_pass_file = super().load_data(self.drill_pass_path)
         else:
             self.drill_pass_file = {}

@@ -3,11 +3,9 @@
 This module contain class that provide working with brigade rating.
 """
 
-import os
-import pandas as pd
 from copy import deepcopy
+import pandas as pd
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsPath
 from modules.mechanic_report import MechReports
 from modules.main_career_report import Reports
 from modules.administration.logger_cfg import Logs
@@ -19,7 +17,6 @@ LOGGER = Logs().give_logger(__name__)
 class Rating(BasicFunctions):
     """Working with ratings in DataFrame."""
 
-    brig_rating_path = AbsPath().get_path('data', 'brig_rating')
     brig_columns = ['year', 'month', 'shift', 'cleanness', 'discipline',
                     'roads', 'maintain', 'user']
     shifts = ['Смена 1', 'Смена 2']
@@ -30,9 +27,11 @@ class Rating(BasicFunctions):
     }
 
     def __init__(self, user):
+        self.brig_rating_path = (
+            super().get_root_path() / 'data' / 'brig_rating')
         self.user = user
         self.totl_res = deepcopy(self.temp_res)
-        if os.path.exists(self.brig_rating_path):
+        if self.brig_rating_path.exists():
             self.brig_rating_file = super().load_data(self.brig_rating_path)
         else:
             self.brig_rating_file = pd.DataFrame(columns=self.brig_columns)
@@ -110,7 +109,7 @@ class Rating(BasicFunctions):
         """Add main brigades results from Main Report to average rating."""
         self.totl_res['критерий'].extend(['result', 'rock_mass'])
         for shift in self.shifts:
-            brig_results = Reports().give_main_results(
+            brig_results = Reports(None).give_main_results(
                 str(year), str(month), shift)
             if brig_results:
                 self.totl_res[shift].extend(brig_results[1:])
@@ -120,7 +119,7 @@ class Rating(BasicFunctions):
     def _add_average_kti(self, year, month):
         """Add average kti from Mechanic Report to average rating."""
         self.totl_res = pd.DataFrame(self.totl_res)
-        brigades_kti = MechReports().give_average_shifs_kti(year, month)
+        brigades_kti = MechReports(None).give_average_shifs_kti(year, month)
         self.totl_res = self.totl_res.append(brigades_kti, ignore_index=True)
 
     def _count_wining_points(self):

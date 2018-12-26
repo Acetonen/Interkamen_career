@@ -13,6 +13,9 @@ from modules.administration.logger_cfg import Logs
 from modules.administration.users import Users
 
 from modules.support_modules.emailed import EmailSender
+from modules.support_modules.backup import make_backup
+from modules.support_modules.reminder import Reminder
+from modules.support_modules.news import News
 
 from modules.workers_module import AllWorkers
 from modules.main_career_report import Reports
@@ -20,12 +23,9 @@ from modules.report_analysis import ReportAnalysis
 from modules.drill_instrument_report import DrillInstruments
 from modules.mechanic_report import MechReports
 from modules.rating import Rating
-from modules.support_modules.backup import make_backup
 from modules.drill_passports import DrillPassports
 from modules.work_calendar import WorkCalendars
 from modules.career_status import Statuses
-from modules.support_modules.reminder import Reminder
-from modules.support_modules.news import News
 from modules.workers_salary import WorkersSalary
 
 

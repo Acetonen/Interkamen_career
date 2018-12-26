@@ -5,6 +5,7 @@ import sys
 import os
 import pickle
 import time
+from pathlib import Path
 from matplotlib import rcParams as window_parametrs
 
 
@@ -63,7 +64,7 @@ class BasicFunctions:
     @staticmethod
     def load_data(data_path):
         """Load data from pickle"""
-        if os.path.exists(data_path):
+        if data_path.exists():
             with open(data_path, 'rb') as base_file:
                 base = pickle.load(base_file)
         else:
@@ -188,3 +189,13 @@ class BasicFunctions:
         cls.clear_screen()
         print("GO!")
         time.sleep(1)
+
+    @staticmethod
+    def get_root_path():
+        """
+        Make absolyte path to root program directory.
+        Return path object.
+        """
+        script_name = sys.argv[0]
+        root_dir = Path(script_name).resolve().parent
+        return root_dir

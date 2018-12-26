@@ -6,7 +6,6 @@ Working with statistic of drill instrument.
 import os
 from matplotlib import pyplot as plt
 import pandas as pd
-from modules.support_modules.absolyte_path_module import AbsPath
 from modules.main_career_report import Reports
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.administration.logger_cfg import Logs
@@ -19,15 +18,17 @@ class DrillInstruments(BasicFunctions):
     """
     All information about drill instruments.
     """
-    drill_path = AbsPath().get_path('data', 'drill_instruments')
-    temp_drill_path = AbsPath().get_path('data', 'temp_drill_inst')
     month_list = ['01', '02', '03', '04', '05', '06',
                   '07', '08', '09', '10', '11', '12']
     drill_data = {}
 
     def __init__(self, user):
+        self.drill_path = (
+            super().get_root_path() / 'data' / 'drill_instruments')
+        self.temp_drill_path = (
+            super().get_root_path() / 'data' / 'temp_drill_inst')
         self.user = user
-        if os.path.exists(self.drill_path):
+        if self.drill_path.exists():
             self.drill_file = super().load_data(self.drill_path)
         else:
             self.drill_file = pd.DataFrame(self.drill_data, index=[0])
@@ -218,7 +219,7 @@ class DrillInstruments(BasicFunctions):
     def _comlete_drill_report(self):
         """Complete drill report with meters, result
         and rock mass from main_career_report."""
-        if os.path.exists(self.temp_drill_path):
+        if self.temp_drill_path.exists():
             self._load_from_temp_drill()
             main_report_results = self._bring_data_from_main_report()
             if main_report_results:

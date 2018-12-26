@@ -7,15 +7,16 @@ import smtplib
 import time
 import logging
 import logging.handlers
-from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.emailed import EmailSender
-from modules.support_modules.standart_functions import BasicFunctions as BasF
+from modules.support_modules.standart_functions import BasicFunctions
 
 
-class Logs:
+class Logs(BasicFunctions):
     """Setup different handlers to logs."""
-    log_path = AbsPath.get_path('data', 'file.log')
-    error_log_path = AbsPath.get_path('data', 'error.log')
+
+    def __init__(self):
+        self.log_path = super().get_root_path() / 'data' / 'file.log'
+        self.error_log_path = super().get_root_path() / 'data' / 'error.log'
 
     @classmethod
     def send_error_to_email(cls):
@@ -58,7 +59,7 @@ class Logs:
     def loged_error(self, current_user):
         """Make error log."""
         err_logger = logging.getLogger("ERR")
-        BasF.clear_screen()
+        super().clear_screen()
         print(
             "\033[91mВНИМАНИЕ! Произошла ошибка преведшая к завершению "
             "программы \nПожалуйста, не закрывайте окно, лог ошибки "
@@ -88,7 +89,7 @@ class Logs:
 
     def emailed_error_log(self):
         """Try to emailed error log file if exist."""
-        if os.path.exists(self.error_log_path):
+        if self.error_log_path.exists():
             with open(self.error_log_path, 'r', encoding='utf-8') as file:
                 log = file.read()
             unsucsesse = EmailSender().try_email(

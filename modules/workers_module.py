@@ -4,11 +4,9 @@ This module containe classes that provide accesse to information about workers.
 
 """
 
-import os
 from pprint import pprint
 from datetime import date
 
-from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.administration.logger_cfg import Logs
 
@@ -50,10 +48,6 @@ class Worker():
 class AllWorkers(BasicFunctions):
     """Infofmation about all workers and tools to manipulate."""
 
-    workers_base_path = AbsPath.get_path('data', 'workers_base')
-    workers_archive_path = AbsPath.get_path('data', 'workers_archive')
-    comp_structure_path = AbsPath.get_path('data', 'company_structure')
-
     interkamen = {
         'Карьер': {
             'Инженерная служба': {'Смена 1': [],
@@ -86,11 +80,17 @@ class AllWorkers(BasicFunctions):
 
     def __init__(self, user):
         self.user = user
+        self.workers_base_path = (
+            super().get_root_path() / 'data' / 'workers_base')
+        self.workers_archive_path = (
+            super().get_root_path() / 'data' / 'workers_archive')
+        self.comp_structure_path = (
+            super().get_root_path() / 'data' / 'company_structure')
         self.workers_base = super().load_data(self.workers_base_path)
         self.workers_archive = super().load_data(self.workers_archive_path)
         self.comp_structure = super().load_data(self.comp_structure_path)
         # Create company structure file if it not exist.
-        if not os.path.exists(self.comp_structure_path):
+        if not self.comp_structure_path.exists():
             self.upd_comp_structure()
 
     @classmethod

@@ -16,16 +16,14 @@ from email.mime.image import MIMEImage
 from email import encoders
 
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsPath
 
 
 class EmailSender(BasicFunctions):
     """
     Class to working with e-mails.
     """
-    email_prop_path = AbsPath.get_path('data', 'email_prop')
-
     def __init__(self):
+        self.email_prop_path = super().get_root_path() / 'data' / 'email_prop'
         self.email_prop = super().load_data(self.email_prop_path)
         if not self.email_prop:
             self.email_prop = {
@@ -152,7 +150,7 @@ class EmailSender(BasicFunctions):
 
     @classmethod
     def _add_html_to_email(cls, msg, add_html, html_img):
-        """Add HTNL to email."""
+        """Add HTML to email."""
         # We reference the image in the IMG SRC attribute by the
         # ID we give it below
         # <b>Some <i>HTML</i> text</b> and an image.<br>\

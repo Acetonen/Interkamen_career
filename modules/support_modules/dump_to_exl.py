@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """Dump data to xlsx file."""
 
-import os
 import time
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
-from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
 
 
@@ -15,12 +13,15 @@ class DumpToExl(BasicFunctions):
         '', 'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
         'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
     ]
-    blanc_drill_path = AbsPath().get_path('exl_blancs', 'drill_passport.xlsx')
-    blanc_ktu_path = AbsPath().get_path('exl_blancs', 'ktu.xlsx')
-    drill_pass_path = AbsPath().get_path(
-        'Documents', 'Буровые_паспорта', up_root=True)
-    ktu_path = AbsPath().get_path(
-        'Documents', 'КТУ', up_root=True)
+
+    def __init__(self):
+        self.blanc_drill_path = (
+            super().get_root_path() / 'exl_blancs' / 'drill_passport.xlsx')
+        self.blanc_ktu_path = (
+            super().get_root_path() / 'exl_blancs' / 'ktu.xlsx')
+        self.drill_pass_path = (
+            super().get_root_path().parent / 'Documents' / 'Буровые_паспорта')
+        self.ktu_path = super().get_root_path().parent / 'Documents' / 'КТУ'
 
     @classmethod
     def _create_pass_name(cls, passport):
@@ -51,11 +52,12 @@ class DumpToExl(BasicFunctions):
         workbook = load_workbook(self.blanc_drill_path)
         worksheet = workbook.active
         if negab:
-            img = Image(AbsPath.get_path('exl_blancs', 'scheme_ng.png'))
+            img = Image(
+                super().get_root_path() / 'exl_blancs' / 'scheme_ng.png')
             worksheet['F4'] = 'колличество негабаритов:'
             worksheet['K4'] = int(negab)
         else:
-            img = Image(AbsPath.get_path('exl_blancs', 'scheme.png'))
+            img = Image(super().get_root_path() / 'exl_blancs' / 'scheme.png')
 
         worksheet.add_image(img, 'A29')
         worksheet['K1'] = int(passport.params.number)  # Passport number.
@@ -90,7 +92,7 @@ class DumpToExl(BasicFunctions):
         worksheet['J47'] = master
         # Save file.
         pass_name = self._create_pass_name(passport)
-        workbook.save(os.path.join(self.drill_pass_path, pass_name) + '.xlsx')
+        workbook.save(self.drill_pass_path.joinpath(pass_name) + '.xlsx')
         print(
             "\nФайл сохранен:\n",
             self.drill_pass_path + '/' + pass_name + '.xlsx'
@@ -127,7 +129,7 @@ class DumpToExl(BasicFunctions):
         # Save file.
         pass_name = '-'.join([
             year, tmp_rpt.status['date'].split('-')[1][:2], shift])
-        workbook.save(os.path.join(self.ktu_path, pass_name) + '.xlsx')
+        workbook.save(self.ktu_path.joinpath(pass_name) + '.xlsx')
         print(
             "\nФайл сохранен:\n",
             self.ktu_path + '/' + pass_name + '.xlsx'

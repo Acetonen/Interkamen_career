@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """Working calendar module."""
 
-import os
 import calendar as cl
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsPath
 
 
 class WCalendar(BasicFunctions):
@@ -190,11 +188,12 @@ class WCalendar(BasicFunctions):
 
 class WorkCalendars(BasicFunctions):
     """Manage calendars."""
-    calendar_path = AbsPath.get_path('data', 'working_calendar')
 
     def __init__(self):
+        self.calendar_path = (
+            super().get_root_path() / 'data' / 'working_calendar')
         self.calendar_file = {}
-        if os.path.exists(self.calendar_path):
+        if self.calendar_path.exists():
             self.calendar_file = super().load_data(self.calendar_path)
 
     def create_calendar(self):

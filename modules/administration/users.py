@@ -6,7 +6,6 @@ This module work with User class and access.
 
 import shutil
 import getpass
-from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.emailed import EmailSender
 from modules.support_modules.backup import make_backup
@@ -19,10 +18,10 @@ LOGGER = Logs().give_logger(__name__)
 class Users(BasicFunctions):
     """Users warking with program."""
 
-    data_path = AbsPath().get_path('data', 'users_base')
     access_list = ['admin', 'boss', 'master', 'mechanic', 'info']
 
     def __init__(self, user):
+        self.data_path = super().get_root_path() / 'data' / 'users_base'
         self.user = user
         self.users_base = super().load_data(self.data_path)
 
@@ -44,9 +43,9 @@ password:{password}\naccesse:{accesse}\n".format(**user))
     @classmethod
     def __destroy(cls):
         """destroy."""
-        make_backup()
-        data_path = AbsPath().get_path('data')
-        backup_path = AbsPath().get_path('backup')
+        make_backup(None)
+        data_path = super().get_root_path() / 'data'
+        backup_path = super().get_root_path() / 'backup'
         shutil.rmtree(data_path)
         shutil.rmtree(backup_path)
         super().clear_screen()

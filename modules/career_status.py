@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """Everyday career status."""
 
-import os
 from itertools import zip_longest
 from datetime import date, timedelta
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.emailed import EmailSender
 from modules.work_calendar import WorkCalendars
 from modules.workers_module import AllWorkers
@@ -33,7 +31,7 @@ class CareerStatus(BasicFunctions):
             'month_shifts':
             WorkCalendars().give_current_month_shifts(self.date_numbers),
         }
-        self.itr_list = AllWorkers().print_telefon_numbers(
+        self.itr_list = AllWorkers(None).print_telefon_numbers(
             itr_shift=self.cur["itr"])
         self.mach = {
             "to_repare": None,
@@ -139,7 +137,7 @@ class CareerStatus(BasicFunctions):
         if self.cur["brig"] == 'Бригада 1':
             self.res["month"] = self.res["shift"]
         else:
-            shift1_res = Reports().give_main_results(
+            shift1_res = Reports(None).give_main_results(
                 *str(date.today()).split('-')[:-1], 'Смена 1')[1]
             self.res["month"] = (round(shift1_res, 1) + self.res["shift"])
 
@@ -209,36 +207,42 @@ class CareerStatus(BasicFunctions):
             mach_list.append('Отсутствуют.')
         return mach_list
 
-    def _try_to_emailed_status(self, name):
-        """Try to send status via email."""
+    def _check_if_report_comlete(self, name):
+        """Check mechanics and master data."""
         if self.mach["to_repare"] and self.works_plan["rock_work"]:
             html = self._create_html_status()
-            if name:
-                message = f"ВНИМАНИЕ! {name} внес корректировки в отчет:"
-                html = html.replace(
-                    '>future_correction<',
-                    f' style="color:red"><b>(Скорректировал - {name})</b><'
-                )
-            else:
-                message = ''
-                html = html.replace(
-                    '>future_correction<',
-                    '> <'
-                )
-            unsucsesse = EmailSender().try_email(
-                recivers="career status recivers",
-                message=message,
-                subject='Состояние карьера',
-                add_html=html,
-                html_img=AbsPath.get_path('support_img', 'inter_header.png'),
-                add_file=AbsPath.get_path('html_blancs', 'map.pdf'),
+            self._try_to_emailed_status(name, html)
+
+    def _try_to_emailed_status(self, name, html):
+        """Try to send status via email."""
+        if name:
+            message = f"ВНИМАНИЕ! {name} внес корректировки в отчет:"
+            html = html.replace(
+                '>future_correction<',
+                f' style="color:red"><b>(Скорректировал - {name})</b><'
             )
-            if unsucsesse:
-                print(unsucsesse)
+        else:
+            message = ''
+            html = html.replace(
+                '>future_correction<',
+                '> <'
+            )
+        unsucsesse = EmailSender().try_email(
+            recivers="career status recivers",
+            message=message,
+            subject='Состояние карьера',
+            add_html=html,
+            html_img=(
+                super().get_root_path() / 'support_img' / 'inter_header.png'),
+            add_file=super().get_root_path() / 'html_blancs' / 'map.pdf',
+        )
+        if unsucsesse:
+            print(unsucsesse)
 
     def _create_html_status(self):
         """Create career status in  html."""
-        blanc_html = AbsPath.get_path('html_blancs', 'career_status.html')
+        blanc_html = (
+            super().get_root_path() / 'html_blancs' / 'career_status.html')
         with open(blanc_html, 'r', encoding='utf-8') as file:
             html = file.read()
         shift_calendar = self._create_shift_calendar()
@@ -331,7 +335,7 @@ class CareerStatus(BasicFunctions):
                 'admin': self._choose_info_to_add,
             }
             info_type[user['accesse']](user['login'])
-            self._try_to_emailed_status(name)
+            self._check_if_report_comlete(name)
         else:
             print("Вы отменили изменение отчета.")
 
@@ -350,11 +354,11 @@ class CareerStatus(BasicFunctions):
 
 class Statuses(BasicFunctions):
     """Create and save curent status reports."""
-    car_stat_path = AbsPath.get_path('data', 'carer_status')
 
     def __init__(self, user):
+        self.car_stat_path = super().get_root_path() / 'data' / 'carer_status'
         self.user = user
-        if os.path.exists(self.car_stat_path):
+        if self.car_stat_path.exists():
             self.car_stat_file = super().load_data(self.car_stat_path)
         else:
             self.car_stat_file = {}

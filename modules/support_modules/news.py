@@ -7,19 +7,18 @@ News module. Show news for users.
 
 import os
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.absolyte_path_module import AbsPath
 
 
 class News(BasicFunctions):
     """Show news to users."""
-    # Path for news files.
-    news_path = AbsPath().get_path('news')
-    # Path for information of showing to users.
-    news_memory = AbsPath().get_path('data', 'news_memory')
 
     def __init__(self):
+        # Path for news files.
+        self.news_path = super().get_root_path() / 'news'
+        # Path for information of showing to users.
+        self.news_memory = super().get_root_path() / 'data' / 'news_memory'
         if (not os.listdir(self.news_path) or
-                not os.path.exists(self.news_memory)):
+                not self.news_memory.exists()):
             self.news_memory_file = {}
             super().dump_data(self.news_memory, self.news_memory_file)
         else:
