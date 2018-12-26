@@ -10,6 +10,10 @@ from datetime import date
 
 from modules.support_modules.absolyte_path_module import AbsPath
 from modules.support_modules.standart_functions import BasicFunctions
+from modules.administration.logger_cfg import Logs
+
+
+LOGGER = Logs().give_logger(__name__)
 
 
 class Worker():
@@ -80,7 +84,8 @@ class AllWorkers(BasicFunctions):
             }
         }
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.workers_base = super().load_data(self.workers_base_path)
         self.workers_archive = super().load_data(self.workers_archive_path)
         self.comp_structure = super().load_data(self.comp_structure_path)
@@ -173,9 +178,10 @@ class AllWorkers(BasicFunctions):
         """Delete worker."""
         self._delete_worker_from_structure(temp_worker)
         self.workers_base.pop(temp_worker.name, None)
-        log = f"\033[91m{temp_worker.name} - удален. \033[0m"
-        print(log)
-        super().save_log_to_temp_file("\033[91m - worker deleted. \033[0m")
+        print(f"\033[91m{temp_worker.name} - удален. \033[0m")
+        LOGGER.warning(
+            f"User '{self.user['login']}' delete worker: {temp_worker.name}"
+        )
         temp_worker = None
         return temp_worker
 
@@ -194,7 +200,9 @@ class AllWorkers(BasicFunctions):
         self.workers_archive[temp_worker.name] = temp_worker
         super().dump_data(self.workers_archive_path, self.workers_archive)
         print(f"\033[91m{temp_worker.name} - уволен. \033[0m")
-        super().save_log_to_temp_file("\033[91m - layed off\033[0m")
+        LOGGER.warning(
+            f"User '{self.user['login']}' lay off worker: {temp_worker.name}"
+        )
         temp_worker = self._delete_worker(temp_worker)
         return temp_worker
 
@@ -209,9 +217,11 @@ class AllWorkers(BasicFunctions):
         temp_worker.working_place['shift'] = new_shift
         self._add_worker_to_structure(
             temp_worker.name, temp_worker.working_place)
-        log = f"{temp_worker.name} - переведен в '{new_shift}'."
-        print(log)
-        super().save_log_to_temp_file(f" - shifted in '{new_shift}'.")
+        print(f"{temp_worker.name} - переведен в '{new_shift}'.")
+        LOGGER.warning(
+            f"User '{self.user['login']}' shift worker: {temp_worker.name} -> "
+            + f"{new_shift}"
+        )
         return temp_worker
 
     def _change_working_place(self, temp_worker):
@@ -222,9 +232,10 @@ class AllWorkers(BasicFunctions):
         temp_worker.working_place = new_working_place
         self._add_worker_to_structure(
             temp_worker.name, temp_worker.working_place)
-        log = f"{temp_worker.name} - перемещен'."
-        print(log)
-        super().save_log_to_temp_file(f" - shifted.")
+        print(f"{temp_worker.name} - перемещен'.")
+        LOGGER.warning(
+            f"User '{self.user['login']}' shift worker: {temp_worker.name}"
+        )
         return temp_worker
 
     @classmethod
@@ -241,8 +252,6 @@ class AllWorkers(BasicFunctions):
         print("Выберете работника для редактирования:")
         division_workers = self.give_workers_from_division()
         worker = super().choise_from_list(division_workers, none_option=True)
-        if worker:
-            super().save_log_to_temp_file(worker)
         print("Редактирование отменено.")
         super().clear_screen()
         while worker:
@@ -283,6 +292,9 @@ class AllWorkers(BasicFunctions):
             if division not in self.comp_structure:
                 self.comp_structure[division] = self.interkamen[division]
                 print(f"{division} added.")
+                LOGGER.warning(
+                    f"User '{self.user['login']}' update company structure."
+                )
         super().dump_data(self.comp_structure_path, self.comp_structure)
 
     def print_comp_structure(self):
@@ -299,9 +311,10 @@ class AllWorkers(BasicFunctions):
         self.workers_base[name] = new_worker
         super().dump_data(self.workers_base_path, self.workers_base)
         self._add_worker_to_structure(name, working_place)
-        log = f"\033[92m Добавлен сотрудник '{name}'. \033[0m"
-        print(log)
-        super().save_log_to_temp_file(f"\033[92m '{name}' \033[0m")
+        print(f"\033[92m Добавлен сотрудник '{name}'. \033[0m")
+        LOGGER.warning(
+            f"User '{self.user['login']}' add worker: {name}"
+        )
 
     def print_archive_workers(self):
         """Print layed off workers"""
@@ -334,8 +347,10 @@ class AllWorkers(BasicFunctions):
             super().dump_data(self.workers_base_path, self.workers_base)
             self._add_worker_to_structure(worker.name, worker.working_place)
             print(f"\033[92mCотрудник '{worker.name}' возвращен\033[0m")
-            super().save_log_to_temp_file(
-                f"\033[92m'{worker.name}' returned.\033[0m")
+            LOGGER.warning(
+                f"User '{self.user['login']}' retun worker from archive: "
+                + f"{worker.name}"
+            )
 
     def give_workers_from_shift(self, shift, division='Карьер',
                                 subdivision='Добычная бригада'):

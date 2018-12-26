@@ -41,7 +41,7 @@ class Accesse:
         },
         'basic': {
             'Телефоны работников':
-            lambda user: AllWorkers().print_telefon_numbers(),
+            lambda user: AllWorkers(None).print_telefon_numbers(),
             'Календарь пересменок':
             lambda user: WorkCalendars().show_year_shifts(),
             'Поменять пароль':
@@ -128,25 +128,25 @@ class Accesse:
         },
         '--> [Работники] ': {
             'Новый работник':
-            lambda user: AllWorkers().add_new_worker(),
+            lambda user: AllWorkers(user).add_new_worker(),
             'Показать работников подразделения':
-            lambda user: AllWorkers().print_workers_from_division(),
+            lambda user: AllWorkers(None).print_workers_from_division(),
             'Показать уволеных работников':
-            lambda user: AllWorkers().print_archive_workers(),
+            lambda user: AllWorkers(None).print_archive_workers(),
             'Вернуть работника из архива':
-            lambda user: AllWorkers().return_from_archive(),
+            lambda user: AllWorkers(user).return_from_archive(),
             'Редактировать работника':
-            lambda user: AllWorkers().edit_worker(),
+            lambda user: AllWorkers(user).edit_worker(),
             'Показать юбиляров этого года':
-            lambda user: AllWorkers().show_anniversary_workers(),
+            lambda user: AllWorkers(None).show_anniversary_workers(),
             'Создать календарь пересменок':
             lambda user: WorkCalendars().create_calendar(),
         },
         '\033[91m--> [databases] \033[0m': {
             'upd company structure':
-            lambda user: AllWorkers().upd_comp_structure(),
+            lambda user: AllWorkers(user).upd_comp_structure(),
             'print company structure':
-            lambda user: AllWorkers().print_comp_structure(),
+            lambda user: AllWorkers(None).print_comp_structure(),
         },
         '--> [Финансы]': {
             'Наряд бригады':
