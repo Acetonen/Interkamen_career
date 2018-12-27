@@ -687,28 +687,41 @@ class Reports(BasicFunctions):
             super().dump_data(self.data_path, self.data_base)
             super().clear_screen()
 
-    def work_with_main_report(self):
+    def choose_main_report(self):
         """Finish MainReport"""
-        years = set([report.split('-')[0] for report in self.data_base])
+        years = set([
+            report.split('-')[0]
+            for report in self.data_base
+        ])
         print("Выберете год:")
         year = super().choise_from_list(years, none_option=True)
         if year:
-            reports_by_years = [report for report in self.data_base
-                                if report.startswith(year)]
+            reports_by_years = [
+                report
+                for report in self.data_base
+                if report.startswith(year)
+            ]
             print("Выберет отчет:")
             report_name = super().choise_from_list(reports_by_years,
                                                    none_option=True)
-        else:
-            report_name = None
-        if report_name:
-            if '[не завершен]' in report_name:
-                self._make_status_in_process(report_name)
-            elif '[завершен]' in report_name:
-                print(self.data_base[report_name])
-                if self.user['accesse'] == 'admin':
-                    choise = input("""\
-\033[91m[un]\033[0m Возвратить статус '\033[93m[в процессе]\033[0m'\n""")
-                    if choise == 'un':
-                        self._uncomplete_main_report(report_name)
-            elif '[в процессе]' in report_name:
-                self._edit_main_report(report_name)
+            self._working_with_main_report(report_name)
+
+    def _working_with_main_report(self, report_name):
+        """Working with main report."""
+        if '[не завершен]' in report_name:
+            self._make_status_in_process(report_name)
+        elif '[в процессе]' in report_name:
+            self._edit_main_report(report_name)
+        elif '[завершен]' in report_name:
+            print(self.data_base[report_name])
+            print("[E] - сохранить в данные в exel табель.")
+            if self.user['accesse'] == 'admin':
+                print(
+                    "\033[91m[un]\033[0m Возвратить статус "
+                    "'\033[93m[в процессе]\033[0m'\n"
+                )
+            choise = input()
+            if choise.lower() in ['e', 'E', 'е', 'Е']:
+                DumpToExl().dump_salary(self.data_base[report_name])
+            elif self.user['accesse'] == 'admin' and choise == 'un':
+                self._uncomplete_main_report(report_name)

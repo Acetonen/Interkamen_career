@@ -150,7 +150,7 @@ class Accesse:
         },
         '--> [Финансы]': {
             'Наряд бригады':
-            lambda user: Reports(user).work_with_main_report(),
+            lambda user: Reports(user).choose_main_report(),
             'Сформировать итог по рейтингу':
             lambda user: Rating(user).count_brigade_winner(),
             'Редактировать список окладов':

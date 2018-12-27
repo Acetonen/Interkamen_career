@@ -56,14 +56,12 @@ class News(BasicFunctions):
         """Show news to user if it hasn't allredy shown."""
         new_news = []
         user_news = self._check_if_user_in_file(user_login)
-        if os.listdir(self.news_path):
-            for news in sorted(os.listdir(self.news_path)):
-                if news not in user_news:
-                    with open(os.path.join(self.news_path, news), 'r',
-                              encoding='utf-8') as file:
-                        new_news.append(file.read())
-                    self._add_news_to_user(user_login, news)
-                    super().dump_data(self.news_memory, self.news_memory_file)
+        for news in sorted(os.listdir(self.news_path)):
+            if news not in user_news:
+                new = self.news_path.joinpath(news).read_text(encoding='utf-8')
+                new_news.append(new)
+                self._add_news_to_user(user_login, news)
+                super().dump_data(self.news_memory, self.news_memory_file)
         if new_news:
             self._print_news(new_news)
 
