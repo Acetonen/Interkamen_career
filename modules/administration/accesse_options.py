@@ -111,12 +111,12 @@ class Accesse:
             lambda user: Reminder().show_all_reminds(),
         },
         '\033[91m--> [log_menu] \033[0m': {
-            # 'search in logs':
-            # lambda user: Logs().search_in_logs(),
-            # 'delete all logs':
-            # lambda user: Logs().delete_all_logs(),
-            # 'show all logs':
-            # lambda user: Logs().show_all_logs(),
+            'search in logs':
+            lambda user: Logs().search_in_logs(),
+            'delete all logs':
+            lambda user: Logs().delete_all_logs(),
+            'show all logs':
+            lambda user: Logs().show_logs(),
         },
         '\033[91m--> [users_menu] \033[0m': {
             'create new user':

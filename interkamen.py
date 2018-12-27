@@ -10,7 +10,7 @@ Functions: 'print_menu'
 """
 
 import sys
-
+from typing import Dict, List
 from modules.support_modules.hi import INTERKAMEN
 from modules.support_modules.backup import check_last_backup_date
 from modules.support_modules.standart_functions import BasicFunctions as BasF
@@ -22,7 +22,7 @@ from modules.administration.users import Users
 from modules.administration.logger_cfg import Logs
 
 
-def main(current_user):
+def main(current_user: Dict[str, str]):
     """Main flow."""
     Logs().emailed_error_log()
     logger = Logs().give_logger(__name__)
@@ -94,7 +94,7 @@ def login_program():
     return current_user
 
 
-def show_news(usr_acs):
+def show_news(usr_acs: str):
     """Try to show news."""
     if usr_acs != 'info':
         News().show_new_news(usr_acs)
@@ -102,7 +102,10 @@ def show_news(usr_acs):
         print(INTERKAMEN)
 
 
-def print_menu(usr_acs, menu_header, menu_nesting, program_menu):
+def print_menu(usr_acs: str,
+               menu_header: str,
+               menu_nesting: List[str],
+               program_menu: Dict[str, str]):
     """Print program menu."""
     separator = "\033[36m------------------------------\033[0m"
     print(Reminder().give_remind(usr_acs) + '\n' + separator + '\n')
@@ -115,8 +118,10 @@ def print_menu(usr_acs, menu_header, menu_nesting, program_menu):
     print(separator)
 
 
-def get_main_or_sub_menu(usr_acs, menu_list, sub_menu=False):
-    """create main or sub-menu sub_menu=True"""
+def get_main_or_sub_menu(usr_acs: str,
+                         menu_list: List[str],
+                         sub_menu: str = False) -> Dict[str, str]:
+    """create main or sub-menu if sub_menu=True"""
     if sub_menu:
         program_menu = Accesse(usr_acs).get_sub_menu(sub_menu)
     else:

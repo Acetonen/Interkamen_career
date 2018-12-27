@@ -559,7 +559,7 @@ class Reports(BasicFunctions):
         self.data_base[new_name] = tmp_report
         super().dump_data(self.data_path, self.data_base)
         LOGGER.warning(
-            f"User '{self.user['login']}' make report 'in process': "
+            f"User '{self.user['login']}' make report: "
             + f"{new_name}"
         )
         self._edit_main_report(new_name)

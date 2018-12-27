@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Logging setup."""
 
-import os
 import socket
 import smtplib
 import time
 import logging
 import logging.handlers
+from typing import Dict, List
 from modules.support_modules.emailed import EmailSender
 from modules.support_modules.standart_functions import BasicFunctions
 
@@ -17,6 +17,9 @@ class Logs(BasicFunctions):
     def __init__(self):
         self.log_path = super().get_root_path() / 'data' / 'file.log'
         self.error_log_path = super().get_root_path() / 'data' / 'error.log'
+        if self.log_path.exists():
+            with open(self.log_path, 'r', encoding='utf-8') as file:
+                self.log_file = file.readlines()[::-1]
 
     @classmethod
     def send_error_to_email(cls):
@@ -56,7 +59,7 @@ class Logs(BasicFunctions):
         handler.setFormatter(log_format)
         return handler
 
-    def loged_error(self, current_user):
+    def loged_error(self, current_user: Dict[str, str]):
         """Make error log."""
         err_logger = logging.getLogger("ERR")
         super().clear_screen()
@@ -90,8 +93,7 @@ class Logs(BasicFunctions):
     def emailed_error_log(self):
         """Try to emailed error log file if exist."""
         if self.error_log_path.exists():
-            with open(self.error_log_path, 'r', encoding='utf-8') as file:
-                log = file.read()
+            log = self.error_log_path.read_text(encoding='utf-8')
             unsucsesse = EmailSender().try_email(
                 recivers='resivers list',
                 subject="ERROR",
@@ -101,10 +103,38 @@ class Logs(BasicFunctions):
                 print(unsucsesse)
                 time.sleep(5)
             else:
-                os.remove(self.error_log_path)
+                self.error_log_path.unlink()
 
-    def give_logger(self, name):
+    def give_logger(self, name: str):
         "give logger to module."
         logger = logging.getLogger(name)
         logger.addHandler(self.save_info_to_file())
         return logger
+
+    def show_logs(self, logs: List[str] = None):
+        """show_all_logs"""
+        if not logs:
+            logs = self.log_file
+        while logs:
+            print_logs = logs[:9]
+            print(''.join(print_logs))
+            logs = logs[9:]
+            choose = input("[ENTER] - next."
+                           "\n[E] - exit: ")
+            if choose.lower() == 'e':
+                break
+
+    def search_in_logs(self):
+        """Search in logs."""
+        search_item = input("Input what you want to search: ")
+        result_log_list = [
+            log
+            for log in self.log_file
+            if search_item in log
+        ]
+        self.show_logs(result_log_list)
+
+    def delete_all_logs(self):
+        """delete logs for all users"""
+        if super().confirm_deletion('all logs'):
+            self.log_path.unlink()
