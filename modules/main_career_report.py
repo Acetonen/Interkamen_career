@@ -27,6 +27,7 @@ from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.backup import make_backup
 from modules.support_modules.dump_to_exl import DumpToExl
 from modules.administration.logger_cfg import Logs
+from modules.drill_passports import DrillPassports
 
 
 LOGGER = Logs().give_logger(__name__)
@@ -289,13 +290,13 @@ class Reports(BasicFunctions):
     """
 
     def __init__(self, user):
+        self.user = user
         self.data_path = (
             super().get_root_path() / 'data' / 'main_career_report')
         self.salary_path = super().get_root_path() / 'data' / 'salary_worker'
         self.drillers_path = super().get_root_path() / 'data' / 'drillers'
         self.brigadiers_path = super().get_root_path() / 'data' / 'brigadiers'
         self.shifts = ['Смена 1', 'Смена 2']
-        self.user = user
         self.salary_workers = super().load_data(self.salary_path)
         self.drillers = super().load_data(self.drillers_path)
         self.brigadiers = super().load_data(self.brigadiers_path)
@@ -312,7 +313,7 @@ class Reports(BasicFunctions):
             workers_hours[worker] = int(hours)
         return workers_hours
 
-    def _input_result(self, report):
+    def _input_result(self, report: MainReport) -> MainReport:
         """Input working result"""
         for item in report.result:
             if isinstance(report.result[item], dict):
@@ -320,10 +321,37 @@ class Reports(BasicFunctions):
                     print(sub_item, end='')
                     report.result[item][sub_item] = (super()
                                                      .float_input(msg=': '))
+            elif item == 'шпурометры':
+                drill_meters = self._give_drill_meters(report)
+                print(item + f": {drill_meters} м.")
+                add_meters = self._add_meters()
+                if add_meters:
+                    drill_meters += add_meters
+                    print(item + f": {drill_meters} м.")
+                report.result['шпурометры'] = drill_meters
             else:
                 print(item, end='')
                 report.result[item] = super().float_input(msg=': ')
         return report
+
+    def _add_meters(self) -> float:
+        """Add or sub meters."""
+        add_meters = 0
+        choise = input("[Д] - добавить или отнять метры: ")
+        if choise.lower() == 'д':
+            add_meters = super().float_input(msg='Введите метры: ')
+        return add_meters
+
+    def _give_drill_meters(self, report: MainReport) -> float:
+        """Find driller and give his meters."""
+        shift = report.status['shift']
+        for worker in self.drillers:
+            if worker in AllWorkers(None).give_workers_from_shift(shift):
+                driller = worker
+                break
+        r_date = report.status['date']
+        drill_meters = DrillPassports(None).count_drill_meters(driller, r_date)
+        return drill_meters
 
     def _change_hours(self, tmp_rpt):
         """Change hours value."""

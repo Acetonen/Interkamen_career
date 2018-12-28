@@ -4,6 +4,7 @@
 
 import pandas as pd
 from numpy import nan as Nan
+from typing import Union
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.dump_to_exl import DumpToExl
 from modules.administration.logger_cfg import Logs
@@ -237,11 +238,15 @@ class DrillPassports(BasicFunctions):
             super().dump_data(self.drill_pass_path, self.drill_pass_file)
 
     @classmethod
-    def _create_pass_name(cls, passport):
+    def _create_pass_name(cls, passport: Union[NPassport, DPassport]) -> str:
         """Create passport name."""
+        if len(str(passport.params.month)) == 1:
+            month = '0' + str(passport.params.month)
+        else:
+            month = str(passport.params.month)
         pass_name = ("{}-{}-{} №{}-{}"
                      .format(passport.params.year,
-                             passport.params.month,
+                             month,
                              passport.params.day,
                              int(passport.params.number),
                              passport.params.massive_type))
@@ -308,6 +313,16 @@ class DrillPassports(BasicFunctions):
             [passport for passport in self.drill_pass_file])[-1]
         last_number = last_passport.split(' ')[-1]
         return last_number
+
+    def count_drill_meters(self, driller: str, date: str) -> float:
+        """Count totall meters for current driller."""
+        drill_meters = 0
+        for passport in self.drill_pass_file:
+            pas_file = self.drill_pass_file[passport]
+            if (str(pas_file.params.driller) == driller and
+                    passport.startswith(date)):
+                drill_meters += round(float(pas_file.params.totall_meters), 1)
+        return drill_meters
 
     def create_drill_passport(self):
         """Create drill passport."""
