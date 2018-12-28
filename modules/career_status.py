@@ -213,16 +213,16 @@ class CareerStatus(BasicFunctions):
             html = self._create_html_status()
             self._try_to_emailed_status(name, html)
 
-    def _try_to_emailed_status(self, name, html):
+    def _try_to_emailed_status(self, name: str, html: str):
         """Try to send status via email."""
+        message = EmailSender().email_prop["status message"]
         if name:
-            message = f"ВНИМАНИЕ! {name} внес корректировки в отчет:"
+            message += f"\nВНИМАНИЕ! {name} внес корректировки в отчет:"
             html = html.replace(
                 '>future_correction<',
                 f' style="color:red"><b>(Скорректировал - {name})</b><'
             )
         else:
-            message = ''
             html = html.replace(
                 '>future_correction<',
                 '> <'

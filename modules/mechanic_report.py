@@ -440,8 +440,10 @@ class MechReports(BasicFunctions):
         day = input("Введите день: ")
         if day:
             rep_date = {
-                'year': int(year), 'month': int(month), 'day': int(day)
-                }
+                'year': int(year),
+                'month': int(month),
+                'day': int(day),
+            }
             self._make_day_report_temp(rep_date)
             self._working_with_report(rep_date)
 

@@ -5,7 +5,6 @@ import imaplib
 import smtplib
 import socket
 import re
-import os.path as op
 
 import email
 from email.mime.multipart import MIMEMultipart
@@ -14,6 +13,8 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email.mime.image import MIMEImage
 from email import encoders
+
+from typing import List, Union
 
 from modules.support_modules.standart_functions import BasicFunctions
 
@@ -38,14 +39,19 @@ class EmailSender(BasicFunctions):
         self.destroy_data = None
 
     @classmethod
-    def _try_connect(cls, connect_reason, recivers=None, **mail_parts):
+    def _try_connect(
+            cls,
+            connect_reason: Union[
+                'EmailSender._send_mail',
+                'EmailSender._read_mail',
+            ],
+            *recivers: List[str],
+            **mail_parts,
+    ):
         """Try to connect to server to send or read emails."""
         unsucsesse = None
         try:
-            if recivers:
-                connect_reason(recivers, **mail_parts)
-            else:
-                connect_reason()
+            connect_reason(*recivers, **mail_parts)
         except smtplib.SMTPAuthenticationError:
             unsucsesse = "\033[91mcan't login in e-mail.\033[0m"
         except socket.gaierror:
@@ -55,7 +61,7 @@ class EmailSender(BasicFunctions):
         return unsucsesse
 
     @classmethod
-    def __find_command_to_destruct(cls, msg):
+    def __find_command_to_destruct(cls, msg: 'email.message_from_bytes'):
         """If find command to destruct in header."""
         body = None
         if msg["Subject"] == 'destruct':
@@ -73,7 +79,7 @@ class EmailSender(BasicFunctions):
                     break
         return body
 
-    def _delete_resiver(self, prop):
+    def _delete_resiver(self, prop: str):
         """Delete  resiver from send list"""
         print("choose resiver to delete:")
         mail = super().choise_from_list(self.email_prop[prop],
@@ -83,7 +89,12 @@ class EmailSender(BasicFunctions):
             self.email_prop[prop].remove(mail)
             print(mail + "\033[91m - deleted\033[0m")
 
-    def _change_email(self, prop):
+    def _add_message(self):
+        """Add message to career status."""
+        message = input("Input message: ")
+        self.email_prop["status message"] = message
+
+    def _change_email(self, prop: str):
         """Change e-mail adress."""
         new_email = input("enter new email: ")
         match = re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
@@ -99,7 +110,7 @@ class EmailSender(BasicFunctions):
             self.email_prop[prop].append(new_email)
             print("\033[92memail add.\033[0m")
 
-    def _change_password(self, prop):
+    def _change_password(self, prop: str):
         """Change e-mail password."""
         new_password = input("enter new password: ")
         self.email_prop[prop] = new_password
@@ -108,13 +119,13 @@ class EmailSender(BasicFunctions):
 
     def _send_mail(
             self,
-            recivers,
+            recivers: List[str],
             *,
-            subject,
-            message='',
-            add_html=None,
-            html_img=None,
-            add_file=None,
+            subject: str,
+            message: str = '',
+            add_html: str = None,
+            html_img: 'PurePath' = None,
+            add_file: 'PurePath' = None,
     ):
         """Compose and send email with provided info and attachments."""
         msg = MIMEMultipart()
@@ -138,18 +149,27 @@ class EmailSender(BasicFunctions):
         smtp.quit()
 
     @classmethod
-    def _add_file_to_email(cls, msg, part, add_file):
+    def _add_file_to_email(
+            cls,
+            msg: MIMEMultipart,
+            part: MIMEBase,
+            add_file: 'PurePath',
+    ):
         """Add file to html."""
         with open(add_file, 'rb') as file:
             part.set_payload(file.read())
         encoders.encode_base64(part)
         part.add_header(
             'Content-Disposition',
-            'attachment; filename="{}"'.format(op.basename(add_file)))
+            'attachment; filename="{}"'.format(add_file.name))
         msg.attach(part)
 
     @classmethod
-    def _add_html_to_email(cls, msg, add_html, html_img):
+    def _add_html_to_email(
+            cls, msg: MIMEMultipart,
+            add_html: str,
+            html_img: 'PurePath',
+    ):
         """Add HTML to email."""
         # We reference the image in the IMG SRC attribute by the
         # ID we give it below
@@ -213,15 +233,18 @@ class EmailSender(BasicFunctions):
         """Edit resiver list for dayli career status."""
         if "career status recivers" not in self.email_prop:
             self.email_prop["career status recivers"] = []
+        if "status message" not in self.email_prop:
+            self.email_prop["status message"] = ''
         while True:
+            super().clear_screen()
             print("Daily Status Recivers:\nSend to:")
             for mail in self.email_prop["career status recivers"]:
                 print('\t', mail)
+            print(f'Status message: "{self.email_prop["status message"]}"')
             action_dict = {
-                'add resiver':
-                (self._change_email, "career status recivers"),
-                'delete resiver':
-                (self._delete_resiver, "career status recivers"),
+                'add resiver': self._change_email,
+                'delete resiver': self._delete_resiver,
+                'add message': lambda arg: self._add_message(),
                 'exit': 'break',
             }
             print("\nChoose action:")
@@ -229,20 +252,12 @@ class EmailSender(BasicFunctions):
             if action_name in ['exit', '']:
                 break
             else:
-                action = action_dict[action_name][0]
-                argument = action_dict[action_name][1]
-                action(argument)
+                action_dict[action_name]("career status recivers")
             super().dump_data(self.email_prop_path, self.email_prop)
 
-    def try_email(self, recivers, **mail_parts):
+    def try_email(self, recivers: List[str], **mail_parts):
         """
         Try to send mail.
-        recivers - list of emails.
-        subject - string.
-        message - string, default - ''
-        add_html - HTML doc, default - None
-        html_img - HTML img, default - None
-        add_file - file attachment, default - None
         """
         unsucsesse = None
         if (not self.login or not self.password or not
