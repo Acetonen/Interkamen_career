@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Module to work with drill passports."""
 
-
+from typing import Union
 import pandas as pd
 from numpy import nan as Nan
-from typing import Union
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.dump_to_exl import DumpToExl
 from modules.administration.logger_cfg import Logs
@@ -362,6 +361,8 @@ class DrillPassports(BasicFunctions):
     def edit_passport(self):
         """Print passport for current number."""
         passport_name = self._choose_passport_from_bd()
+        if not passport_name:
+            raise MainMenu
         passport = self.drill_pass_file[passport_name]
         passport.change_parametrs()
         if not passport.params.number:

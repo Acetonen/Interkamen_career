@@ -5,8 +5,9 @@ import sys
 import os
 import pickle
 import time
+import calendar as cl
 from pathlib import Path
-from typing import List
+from typing import List, Set, Dict
 from matplotlib import rcParams as window_parametrs
 from modules.support_modules.custom_exceptions import MainMenu
 
@@ -128,11 +129,12 @@ class BasicFunctions:
                    int(date_numbers[1]) > 0)
         return correct
 
-    @staticmethod
-    def check_date_in_dataframe(dataframe, rep_date: List[int]):
+    @classmethod
+    def check_date_in_dataframe(cls, dataframe,
+                                rep_date: Dict[str, int]) -> bool:
         """
         Check if report allready exist in DataFrame
-        rep_date is a dictionary, that contain keys: year, month, day or shift.
+        rep_date can contain keys: year, month, day or shift (optionaly)
         """
         if dataframe.empty:
             check = False
@@ -150,7 +152,15 @@ class BasicFunctions:
                            (dataframe['month'] == rep_date['month']))
             if 'day' in dataframe[check_items]:
                 avail_days = dataframe[check_items].day
-                print("Имеющиеся отчеты: {}".format(sorted(set(avail_days))))
+                avail_days = sorted(set(avail_days))
+                print(
+                    "Имеющиеся отчеты:\n\t",
+                    cls.colorise_avaliable_date(
+                        rep_date['year'],
+                        rep_date['month'],
+                        avail_days
+                    )
+                )
             check = check_items.any()
         elif (len(rep_date) == 1 or
               (len(rep_date) == 2 and not rep_date['month'])):
@@ -158,7 +168,25 @@ class BasicFunctions:
             check = (check_items).any()
             avail_months = dataframe[check_items].month
             print("Имеющиеся отчеты: {}".format(sorted(set(avail_months))))
+
         return check
+
+    @staticmethod
+    def colorise_avaliable_date(year: int, month: int,
+                                av_days: Set[float]) -> str:
+        """Colorise avaliable date."""
+        cal = cl.TextCalendar()
+        month_prnt = cal.formatmonth(year, month).__repr__()
+        month_prnt = month_prnt.replace(str(year), '')
+        month_prnt = month_prnt.replace("'", '')
+        for day in av_days:
+            st_day = str(int(day))
+            if len(st_day) == 1:
+                st_day = ' ' + st_day
+            month_prnt = month_prnt.replace(st_day,
+                                            f'\033[91m{st_day}\033[0m', 1)
+        month_prnt = month_prnt.replace('\\n', '\n\t')
+        return month_prnt
 
     @staticmethod
     def float_input(msg: str = None, inp: str = None):

@@ -443,8 +443,11 @@ class MechReports(BasicFunctions):
         print("Выберете месяц:")
         data_by_year = self.mech_file[self.mech_file.year == year]
         month = super().choise_from_list(sorted(set(data_by_year.month)))
-        print("Доступные даты:",
-              set(sorted(data_by_year[data_by_year.month == month].day)))
+        av_days = set(sorted(data_by_year[data_by_year.month == month].day))
+
+        print("Доступные даты:\n\t",
+              super().colorise_avaliable_date(int(year), int(month), av_days))
+
         day = input("Введите день: ")
         if day:
             rep_date = {

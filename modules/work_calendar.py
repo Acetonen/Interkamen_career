@@ -53,6 +53,7 @@ class WCalendar(BasicFunctions):
             output += '\n'.join(month_sum) + '\n\n'
             month_sum = []
         output = output.replace(' ' + year, '     ')
+        # output = output.replace("'", '')
         output += ("\033[93m*7\033[0m - пересменки ИТР\n"
                    + "\033[96m*31\033[0m - пересменки бригады.")
         return output
@@ -153,14 +154,14 @@ class WCalendar(BasicFunctions):
             if len(st_day) == 1:
                 st_day = ' ' + st_day
             self.month_prnt = self.month_prnt.replace(
-                st_day, color + st_day + '\033[0m')
+                st_day, color + st_day + '\033[0m', 1)
 
     def _colorized_days_in_html(self, days: Tuple[int], color: str):
         """Colorised days in html calendar."""
         for day in days:
             st_day = str(day)
             self.month_prnt = self.month_prnt.replace(
-                f'>{st_day}<', f' style="color:{color}"><b>{st_day}</b><')
+                f'>{st_day}<', f' style="color:{color}"><b>{st_day}</b><', 1)
 
     def _colorized_month(self, month: int, cal_format='text'):
         """Colorize month."""
@@ -185,6 +186,7 @@ class WCalendar(BasicFunctions):
         self._colorized_month(month, cal_format)
         if cal_format == 'text':
             self.month_prnt = self.month_prnt.replace('\\n', '\n\t')
+            self.month_prnt = self.month_prnt.replace("'", '')
             curr_month_shifts = (
                 self.month_prnt +
                 "\n\t\033[93m*пересменка ИТР\033[0m" +

@@ -116,9 +116,9 @@ class Logs(BasicFunctions):
         if not logs:
             logs = self.log_file
         while logs:
-            print_logs = logs[:9]
+            print_logs = logs[:14]
             print(''.join(print_logs))
-            logs = logs[9:]
+            logs = logs[14:]
             choose = input("[ENTER] - next."
                            "\n[E] - exit: ")
             if choose.lower() == 'e':
