@@ -6,6 +6,7 @@ This module work with User class and access.
 
 import shutil
 import getpass
+from typing import List
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.emailed import EmailSender
 from modules.support_modules.backup import make_backup
@@ -75,6 +76,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
             user_deleted = True
             LOGGER.warning(
                 f"User '{self.user['login']}' delete user '{user['login']}'")
+        input('\n[ENTER] - выйти')
         return user_deleted
 
     def _check_only_admin(self):
@@ -125,6 +127,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
         LOGGER.warning(
             f"User '{self.user['login']}' create new user: '{login}'")
         super().dump_data(self.data_path, self.users_base)
+        input('\n[ENTER] - выйти')
 
     def edit_user(self):
         """
@@ -159,9 +162,23 @@ password:{password}\naccesse:{accesse}\n".format(**user))
 
     def change_password(self, user):
         """Changing password"""
-        old_password = input("Введите старый пароль: ")
-        if old_password == user['password']:
-            new_password = getpass.getpass("Введите новый пароль: ")
+        while True:
+            old_password = input("[ENTER] - выйти."
+                                 "\nВведите старый пароль: ")
+            if old_password == user['password']:
+                self._try_set_new_password(user)
+            elif not old_password:
+                break
+            else:
+                print("Неправильный пароль.")
+                input('\n[ENTER] - продолжить.')
+
+    def _try_set_new_password(self, user):
+        while True:
+            new_password = getpass.getpass("[ENTER] - выйти."
+                                           "\nВведите новый пароль: ")
+            if not new_password:
+                break
             repeat_password = getpass.getpass("Повторите новый пароль: ")
             if new_password == repeat_password:
                 user['password'] = new_password
@@ -170,10 +187,11 @@ password:{password}\naccesse:{accesse}\n".format(**user))
                 print("Новый пароль сохранен.")
                 LOGGER.warning(
                     f"User '{user['login']}' change password")
+                input('\n[ENTER] - продолжить.')
+                break
             else:
                 print("Введенные пароли не совпадают.")
-        else:
-            print("Неправильный пароль.")
+                input('\n[ENTER] - продолжить.')
 
     def try_to_enter_program(self):
         """
@@ -202,8 +220,9 @@ password:{password}\naccesse:{accesse}\n".format(**user))
         """Print all users from base"""
         for login in self.users_base:
             self._print_user(self.users_base[login])
+        input('\n[ENTER] - выйти')
 
-    def get_all_users_list(self):
+    def get_all_users_list(self) -> List['Users']:
         """Get all users list"""
         users_list = [user for user in self.users_base]
         return users_list

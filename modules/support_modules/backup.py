@@ -3,6 +3,7 @@
 
 
 import shutil
+import time
 from pathlib import Path
 from datetime import date, datetime
 from modules.support_modules.emailed import EmailSender
@@ -25,6 +26,7 @@ def make_backup(user, backup_log_list=EMPTY_LIST):
     backup_log_list.append(current_date)
     BasF.dump_data(LOG_FILE_PATH, backup_log_list)
     print("\033[5m\033[1mBackup done.\033[0m")
+    time.sleep(2)
     LOGGER.warning(f"User '{user['login']}' Make backup.")
     unsucsesse = EmailSender().try_email(
         recivers='resivers list',

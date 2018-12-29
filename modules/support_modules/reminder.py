@@ -7,6 +7,7 @@ from datetime import date, timedelta
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.main_career_report import Reports
 from modules.mechanic_report import MechReports
+from modules.support_modules.custom_exceptions import MainMenu
 
 
 class Reminder(BasicFunctions):
@@ -81,10 +82,13 @@ class Reminder(BasicFunctions):
 
     def _choose_users_to_remind(self):
         """Choose users to remind."""
-        print("Choose users to reminder:")
+        print('[ENTER] - выйти'
+              "\nChoose users to reminder:")
         ch_list = list(self.reminder_file.keys())
         ch_list.append('all')
-        users = super().choise_from_list(ch_list)
+        users = super().choise_from_list(ch_list, none_option=True)
+        if not users:
+            raise MainMenu
         return users
 
     def _save_custom_remind(self, users, deadline, remind):
@@ -96,6 +100,7 @@ class Reminder(BasicFunctions):
             self.reminder_file[users][remind] = deadline
         super().dump_data(self.reminder_path, self.reminder_file)
         print("remind save: ", remind, str(deadline))
+        input('\n[ENTER] - выйти')
 
     def _delete_remind(self):
         """Delete remind."""
@@ -110,6 +115,7 @@ class Reminder(BasicFunctions):
             self.reminder_file[users].pop(remind)
         super().dump_data(self.reminder_path, self.reminder_file)
         print("remind deleted.")
+        input('\n[ENTER] - выйти')
 
     def make_custom_remind(self):
         """Make custom remind for type of user."""
@@ -134,6 +140,7 @@ class Reminder(BasicFunctions):
             print('\033[4m' + users + '\033[0m:')
             for remind in self.reminder_file[users]:
                 print('\t', str(self.reminder_file[users][remind]), remind)
-        delete = input("\n[d] - to delete remind: ")
+        delete = input('\n[ENTER] - выйти'
+                       "\n[d] - to delete remind: ")
         if delete.lower() == 'd':
             self._delete_remind()

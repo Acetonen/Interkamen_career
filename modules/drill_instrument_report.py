@@ -251,3 +251,4 @@ class DrillInstruments(BasicFunctions):
             print("Статистик по буровому инструменту отстутствует.")
         if year:
             self._visualise_statistic(year)
+        input('\n[ENTER] - выйти.')

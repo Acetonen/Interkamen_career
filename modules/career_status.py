@@ -125,6 +125,7 @@ class CareerStatus(BasicFunctions):
             title="\033[4mДобычные работы:\033[0m")
         print("\033[92mОтчет создан.\033[0m")
         LOGGER.warning(f"User '{user_id}' create career status from master")
+        input('\n[ENTER] - выйти.')
 
     @classmethod
     def _ready_to_input(cls, title: str):
@@ -191,6 +192,7 @@ class CareerStatus(BasicFunctions):
             title="\033[4mВыберете технику, введенную в работу:\033[0m")
         print("\033[92mОтчет создан.\033[0m")
         LOGGER.warning(f"User '{user_id}' create career status from mechanic")
+        input('\n[ENTER] - выйти.')
 
     def _create_mach_list(self, *, title):
         """Create mach list to repare or from repare."""
@@ -346,7 +348,8 @@ class CareerStatus(BasicFunctions):
             info_type[user['accesse']](user['login'])
             self._check_if_report_comlete(name)
         else:
-            print("Вы отменили изменение отчета.")
+            print("\033[91mВы отменили изменение отчета.\033[0m")
+            input('\n[ENTER] - выйти.')
 
     def give_shift_calendar(self):
         """Return shifts calendar."""

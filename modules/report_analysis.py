@@ -278,3 +278,4 @@ class ReportAnalysis(Reports):
         rock_stat = self._make_rock_mass_statistic()
         self._data_print(year, rock_stat.result)
         self._two_plots_show(year, rock_stat)
+        input('\n[ENTER] - выйти.')

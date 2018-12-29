@@ -688,6 +688,7 @@ class Reports(BasicFunctions):
         super().dump_data(self.data_path, self.data_base)
         LOGGER.warning(
             f"User '{self.user['login']}' create main report: {report_name}")
+        input('\n[ENTER] - выйти.')
 
     def edit_report(self):
         """

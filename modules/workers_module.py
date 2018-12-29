@@ -306,12 +306,14 @@ class AllWorkers(BasicFunctions):
                     f"User '{self.user['login']}' update company structure."
                 )
         super().dump_data(self.comp_structure_path, self.comp_structure)
+        input('\n[ENTER] - выйти')
 
     def print_comp_structure(self):
         """Print company structure"""
         for division in self.comp_structure:
             print(division + ':')
             pprint(self.comp_structure[division])
+        input('\n[ENTER] - выйти')
 
     def add_new_worker(self):
         """Create new worker."""
@@ -325,6 +327,7 @@ class AllWorkers(BasicFunctions):
         LOGGER.warning(
             f"User '{self.user['login']}' add worker: {name}"
         )
+        input('\n[ENTER] - выйти.')
 
     def print_archive_workers(self):
         """Print layed off workers"""
@@ -333,6 +336,7 @@ class AllWorkers(BasicFunctions):
                 worker,
                 self.workers_archive[worker].employing_lay_off_dates['lay_off']
             )
+        input('\n[ENTER] - выйти.')
 
     def add_salary_to_workers(
             self,
@@ -404,6 +408,7 @@ class AllWorkers(BasicFunctions):
         workers_list = self.give_workers_from_division()
         for worker in sorted(workers_list):
             print(self.workers_base[worker])
+        input('\n[ENTER] - выйти.')
 
     def print_telefon_numbers(self, itr_shift=None):
         """Print telefone numbers of workers from division.
@@ -426,6 +431,7 @@ class AllWorkers(BasicFunctions):
                 name, profession, telefone))
         if not itr_shift:
             print('\n'.join(workers_list))
+            input('\n[ENTER] - выйти')
         else:
             return itr_list
 
@@ -443,6 +449,7 @@ class AllWorkers(BasicFunctions):
                 print(worker)
         else:
             print("Нет юбиляров в этом году")
+        input('\n[ENTER] - выйти.')
 
     def _give_anniv_workers(self, wor, emp_date) -> List[str]:
         """Give anniversary workers for current year."""

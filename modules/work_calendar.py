@@ -220,10 +220,12 @@ class WorkCalendars(BasicFunctions):
         super().dump_data(self.calendar_path, self.calendar_file)
         print(f"Рабочий календарь {year} создан.")
         print(work_calendar)
+        input('\n[ENTER] - выйти.')
 
     def show_year_shifts(self):
         """Show shift calendar by year."""
-        print("Выберете год:")
+        print('[нажмите ENTER]'
+              "\nВыберете год:")
         year = super().choise_from_list(self.calendar_file, none_option=True)
         if year:
             super().clear_screen()

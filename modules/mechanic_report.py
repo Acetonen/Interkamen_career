@@ -375,10 +375,12 @@ class MechReports(BasicFunctions):
                     + '{year}.{month}.{day}'.format(**rep_date)
                 )
                 print("\n\033[92mДанные сохранены.\033[0m")
+                input('\n[ENTER] - выйти.')
                 break
             elif choise in ['у', 'У', 'y', 'Y']:
                 confirm = super().confirm_deletion('отчет')
                 if confirm:
+                    input('\n[ENTER] - выйти.')
                     break
                 continue
             elif not choise.isdigit():
