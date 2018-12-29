@@ -191,7 +191,6 @@ class DrillInstruments(BasicFunctions):
         self.drill_data['bar6'] = int(input("штанги 6м: "))
         self.drill_data['driller'] = Reports(None).find_driller(
             self.drill_data['shift'])
-
         rep_date = f"{self.drill_data['year']}-{self.drill_data['month']}"
         self.drill_data['bits_in_rock'] = int(
             DrillPassports(None).count_param_from_passports(
@@ -219,11 +218,13 @@ class DrillInstruments(BasicFunctions):
             self.drill_data['year'],
             self.drill_data['month'],
             self.drill_data['shift'])
+        result_comlete = False
         if main_report_results and main_report_results[2] != 0:
             (self.drill_data['meters'],
              self.drill_data['result'],
              self.drill_data['rock_mass']) = main_report_results
-        return main_report_results
+            result_comlete = True
+        return result_comlete
 
     def _save_drill_report_to_temp(self):
         """Save drill report to temp file, until main report be complete."""
@@ -238,8 +239,8 @@ class DrillInstruments(BasicFunctions):
         and rock mass from main_career_report."""
         if self.temp_drill_path.exists():
             self._load_from_temp_drill()
-            main_report_results = self._bring_data_from_main_report()
-            if main_report_results:
+            result_comlete = self._bring_data_from_main_report()
+            if result_comlete:
                 self._save_drill_report()
                 os.remove(self.temp_drill_path)
                 print("Temp Drill report completed.")

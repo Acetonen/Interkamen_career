@@ -156,6 +156,13 @@ PATCH:
 12. Add ready to input in career report.
 13. Edit flow in All modules.
 15. Delete ENTER for mine menu.
+### what's new in 1.10.1:
+MINOR:
+1. Beautifully calendar of available days in mechanics report.
+2. Count bits in rock in drill instrument report.
+PATCH:
+1. Fix dump to Exel path bug.
+2. Fix unsave tamp drill instruments report.
 
 ## Content and Instruction
 
