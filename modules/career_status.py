@@ -113,17 +113,26 @@ class CareerStatus(BasicFunctions):
         self._input_strage_volume()
         works = ['разборка', 'пассир.', 'бурение']
         quolity = ['блоки', 'масса']
+
+        self._ready_to_input('взрывные работы')
         self.works_plan['expl_work'] = self._plan_works(
             quolity,
             title="\033[4mБуровзрывные работы:\033[0m")
-        super().stupid_timer(
-            count=3,
-            title="Приготовьтесь ввести данные по добычным работам!")
+
+        self._ready_to_input('добычные работы')
         self.works_plan['rock_work'] = self._plan_works(
             works,
             title="\033[4mДобычные работы:\033[0m")
         print("\033[92mОтчет создан.\033[0m")
         LOGGER.warning(f"User '{user_id}' create career status from master")
+
+    @classmethod
+    def _ready_to_input(cls, title: str):
+        """Check if user ready to input."""
+        while True:
+            ready = input(f"Если готовы ввести {title}, введите [д]: ")
+            if ready.lower() == 'д':
+                break
 
     def _input_strage_volume(self):
         """Add rocks from storage."""
