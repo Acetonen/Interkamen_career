@@ -16,6 +16,7 @@ from modules.support_modules.backup import check_last_backup_date
 from modules.support_modules.standart_functions import BasicFunctions as BasF
 from modules.support_modules.reminder import Reminder
 from modules.support_modules.news import News
+from modules.support_modules.custom_exceptions import MainMenu
 
 from modules.administration.accesse_options import Accesse
 from modules.administration.users import Users
@@ -77,7 +78,10 @@ def main(current_user: Dict[str, str]):
         # Make action.
         else:
             action = menu_list[user_choise][1]
-            action(current_user)
+            try:
+                action(current_user)
+            except MainMenu:
+                pass
             input('\n[нажмите ENTER]')  # Show menu on screen.
             BasF.clear_screen()
         current_user = Users(current_user).sync_user()

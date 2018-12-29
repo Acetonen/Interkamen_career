@@ -24,7 +24,8 @@ class WorkersSalary(BasicFunctions):
 
     def _choose_division(self):
         """Choose divisioon to manage."""
-        print("Выберете подразделение.")
+        print("[ENTER] - выйти."
+              "\nВыберете подразделение.")
         division = super().choise_from_list(self.salary_list, none_option=True)
         return division
 

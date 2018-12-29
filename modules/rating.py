@@ -9,6 +9,7 @@ from modules.support_modules.standart_functions import BasicFunctions
 from modules.mechanic_report import MechReports
 from modules.main_career_report import Reports
 from modules.administration.logger_cfg import Logs
+from modules.support_modules.custom_exceptions import MainMenu
 
 
 LOGGER = Logs().give_logger(__name__)
@@ -80,13 +81,23 @@ class Rating(BasicFunctions):
 
     def _show_rating(self):
         """Choose date to show."""
-        print("Выберете год:")
+        print("[ENTER] - выйти."
+              "\nВыберете год:")
         year = super().choise_from_list(
-            sorted(set(self.brig_rating_file.year)))
+            sorted(set(self.brig_rating_file.year)),
+            none_option=True,
+        )
+        if not year:
+            raise MainMenu
         print("Выберете месяц:")
         data_by_year = self.brig_rating_file[
             self.brig_rating_file.year == year]
-        month = super().choise_from_list(sorted(set(data_by_year.month)))
+        month = super().choise_from_list(
+            sorted(set(data_by_year.month)),
+            none_option=True,
+        )
+        if not month:
+            raise MainMenu
         super().clear_screen()
         columns = ['shift', 'cleanness', 'discipline',
                    'roads', 'maintain', 'user']

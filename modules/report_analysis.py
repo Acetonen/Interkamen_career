@@ -8,6 +8,7 @@ from collections import namedtuple
 from copy import deepcopy
 from matplotlib import pyplot as plt
 from modules.main_career_report import Reports
+from modules.support_modules.custom_exceptions import MainMenu
 
 
 class ReportAnalysis(Reports):
@@ -62,7 +63,7 @@ class ReportAnalysis(Reports):
     year_reports = {}
 
     def __init__(self):
-        super().__init__()
+        super().__init__(None)
         self.base = super().load_data(self.data_path)
 
     @classmethod
@@ -230,8 +231,14 @@ class ReportAnalysis(Reports):
 
     def result_analysis(self):
         """Analysis by result"""
-        print("Выберете год:")
-        year = super().choise_from_list(self._chose_year())
+        print("[ENTER] - выход"
+              "\nВыберете год:")
+        year = super().choise_from_list(
+            self._chose_year(),
+            none_option=True,
+        )
+        if not year:
+            raise MainMenu
         self._give_reports_by_year(year)
         super().clear_screen()
         while True:
@@ -258,8 +265,14 @@ class ReportAnalysis(Reports):
 
     def rock_mass_analysis(self):
         """Analysis by rock mass."""
-        print("Выберете год:")
-        year = super().choise_from_list(self._chose_year())
+        print("[ENTER] - выход"
+              "\nВыберете год:")
+        year = super().choise_from_list(
+            self._chose_year(),
+            none_option=True,
+        )
+        if not year:
+            raise MainMenu
         self._give_reports_by_year(year)
         super().clear_screen()
         rock_stat = self._make_rock_mass_statistic()

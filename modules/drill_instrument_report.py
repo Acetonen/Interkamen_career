@@ -9,6 +9,7 @@ import pandas as pd
 from modules.main_career_report import Reports
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.administration.logger_cfg import Logs
+from modules.support_modules.custom_exceptions import MainMenu
 
 
 LOGGER = Logs().give_logger(__name__)
@@ -189,7 +190,10 @@ class DrillInstruments(BasicFunctions):
 
     def _input_year_month_shift(self):
         """Check if main report exist and complete."""
-        self.drill_data['year'] = input("Введите год: ")
+        self.drill_data['year'] = input("[ENTER] - выйти."
+                                        "\nВведите год: ")
+        if not self.drill_data['year']:
+            raise MainMenu
         print("Выберете месяц:")
         self.drill_data['month'] = super().choise_from_list(self.month_list)
         print("Выберете смену:")
@@ -239,7 +243,8 @@ class DrillInstruments(BasicFunctions):
     def show_statistic_by_year(self):
         """Showing statistic about drill instrument."""
         if isinstance(self.drill_file, pd.DataFrame):
-            print("Выберете год:")
+            print("[ENTER] - выход"
+                  "\nВыберете год:")
             year = super().choise_from_list(sorted(set(self.drill_file.year)),
                                             none_option=True)
         else:

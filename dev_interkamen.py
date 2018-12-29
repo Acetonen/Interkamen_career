@@ -10,13 +10,16 @@ Functions: 'print_menu'
 """
 
 import sys
-
+from typing import Dict, List
 from modules.support_modules.hi import INTERKAMEN
+from modules.support_modules.backup import check_last_backup_date
 from modules.support_modules.standart_functions import BasicFunctions as BasF
 from modules.support_modules.reminder import Reminder
 from modules.support_modules.news import News
+from modules.support_modules.custom_exceptions import MainMenu
 
 from modules.administration.accesse_options import Accesse
+from modules.administration.users import Users
 from modules.administration.logger_cfg import Logs
 
 
@@ -28,6 +31,7 @@ def main():
         'password': 'admin',
         'accesse': 'admin',
     }
+    Logs().emailed_error_log()
     logger = Logs().give_logger(__name__)
     logger.warning(f"User '{current_user['login']}' enter program")
     menu_list = []
@@ -35,6 +39,7 @@ def main():
     menu_header = ['\033[1m \t', '\033[4m ГЛАВНОЕ МЕНЮ \033[0m', '\n \033[0m']
     usr_acs = current_user['accesse']
     show_news(usr_acs)
+    check_last_backup_date(current_user)
     program_menu = get_main_or_sub_menu(usr_acs, menu_list, None)
 
     while True:
@@ -78,12 +83,26 @@ def main():
         # Make action.
         else:
             action = menu_list[user_choise][1]
-            action(current_user)
+            try:
+                action(current_user)
+            except MainMenu:
+                pass
             input('\n[нажмите ENTER]')  # Show menu on screen.
             BasF.clear_screen()
 
 
-def show_news(usr_acs):
+def login_program():
+    """Login to program and loged 'enter'"""
+    print(INTERKAMEN)
+    current_user = None
+    while current_user is None:
+        current_user = Users(None).try_to_enter_program()
+    BasF().clear_screen()
+    print(INTERKAMEN)
+    return current_user
+
+
+def show_news(usr_acs: str):
     """Try to show news."""
     if usr_acs != 'info':
         News().show_new_news(usr_acs)
@@ -91,7 +110,10 @@ def show_news(usr_acs):
         print(INTERKAMEN)
 
 
-def print_menu(usr_acs, menu_header, menu_nesting, program_menu):
+def print_menu(usr_acs: str,
+               menu_header: str,
+               menu_nesting: List[str],
+               program_menu: Dict[str, str]):
     """Print program menu."""
     separator = "\033[36m------------------------------\033[0m"
     print(Reminder().give_remind(usr_acs) + '\n' + separator + '\n')
@@ -104,8 +126,10 @@ def print_menu(usr_acs, menu_header, menu_nesting, program_menu):
     print(separator)
 
 
-def get_main_or_sub_menu(usr_acs, menu_list, sub_menu=False):
-    """create main or sub-menu sub_menu=True"""
+def get_main_or_sub_menu(usr_acs: str,
+                         menu_list: List[str],
+                         sub_menu: str = False) -> Dict[str, str]:
+    """create main or sub-menu if sub_menu=True"""
     if sub_menu:
         program_menu = Accesse(usr_acs).get_sub_menu(sub_menu)
     else:

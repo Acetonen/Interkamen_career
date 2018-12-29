@@ -8,6 +8,7 @@ from typing import Union
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.dump_to_exl import DumpToExl
 from modules.administration.logger_cfg import Logs
+from modules.support_modules.custom_exceptions import MainMenu
 
 
 LOGGER = Logs().give_logger(__name__)
@@ -292,20 +293,24 @@ class DrillPassports(BasicFunctions):
     def _choose_passport_from_bd(self):
         """Choose passport from BD."""
         years = set([passp.split('-')[0] for passp in self.drill_pass_file])
-        print("Выберете год:")
+        print("[ENTER] - выйти."
+              "\nВыберете год:")
         year = super().choise_from_list(years, none_option=True)
-        if year:
-            months = set([
-                report.split('-')[1] for report in self.drill_pass_file
-                if report.startswith(year)])
-            print("Выберет месяц:")
-            month = super().choise_from_list(months)
-            if month:
-                passport_name = super().choise_from_list(
-                    [report for report in self.drill_pass_file
-                     if report.startswith('-'.join([year, month]))])
-        else:
-            passport_name = None
+        if not year:
+            raise MainMenu
+        months = set([
+            report.split('-')[1] for report in self.drill_pass_file
+            if report.startswith(year)])
+        print("Выберет месяц:")
+        month = super().choise_from_list(months)
+        if month:
+            reports = [
+                report
+                for report in self.drill_pass_file
+                if report.startswith('-'.join([year, month]))
+            ]
+            passport_name = super().choise_from_list(reports, none_option=True)
+
         return passport_name
 
     def _last_number_of_passport(self):
@@ -332,6 +337,8 @@ class DrillPassports(BasicFunctions):
                   self._last_number_of_passport())
         while True:
             number = input("\nВведите номер паспорта: ")
+            if not number:
+                raise MainMenu
             if self._check_if_report_exist(number):
                 break
 
@@ -355,15 +362,14 @@ class DrillPassports(BasicFunctions):
     def edit_passport(self):
         """Print passport for current number."""
         passport_name = self._choose_passport_from_bd()
-        if passport_name:
-            passport = self.drill_pass_file[passport_name]
-            passport.change_parametrs()
-            if not passport.params.number:
-                self.drill_pass_file.pop(passport_name)
-                super().dump_data(self.drill_pass_path, self.drill_pass_file)
-                LOGGER.warning(
-                    f"User '{self.user['login']}' delete drill pass.: "
-                    + f"{passport_name}"
-                )
-            else:
-                self._save_or_not(passport)
+        passport = self.drill_pass_file[passport_name]
+        passport.change_parametrs()
+        if not passport.params.number:
+            self.drill_pass_file.pop(passport_name)
+            super().dump_data(self.drill_pass_path, self.drill_pass_file)
+            LOGGER.warning(
+                f"User '{self.user['login']}' delete drill pass.: "
+                + f"{passport_name}"
+            )
+        else:
+            self._save_or_not(passport)

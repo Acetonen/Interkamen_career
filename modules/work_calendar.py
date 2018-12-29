@@ -2,7 +2,9 @@
 """Working calendar module."""
 
 import calendar as cl
+from typing import Tuple, List
 from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.custom_exceptions import MainMenu
 
 
 class WCalendar(BasicFunctions):
@@ -10,7 +12,7 @@ class WCalendar(BasicFunctions):
 
     month_prnt = ''
 
-    def __init__(self, year):
+    def __init__(self, year: int):
         self.year = year
         shifts = ["Смена 1", "Смена 2"]
         print("Выберете смену БРИГАДЫ"
@@ -56,7 +58,7 @@ class WCalendar(BasicFunctions):
         return output
 
     @classmethod
-    def _coin(cls, start):
+    def _coin(cls, start: bool) -> bool:
         """Simple closures function that return True/False alternately."""
         stat = start
 
@@ -68,12 +70,18 @@ class WCalendar(BasicFunctions):
             return tmp_stat
         return change
 
-    def _set_cal(self, *, year, whos_long, workers):
+    def _set_cal(
+            self,
+            *,
+            year: int,
+            whos_long: str,
+            workers: str,
+    ) -> List[Tuple[int]]:
         self._calculate_same_or_dif(year)
         changes_dates = self._count_changes_dates(whos_long, workers)
         return changes_dates
 
-    def _calculate_same_or_dif(self, year):
+    def _calculate_same_or_dif(self, year: int):
         """Calculate same or diff shift lenght in month."""
         cal = cl.TextCalendar()
         for month in range(1, 12):
@@ -87,7 +95,8 @@ class WCalendar(BasicFunctions):
         self.working_days_in_month.append('same')
         self.month_length.append(30)
 
-    def _count_changes_dates(self, whos_long, workers):
+    def _count_changes_dates(self, whos_long: str,
+                             workers: str) -> List[Tuple[int]]:
         """Count changes days in months."""
         changes_dates = []
         if whos_long == 'Смена 1':
@@ -103,7 +112,8 @@ class WCalendar(BasicFunctions):
             changes_dates.append(self._begin_and_end(workers, month, add_day))
         return changes_dates
 
-    def _begin_and_end(self, workers, month, add_day):
+    def _begin_and_end(self, workers: str,
+                       month: int, add_day: int) -> Tuple[int]:
         """Create begin and end dates."""
         if workers == "brig":
             begin = self.month_length[month] // 2 + add_day
@@ -120,10 +130,13 @@ class WCalendar(BasicFunctions):
                 end = end + 2
         return begin, end
 
-    def _count_end_spaces(self, month):
+    def _count_end_spaces(self, month: int) -> str:
         """Count spaces at the end of month."""
         cal = cl.TextCalendar()
-        days = [day for day in cal.itermonthdays(self.year, month + 1)]
+        days = [
+            day
+            for day in cal.itermonthdays(self.year, month + 1)
+        ]
         month_end = -1
         day = 0
         while not day:
@@ -133,7 +146,7 @@ class WCalendar(BasicFunctions):
         month_end = month_end * '   '
         return month_end
 
-    def _colorized_days_in_text(self, days, color):
+    def _colorized_days_in_text(self, days: Tuple[int], color: str):
         """Colorize days in calendar."""
         for day in days:
             st_day = str(day)
@@ -142,14 +155,14 @@ class WCalendar(BasicFunctions):
             self.month_prnt = self.month_prnt.replace(
                 st_day, color + st_day + '\033[0m')
 
-    def _colorized_days_in_html(self, days, color):
+    def _colorized_days_in_html(self, days: Tuple[int], color: str):
         """Colorised days in html calendar."""
         for day in days:
             st_day = str(day)
             self.month_prnt = self.month_prnt.replace(
                 f'>{st_day}<', f' style="color:{color}"><b>{st_day}</b><')
 
-    def _colorized_month(self, month, cal_format='text'):
+    def _colorized_month(self, month: int, cal_format='text'):
         """Colorize month."""
         if cal_format == 'text':
             cal = cl.TextCalendar()
@@ -166,7 +179,7 @@ class WCalendar(BasicFunctions):
         function(self.br_cal[month], color_br)
         function(self.itr_cal[month], color_itr)
 
-    def give_month_shifts(self, month, cal_format='text'):
+    def give_month_shifts(self, month: int, cal_format='text'):
         """Print calendar.
         format = text/html"""
         self._colorized_month(month, cal_format)
@@ -198,7 +211,10 @@ class WorkCalendars(BasicFunctions):
 
     def create_calendar(self):
         """Create working calendar."""
-        year = int(input("Введите год: "))
+        year = input("Введите год: ")
+        if not year.isdigit():
+            raise MainMenu
+        year = int(year)
         work_calendar = WCalendar(year)
         self.calendar_file[year] = work_calendar
         super().dump_data(self.calendar_path, self.calendar_file)
@@ -213,7 +229,7 @@ class WorkCalendars(BasicFunctions):
             super().clear_screen()
             print(self.calendar_file[year])
 
-    def give_current_brigade(self, cur_date):
+    def give_current_brigade(self, cur_date: List[int]) -> str:
         """Return current brigade."""
         shift_day = self.calendar_file[cur_date[0]].br_cal[cur_date[1]-1][0]
         if cur_date[2] <= shift_day:
@@ -222,7 +238,7 @@ class WorkCalendars(BasicFunctions):
             cur_brig = 'Бригада 2'
         return cur_brig
 
-    def give_current_itr(self, cur_date):
+    def give_current_itr(self, cur_date: List[int]) -> str:
         """Return current ITR."""
         shift_days = self.calendar_file[cur_date[0]].itr_cal[cur_date[1]-1]
         if cur_date[2] <= shift_days[0] or cur_date[2] >= shift_days[1]:
@@ -231,7 +247,8 @@ class WorkCalendars(BasicFunctions):
             cur_itr = 'Смена 2'
         return cur_itr
 
-    def give_current_month_shifts(self, cur_date, cal_format='text'):
+    def give_current_month_shifts(self, cur_date: List[int],
+                                  cal_format='text') -> str:
         """Return current month shifts."""
         shifts_cal = (self.calendar_file[cur_date[0]]
                       .give_month_shifts(cur_date[1]-1, cal_format))

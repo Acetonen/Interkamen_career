@@ -17,6 +17,7 @@ from matplotlib import pyplot as plt
 
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.administration.logger_cfg import Logs
+from modules.support_modules.custom_exceptions import MainMenu
 
 
 LOGGER = Logs().give_logger(__name__)
@@ -418,7 +419,9 @@ class MechReports(BasicFunctions):
             if not rep_date:
                 break
             check = super().check_date_in_dataframe(self.mech_file, rep_date)
-            day = input("Введите день: ")
+            day = input("\nВведите день: ")
+            if not day:
+                raise MainMenu
             rep_date.update({'day': int(day)})
             check = super().check_date_in_dataframe(self.mech_file, rep_date)
             if check:
@@ -430,8 +433,11 @@ class MechReports(BasicFunctions):
 
     def edit_report(self):
         """Show report for current date."""
-        print("Выберете год:")
+        print("[ENTER] - выйти."
+              "\nВыберете год:")
         year = super().choise_from_list(sorted(set(self.mech_file.year)))
+        if not year:
+            raise MainMenu
         print("Выберете месяц:")
         data_by_year = self.mech_file[self.mech_file.year == year]
         month = super().choise_from_list(sorted(set(data_by_year.month)))
@@ -458,7 +464,8 @@ class MechReports(BasicFunctions):
             'Годовая статистика':
             lambda *arg: self._stat_by_period(*arg, month=None)
         }
-        print("Выберете вид отчета:")
+        print("[ENTER] - выйти."
+              "\nВыберете вид отчета:")
         stat = super().choise_from_list(stat_variants, none_option=True)
         if stat:
             stat_variants[stat](*stand_reason)

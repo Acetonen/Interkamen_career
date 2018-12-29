@@ -6,7 +6,9 @@ import os
 import pickle
 import time
 from pathlib import Path
+from typing import List
 from matplotlib import rcParams as window_parametrs
+from modules.support_modules.custom_exceptions import MainMenu
 
 
 class BasicFunctions:
@@ -101,8 +103,11 @@ class BasicFunctions:
         """Input date."""
         check_date = False
         while not check_date:
-            rep_date = input("Введите год и месяц формате 2018-01: ")
-            if not rep_date or '-' not in rep_date:
+            rep_date = input("[ENTER] - выйти."
+                             "\nВведите год и месяц формате 2018-01: ")
+            if not rep_date:
+                raise MainMenu
+            if '-' not in rep_date:
                 print("Неверный формат.")
                 continue
             check_date = cls.check_date_format(rep_date)
@@ -111,7 +116,7 @@ class BasicFunctions:
         return rep_dict
 
     @staticmethod
-    def check_date_format(rep_date):
+    def check_date_format(rep_date: str) -> bool:
         """Check if date format correct"""
         date_numbers = rep_date.split('-')
         correct = (rep_date[4] == '-' and
@@ -124,7 +129,7 @@ class BasicFunctions:
         return correct
 
     @staticmethod
-    def check_date_in_dataframe(dataframe, rep_date):
+    def check_date_in_dataframe(dataframe, rep_date: List[int]):
         """
         Check if report allready exist in DataFrame
         rep_date is a dictionary, that contain keys: year, month, day or shift.
@@ -156,7 +161,7 @@ class BasicFunctions:
         return check
 
     @staticmethod
-    def float_input(msg=None, inp=None):
+    def float_input(msg: str = None, inp: str = None):
         """Input float with comma, not point."""
         if not inp:
             inp = input(msg)
@@ -169,7 +174,7 @@ class BasicFunctions:
         return make_float
 
     @staticmethod
-    def make_name_short(name):
+    def make_name_short(name: str):
         """Make short name for workers or users
         Ковалев Антон Викторович -> Ковалев А.В."""
         name = name.split(' ')
@@ -177,7 +182,7 @@ class BasicFunctions:
         return sh_name
 
     @classmethod
-    def stupid_timer(cls, count, title):
+    def stupid_timer(cls, count: int, title: str):
         """Stupid timer."""
         cls.clear_screen()
         print(title)
