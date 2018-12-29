@@ -88,7 +88,7 @@ class DumpToExl(BasicFunctions):
         worksheet['J47'] = master
         # Save file.
         pass_name = self._create_pass_name(passport)
-        workbook.save(drill_pass_path.joinpath(pass_name) + '.xlsx')
+        workbook.save(drill_pass_path.joinpath(pass_name).with_suffix('.xlsx'))
         print(
             "\nФайл сохранен:\n",
             drill_pass_path + '/' + pass_name + '.xlsx'
@@ -127,7 +127,7 @@ class DumpToExl(BasicFunctions):
         # Save file.
         pass_name = '-'.join([
             year, report.status['date'].split('-')[1][:2], shift])
-        workbook.save(ktu_path.joinpath(pass_name) + '.xlsx')
+        workbook.save(ktu_path.joinpath(pass_name).with_suffix('.xlsx'))
         print(
             "\nФайл сохранен:\n",
             ktu_path + '/' + pass_name + '.xlsx'
