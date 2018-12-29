@@ -82,7 +82,6 @@ def main(current_user: Dict[str, str]):
                 action(current_user)
             except MainMenu:
                 pass
-            input('\n[нажмите ENTER]')  # Show menu on screen.
             BasF.clear_screen()
         current_user = Users(current_user).sync_user()
 

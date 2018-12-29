@@ -163,10 +163,11 @@ password:{password}\naccesse:{accesse}\n".format(**user))
     def change_password(self, user):
         """Changing password"""
         while True:
-            old_password = input("[ENTER] - выйти."
-                                 "\nВведите старый пароль: ")
+            old_password = input("Введите старый пароль: ")
             if old_password == user['password']:
-                self._try_set_new_password(user)
+                new_password = self._try_set_new_password(user)
+                if new_password:
+                    break
             elif not old_password:
                 break
             else:
@@ -175,8 +176,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
 
     def _try_set_new_password(self, user):
         while True:
-            new_password = getpass.getpass("[ENTER] - выйти."
-                                           "\nВведите новый пароль: ")
+            new_password = getpass.getpass("Введите новый пароль: ")
             if not new_password:
                 break
             repeat_password = getpass.getpass("Повторите новый пароль: ")
@@ -192,6 +192,7 @@ password:{password}\naccesse:{accesse}\n".format(**user))
             else:
                 print("Введенные пароли не совпадают.")
                 input('\n[ENTER] - продолжить.')
+            return new_password
 
     def try_to_enter_program(self):
         """

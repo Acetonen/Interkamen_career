@@ -87,7 +87,6 @@ def main():
                 action(current_user)
             except MainMenu:
                 pass
-            input('\n[нажмите ENTER]')  # Show menu on screen.
             BasF.clear_screen()
 
 
