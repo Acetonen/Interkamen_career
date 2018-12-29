@@ -349,13 +349,20 @@ class Reports(BasicFunctions):
     def _give_drill_meters(self, report: MainReport) -> float:
         """Find driller and give his meters."""
         shift = report.status['shift']
+        drill_meters = DrillPassports(None).count_param_from_passports(
+            driller=self.find_driller(shift),
+            rep_date=report.status['date'],
+            parametr='totall_meters',
+        )
+        return drill_meters
+
+    def find_driller(self, shift: str) -> str:
+        """Find Driller in shift."""
         for worker in self.drillers:
             if worker in AllWorkers(None).give_workers_from_shift(shift):
                 driller = worker
                 break
-        r_date = report.status['date']
-        drill_meters = DrillPassports(None).count_drill_meters(driller, r_date)
-        return drill_meters
+        return driller
 
     def _change_hours(self, tmp_rpt: MainReport) -> MainReport:
         """Change hours value."""
@@ -731,8 +738,13 @@ class Reports(BasicFunctions):
 
     def choose_main_report(self):
         """Choose MainReport"""
-        reports_by_year = self._choose_by_year()
+        year = self._choose_by_year()
         while True:
+            reports_by_year = [
+                report
+                for report in self.data_base
+                if report.startswith(year)
+            ]
             super().clear_screen()
             print("[ENTER] - выход."
                   "\nВыберет отчет:")
@@ -742,7 +754,7 @@ class Reports(BasicFunctions):
                 raise MainMenu
             self._working_with_main_report(report_name)
 
-    def _choose_by_year(self) -> List[str]:
+    def _choose_by_year(self) -> int:
         """Choose reports by year."""
         years = set([
             report.split('-')[0]
@@ -752,12 +764,7 @@ class Reports(BasicFunctions):
         year = super().choise_from_list(years, none_option=True)
         if not year:
             raise MainMenu
-        reports_by_year = [
-            report
-            for report in self.data_base
-            if report.startswith(year)
-        ]
-        return reports_by_year
+        return year
 
     def _working_with_main_report(self, report_name):
         """Working with main report."""

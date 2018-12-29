@@ -319,15 +319,21 @@ class DrillPassports(BasicFunctions):
         last_number = last_passport.split(' ')[-1]
         return last_number
 
-    def count_drill_meters(self, driller: str, date: str) -> float:
+    def count_param_from_passports(
+            self,
+            *,
+            driller: str,
+            rep_date: str,
+            parametr: str,
+    ) -> float:
         """Count totall meters for current driller."""
-        drill_meters = 0
+        paramert_totall = 0
         for passport in self.drill_pass_file:
             pas_file = self.drill_pass_file[passport]
             if (str(pas_file.params.driller) == driller and
-                    passport.startswith(date)):
-                drill_meters += round(float(pas_file.params.totall_meters), 1)
-        return drill_meters
+                    passport.startswith(rep_date)):
+                paramert_totall += round(float(pas_file.params[parametr]), 1)
+        return paramert_totall
 
     def create_drill_passport(self):
         """Create drill passport."""

@@ -10,6 +10,7 @@ from modules.main_career_report import Reports
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.administration.logger_cfg import Logs
 from modules.support_modules.custom_exceptions import MainMenu
+from modules.drill_passports import DrillPassports
 
 
 LOGGER = Logs().give_logger(__name__)
@@ -130,6 +131,10 @@ class DrillInstruments(BasicFunctions):
             print("Отчет по инструменту создан.")
         elif confirm == 'д' and not results_exist:
             self._save_drill_report_to_temp()
+            print("Отчет по инструменту создан.")
+        else:
+            print("Вы отменили сохранение.")
+        input("\n[ENTER] - выйти.")
 
     def _save_drill_report(self):
         """Save drill report and create log file."""
@@ -184,9 +189,17 @@ class DrillInstruments(BasicFunctions):
         self.drill_data['bits35'] = int(input("коронки 35: "))
         self.drill_data['bar3'] = int(input("штанги 3м: "))
         self.drill_data['bar6'] = int(input("штанги 6м: "))
-        self.drill_data['bits_in_rock'] = int(input("коронки в скале: "))
-        self.drill_data['driller'] = Reports(None).drillers[
-            Reports(None).shifts.index(self.drill_data['shift'])]
+        self.drill_data['driller'] = Reports(None).find_driller(
+            self.drill_data['shift'])
+
+        rep_date = f"{self.drill_data['year']}-{self.drill_data['month']}"
+        self.drill_data['bits_in_rock'] = int(
+            DrillPassports(None).count_param_from_passports(
+                driller=self.drill_data['driller'],
+                rep_date=rep_date,
+                parametr='bits_in_rock',
+            )
+        )
 
     def _input_year_month_shift(self):
         """Check if main report exist and complete."""

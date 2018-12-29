@@ -16,7 +16,7 @@ class DumpToExl(BasicFunctions):
     ]
 
     @classmethod
-    def _create_pass_name(cls, passport):
+    def _create_pass_name(cls, passport) -> str:
         """Create passport name."""
         pass_name = ("{}-{}-{} {}"
                      .format(passport.params.year,
@@ -88,11 +88,9 @@ class DumpToExl(BasicFunctions):
         worksheet['J47'] = master
         # Save file.
         pass_name = self._create_pass_name(passport)
-        workbook.save(drill_pass_path.joinpath(pass_name).with_suffix('.xlsx'))
-        print(
-            "\nФайл сохранен:\n",
-            drill_pass_path + '/' + pass_name + '.xlsx'
-        )
+        pass_name = drill_pass_path.joinpath(pass_name).with_suffix('.xlsx')
+        workbook.save(pass_name)
+        print("\nФайл сохранен:\n", str(pass_name))
 
     def dump_ktu(self, report):
         """Dump KTU data to blanc exl file."""
@@ -127,11 +125,9 @@ class DumpToExl(BasicFunctions):
         # Save file.
         pass_name = '-'.join([
             year, report.status['date'].split('-')[1][:2], shift])
-        workbook.save(ktu_path.joinpath(pass_name).with_suffix('.xlsx'))
-        print(
-            "\nФайл сохранен:\n",
-            ktu_path + '/' + pass_name + '.xlsx'
-        )
+        pass_name = ktu_path.joinpath(pass_name).with_suffix('.xlsx')
+        workbook.save(pass_name)
+        print("\nФайл сохранен:\n", str(pass_name))
         time.sleep(3)
 
     def dump_salary(self, report):
