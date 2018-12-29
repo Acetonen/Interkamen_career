@@ -230,6 +230,7 @@ class WorkCalendars(BasicFunctions):
         if year:
             super().clear_screen()
             print(self.calendar_file[year])
+            input('\n[ENTER] - выйти.')
 
     def give_current_brigade(self, cur_date: List[int]) -> str:
         """Return current brigade."""

@@ -396,5 +396,6 @@ class Statuses(BasicFunctions):
                              "[ENTER] - выйти: ")
             if calendar in ['k', 'K', 'к', 'К']:
                 print(self.car_stat_file[status].give_shift_calendar())
+                input('\n[ENTER] - выйти.')
         else:
             print("Ежедневные отчеты отсутствуют.")

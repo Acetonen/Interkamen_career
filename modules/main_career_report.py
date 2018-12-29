@@ -733,6 +733,7 @@ class Reports(BasicFunctions):
         """Choose MainReport"""
         reports_by_year = self._choose_by_year()
         while True:
+            super().clear_screen()
             print("[ENTER] - выход."
                   "\nВыберет отчет:")
             report_name = super().choise_from_list(reports_by_year,
