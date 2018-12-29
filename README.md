@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.9.0
+### ver 1.10.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -137,6 +137,25 @@ We use [SemVer](http://semver.org/) for versioning.
 8. Add different persents for brigadires.
 9. Clean log file when enter program.
 10. Add dump to exel for negabarites.
+### what's new in 1.10.0:
+MINOR:
+1. Add logging system.
+2. Migrate from os.path to -> pathlib.
+PATCH:
+1. Change main script flow.
+2. Fix career status if none works planed.
+3. Add LOGGER to module scope in Users and Career Status.
+4. Fix bug in mechanics report and reminder.
+5. Add logger to all modules.
+6. Add working with logs.
+7. Add dump to exel for salary.
+8. Automate count meters for drillers.
+9. Round DSH in drill passports.
+10. Add message to career status email.
+11. Add exception to exit in main menu.
+12. Add ready to input in career report.
+13. Edit flow in All modules.
+15. Delete ENTER for mine menu.
 
 ## Content and Instruction
 
