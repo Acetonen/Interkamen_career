@@ -616,6 +616,38 @@ class Reports(BasicFunctions):
             for worker in workers_group[workers_type]:
                 print('\t', worker)
 
+    def _choose_by_year(self) -> int:
+        """Choose reports by year."""
+        years = set([
+            report.split('-')[0]
+            for report in self.data_base
+        ])
+        print("Выберете год:")
+        year = super().choise_from_list(years, none_option=True)
+        if not year:
+            raise MainMenu
+        return year
+
+    def _working_with_main_report(self, report_name):
+        """Working with main report."""
+        if '[не завершен]' in report_name:
+            self._make_status_in_process(report_name)
+        elif '[в процессе]' in report_name:
+            self._edit_main_report(report_name)
+        elif '[завершен]' in report_name:
+            print(self.data_base[report_name])
+            print("[E] - сохранить в данные в exel табель.")
+            if self.user['accesse'] == 'admin':
+                print(
+                    "\033[91m[un]\033[0m Возвратить статус "
+                    "'\033[93m[в процессе]\033[0m'\n"
+                )
+            choise = input()
+            if choise.lower() in ['e', 'E', 'е', 'Е']:
+                DumpToExl().dump_salary(self.data_base[report_name])
+            elif self.user['accesse'] == 'admin' and choise == 'un':
+                self._uncomplete_main_report(report_name)
+
     def choose_salary_or_drillers(self):
         """Chose list to edit, salary or drillers."""
         self._print_workers_group()
@@ -753,35 +785,3 @@ class Reports(BasicFunctions):
             if not report_name:
                 raise MainMenu
             self._working_with_main_report(report_name)
-
-    def _choose_by_year(self) -> int:
-        """Choose reports by year."""
-        years = set([
-            report.split('-')[0]
-            for report in self.data_base
-        ])
-        print("Выберете год:")
-        year = super().choise_from_list(years, none_option=True)
-        if not year:
-            raise MainMenu
-        return year
-
-    def _working_with_main_report(self, report_name):
-        """Working with main report."""
-        if '[не завершен]' in report_name:
-            self._make_status_in_process(report_name)
-        elif '[в процессе]' in report_name:
-            self._edit_main_report(report_name)
-        elif '[завершен]' in report_name:
-            print(self.data_base[report_name])
-            print("[E] - сохранить в данные в exel табель.")
-            if self.user['accesse'] == 'admin':
-                print(
-                    "\033[91m[un]\033[0m Возвратить статус "
-                    "'\033[93m[в процессе]\033[0m'\n"
-                )
-            choise = input()
-            if choise.lower() in ['e', 'E', 'е', 'Е']:
-                DumpToExl().dump_salary(self.data_base[report_name])
-            elif self.user['accesse'] == 'admin' and choise == 'un':
-                self._uncomplete_main_report(report_name)

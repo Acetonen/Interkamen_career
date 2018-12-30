@@ -113,15 +113,17 @@ class WCalendar(BasicFunctions):
             changes_dates.append(self._begin_and_end(workers, month, add_day))
         return changes_dates
 
-    def _begin_and_end(self, workers: str,
-                       month: int, add_day: int) -> Tuple[int]:
+    def _begin_and_end(self,
+                       workers: str,
+                       month: int,
+                       add_day: int) -> Tuple[int]:
         """Create begin and end dates."""
         if workers == "brig":
             begin = self.month_length[month] // 2 + add_day
             end = self.month_length[month]
             # January holydays fix.
             if month == 0:
-                begin = begin + 2
+                begin = begin + 1
         elif workers == "itr":
             begin = 7
             end = self.month_length[month] // 2 + 7 - add_day

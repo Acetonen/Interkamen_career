@@ -130,7 +130,32 @@ class DumpToExl(BasicFunctions):
         print("\nФайл сохранен:\n", str(pass_name))
         time.sleep(3)
 
-    def dump_salary(self, report):
+    def _dump_real_salary(self, report: 'MainReport'):
+        """Dumpp real salary to exel blanc."""
+        real_salary_path = (
+            super().get_root_path().parent / 'Documents' / 'Табеля'
+        )
+        real_salary_blanc_path = (
+            super().get_root_path() / 'exl_blancs' / 'real_salary.xlsx'
+        )
+        workbook = load_workbook(real_salary_blanc_path)
+        worksheet = workbook.active
+        worksheet['C1'] = report.status['date']
+
+        salary = report.workers_showing['факт']['зарплата']
+        worker_number = 1
+        for worker in salary:
+            row_number = 4 + worker_number
+            worksheet['B' + str(row_number)] = worker_number
+            worksheet['C' + str(row_number)] = super().make_name_short(worker)
+            worksheet['D' + str(row_number)] = salary[worker]
+            worker_number += 1
+
+        name = f"{report.status['date']} {report.status['shift']} на руки"
+        pass_name = real_salary_path.joinpath(name).with_suffix('.xlsx')
+        workbook.save(pass_name)
+
+    def dump_salary(self, report: 'MainReport'):
         """Dump Salary to exists exel tabel."""
         salary_path = super().get_root_path().parent / 'Documents' / 'Табеля'
         name = report.status['date'] + ' ' + report.status['shift']
@@ -144,11 +169,11 @@ class DumpToExl(BasicFunctions):
             workbook = load_workbook(file_path)
             self._fill_salary(workbook, report)
             workbook.save(file_path)
-            print(
-                "\nФайл сохранен:\n",
-                salary_path.joinpath(find)
-            )
-            time.sleep(3)
+            self._dump_real_salary(report)
+            print("\nФайл сохранен:\n", salary_path.joinpath(find))
+        else:
+            print("Табель не найден в папке 'Табеля'")
+        time.sleep(3)
 
     def _fill_salary(self, workbook, report):
         """Fill salary to exel."""
@@ -159,6 +184,7 @@ class DumpToExl(BasicFunctions):
         ktu = report.workers_showing['бух.']['КТУ']
         hours = report.workers_showing['бух.']['часы']
         salary = report.workers_showing['бух.']['зарплата']
+
         worker_number = 1
         for worker in ktu:
             row_number = 30 + worker_number
