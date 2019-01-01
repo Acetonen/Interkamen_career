@@ -95,10 +95,12 @@ class CareerStatus(BasicFunctions):
             'None', '\033[91m<Информация отсутствует>\033[0m')
         return output
 
-    def _format_works_list(self, works_kind):
+    def _format_works_list(self, works_kind: str) -> str:
         """Format planed works list to output."""
         work_list = []
-        if self.works_plan[works_kind][0] == 'Не запланированы.':
+        if not self.works_plan[works_kind]:
+            work_list = 'Не запланированы.'
+        elif self.works_plan[works_kind][0] == 'Не запланированы.':
             work_list = 'Не запланированы.'
         else:
             for direction in self.works_plan[works_kind]:
