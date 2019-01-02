@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.10.0
+### ver 1.11.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -163,6 +163,12 @@ MINOR:
 PATCH:
 1. Fix dump to Exel path bug.
 2. Fix unsave tamp drill instruments report.
+### what's new in 1.11.0:
+MINOR:
+1. Dump real brigade salary to exel.
+2. Integrate sentry0.6.4 log system.
+PATCH:
+1. Fix bug with empty career status.
 
 ## Content and Instruction
 
