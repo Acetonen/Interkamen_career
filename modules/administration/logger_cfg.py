@@ -7,6 +7,7 @@ import time
 import logging
 import logging.handlers
 from typing import Dict, List
+from sentry_sdk import capture_message
 from modules.support_modules.emailed import EmailSender
 from modules.support_modules.standart_functions import BasicFunctions
 
@@ -94,6 +95,7 @@ class Logs(BasicFunctions):
         """Try to emailed error log file if exist."""
         if self.error_log_path.exists():
             log = self.error_log_path.read_text(encoding='utf-8')
+            capture_message(log)
             unsucsesse = EmailSender().try_email(
                 recivers='resivers list',
                 subject="ERROR",

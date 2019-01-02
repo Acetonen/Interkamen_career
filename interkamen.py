@@ -12,6 +12,7 @@ Functions: 'print_menu'
 import sys
 from typing import Dict, List
 import sentry_sdk
+
 from modules.support_modules.hi import INTERKAMEN
 from modules.support_modules.backup import check_last_backup_date
 from modules.support_modules.standart_functions import BasicFunctions as BasF
@@ -137,10 +138,10 @@ def get_main_or_sub_menu(usr_acs: str,
 
 if __name__ == '__main__':
     sentry_sdk.init(
-        "https://832241bd50f345c6bed4ecdc9524fddb@sentry.io/1362499")
+        "https://832241bd50f345c6bed4ecdc9524fddb@sentry.io/1362499",
+    )
     CURRENT_USER = login_program()
-    main(CURRENT_USER)
-    # try:
-    #     main(CURRENT_USER)
-    # except Exception:
-    #     Logs().loged_error(CURRENT_USER)
+    try:
+        main(CURRENT_USER)
+    except Exception:
+        Logs().loged_error(CURRENT_USER)
