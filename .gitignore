@@ -64,8 +64,8 @@ exl_blancs/
 Буровые_паспорта
 
 #Jupyter files
-.ipynb_checkpoints
-.ipynb
+*.ipynb_checkpoints
+*.ipynb
 
 #TODO file
 TODO.txt

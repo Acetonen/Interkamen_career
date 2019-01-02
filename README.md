@@ -18,6 +18,7 @@ And pythons frameworks:
 2. matplotlib
 3. openpyxl
 4. Pillow
+5. Sentry
 
 ### Installing
 
@@ -26,11 +27,12 @@ And pythons frameworks:
 
 ## Built With
 
-* [python3.6](https://www.python.org/) - Programming Language
-* [pandas](https://pandas.pydata.org/) - Python Data Analysis Library
-* [matplotlib](https://matplotlib.org/) - Python 2D plotting library
-* [openpyxl](https://openpyxl.readthedocs.io/en/stable/#) - A Python library to read/write Excel 2010 xlsx/xlsm files
-* [Pillow](https://pillow.readthedocs.io/en/5.3.x/) - PIL is the Python Imaging Library 
+* [python3.6](https://www.python.org/) - Programming Language.
+* [pandas](https://pandas.pydata.org/) - Python Data Analysis Library.
+* [matplotlib](https://matplotlib.org/) - Python 2D plotting library.
+* [openpyxl](https://openpyxl.readthedocs.io/en/stable/#) - A Python library to read/write Excel 2010 xlsx/xlsm files.
+* [Pillow](https://pillow.readthedocs.io/en/5.3.x/) - PIL is the Python Imaging Library.
+* [Sentry](https://sentry.io/welcome/) - Open-source error tracking. 
 
 ## Contributing
 
