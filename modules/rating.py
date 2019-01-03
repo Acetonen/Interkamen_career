@@ -177,3 +177,4 @@ class Rating(BasicFunctions):
         self._add_average_kti(*users_rating[:-1])
         print('\n', self.totl_res)
         self._count_wining_points()
+        input('\n[ENTER] - выйти.')
