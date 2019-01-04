@@ -346,6 +346,7 @@ class CareerStatus(BasicFunctions):
                 'master': self._add_master_info,
                 'mechanic': self._add_mechanic_info,
                 'admin': self._choose_info_to_add,
+                'boss': self._choose_info_to_add,
             }
             info_type[user['accesse']](user['login'])
             self._check_if_report_comlete(name)
