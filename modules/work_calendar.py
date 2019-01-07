@@ -53,7 +53,6 @@ class WCalendar(BasicFunctions):
             output += '\n'.join(month_sum) + '\n\n'
             month_sum = []
         output = output.replace(' ' + year, '     ')
-        # output = output.replace("'", '')
         output += ("\033[93m*7\033[0m - пересменки ИТР\n"
                    + "\033[96m*31\033[0m - пересменки бригады.")
         return output

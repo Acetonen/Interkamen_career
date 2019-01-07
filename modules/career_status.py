@@ -277,6 +277,7 @@ class CareerStatus(BasicFunctions):
         calendar = WorkCalendars().give_current_month_shifts(
             self.date_numbers, cal_format='html')
         tomorrow = self.date['tomorrow'].split('-')[-1]
+        tomorrow = str(int(tomorrow))
         calendar = calendar.replace(
             f'>{tomorrow}<', f' style="color:red"><b>{tomorrow}</b><'
         )

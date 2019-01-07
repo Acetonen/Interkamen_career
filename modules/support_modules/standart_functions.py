@@ -193,6 +193,8 @@ class BasicFunctions:
         """Input float with comma, not point."""
         if not inp:
             inp = input(msg)
+            if not inp:
+                return 0
         try:
             make_float = float(inp)
         except ValueError:
