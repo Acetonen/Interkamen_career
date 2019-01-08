@@ -137,11 +137,14 @@ def get_main_or_sub_menu(usr_acs: str,
 
 
 if __name__ == '__main__':
-    sentry_sdk.init(
-        "https://832241bd50f345c6bed4ecdc9524fddb@sentry.io/1362499",
-    )
-    CURRENT_USER = login_program()
     try:
-        main(CURRENT_USER)
-    except Exception:
-        Logs().loged_error(CURRENT_USER)
+        sentry_sdk.init(
+            "https://832241bd50f345c6bed4ecdc9524fddb@sentry.io/1362499",
+        )
+        CURRENT_USER = login_program()
+        try:
+            main(CURRENT_USER)
+        except Exception:
+            Logs().loged_error(CURRENT_USER)
+    except KeyboardInterrupt:
+        print('\nExit with keyboard interrupt.')

@@ -7,6 +7,7 @@ This module work with User class and access.
 import shutil
 import getpass
 from typing import List
+import bcrypt
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.emailed import EmailSender
 from modules.support_modules.backup import make_backup
@@ -144,6 +145,8 @@ class Users(BasicFunctions):
             else:
                 break
         password = input("Input password: ")
+        password = password.encode('utf-8')
+        password = bcrypt.hashpw(password, bcrypt.gensalt())
         print("Choose access by number:")
         access = super().choise_from_list(self.access_list)
         new_user = {
@@ -195,7 +198,8 @@ class Users(BasicFunctions):
         """Changing password"""
         while True:
             old_password = input("Введите старый пароль: ")
-            if old_password == user.password:
+            old_password = old_password.encode('utf-8')
+            if bcrypt.checkpw(old_password, user.password):
                 new_password = self._try_set_new_password(user)
                 if new_password:
                     break
@@ -212,7 +216,8 @@ class Users(BasicFunctions):
                 break
             repeat_password = getpass.getpass("Повторите новый пароль: ")
             if new_password == repeat_password:
-                user.password = new_password
+                new_password = new_password.encode('utf-8')
+                user.password = bcrypt.hashpw(new_password, bcrypt.gensalt())
                 self.users_base[user.login] = user
                 super().dump_data(self.data_path, self.users_base)
                 print("Новый пароль сохранен.")
@@ -234,7 +239,8 @@ class Users(BasicFunctions):
         if login in self.users_base:
             while True:
                 password = getpass.getpass("Введите пароль: ")
-                if self.users_base[login].password == password:
+                password = password.encode('utf-8')
+                if bcrypt.checkpw(password, self.users_base[login].password):
                     user_in = self.users_base[login]
                     break
                 else:

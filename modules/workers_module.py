@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.7
 """
 This module containe classes that provide accesse to information about workers.
 
 """
-
 from pprint import pprint
 from datetime import date
 from typing import Dict, List

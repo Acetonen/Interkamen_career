@@ -11,14 +11,15 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-For working with that program you need to install on your machine:
-1. python 3.6+
+For working with program source you need to install on your machine:
+1. python 3.7+
 And pythons frameworks:
 1. pandas
 2. matplotlib
 3. openpyxl
 4. Pillow
 5. Sentry
+6. bcrypt
 
 ### Installing
 
@@ -33,6 +34,7 @@ And pythons frameworks:
 * [openpyxl](https://openpyxl.readthedocs.io/en/stable/#) - A Python library to read/write Excel 2010 xlsx/xlsm files.
 * [Pillow](https://pillow.readthedocs.io/en/5.3.x/) - PIL is the Python Imaging Library.
 * [Sentry](https://sentry.io/welcome/) - Open-source error tracking. 
+* [bcrypt](https://pypi.org/project/bcrypt/) - Good password hashing for your software and your servers.
 
 ## Contributing
 
