@@ -78,7 +78,8 @@ class Logs(BasicFunctions):
             err_logger.addHandler(self.save_error_to_file())
             connection_problem = True
         else:
-            err_logger.addHandler(self.send_error_to_email())
+            # Dont needed while using sentry sdk.
+            # err_logger.addHandler(self.send_error_to_email())
             connection_problem = False
         finally:
             err_logger.exception(f"User '{current_user['login']}' make error:")
@@ -88,8 +89,6 @@ class Logs(BasicFunctions):
                       "восстановлении подключения.\033[0m")
             else:
                 print("\033[92m\nЛог отправлен, спасибо за ожидание.\033[0m")
-            print("\nПрограмма закроется автоматически через 5 секунд.")
-        time.sleep(5)
 
     def emailed_error_log(self):
         """Try to emailed error log file if exist."""

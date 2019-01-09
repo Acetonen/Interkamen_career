@@ -137,10 +137,10 @@ def get_main_or_sub_menu(usr_acs: str,
 
 
 if __name__ == '__main__':
+    sentry_sdk.init(
+        "https://832241bd50f345c6bed4ecdc9524fddb@sentry.io/1362499",
+    )
     try:
-        sentry_sdk.init(
-            "https://832241bd50f345c6bed4ecdc9524fddb@sentry.io/1362499",
-        )
         CURRENT_USER = login_program()
         try:
             main(CURRENT_USER)
