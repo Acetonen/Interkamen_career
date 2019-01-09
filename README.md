@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.11.0
+### ver 1.12.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -43,104 +43,30 @@ Please email to acetonen@gmail.com for details on our code of conduct, and the p
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
-### what's new in 1.0.1:
-1. Remove 1,5 coefficient from buh. salary.
-2. Add 'rock mass by month' plot in 'report_analysis'.
-3. Colorful salary workers and drillers.
-### what's new in 1.1.0:
-1. Restructuring program files.
-2. Add emailed module.
-3. Add Email settings into administrator menu.
-4. Add Mechanics report.
-5. New administrator menus.
-6. Make menu navigation simpler.
-7. Add Email notifications for main report.
-8. Add view reports by year in finance.
-9. Add Employing date and penalties to workers.
-### what's new in 1.1.1:
-1. OOP style in pyplots.
-2. Add "already exist" view for mechanics report.
-3. Add brigadiers to salary list.
-### what's new in 1.1.2:
-1. Add availability to create drill report if main report not exist yet.
-2. Fix backup bug.
-### what's new in 1.2.0:
-1. Add "edit report" in mechanics reports.
-2. Remove 'exit by ENTER' from mechanics report.
-3. Add correct check input hours in mechanics report.
-4. Add more intuitive navigation in mechanic menu.
-5. Add manual backup in administrator menu.
-6. Replace txt backup log to pickle.
-### what's new in 1.3.0:
-1. Add maintenance calendar for mechanic.
-2. Add reminder module.
-3. Add reminder for maintenance.
-4. Add 'stand reason' visualization to mechanics reports.
-5. Fix bug in mechanics report when try to show stat and brigade 2 are empty.
-6. Make backup after complete main report.
-7. Merge stat_by_year and stat_by_month methods into stat_by_period.
-### what's new in 1.4.0:
-1. Add Brigade rating system.
-2. Fix plots in report analysis module.
-3. Move check_date_in_dataframe from mechanic_report to standart_functions.
-4. Fix mechanic log.
-5. Make standard date input.
-6. Make submenus in admin meny by directions.
-### what's new in 1.4.1:
-1. Fix date view in mechanics report.
-2. Fix error when you try show rating and haven't brigades results yet.
-### what's new in 1.5.0:
-1. Add Drill passport.
-2. Fix check date format.
-### what's new in 1.5.1:
-1. Add Working calendar module.
-2. Add notifications for create mechanics and drill report.
-### what's new in 1.6.0:
-1. Add career status module.
-2. Add comma protect in all reports.
-3. Add user with 'info' access.
-### what's new in 1.6.1:
-1. Make career status fill more user-friendly.
-### what's new in 1.7.0:
-1. Add news module.
-2. Custom reminder.
-3. Add stupid timer in master daily report.
-### what's new in 1.7.1:
-1. Fix news/ path bug.
-2. Add exel dump for drill passport.
-### what's new in 1.7.2:
-1. Create new package to work with exl files.
-2. Remake AbsPath module.
-3. Fix daily report bug.
-### what's new in 1.7.3:
-1. Add total destruction for program data.
-2. Add massive_type to drill pass parametrs.
-### what's new in 1.8.0:
-1. Create HTML dayli report to email send.
-2. Change exl files destination.
-3. Add dump ktu to exl in main report.
-4. Fix adding temp drill report if rock mass not exist.
-5. Add send html in email.
-6. Add coordinates to working plans in daily report.
-### what's new in 1.8.1:
-1. Add Round to 0,5 in explosive.
-2. Add totall in drill passports.
-3. Add calendar in HTML career status.
-4. Add non gabarites type of drill passport.
-5. Normalise 5+ meters bareholes to 5 meters in exel drill passports.
-6. Change volume count in exel drill passport.
-7. Add except ConnectionResetError in email module.
-### what's new in 1.9.0:
-1. Add salary module.
-2. Move career status to basic.
-3. Add 'break' to news view
-4. Add daily mechanic report in self menu.
-5. Add recreation for daily report.
-6. Add reminder to update career map.
-7. Add edit workers profession in workers module.
-8. Add different persents for brigadires.
-9. Clean log file when enter program.
-10. Add dump to exel for negabarites.
+### what's new in 1.12.0:
+MINOR:
+1. Add 'bcrypt' password hashing.
+PATCH:
+1. Fix showing brigade rating.
+2. Add 'boss' to info type.
+3. Add 0 option for float input.
+4. Fix tomorrow color in career status html.
+5. Add new drill passport name check.
+6. Turn off logging system while using sentry.
+7. Add expl works to career status automatically.
+### what's new in 1.11.0:
+MINOR:
+1. Dump real brigade salary to exel.
+2. Integrate sentry0.6.4 log system.
+PATCH:
+1. Fix bug with empty career status.
+### what's new in 1.10.1:
+MINOR:
+1. Beautifully calendar of available days in mechanics report.
+2. Count bits in rock in drill instrument report.
+PATCH:
+1. Fix dump to Exel path bug.
+2. Fix unsave tamp drill instruments report.
 ### what's new in 1.10.0:
 MINOR:
 1. Add logging system.
@@ -159,20 +85,105 @@ PATCH:
 11. Add exception to exit in main menu.
 12. Add ready to input in career report.
 13. Edit flow in All modules.
-15. Delete ENTER for mine menu.
-### what's new in 1.10.1:
-MINOR:
-1. Beautifully calendar of available days in mechanics report.
-2. Count bits in rock in drill instrument report.
-PATCH:
-1. Fix dump to Exel path bug.
-2. Fix unsave tamp drill instruments report.
-### what's new in 1.11.0:
-MINOR:
-1. Dump real brigade salary to exel.
-2. Integrate sentry0.6.4 log system.
-PATCH:
-1. Fix bug with empty career status.
+15. Delete ENTER for main menu.
+### what's new in 1.9.0:
+1. Add salary module.
+2. Move career status to basic.
+3. Add 'break' to news view
+4. Add daily mechanic report in self menu.
+5. Add recreation for daily report.
+6. Add reminder to update career map.
+7. Add edit workers profession in workers module.
+8. Add different persents for brigadires.
+9. Clean log file when enter program.
+10. Add dump to exel for negabarites.
+### what's new in 1.8.1:
+1. Add Round to 0,5 in explosive.
+2. Add totall in drill passports.
+3. Add calendar in HTML career status.
+4. Add non gabarites type of drill passport.
+5. Normalise 5+ meters bareholes to 5 meters in exel drill passports.
+6. Change volume count in exel drill passport.
+7. Add except ConnectionResetError in email module.
+### what's new in 1.8.0:
+1. Create HTML dayli report to email send.
+2. Change exl files destination.
+3. Add dump ktu to exl in main report.
+4. Fix adding temp drill report if rock mass not exist.
+5. Add send html in email.
+6. Add coordinates to working plans in daily report.
+### what's new in 1.7.3:
+1. Add total destruction for program data.
+2. Add massive_type to drill pass parametrs.
+### what's new in 1.7.2:
+1. Create new package to work with exl files.
+2. Remake AbsPath module.
+3. Fix daily report bug.
+### what's new in 1.7.1:
+1. Fix news/ path bug.
+2. Add exel dump for drill passport.
+### what's new in 1.7.0:
+1. Add news module.
+2. Custom reminder.
+3. Add stupid timer in master daily report.
+### what's new in 1.6.1:
+1. Make career status fill more user-friendly.
+### what's new in 1.6.0:
+1. Add career status module.
+2. Add comma protect in all reports.
+3. Add user with 'info' access.
+### what's new in 1.5.1:
+1. Add Working calendar module.
+2. Add notifications for create mechanics and drill report.
+### what's new in 1.5.0:
+1. Add Drill passport.
+2. Fix check date format.
+### what's new in 1.4.1:
+1. Fix date view in mechanics report.
+2. Fix error when you try show rating and haven't brigades results yet.
+### what's new in 1.4.0:
+1. Add Brigade rating system.
+2. Fix plots in report analysis module.
+3. Move check_date_in_dataframe from mechanic_report to standart_functions.
+4. Fix mechanic log.
+5. Make standard date input.
+6. Make submenus in admin meny by directions.
+### what's new in 1.3.0:
+1. Add maintenance calendar for mechanic.
+2. Add reminder module.
+3. Add reminder for maintenance.
+4. Add 'stand reason' visualization to mechanics reports.
+5. Fix bug in mechanics report when try to show stat and brigade 2 are empty.
+6. Make backup after complete main report.
+7. Merge stat_by_year and stat_by_month methods into stat_by_period.
+### what's new in 1.2.0:
+1. Add "edit report" in mechanics reports.
+2. Remove 'exit by ENTER' from mechanics report.
+3. Add correct check input hours in mechanics report.
+4. Add more intuitive navigation in mechanic menu.
+5. Add manual backup in administrator menu.
+6. Replace txt backup log to pickle.
+### what's new in 1.1.2:
+1. Add availability to create drill report if main report not exist yet.
+2. Fix backup bug.
+### what's new in 1.1.1:
+1. OOP style in pyplots.
+2. Add "already exist" view for mechanics report.
+3. Add brigadiers to salary list.
+### what's new in 1.1.0:
+1. Restructuring program files.
+2. Add emailed module.
+3. Add Email settings into administrator menu.
+4. Add Mechanics report.
+5. New administrator menus.
+6. Make menu navigation simpler.
+7. Add Email notifications for main report.
+8. Add view reports by year in finance.
+9. Add Employing date and penalties to workers.
+### what's new in 1.0.1:
+1. Remove 1,5 coefficient from buh. salary.
+2. Add 'rock mass by month' plot in 'report_analysis'.
+3. Colorful salary workers and drillers.
 
 ## Content and Instruction
 
