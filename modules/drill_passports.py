@@ -1,7 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.7
 """Module to work with drill passports."""
 
-from typing import Union
+from __future__ import annotations
+
+from typing import Union, Dict
 import pandas as pd
 from numpy import nan as Nan
 from modules.support_modules.standart_functions import BasicFunctions
@@ -18,12 +20,14 @@ class DPassport(BasicFunctions):
 
     horizonds = ['+108', '+114', '+120', '+126', '+132']
 
-    def __init__(self, pass_number, master, empty_df, massive_type):
+    def __init__(self, pass_number, master, empty_df, massive_type, rep_date):
         self.pass_number = pass_number
         self.master = master
         self.params = empty_df
         self.bareholes = {}
         self.params.massive_type = massive_type
+        for item in rep_date:
+            self.params[item] = rep_date[item]
 
     def __repr__(self):
         bareholes_table = '\nдлина, м  количество, шт'
@@ -93,14 +97,6 @@ class DPassport(BasicFunctions):
         self.params.totall_meters = totall_meters
         return bareholes_number
 
-    def _set_date(self):
-        """Set report date."""
-        rep_date = super().input_date()
-        day = int(input("Введите день: "))
-        rep_date.update({'day': day})
-        for item in rep_date:
-            self.params[item] = rep_date[item]
-
     def _set_horizond(self):
         """Choose horizond."""
         print("Выберете горизонт:")
@@ -165,7 +161,6 @@ class DPassport(BasicFunctions):
         """Fill passport."""
         self.params.number = self.pass_number
         self.params.master = self.master
-        self._set_date()
         self._set_horizond()
         self._set_pownder_parametrs()
         self._set_driller()
@@ -239,16 +234,24 @@ class DrillPassports(BasicFunctions):
             super().dump_data(self.drill_pass_path, self.drill_pass_file)
 
     @classmethod
-    def _create_pass_name(cls, passport: Union[NPassport, DPassport]) -> str:
+    def _crerate_pass_date(cls, *, year: int, day: int, month: int) -> str:
+        """Create date for passport name."""
+        if month // 10 == 0:
+            month = '0' + str(month)
+        if day // 10 == 0:
+            day = '0' + str(day)
+        pass_date = "{}-{}-{}".format(year, day, month)
+        return pass_date
+
+    def _create_pass_name(self, passport: Union[DPassport, NPassport]) -> str:
         """Create passport name."""
-        if len(str(passport.params.month)) == 1:
-            month = '0' + str(passport.params.month)
-        else:
-            month = str(passport.params.month)
-        pass_name = ("{}-{}-{} №{}-{}"
-                     .format(passport.params.year,
-                             month,
-                             passport.params.day,
+        pass_date = self._crerate_pass_date(
+            year=int(passport.params.year),
+            month=int(passport.params.month),
+            day=int(passport.params.day),
+        )
+        pass_name = ("{} №{}-{}"
+                     .format(pass_date,
                              int(passport.params.number),
                              passport.params.massive_type))
         return pass_name
@@ -259,16 +262,20 @@ class DrillPassports(BasicFunctions):
         self.empty_serial = pd.Series([Nan for name in self.pass_columns],
                                       index=self.pass_columns)
 
-    def _check_if_report_exist(self, number):
+    def _check_if_report_exist(self,
+                               rep_date: Dict[str, int],
+                               number: str) -> bool:
         """Check if report exist in base"""
         check = True
+        rep_date = self._crerate_pass_date(**rep_date)
         for report in self.drill_pass_file:
-            if number in report.split(' ')[-1]:
+            if (rep_date == report.split(' ')[0] and
+                    number == report.split(' ')[-1].split('-')[0][1:]):
                 check = False
                 print("Паспорт с этим номером уже существует.")
         return check
 
-    def _save_or_not(self, passport):
+    def _save_or_not(self, passport: Union[NPassport, DPassport]):
         """Save passport or not."""
         save = input("\n[c] - сохранить паспорт: ")
         if save in ['c', 'C', 'с', 'С']:
@@ -312,6 +319,13 @@ class DrillPassports(BasicFunctions):
 
         return passport_name
 
+    def _set_date(self) -> Dict[str, int]:
+        """Set report date."""
+        rep_date = super().input_date()
+        day = int(input("Введите день: "))
+        rep_date.update({'day': day})
+        return rep_date
+
     def _last_number_of_passport(self):
         """Return last exist number."""
         last_passport = sorted(
@@ -340,11 +354,13 @@ class DrillPassports(BasicFunctions):
         if self.drill_pass_file:
             print("Номер последнего паспорта: ",
                   self._last_number_of_passport())
+        rep_date = self._set_date()
+
         while True:
             number = input("\nВведите номер паспорта: ")
             if not number:
                 raise MainMenu
-            if self._check_if_report_exist(number):
+            if self._check_if_report_exist(rep_date, number):
                 break
 
         print("Выберете тип паспорта:")
@@ -358,6 +374,7 @@ class DrillPassports(BasicFunctions):
             master=self.user['name'],
             empty_df=self.empty_serial,
             massive_type=pass_type,
+            rep_date=rep_date,
             )
         passport.fill_passport()
         super().clear_screen()

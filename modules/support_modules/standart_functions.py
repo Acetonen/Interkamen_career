@@ -1,13 +1,15 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.7
 """Frequently using functions in modules classes."""
+
+from __future__ import annotations
 
 import sys
 import os
 import pickle
 import time
 import calendar as cl
-from pathlib import Path
-from typing import List, Set, Dict
+from pathlib import Path, PurePath
+from typing import Set, Dict, List
 from matplotlib import rcParams as window_parametrs
 from modules.support_modules.custom_exceptions import MainMenu
 
@@ -32,7 +34,7 @@ class BasicFunctions:
         return chosen_item
 
     @staticmethod
-    def check_number_in_range(user_input, list_range):
+    def check_number_in_range(user_input, list_range: List):
         """Check is input a number in current range."""
         check_number = None
         if user_input.isdigit():
@@ -65,7 +67,7 @@ class BasicFunctions:
             os.system('clear')
 
     @staticmethod
-    def load_data(data_path):
+    def load_data(data_path: PurePath):
         """Load data from pickle"""
         if data_path.exists():
             with open(data_path, 'rb') as base_file:
@@ -75,7 +77,7 @@ class BasicFunctions:
         return base
 
     @staticmethod
-    def dump_data(data_path, base_to_dump):
+    def dump_data(data_path: PurePath, base_to_dump):
         """Dumb data to pickle."""
         with open(data_path, 'wb') as base_file:
             pickle.dump(base_to_dump, base_file)
@@ -100,7 +102,7 @@ class BasicFunctions:
         window_parametrs['figure.titlesize'] = 'large'
 
     @classmethod
-    def input_date(cls):
+    def input_date(cls) -> Dict[str, int]:
         """Input date."""
         check_date = False
         while not check_date:
@@ -226,7 +228,7 @@ class BasicFunctions:
         time.sleep(1)
 
     @staticmethod
-    def get_root_path():
+    def get_root_path() -> PurePath:
         """
         Make absolyte path to root program directory.
         Return path object.
