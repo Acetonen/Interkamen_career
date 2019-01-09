@@ -9,6 +9,8 @@ from modules.work_calendar import WorkCalendars
 from modules.workers_module import AllWorkers
 from modules.main_career_report import Reports
 from modules.administration.logger_cfg import Logs
+from modules.drill_passports import DrillPassports
+from modules.support_modules.custom_exceptions import MainMenu
 
 
 LOGGER = Logs().give_logger(__name__)
@@ -20,7 +22,7 @@ class CareerStatus(BasicFunctions):
     def __init__(self, user):
         self.date = {
             "today": str(date.today()),
-            "tomorrow": str(date.today() + timedelta(days=1))
+            "tomorrow": str(date.today() + timedelta(days=1)),
         }
         self.date_numbers = list(map(int, self.date['today'].split('-')))
         self.cur = {
@@ -109,54 +111,72 @@ class CareerStatus(BasicFunctions):
             work_list = '\n\t'.join(work_list)
         return work_list
 
+    def _check_tomorrow_passports(self):
+        """Check if tomorrow passports exists."""
+        tomorrow_passports = (
+            DrillPassports(None)
+            .give_dpassports_for_date(self.date["tomorrow"])
+        )
+        if not tomorrow_passports:
+            print(f"Буровые паспорта за {self.date['tomorrow']}"
+                  " число отстутствуют.")
+            contin = input("Если желаете продолжить заполнение отчета "
+                           "без буровзрывных работ введите 'c': ")
+            if contin not in ['c', 'C', 'с', 'С']:
+                print("Составление отчета отменено.")
+                input("[ENTER] - выйти в меню.")
+                raise MainMenu
+        return tomorrow_passports
+
     def _add_master_info(self, user_id):
         """Add info from master."""
+        tomorrow_passports = self._check_tomorrow_passports()
         self._input_current_result()
         self._input_strage_volume()
-        works = ['разборка', 'пассир.', 'бурение']
-        quolity = ['блоки', 'масса']
 
-        self._ready_to_input('взрывные работы')
-        self.works_plan['expl_work'] = self._plan_works(
-            quolity,
-            title="\033[4mБуровзрывные работы:\033[0m")
+        directions = ['восток', 'запад', 'север', 'юг']
+
+        if tomorrow_passports:
+            self._ready_to_input('взрывные работы')
+            self._expl_works(tomorrow_passports, directions)
+        else:
+            self.works_plan["expl_work"].append('Не запланированы.')
 
         self._ready_to_input('добычные работы')
-        self.works_plan['rock_work'] = self._plan_works(
-            works,
-            title="\033[4mДобычные работы:\033[0m")
+        self._plan_works(directions)
+
         print("\033[92mОтчет создан.\033[0m")
         LOGGER.warning(f"User '{user_id}' create career status from master")
         input('\n[ENTER] - выйти.')
 
-    @classmethod
-    def _ready_to_input(cls, title: str):
-        """Check if user ready to input."""
-        while True:
-            ready = input(f"Если готовы ввести {title}, введите [д]: ")
-            if ready.lower() == 'д':
-                break
+    def _expl_works(self, tomorrow_passports, directions):
+        """Input expl works."""
+        super().clear_screen()
+        work_list = []
+        quol = ['блоки', 'масса']
+        print("Введите информацию по \033[4mбуровзрывным работам\033[0m на {}"
+              .format(self.date['tomorrow']))
+        for passport in tomorrow_passports:
+            print(
+                "\nПасспорт №{}: Горизонт: '{}' Тип: '{}' "
+                .format(int(passport.params.number),
+                        str(passport.params.horizond),
+                        str(passport.params.massive_type))
+            )
+            print("Выберете направление:")
+            direction = super().choise_from_list(directions)
+            print("Выберете предполагаемое качество:")
+            quoli = super().choise_from_list(quol)
+            coord = input("Введите квадрант: ")
+            horizond = str(passport.params.horizond)
+            work = (horizond, direction, quoli, coord)
+            work_list.append(work)
+        self.works_plan["expl_work"] = work_list
 
-    def _input_strage_volume(self):
-        """Add rocks from storage."""
-        print("Введите объем склада:")
-        self.storage["KOTC"] = super().float_input(msg='Цеховой камень: ')
-        self.storage["sale"] = super().float_input(msg='На продажу: ')
-
-    def _input_current_result(self):
-        """Add current \result."""
-        self.res["shift"] = super().float_input(msg="Введите добычу вахты: ")
-        if self.cur["brig"] == 'Бригада 1':
-            self.res["month"] = self.res["shift"]
-        else:
-            shift1_res = Reports(None).give_main_results(
-                *str(date.today()).split('-')[:-1], 'Смена 1')[1]
-            self.res["month"] = (round(shift1_res, 1) + self.res["shift"])
-
-    def _plan_works(self, quol, *, title):
+    def _plan_works(self, directions):
         """Input rock or expl work"""
+        quol = ['разборка', 'пассир.', 'бурение']
         horizonds = ['+108', '+114', '+120', '+126', '+132']
-        directions = ['восток', 'запад', 'север', 'юг']
         work_list = []
         work_directions = []
         print_list = ''
@@ -164,7 +184,7 @@ class CareerStatus(BasicFunctions):
             super().clear_screen()
             print("Введите информацию по работам на {}"
                   .format(self.date['tomorrow']))
-            print(title)
+            print("\033[4mДобычные работы:\033[0m")
             print("\tгоризонт  направление  качество  квадрант")
             print('\t' + print_list)
             print("\n[ENTER] - закончить ввод\n"
@@ -184,7 +204,31 @@ class CareerStatus(BasicFunctions):
             work_list.append(work)
         if not work_list:
             work_list.append('Не запланированы.')
-        return work_list
+        self.works_plan['rock_work'] = work_list
+
+    @classmethod
+    def _ready_to_input(cls, title: str):
+        """Check if user ready to input."""
+        while True:
+            ready = input(f"\nЕсли готовы ввести {title}, введите [д]: ")
+            if ready.lower() == 'д':
+                break
+
+    def _input_strage_volume(self):
+        """Add rocks from storage."""
+        print("Введите объем склада:")
+        self.storage["KOTC"] = super().float_input(msg='Цеховой камень: ')
+        self.storage["sale"] = super().float_input(msg='На продажу: ')
+
+    def _input_current_result(self):
+        """Add current \result."""
+        self.res["shift"] = super().float_input(msg="Введите добычу вахты: ")
+        if self.cur["brig"] == 'Бригада 1':
+            self.res["month"] = self.res["shift"]
+        else:
+            shift1_res = Reports(None).give_main_results(
+                *str(date.today()).split('-')[:-1], 'Смена 1')[1]
+            self.res["month"] = (round(shift1_res, 1) + self.res["shift"])
 
     def _add_mechanic_info(self, user_id):
         """Add info from mechanic."""

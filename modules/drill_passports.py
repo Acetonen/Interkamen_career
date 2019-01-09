@@ -240,7 +240,7 @@ class DrillPassports(BasicFunctions):
             month = '0' + str(month)
         if day // 10 == 0:
             day = '0' + str(day)
-        pass_date = "{}-{}-{}".format(year, day, month)
+        pass_date = "{}-{}-{}".format(year, month, day)
         return pass_date
 
     def _create_pass_name(self, passport: Union[DPassport, NPassport]) -> str:
@@ -332,6 +332,16 @@ class DrillPassports(BasicFunctions):
             [passport for passport in self.drill_pass_file])[-1]
         last_number = last_passport.split(' ')[-1]
         return last_number
+
+    def give_dpassports_for_date(self, pdate: str) -> List[DPassport]:
+        """Give list of drill passports for given date."""
+        passports_list = [
+            self.drill_pass_file[passport]
+            for passport in self.drill_pass_file
+            if self.drill_pass_file[passport].__class__.__name__ == 'DPassport'
+            and passport.split(' ')[0] == pdate
+        ]
+        return passports_list
 
     def count_param_from_passports(
             self,
