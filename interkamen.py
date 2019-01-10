@@ -10,7 +10,7 @@ Functions: 'print_menu'
 """
 
 import sys
-from threading import Thread
+from threading import Thread, Event
 from typing import Dict, List
 import sentry_sdk
 
@@ -28,7 +28,12 @@ from modules.administration.logger_cfg import Logs
 
 def main(current_user: Dict[str, str]):
     """Main flow."""
-    start_background_tasks(current_user)
+    show_backround_tasks_results = Event()
+    start_background_tasks(
+        event=show_backround_tasks_results,
+        current_user=current_user,
+    )
+
     logger = Logs().give_logger(__name__)
     logger.warning(f"User '{current_user['login']}' enter program")
     menu_list = []
@@ -39,6 +44,8 @@ def main(current_user: Dict[str, str]):
     program_menu = get_main_or_sub_menu(usr_acs, menu_list, None)
 
     while True:
+        show_backround_tasks_results.set()
+        show_backround_tasks_results.clear()
         print_menu(usr_acs, menu_header, menu_nesting, program_menu)
         user_choise = input("\nВыберете действие: ")
         BasF.clear_screen()
@@ -87,12 +94,22 @@ def main(current_user: Dict[str, str]):
         current_user = Users(current_user).sync_user()
 
 
-def start_background_tasks(current_user):
+def start_background_tasks(event, current_user):
     """Start threads for checkin program mails and make backups."""
-    good_thing_process = Thread(target=Users(None).try_to_destroy)
-    email_error_process = Thread(target=Logs().emailed_error_log)
-    check_backup_process = Thread(target=check_last_backup_date,
-                                  args=(current_user,))
+    good_thing_process = Thread(
+        name='Funny thing.',
+        target=Users(None).try_to_destroy,
+        args=(current_user,)
+    )
+    email_error_process = Thread(
+        name='Error file mail.',
+        target=Logs().emailed_error_log,
+    )
+    check_backup_process = Thread(
+        name='Make backup.',
+        target=check_last_backup_date,
+        args=(current_user, event)
+    )
     good_thing_process.start()
     email_error_process.start()
     check_backup_process.start()

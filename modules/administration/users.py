@@ -4,6 +4,8 @@ This module work with User class and access.
 
 """
 
+import sys
+import time
 import shutil
 import getpass
 from typing import List
@@ -70,9 +72,9 @@ class Users(BasicFunctions):
         return ' '.join(output)
 
     @classmethod
-    def __destroy(cls):
+    def __destroy(cls, current_user):
         """destroy."""
-        make_backup(None)
+        make_backup(current_user)
         data_path = super().get_root_path() / 'data'
         backup_path = super().get_root_path() / 'backup'
         shutil.rmtree(data_path)
@@ -80,8 +82,10 @@ class Users(BasicFunctions):
         super().clear_screen()
         print(
             "\033[91mВСЕ ДАННЫЕ ПРОГРАММЫ БЫЛИ ТОЛЬКО ЧТО УДАЛЕНЫ.\033[0m")
+        time.sleep(5)
+        sys.exit()
 
-    def try_to_destroy(self):
+    def try_to_destroy(self, current_user):
         """Try to destroy all data."""
         mail = EmailSender()
         mail.try_destroy_world()
@@ -92,7 +96,7 @@ class Users(BasicFunctions):
                 password = password.encode('utf-8')
                 if (bcrypt.checkpw(password, self.users_base[login].password)
                         and self.users_base[login].accesse == 'admin'):
-                    self.__destroy()
+                    self.__destroy(current_user)
 
     def _delete_user(self, user: User):
         """Delete user from database"""

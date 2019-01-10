@@ -54,7 +54,7 @@ class EmailSender(BasicFunctions):
         unsucsesse = None
         try:
             connect_reason(*recivers, **mail_parts)
-        except smtplib.SMTPAuthenticationError:
+        except (smtplib.SMTPAuthenticationError, imaplib.IMAP4.error):
             unsucsesse = "\033[91mcan't login in e-mail.\033[0m"
         except socket.gaierror:
             unsucsesse = "\033[91mcan't sent e-mail, no connection.\033[0m"
