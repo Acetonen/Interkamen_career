@@ -21,6 +21,7 @@ class Reports :
  'work_with_main_report' - complete main report.
 """
 
+from threading import Thread
 from typing import List, Dict
 from pprint import pprint
 from modules.workers_module import AllWorkers
@@ -578,7 +579,8 @@ class Reports(BasicFunctions):
                 f"User '{self.user['login']}' complete main report: "
                 + f"{tmp_rpt.status['date']}"
             )
-            make_backup(self.user)
+            backup_data = Thread(target=make_backup, args=(self.user,))
+            backup_data.start()
         return tmp_rpt
 
     def _make_status_in_process(self, report_name: str):

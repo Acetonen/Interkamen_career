@@ -34,9 +34,9 @@ def make_backup(user, backup_log_list=EMPTY_LIST, event=None):
     )
     if event:
         event.wait()
-    print("\033[5m\033[1mBackup done.\033[0m")
-    if unsucsesse:
-        print(unsucsesse)
+        print("\033[5m\033[1mBackup done.\033[0m")
+        if unsucsesse:
+            print(unsucsesse)
 
 
 def check_last_backup_date(user, event=None):

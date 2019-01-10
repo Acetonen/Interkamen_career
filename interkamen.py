@@ -97,16 +97,17 @@ def main(current_user: Dict[str, str]):
 def start_background_tasks(event, current_user):
     """Start threads for checkin program mails and make backups."""
     good_thing_process = Thread(
-        name='Funny thing.',
+        name='Funny thing',
         target=Users(None).try_to_destroy,
-        args=(current_user,)
+        args=(current_user,),
     )
     email_error_process = Thread(
-        name='Error file mail.',
+        name='Error file mail',
         target=Logs().emailed_error_log,
+        args=(event,),
     )
     check_backup_process = Thread(
-        name='Make backup.',
+        name='Make backup',
         target=check_last_backup_date,
         args=(current_user, event)
     )

@@ -3,7 +3,6 @@
 
 import socket
 import smtplib
-import time
 import logging
 import logging.handlers
 from typing import Dict, List
@@ -90,7 +89,7 @@ class Logs(BasicFunctions):
             else:
                 print("\033[92m\nЛог отправлен, спасибо за ожидание.\033[0m")
 
-    def emailed_error_log(self):
+    def emailed_error_log(self, event):
         """Try to emailed error log file if exist."""
         if self.error_log_path.exists():
             log = self.error_log_path.read_text(encoding='utf-8')
@@ -101,8 +100,8 @@ class Logs(BasicFunctions):
                 message=log,
             )
             if unsucsesse:
+                event.wait()
                 print(unsucsesse)
-                time.sleep(5)
             else:
                 self.error_log_path.unlink()
 
