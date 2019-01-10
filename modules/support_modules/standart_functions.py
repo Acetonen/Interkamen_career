@@ -8,11 +8,13 @@ import os
 import pickle
 import time
 import calendar as cl
-from threading import Lock
 from pathlib import Path, PurePath
 from typing import Set, Dict, List
 from matplotlib import rcParams as window_parametrs
 from modules.support_modules.custom_exceptions import MainMenu
+
+
+PROGRAM_PATH = Path(sys.argv[0]).resolve().parent
 
 
 class BasicFunctions:
@@ -232,8 +234,5 @@ class BasicFunctions:
     def get_root_path() -> PurePath:
         """
         Make absolyte path to root program directory.
-        Return path object.
         """
-        abs_path = Path(__file__).resolve()
-        root_dir = abs_path.parent.parent.parent
-        return root_dir
+        return PROGRAM_PATH
