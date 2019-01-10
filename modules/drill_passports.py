@@ -293,7 +293,7 @@ class DrillPassports(BasicFunctions):
     def _save_or_not(self, passport: Union[NPassport, DPassport]):
         """Save passport or not."""
         save = input("\n[c] - сохранить паспорт: ")
-        if save.lowwer() in ['c', 'с']:
+        if save.lower() in ['c', 'с']:
             pass_name = self._create_pass_name(passport)
             print('\033[92m', pass_name, ' - cохранен.\033[0m')
             self.drill_pass_file[pass_name] = passport
@@ -302,7 +302,7 @@ class DrillPassports(BasicFunctions):
                 f"User '{self.user['login']}' create drill pass.: {pass_name}"
             )
             exel = input("\nЖелаете создать exel файл? Y/N: ")
-            if exel.lowwer() == 'y':
+            if exel.lower() == 'y':
                 if passport.__class__.__name__ == 'DPassport':
                     DumpToExl().dump_drill_pass(passport)
                 else:

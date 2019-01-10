@@ -384,12 +384,12 @@ class Reports(BasicFunctions):
         while True:
             add_worker = input(
                 "\nДобавить работника из другой бригады? Y/N: ")
-            if add_worker.lowwer() == 'y':
+            if add_worker.lower() == 'y':
                 worker = super().choise_from_list(other_shift_workers)
                 print(worker, '- добавлен.')
                 added_workers.append(worker)
                 other_shift_workers.remove(worker)
-            elif add_worker.lowwer() == 'n':
+            elif add_worker.lower() == 'n':
                 return added_workers
             else:
                 print("Введите 'Y' или 'N'.")
@@ -439,7 +439,7 @@ class Reports(BasicFunctions):
             edit_menu_dict = {'a': self._add_salary_or_driller,
                               'd': self._delete_salary_or_driller}
             action_name = input("Добавить или удалить работника (A/d): ")
-            if action_name.lowwer() not in edit_menu_dict:
+            if action_name.lower() not in edit_menu_dict:
                 print("Вы отменили редактирование.")
                 break
             else:

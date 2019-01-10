@@ -124,7 +124,7 @@ class CareerStatus(BasicFunctions):
                   " число отстутствуют.")
             contin = input("Если желаете продолжить заполнение отчета "
                            "без буровзрывных работ введите 'c': ")
-            if contin.lowwer() not in ['c', 'с']:
+            if contin.lower() not in ['c', 'с']:
                 print("Составление отчета отменено.")
                 input("[ENTER] - выйти в меню.")
                 raise MainMenu
@@ -444,7 +444,7 @@ class Statuses(BasicFunctions):
             print(self.car_stat_file[status])
             calendar = input("\n[k] - показать календарь пересменок.\n"
                              "[ENTER] - выйти: ")
-            if calendar.lowwer() in ['k', 'к']:
+            if calendar.lower() in ['k', 'к']:
                 print(self.car_stat_file[status].give_shift_calendar())
                 input('\n[ENTER] - выйти.')
         else:

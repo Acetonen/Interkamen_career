@@ -66,7 +66,7 @@ class Rating(BasicFunctions):
                     break
         confirm = input("\n[s] - сохранить оценки."
                         "\nПроверьте правильность введенных данных: ")
-        if confirm.lowwer() == 's':
+        if confirm.lower() == 's':
             self._save_rating(tmp_rating)
             LOGGER.warning(
                 f"User '{self.user['login']}' give rating: {rating_name}"

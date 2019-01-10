@@ -368,7 +368,7 @@ class MechReports(BasicFunctions):
             choise = input("\n[d] - выйти и \033[91mУДАЛИТЬ\033[m данные."
                            "\n[s] - \033[92mСОХРАНИТЬ\033[0m отчет.\n"
                            "\nВыберете технику для внесения данных: ")
-            if choise.lowwer() == 's':
+            if choise.lower() == 's':
                 self._save_report()
                 LOGGER.warning(
                     f"User '{self.user['login']}' create mechanics report: "
@@ -377,7 +377,7 @@ class MechReports(BasicFunctions):
                 print("\n\033[92mДанные сохранены.\033[0m")
                 input('\n[ENTER] - выйти.')
                 break
-            elif choise.lowwer() == 'd':
+            elif choise.lower() == 'd':
                 confirm = super().confirm_deletion('отчет')
                 if confirm:
                     input('\n[ENTER] - выйти.')
@@ -482,7 +482,7 @@ class MechReports(BasicFunctions):
             print(self.maint_file)
             choise = input("\n[e] - выйти.\n"
                            "\nВыберете технику для обслуживания: ")
-            if choise.lowwer() in ['e', 'е']:
+            if choise.lower() in ['e', 'е']:
                 break
             elif not choise.isdigit():
                 continue

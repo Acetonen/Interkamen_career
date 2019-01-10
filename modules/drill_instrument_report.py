@@ -126,10 +126,10 @@ class DrillInstruments(BasicFunctions):
             print(item, ':', self.drill_data[item])
         confirm = input("\nПроверьте корректность ввода данных,\
 если данные введены верно введите 'Y': ")
-        if confirm.lowwer() == 'y' and results_exist:
+        if confirm.lower() == 'y' and results_exist:
             self._save_drill_report()
             print("Отчет по инструменту создан.")
-        elif confirm.lowwer() == 'y' and not results_exist:
+        elif confirm.lower() == 'y' and not results_exist:
             self._save_drill_report_to_temp()
             print("Отчет по инструменту создан.")
         else:
