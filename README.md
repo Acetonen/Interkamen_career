@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.12.0
+### ver 1.13.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -43,6 +43,18 @@ Please email to acetonen@gmail.com for details on our code of conduct, and the p
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
+### what's new in 1.13.0:
+MINOR:
+1. Add threads to source file.
+2. Add Autosum in drill passports.
+3. Add event to show threads results.
+4. Add thread to main report backup.
+PATCH:
+1. Tomorrow ITR list.
+2. Fix corrupted log file.
+3. Self destruction password check fix.
+4. English literals in variant options.
+5. Fix temp_drill_instrument_report bug.
 ### what's new in 1.12.0:
 MINOR:
 1. Add 'bcrypt' password hashing.
