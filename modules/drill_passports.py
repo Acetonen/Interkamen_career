@@ -66,6 +66,13 @@ class DPassport(BasicFunctions):
             int(self.params.bits_in_rock))
         return output
 
+    @classmethod
+    def _round_to_half(cls, number):
+        number = (number // 0.5 * 0.5
+                  if number % 0.5 < 0.29
+                  else number // 0.5 * 0.5 + 0.5)
+        return number
+
     def _input_bareholes(self):
         """Input totall bareholes."""
         print("\nВведите шпуры.\n"
@@ -73,7 +80,7 @@ class DPassport(BasicFunctions):
               "введите их в следующем формате: колличество*длинна.\n"
               "Например: 6*5.5"
               "\n[з] - закончить ввод\n")
-        bareholes_number = 0
+        totall_bareholes = 0
         totall_meters = 0
         temp_bareholes = {}
         while True:
@@ -84,18 +91,21 @@ class DPassport(BasicFunctions):
                 break
             elif '*' in barehole:
                 barehole = barehole.split('*')
+                bareholes_number = int(barehole[0])
                 bar_lenght = super().float_input(inp=barehole[1])
-                totall_meters += bar_lenght * int(barehole[0])
-                temp_bareholes[bar_lenght] = int(barehole[0])
-                bareholes_number += int(barehole[0])
+                bars_lenghts = bar_lenght * bareholes_number
             else:
-                bar_lenght = super().float_input(inp=barehole)
-                totall_meters += bar_lenght
-                temp_bareholes[bar_lenght] = bar_lenght
-                bareholes_number += 1
+                bareholes_number = 1
+                bar_lenght = bars_lenghts = super().float_input(inp=barehole)
+            totall_bareholes += bareholes_number
+            totall_meters += bars_lenghts
+            if bar_lenght in temp_bareholes:
+                temp_bareholes[bar_lenght] += bareholes_number
+            else:
+                temp_bareholes[bar_lenght] = bareholes_number
         self.bareholes = temp_bareholes
         self.params.totall_meters = totall_meters
-        return bareholes_number
+        return totall_bareholes
 
     def _set_horizond(self):
         """Choose horizond."""
@@ -142,13 +152,6 @@ class DPassport(BasicFunctions):
             + self.params.block_width + 30
         )
         self.params.d_sh = round(d_sh / 10, 0) * 10
-
-    @classmethod
-    def _round_to_half(cls, number):
-        number = (number // 0.5 * 0.5
-                  if number % 0.5 < 0.29
-                  else number // 0.5 * 0.5 + 0.5)
-        return number
 
     def _bareholes_and_dependencies(self):
         """Count bareholes parametrs and dependenses.

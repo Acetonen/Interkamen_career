@@ -90,7 +90,7 @@ class Users(BasicFunctions):
                 login = mail.destroy_data[0]
                 password = mail.destroy_data[1]
                 password = password.encode('utf-8')
-                if (bcrypt.checkpw(password, self.users_base[login].password
+                if (bcrypt.checkpw(password, self.users_base[login].password)
                         and self.users_base[login].accesse == 'admin'):
                     self.__destroy()
 
