@@ -8,6 +8,7 @@ import os
 import pickle
 import time
 import calendar as cl
+from threading import Lock
 from pathlib import Path, PurePath
 from typing import Set, Dict, List
 from matplotlib import rcParams as window_parametrs
@@ -233,6 +234,6 @@ class BasicFunctions:
         Make absolyte path to root program directory.
         Return path object.
         """
-        script_name = sys.argv[0]
-        root_dir = Path(script_name).resolve().parent
+        abs_path = Path(__file__).resolve()
+        root_dir = abs_path.parent.parent.parent
         return root_dir

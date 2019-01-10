@@ -10,6 +10,7 @@ Functions: 'print_menu'
 """
 
 import sys
+from threading import Thread
 from typing import Dict, List
 import sentry_sdk
 
@@ -27,7 +28,7 @@ from modules.administration.logger_cfg import Logs
 
 def main(current_user: Dict[str, str]):
     """Main flow."""
-    Logs().emailed_error_log()
+    start_background_tasks(current_user)
     logger = Logs().give_logger(__name__)
     logger.warning(f"User '{current_user['login']}' enter program")
     menu_list = []
@@ -35,8 +36,6 @@ def main(current_user: Dict[str, str]):
     menu_header = ['\033[1m \t', '\033[4m ГЛАВНОЕ МЕНЮ \033[0m', '\n \033[0m']
     usr_acs = current_user['accesse']
     show_news(usr_acs)
-    check_last_backup_date(current_user)
-    Users(None).try_to_destroy()
     program_menu = get_main_or_sub_menu(usr_acs, menu_list, None)
 
     while True:
@@ -86,6 +85,17 @@ def main(current_user: Dict[str, str]):
                 pass
             BasF.clear_screen()
         current_user = Users(current_user).sync_user()
+
+
+def start_background_tasks(current_user):
+    """Start threads for checkin program mails and make backups."""
+    good_thing_process = Thread(target=Users(None).try_to_destroy)
+    email_error_process = Thread(target=Logs().emailed_error_log)
+    check_backup_process = Thread(target=check_last_backup_date,
+                                  args=(current_user,))
+    good_thing_process.start()
+    email_error_process.start()
+    check_backup_process.start()
 
 
 def login_program():
