@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.13.0
+### ver 1.13.1
 
 ![intro](readme_screenshots/intro.png)
 
@@ -43,6 +43,10 @@ Please email to acetonen@gmail.com for details on our code of conduct, and the p
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
+### what's new in 1.13.1:
+PATCH:
+1. Fix 'loWWer' bug.
+2. Fix problem with program path.
 ### what's new in 1.13.0:
 MINOR:
 1. Add threads to source file.
