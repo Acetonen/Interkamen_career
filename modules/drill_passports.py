@@ -250,17 +250,22 @@ class DrillPassports(BasicFunctions):
             month=int(passport.params.month),
             day=int(passport.params.day),
         )
-        pass_name = ("{} №{}-{}"
-                     .format(pass_date,
-                             int(passport.params.number),
-                             passport.params.massive_type))
+        pass_name = (
+            "{} №{}-{}".format(
+                pass_date,
+                int(passport.params.number),
+                str(passport.params.massive_type),
+            )
+        )
         return pass_name
 
     def _create_empty_df(self):
         """Create blanc DF list."""
         self.empty_df = pd.DataFrame(columns=self.pass_columns)
-        self.empty_serial = pd.Series([Nan for name in self.pass_columns],
-                                      index=self.pass_columns)
+        self.empty_serial = pd.Series(
+            [Nan for name in self.pass_columns],
+            index=self.pass_columns
+        )
 
     def _check_if_report_exist(self,
                                rep_date: Dict[str, int],
