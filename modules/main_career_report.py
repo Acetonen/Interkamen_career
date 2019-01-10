@@ -341,8 +341,8 @@ class Reports(BasicFunctions):
     def _add_meters(self) -> float:
         """Add or sub meters."""
         add_meters = 0
-        choise = input("[Д] - добавить или отнять метры: ")
-        if choise.lower() == 'д':
+        choise = input("[A] - добавить или отнять метры: ")
+        if choise.lower() in ['a', 'а']:
             add_meters = super().float_input(msg='Введите метры: ')
         return add_meters
 
@@ -382,16 +382,16 @@ class Reports(BasicFunctions):
             AllWorkers(None).give_workers_from_shift(different_shift))
         while True:
             add_worker = input(
-                "\nДобавить работника из другой бригады? д/н: ")
-            if add_worker == 'д':
+                "\nДобавить работника из другой бригады? Y/N: ")
+            if add_worker.lowwer() == 'y':
                 worker = super().choise_from_list(other_shift_workers)
                 print(worker, '- добавлен.')
                 added_workers.append(worker)
                 other_shift_workers.remove(worker)
-            elif add_worker == 'н':
+            elif add_worker.lowwer() == 'n':
                 return added_workers
             else:
-                print("Введите 'д' или 'н'.")
+                print("Введите 'Y' или 'N'.")
 
     def _check_if_report_exist(self, shift: str, date: str):
         """Check if report exist in base"""
@@ -435,10 +435,10 @@ class Reports(BasicFunctions):
             print("Работники в данной группе:")
             for worker in worker_list:
                 print('\t', worker)
-            edit_menu_dict = {'д': self._add_salary_or_driller,
-                              'у': self._delete_salary_or_driller}
-            action_name = input("Добавить или удалить работника (д/у): ")
-            if action_name not in edit_menu_dict:
+            edit_menu_dict = {'a': self._add_salary_or_driller,
+                              'd': self._delete_salary_or_driller}
+            action_name = input("Добавить или удалить работника (A/d): ")
+            if action_name.lowwer() not in edit_menu_dict:
                 print("Вы отменили редактирование.")
                 break
             else:
@@ -533,8 +533,8 @@ class Reports(BasicFunctions):
     @classmethod
     def _enter_bonus(cls, tmp_rpt: MainReport) -> MainReport:
         """Enter monthly bonus"""
-        choise = input("Бригада победила в соревновании? Д/н: ")
-        if choise.lower() == 'д':
+        choise = input("Бригада победила в соревновании? Y/N: ")
+        if choise.lower() == 'y':
             tmp_rpt.bonuses['победа по критериям'] = True
         return tmp_rpt
 
@@ -565,8 +565,8 @@ class Reports(BasicFunctions):
 
     def _complete_main_report(self, tmp_rpt: MainReport) -> MainReport:
         """Complete main report"""
-        choise = input("Вы уверены что хотите завершить отчет? Д/н: ")
-        if choise.lower() == 'д':
+        choise = input("Вы уверены что хотите завершить отчет? Y/N: ")
+        if choise.lower() == 'y':
             tmp_rpt.count_all_workers_in_report()
             tmp_rpt.status['status'] = '\033[92m[завершен]\033[0m'
             AllWorkers(None).add_salary_to_workers(
@@ -643,7 +643,7 @@ class Reports(BasicFunctions):
                     "'\033[93m[в процессе]\033[0m'\n"
                 )
             choise = input()
-            if choise.lower() in ['e', 'E', 'е', 'Е']:
+            if choise.lower() in ['e', 'е']:
                 DumpToExl().dump_salary(self.data_base[report_name])
             elif self.user['accesse'] == 'admin' and choise == 'un':
                 self._uncomplete_main_report(report_name)

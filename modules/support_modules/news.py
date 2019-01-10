@@ -34,9 +34,9 @@ class News(BasicFunctions):
                 break
             print(new_news[0])
             new_news = new_news[1:]
-            choose = input("\n[B] - выход"
+            choose = input("\n[E] - выход"
                            "\n[ENTER] - дальше: ")
-            if choose.lower() in ['b', 'B', 'в', 'В']:
+            if choose.lower() in ['e', 'е']:
                 break
 
     def _add_news_to_user(self, user_login, news):

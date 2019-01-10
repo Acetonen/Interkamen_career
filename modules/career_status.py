@@ -124,7 +124,7 @@ class CareerStatus(BasicFunctions):
                   " число отстутствуют.")
             contin = input("Если желаете продолжить заполнение отчета "
                            "без буровзрывных работ введите 'c': ")
-            if contin not in ['c', 'C', 'с', 'С']:
+            if contin.lowwer() not in ['c', 'с']:
                 print("Составление отчета отменено.")
                 input("[ENTER] - выйти в меню.")
                 raise MainMenu
@@ -212,8 +212,8 @@ class CareerStatus(BasicFunctions):
     def _ready_to_input(cls, title: str):
         """Check if user ready to input."""
         while True:
-            ready = input(f"\nЕсли готовы ввести {title}, введите [д]: ")
-            if ready.lower() == 'д':
+            ready = input(f"\nЕсли готовы ввести {title}, введите [Y]: ")
+            if ready.lower() == 'y':
                 break
 
     def _input_strage_volume(self):
@@ -367,8 +367,8 @@ class CareerStatus(BasicFunctions):
         But user want to make changes."""
         super().clear_screen()
         ask = input("Ежедневный отчет уже сформирован и разослан руководству,"
-                    "\nВы уверены, что хоти внести корректировки? Д/н: ")
-        answer = bool(ask.lower() == 'д')
+                    "\nВы уверены, что хоти внести корректировки? Y/N: ")
+        answer = bool(ask.lower() == 'y')
         return answer
 
     def _choose_info_to_add(self, user_id):
@@ -442,9 +442,9 @@ class Statuses(BasicFunctions):
         if status:
             super().clear_screen()
             print(self.car_stat_file[status])
-            calendar = input("\n[к] - показать календарь пересменок.\n"
+            calendar = input("\n[k] - показать календарь пересменок.\n"
                              "[ENTER] - выйти: ")
-            if calendar in ['k', 'K', 'к', 'К']:
+            if calendar.lowwer() in ['k', 'к']:
                 print(self.car_stat_file[status].give_shift_calendar())
                 input('\n[ENTER] - выйти.')
         else:

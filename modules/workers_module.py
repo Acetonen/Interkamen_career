@@ -134,8 +134,8 @@ class AllWorkers(BasicFunctions):
         """Show worker penalties."""
         for pen_date in temp_worker.penalties:
             print("{} - {}".format(pen_date, temp_worker.penalties[pen_date]))
-        add = input("Добавить взыскание? Д/н: ")
-        if add.lower() == 'д':
+        add = input("Добавить взыскание? Y/N: ")
+        if add.lower() == 'y':
             temp_worker = self._add_penalties(temp_worker)
         return temp_worker
 

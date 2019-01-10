@@ -50,8 +50,8 @@ class BasicFunctions:
     def confirm_deletion(item):
         """Deletion confirmation."""
         confirm = input(
-            "Вы уверены что хотите удалить '{}'? Д/н: ".format(item))
-        if confirm.lower() == 'д':
+            "Вы уверены что хотите удалить '{}'? Y/N: ".format(item))
+        if confirm.lower() == 'y':
             confirm = True
             print("\033[91m'{}' - удален. \033[0m".format(item))
         else:

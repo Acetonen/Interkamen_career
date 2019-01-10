@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Email file"""
 
+from __future__ import annotations
+
 import imaplib
 import smtplib
 import socket
@@ -15,7 +17,7 @@ from email.mime.image import MIMEImage
 from email import encoders
 
 from typing import List, Union
-
+from pathlib import PurePath
 from modules.support_modules.standart_functions import BasicFunctions
 
 
@@ -124,8 +126,8 @@ class EmailSender(BasicFunctions):
             subject: str,
             message: str = '',
             add_html: str = None,
-            html_img: 'PurePath' = None,
-            add_file: 'PurePath' = None,
+            html_img: PurePath = None,
+            add_file: PurePath = None,
     ):
         """Compose and send email with provided info and attachments."""
         msg = MIMEMultipart()
@@ -153,7 +155,7 @@ class EmailSender(BasicFunctions):
             cls,
             msg: MIMEMultipart,
             part: MIMEBase,
-            add_file: 'PurePath',
+            add_file: PurePath,
     ):
         """Add file to html."""
         with open(add_file, 'rb') as file:
@@ -168,7 +170,7 @@ class EmailSender(BasicFunctions):
     def _add_html_to_email(
             cls, msg: MIMEMultipart,
             add_html: str,
-            html_img: 'PurePath',
+            html_img: PurePath,
     ):
         """Add HTML to email."""
         # We reference the image in the IMG SRC attribute by the

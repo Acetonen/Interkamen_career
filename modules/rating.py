@@ -64,9 +64,9 @@ class Rating(BasicFunctions):
                 if check:
                     tmp_rating[direction] = int(rating)
                     break
-        confirm = input("\n[c] - сохранить оценки."
+        confirm = input("\n[s] - сохранить оценки."
                         "\nПроверьте правильность введенных данных: ")
-        if confirm in ['c', 'C', 'с', 'С']:
+        if confirm.lowwer() == 's':
             self._save_rating(tmp_rating)
             LOGGER.warning(
                 f"User '{self.user['login']}' give rating: {rating_name}"

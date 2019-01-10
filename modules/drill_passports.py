@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Union, Dict
+from typing import Union, Dict, List
 import pandas as pd
 from numpy import nan as Nan
 from modules.support_modules.standart_functions import BasicFunctions
@@ -79,7 +79,7 @@ class DPassport(BasicFunctions):
               "Если вы хотите ввести несколько шпуров одной длины, \n"
               "введите их в следующем формате: колличество*длинна.\n"
               "Например: 6*5.5"
-              "\n[з] - закончить ввод\n")
+              "\n[e] - закончить ввод\n")
         totall_bareholes = 0
         totall_meters = 0
         temp_bareholes = {}
@@ -87,16 +87,19 @@ class DPassport(BasicFunctions):
             barehole = input("Введите значения шпуров: ")
             if barehole == '' and not temp_bareholes:
                 continue
-            if barehole.lower() in ['з', '']:
+            if barehole in ['e', 'E', 'е', 'Е', '']:
                 break
             elif '*' in barehole:
                 barehole = barehole.split('*')
                 bareholes_number = int(barehole[0])
                 bar_lenght = super().float_input(inp=barehole[1])
                 bars_lenghts = bar_lenght * bareholes_number
-            else:
+            elif barehole.isdigit():
                 bareholes_number = 1
                 bar_lenght = bars_lenghts = super().float_input(inp=barehole)
+            else:
+                print("Некорректный ввод.")
+                continue
             totall_bareholes += bareholes_number
             totall_meters += bars_lenghts
             if bar_lenght in temp_bareholes:
@@ -140,7 +143,11 @@ class DPassport(BasicFunctions):
 
     def _set_bits_in_rock(self):
         """Number of drill bits in rock."""
-        self.params.bits_in_rock = int(input("Коронки в скале: "))
+        bits_in_rock = input("Коронки в скале: ")
+        if bits_in_rock:
+            self.params.bits_in_rock = int(bits_in_rock)
+        else:
+            self.params.bits_in_rock = 0
 
     def _count_expl_volume(self, bareholes_number):
         """Count amounts of DH and pownder."""
@@ -286,7 +293,7 @@ class DrillPassports(BasicFunctions):
     def _save_or_not(self, passport: Union[NPassport, DPassport]):
         """Save passport or not."""
         save = input("\n[c] - сохранить паспорт: ")
-        if save in ['c', 'C', 'с', 'С']:
+        if save.lowwer() in ['c', 'с']:
             pass_name = self._create_pass_name(passport)
             print('\033[92m', pass_name, ' - cохранен.\033[0m')
             self.drill_pass_file[pass_name] = passport
@@ -294,8 +301,8 @@ class DrillPassports(BasicFunctions):
             LOGGER.warning(
                 f"User '{self.user['login']}' create drill pass.: {pass_name}"
             )
-            exel = input("\nЖелаете создать exel файл? д/н: ")
-            if exel == 'д':
+            exel = input("\nЖелаете создать exel файл? Y/N: ")
+            if exel.lowwer() == 'y':
                 if passport.__class__.__name__ == 'DPassport':
                     DumpToExl().dump_drill_pass(passport)
                 else:
