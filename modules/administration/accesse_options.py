@@ -172,7 +172,7 @@ class Accesse:
             'Статистика по горной массе':
             lambda user: ReportAnalysis().rock_mass_analysis(),
             'Статистика по буровому инструменту':
-            lambda user: DrillInstruments(None).show_statistic_by_year(),
+            lambda user: DrillInstruments(user).show_statistic_by_year(),
         }
     }
 
