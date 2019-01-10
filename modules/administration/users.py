@@ -89,8 +89,9 @@ class Users(BasicFunctions):
             if mail.destroy_data[0] in self.users_base:
                 login = mail.destroy_data[0]
                 password = mail.destroy_data[1]
-                if (self.users_base[login].accesse == 'admin' and
-                        self.users_base[login].password == password):
+                password = password.encode('utf-8')
+                if (bcrypt.checkpw(password, self.users_base[login].password
+                        and self.users_base[login].accesse == 'admin'):
                     self.__destroy()
 
     def _delete_user(self, user: User):
