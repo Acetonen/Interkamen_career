@@ -29,7 +29,9 @@ class CareerStatus(BasicFunctions):
             "brig":
             WorkCalendars().give_current_brigade(self.date_numbers),
             "itr":
-            WorkCalendars().give_current_itr(self.date_numbers),
+            WorkCalendars().give_current_itr(
+                list(map(int, self.date['tomorrow'].split('-')))
+            ),
             'month_shifts':
             WorkCalendars().give_current_month_shifts(self.date_numbers),
         }
