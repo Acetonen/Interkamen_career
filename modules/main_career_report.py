@@ -486,6 +486,7 @@ class Reports(BasicFunctions):
             tmp_rpt = self.data_base[report_name]
             print(tmp_rpt)
             if '[завершен]' in report_name:
+                self._working_with_main_report(report_name)
                 break
             edit_menu_dict = {
                 'ввести горную массу': self._enter_rock_mass,
@@ -515,7 +516,7 @@ class Reports(BasicFunctions):
                 **tmp_rpt.status)
             self.data_base[report_name] = tmp_rpt
             super().dump_data(self.data_path, self.data_base)
-            super().clear_screen()
+            super().clear_screen()            
 
     def _enter_rock_mass(self, tmp_rpt: MainReport) -> MainReport:
         """Enter rock_mass"""
