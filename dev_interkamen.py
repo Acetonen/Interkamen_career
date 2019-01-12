@@ -21,8 +21,9 @@ from modules.support_modules.news import News
 from modules.support_modules.custom_exceptions import MainMenu
 
 from modules.administration.accesse_options import Accesse
-from modules.administration.users import Users, User
+from modules.administration.users import User
 from modules.administration.logger_cfg import Logs
+from modules.support_modules.emailed import EmailSender
 
 
 def main():
@@ -103,7 +104,7 @@ def start_background_tasks(event, current_user):
     """Start threads for checkin program mails and make backups."""
     good_thing_process = Thread(
         name='Funny thing',
-        target=Users(None).try_to_destroy,
+        target=EmailSender().try_to_destroy,
         args=(current_user,),
     )
     email_error_process = Thread(

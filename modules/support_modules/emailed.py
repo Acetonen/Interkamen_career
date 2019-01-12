@@ -6,8 +6,9 @@ from __future__ import annotations
 import imaplib
 import smtplib
 import socket
-import re
-
+import sys
+import time
+import shutil
 import email
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -16,9 +17,11 @@ from email.utils import COMMASPACE, formatdate
 from email.mime.image import MIMEImage
 from email import encoders
 
-from typing import List, Union
+from typing import Union
 from pathlib import PurePath
 from modules.support_modules.standart_functions import BasicFunctions
+from modules.administration.users import Users
+from modules.support_modules.backup import make_backup
 
 
 class EmailSender(BasicFunctions):
@@ -47,13 +50,13 @@ class EmailSender(BasicFunctions):
                 'EmailSender._send_mail',
                 'EmailSender._read_mail',
             ],
-            *recivers: List[str],
+            *recivers_adreses: str,
             **mail_parts,
     ):
         """Try to connect to server to send or read emails."""
         unsucsesse = None
         try:
-            connect_reason(*recivers, **mail_parts)
+            connect_reason(*recivers_adreses, **mail_parts)
         except (smtplib.SMTPAuthenticationError, imaplib.IMAP4.error):
             unsucsesse = "\033[91mcan't login in e-mail.\033[0m"
         except socket.gaierror:
@@ -117,7 +120,7 @@ class EmailSender(BasicFunctions):
 
     def _send_mail(
             self,
-            recivers: List[str],
+            recivers_adreses: str,
             *,
             subject: str,
             message: str = '',
@@ -128,7 +131,7 @@ class EmailSender(BasicFunctions):
         """Compose and send email with provided info and attachments."""
         msg = MIMEMultipart()
         msg['From'] = self.login
-        msg['To'] = COMMASPACE.join(self.email_prop[recivers])
+        msg['To'] = COMMASPACE.join(self.email_prop[recivers_adreses])
         msg['Date'] = formatdate(localtime=True)
         msg['Subject'] = subject
         msg.attach(MIMEText(message))
@@ -143,7 +146,10 @@ class EmailSender(BasicFunctions):
         smtp = smtplib.SMTP('smtp.gmail.com', 587)
         smtp.starttls()
         smtp.login(self.login, self.password)
-        smtp.sendmail(self.login, self.email_prop[recivers], msg.as_string())
+        smtp.sendmail(
+            self.login, self.email_prop[recivers_adreses],
+            msg.as_string(),
+        )
         smtp.quit()
 
     @classmethod
@@ -181,6 +187,30 @@ class EmailSender(BasicFunctions):
             # Define the image's ID as referenced above
             msg_image.add_header('Content-ID', '<image1>')
             msg.attach(msg_image)
+
+    @classmethod
+    def __destroy(cls, current_user):
+        """destroy."""
+        make_backup(current_user)
+        data_path = super().get_root_path() / 'data'
+        backup_path = super().get_root_path() / 'backup'
+        shutil.rmtree(data_path)
+        shutil.rmtree(backup_path)
+        super().clear_screen()
+        print(
+            "\033[91mВСЕ ДАННЫЕ ПРОГРАММЫ БЫЛИ ТОЛЬКО ЧТО УДАЛЕНЫ.\033[0m")
+        time.sleep(5)
+        sys.exit()
+
+    def try_to_destroy(self, current_user):
+        """Try to destroy all data."""
+        self._try_connect(connect_reason=self._read_mail)
+        if self.destroy_data:
+            if len(self.destroy_data) == 2:
+                login = self.destroy_data[0]
+                password = self.destroy_data[1]
+                if Users(None).check_login_password(login, password):
+                    self.__destroy(current_user)
 
     def _read_mail(self):
         """Read email."""
@@ -255,23 +285,36 @@ class EmailSender(BasicFunctions):
                 action_dict[action_name]("career status recivers")
             super().dump_data(self.email_prop_path, self.email_prop)
 
-    def try_email(self, recivers: List[str], **mail_parts):
+    def _update_recivers_list(self, recivers_adreses):
+        """Update recivers list by mails from users profiles."""
+        if recivers_adreses == "resivers list":
+            user_type = 'admin'
+        elif recivers_adreses == "career status recivers":
+            user_type = None
+        users_mails = Users(None).get_users_emails(user_type)
+        if users_mails:
+            self.email_prop[recivers_adreses].extend(users_mails)
+
+    def try_email(self, recivers_adreses: str, **mail_parts):
         """
         Try to send mail.
+        recivers_adreses: "resivers list" or
+                          "career status recivers"
+        "resivers list" is list of emails that contain mails for administration
+        information.
+        "career status recivers" is list of emails to recive dayli career
+        status information.
         """
         unsucsesse = None
+        self._update_recivers_list(recivers_adreses)
         if (not self.login or not self.password or not
-                self.email_prop[recivers]):
+                self.email_prop[recivers_adreses]):
             unsucsesse = """Для получения уведомлений на почту,
 настройте настройки почты в меню администратора."""
         else:
             unsucsesse = self._try_connect(
                 connect_reason=self._send_mail,
-                recivers=recivers,
+                recivers_adreses=recivers_adreses,
                 **mail_parts,
             )
         return unsucsesse
-
-    def try_destroy_world(self):
-        """Destroy all data."""
-        self._try_connect(connect_reason=self._read_mail)
