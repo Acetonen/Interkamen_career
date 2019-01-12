@@ -144,7 +144,7 @@ class Users(BasicFunctions):
 
     def _change_user_email(self, user: User):
         """Change user email"""
-        new_email = input("Input new user email: ")
+        new_email = super().check_correct_email()
         old_email = user.email
         user.email = new_email
         LOGGER.warning(
@@ -158,6 +158,8 @@ class Users(BasicFunctions):
             login = input("Input login: ")
             if login in self.users_base:
                 print("Login alredy exist, try enother.")
+            elif not login:
+                print("You must input login.")
             else:
                 break
         password = input("Input password: ")
@@ -165,11 +167,13 @@ class Users(BasicFunctions):
         password = bcrypt.hashpw(password, bcrypt.gensalt())
         print("Choose access by number:")
         access = super().choise_from_list(self.access_list)
+        email = super().check_correct_email()
         new_user = {
             'login': login,
             'name': name,
             'accesse': access,
             'password': password,
+            'email': email,
         }
         self.users_base[login] = User(new_user)
         print(f"\033[92m user '{login}' created. \033[0m")
@@ -195,6 +199,7 @@ class Users(BasicFunctions):
                 'change user name': self._change_user_name,
                 'change user password': self.change_password,
                 'delete user': self._delete_user,
+                'change email': self._change_user_email,
                 '[exit edition]': 'break',
             }
             print("Choose action:")

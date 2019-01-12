@@ -21,7 +21,7 @@ from modules.support_modules.news import News
 from modules.support_modules.custom_exceptions import MainMenu
 
 from modules.administration.accesse_options import Accesse
-from modules.administration.users import Users
+from modules.administration.users import Users, User
 from modules.administration.logger_cfg import Logs
 
 
@@ -33,6 +33,7 @@ def main():
         'password': 'admin',
         'accesse': 'admin',
     }
+    current_user = User(current_user)
     show_backround_tasks_results = Event()
     start_background_tasks(
         event=show_backround_tasks_results,
