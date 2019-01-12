@@ -10,7 +10,9 @@ Functions: 'print_menu'
 """
 
 import sys
+from threading import Thread, Event
 from typing import Dict, List
+
 from modules.support_modules.hi import INTERKAMEN
 from modules.support_modules.backup import check_last_backup_date
 from modules.support_modules.standart_functions import BasicFunctions as BasF
@@ -19,7 +21,7 @@ from modules.support_modules.news import News
 from modules.support_modules.custom_exceptions import MainMenu
 
 from modules.administration.accesse_options import Accesse
-from modules.administration.users import Users, User
+from modules.administration.users import Users
 from modules.administration.logger_cfg import Logs
 
 
@@ -31,8 +33,12 @@ def main():
         'password': 'admin',
         'accesse': 'admin',
     }
-    current_user = User(current_user)
-    Logs().emailed_error_log()
+    show_backround_tasks_results = Event()
+    start_background_tasks(
+        event=show_backround_tasks_results,
+        current_user=current_user,
+    )
+
     logger = Logs().give_logger(__name__)
     logger.warning(f"User '{current_user['login']}' enter program")
     menu_list = []
@@ -40,10 +46,11 @@ def main():
     menu_header = ['\033[1m \t', '\033[4m ГЛАВНОЕ МЕНЮ \033[0m', '\n \033[0m']
     usr_acs = current_user['accesse']
     show_news(usr_acs)
-    check_last_backup_date(current_user)
     program_menu = get_main_or_sub_menu(usr_acs, menu_list, None)
 
     while True:
+        show_backround_tasks_results.set()
+        show_backround_tasks_results.clear()
         print_menu(usr_acs, menu_header, menu_nesting, program_menu)
         user_choise = input("\nВыберете действие: ")
         BasF.clear_screen()
@@ -91,15 +98,26 @@ def main():
             BasF.clear_screen()
 
 
-def login_program():
-    """Login to program and loged 'enter'"""
-    print(INTERKAMEN)
-    current_user = None
-    while current_user is None:
-        current_user = Users(None).try_to_enter_program()
-    BasF().clear_screen()
-    print(INTERKAMEN)
-    return current_user
+def start_background_tasks(event, current_user):
+    """Start threads for checkin program mails and make backups."""
+    good_thing_process = Thread(
+        name='Funny thing',
+        target=Users(None).try_to_destroy,
+        args=(current_user,),
+    )
+    email_error_process = Thread(
+        name='Error file mail',
+        target=Logs().emailed_error_log,
+        args=(event,),
+    )
+    check_backup_process = Thread(
+        name='Make backup',
+        target=check_last_backup_date,
+        args=(current_user, event)
+    )
+    good_thing_process.start()
+    email_error_process.start()
+    check_backup_process.start()
 
 
 def show_news(usr_acs: str):
