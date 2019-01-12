@@ -7,6 +7,7 @@ import sys
 import os
 import pickle
 import time
+import re
 import calendar as cl
 from pathlib import Path, PurePath
 from typing import Set, Dict, List
@@ -236,3 +237,24 @@ class BasicFunctions:
         Make absolyte path to root program directory.
         """
         return PROGRAM_PATH
+
+    @staticmethod
+    def check_correct_email() -> str:
+        """Change e-mail adress."""
+        match = True
+        new_mail = None
+        while match:
+            new_email = input("[ENTER] - cansel."
+                              "\nenter new email: ")
+            if not new_mail:
+                break
+            match = re.match(
+                r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
+                new_email
+            )
+            super().clear_screen()
+            if not match:
+                print('\033[91mbad Syntax in\033[0m ' + new_email)
+            else:
+                break
+        return new_email

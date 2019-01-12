@@ -30,6 +30,7 @@ class User(dict, BasicFunctions):
             self.accesse = 'info'
             self.login = 'empty'
             self.password = 'empty'
+            self.email = 'empty'
 
     def __getattr__(self, name):
         if name in self:
@@ -48,7 +49,8 @@ class User(dict, BasicFunctions):
 
     def __repr__(self):
         output = (f"\nname:{self.name}\nlogin:{self.login}"
-                  f"\npassword:{self.password}\naccesse:{self.accesse}")
+                  f"\npassword:{self.password}\naccesse:{self.accesse}"
+                  f"\nemail:{self.email}")
         return output
 
 
@@ -138,6 +140,15 @@ class Users(BasicFunctions):
         user.name = new_name
         LOGGER.warning(
             f"User '{self.user.login}' change name {old_name} -> {new_name}"
+        )
+
+    def _change_user_email(self, user: User):
+        """Change user email"""
+        new_email = input("Input new user email: ")
+        old_email = user.email
+        user.email = new_email
+        LOGGER.warning(
+            f"User '{self.user.login}' change email {old_email} -> {new_email}"
         )
 
     def create_new_user(self):

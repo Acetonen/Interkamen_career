@@ -98,16 +98,12 @@ class EmailSender(BasicFunctions):
 
     def _change_email(self, prop: str):
         """Change e-mail adress."""
-        new_email = input("enter new email: ")
-        match = re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
-                         new_email)
-        super().clear_screen()
-        if not match:
-            print('\033[91mbad Syntax in\033[0m ' + new_email)
-        elif prop == 'email':
+        new_email = super().check_correct_email()
+        if new_email and prop == 'email':
             self.email_prop['email'] = new_email
             print("\033[92memail changed.\033[0m")
-        elif (prop == 'resivers list' or
+        elif (new_email and
+              prop == 'resivers list' or
               prop == "career status recivers"):
             self.email_prop[prop].append(new_email)
             print("\033[92memail add.\033[0m")
@@ -215,20 +211,22 @@ class EmailSender(BasicFunctions):
                 print('\t', mail)
 
             action_dict = {
-                'change login': (self._change_email, 'email'),
-                'change password': (self._change_password, 'password'),
-                'add resiver': (self._change_email, 'resivers list'),
-                'delete resiver': (self._delete_resiver, 'resivers list'),
+                'change login':
+                lambda arg='email': self._change_email(arg),
+                'change password':
+                lambda arg='password': self._change_password(arg),
+                'add resiver':
+                lambda arg='resivers list': self._change_email(arg),
+                'delete resiver':
+                lambda arg='resivers list': self._delete_resiver(arg),
                 'exit': 'break',
             }
             print("\nChoose action:")
-            action_name = super().choise_from_list(action_dict)
-            if action_name in ['exit', '']:
+            action = super().choise_from_list(action_dict)
+            if action in ['exit', '']:
                 break
             else:
-                action = action_dict[action_name][0]
-                argument = action_dict[action_name][1]
-                action(argument)
+                action_dict[action]()
             super().dump_data(self.email_prop_path, self.email_prop)
 
     def edit_career_status_recivers(self):
