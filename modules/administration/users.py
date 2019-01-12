@@ -4,15 +4,10 @@ This module work with User class and access.
 
 """
 
-import sys
-import time
-import shutil
 import getpass
 from typing import List
 import bcrypt
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.emailed import EmailSender
-from modules.support_modules.backup import make_backup
 from modules.administration.logger_cfg import Logs
 
 
@@ -72,33 +67,6 @@ class Users(BasicFunctions):
                     parametr + ':' + self.users_base[login][parametr])
             output.append('\n')
         return ' '.join(output)
-
-    @classmethod
-    def __destroy(cls, current_user):
-        """destroy."""
-        make_backup(current_user)
-        data_path = super().get_root_path() / 'data'
-        backup_path = super().get_root_path() / 'backup'
-        shutil.rmtree(data_path)
-        shutil.rmtree(backup_path)
-        super().clear_screen()
-        print(
-            "\033[91mВСЕ ДАННЫЕ ПРОГРАММЫ БЫЛИ ТОЛЬКО ЧТО УДАЛЕНЫ.\033[0m")
-        time.sleep(5)
-        sys.exit()
-
-    def try_to_destroy(self, current_user):
-        """Try to destroy all data."""
-        mail = EmailSender()
-        mail.try_destroy_world()
-        if mail.destroy_data:
-            if mail.destroy_data[0] in self.users_base:
-                login = mail.destroy_data[0]
-                password = mail.destroy_data[1]
-                password = password.encode('utf-8')
-                if (bcrypt.checkpw(password, self.users_base[login].password)
-                        and self.users_base[login].accesse == 'admin'):
-                    self.__destroy(current_user)
 
     def _delete_user(self, user: User):
         """Delete user from database"""
@@ -251,23 +219,29 @@ class Users(BasicFunctions):
                 input('\n[ENTER] - продолжить.')
             return new_password
 
+    def check_login_password(self, login, password):
+        """Check user login and password."""
+        sucsesse_login = False
+        password = password.encode('utf-8')
+        if (login in self.users_base and
+                bcrypt.checkpw(password, self.users_base[login].password)):
+            sucsesse_login = True
+        else:
+            print("Неправильные имя пользователя или пароль.")
+        return sucsesse_login
+
     def try_to_enter_program(self):
         """
         Take user login/password input and return current user privilege
         """
         user_in = None
-        login = input("Имя пользователя: ")
-        if login in self.users_base:
-            while True:
-                password = getpass.getpass("Введите пароль: ")
-                password = password.encode('utf-8')
-                if bcrypt.checkpw(password, self.users_base[login].password):
-                    user_in = self.users_base[login]
-                    break
-                else:
-                    print("Неправильный пароль, попробуйте еще раз.")
-        else:
-            print("Такого пользователя не существует.")
+        while True:
+            login = input("Имя пользователя: ")
+            password = getpass.getpass("Введите пароль: ")
+            sucsesse_login = self.check_login_password(login, password)
+            if sucsesse_login:
+                user_in = self.users_base[login]
+                break
         return user_in
 
     def sync_user(self):
@@ -285,3 +259,20 @@ class Users(BasicFunctions):
         """Get all users list"""
         users_list = [user for user in self.users_base]
         return users_list
+
+    def get_users_emails(self, user_type=None) -> List[str]:
+        """Give users emails by user type."""
+        if user_type:
+            emails_list = [
+                self.users_base[user].email
+                for user in self.users_base
+                if self.users_base[user].email
+                and self.users_base[user].accesse == user_type
+            ]
+        else:
+            emails_list = [
+                self.users_base[user].email
+                for user in self.users_base
+                if self.users_base[user].email
+            ]
+        return emails_list
