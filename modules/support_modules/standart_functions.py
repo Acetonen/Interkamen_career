@@ -132,6 +132,18 @@ class BasicFunctions:
                 break
         return new_email
 
+    @classmethod
+    def confirm_deletion_decorator(cls, func):
+        """Decorator to confirm item deletion."""
+        def wrapper(*args, **kwargs) -> bool:
+            condition, item_name = func(*args, **kwargs)
+            if condition:
+                deleted = cls.confirm_deletion(item_name)
+            else:
+                deleted = False
+            return deleted
+        return wrapper
+
     @staticmethod
     def check_date_format(rep_date: str) -> bool:
         """Check if date format correct"""
@@ -146,7 +158,8 @@ class BasicFunctions:
         return correct
 
     @staticmethod
-    def colorise_avaliable_date(year: int, month: int,
+    def colorise_avaliable_date(year: int,
+                                month: int,
                                 av_days: Set[float]) -> str:
         """Colorise avaliable date."""
         cal = cl.TextCalendar()

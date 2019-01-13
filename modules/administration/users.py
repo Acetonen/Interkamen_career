@@ -7,14 +7,14 @@ This module work with User class and access.
 import getpass
 from typing import List
 import bcrypt
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import BasicFunctions as BasF
 from modules.administration.logger_cfg import Logs
 
 
 LOGGER = Logs().give_logger(__name__)
 
 
-class User(dict, BasicFunctions):
+class User(dict, BasF):
     """User class."""
     def __init__(self, user_dict=None):
         super().__init__()
@@ -49,7 +49,7 @@ class User(dict, BasicFunctions):
         return output
 
 
-class Users(BasicFunctions):
+class Users(BasF):
     """Users warking with program."""
 
     access_list = ['admin', 'boss', 'master', 'mechanic', 'info']
@@ -68,12 +68,21 @@ class Users(BasicFunctions):
             output.append('\n')
         return ' '.join(output)
 
-    def _delete_user(self, user: User):
+    @BasF.confirm_deletion_decorator
+    def _check_deletion(self, user: User):
         """Delete user from database"""
-        user_deleted = False
         if user.accesse == 'admin' and self._check_only_admin():
             print("If 'admin' user alone you can't delete him.")
-        elif super().confirm_deletion(user.login):
+            check = False
+        else:
+            check = True
+        return check, user.login
+
+    def _delete_user(self, user: User):
+        """delete user from database."""
+        user_deleted = False
+        deletion_approved = self._check_deletion(user)
+        if deletion_approved:
             self.users_base.pop(user.login, None)
             super().dump_data(self.data_path, self.users_base)
             user_deleted = True
