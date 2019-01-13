@@ -8,6 +8,7 @@ import os
 import pickle
 import time
 import re
+import functools
 import calendar as cl
 from pathlib import Path, PurePath
 from typing import Set, Dict, List
@@ -142,6 +143,16 @@ class BasicFunctions:
             else:
                 deleted = False
             return deleted
+        return wrapper
+
+    @classmethod
+    def set_plotter_parametrs(cls, func):
+        """Set standart window plotter parametrs."""
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            cls.make_windows_plot_param()
+            value = func(*args, **kwargs)
+            return value
         return wrapper
 
     @staticmethod

@@ -7,7 +7,7 @@ import os
 from matplotlib import pyplot as plt
 import pandas as pd
 from modules.main_career_report import Reports
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import BasicFunctions as BasF
 from modules.administration.logger_cfg import Logs
 from modules.support_modules.custom_exceptions import MainMenu
 from modules.drill_passports import DrillPassports
@@ -16,7 +16,7 @@ from modules.drill_passports import DrillPassports
 LOGGER = Logs().give_logger(__name__)
 
 
-class DrillInstruments(BasicFunctions):
+class DrillInstruments(BasF):
     """
     All information about drill instruments.
     """
@@ -165,9 +165,9 @@ class DrillInstruments(BasicFunctions):
             (all_bits1, all_bits2)
             )
 
+    @BasF.set_plotter_parametrs
     def _create_plots(self, data_by_year, shifts, bits):
         """Create plots for drill data."""
-        super().make_windows_plot_param()
 
         figure = plt.figure()
         suptitle = figure.suptitle("Отчет по буровому инструменту.",

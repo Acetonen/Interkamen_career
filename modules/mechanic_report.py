@@ -15,7 +15,7 @@ from operator import sub, add
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import BasicFunctions as BasF
 from modules.administration.logger_cfg import Logs
 from modules.support_modules.custom_exceptions import MainMenu
 
@@ -23,7 +23,7 @@ from modules.support_modules.custom_exceptions import MainMenu
 LOGGER = Logs().give_logger(__name__)
 
 
-class MechReports(BasicFunctions):
+class MechReports(BasF):
     """
     Class to work with statistic of machine maintainence.
     """
@@ -282,9 +282,9 @@ class MechReports(BasicFunctions):
         coef_df = pd.DataFrame(temp_coef_list)
         return coef_df
 
+    @BasF.set_plotter_parametrs
     def _create_reasons_plot(self, reasons_df):
         """Create statistic by reasons plots."""
-        super().make_windows_plot_param()
         figure = plt.figure()
 
         x_plan = list(range(len(self.machines)))
@@ -312,10 +312,10 @@ class MechReports(BasicFunctions):
         short_mach = [x[:3]+' '+x[-3:] for x in self.machines]
         return short_mach
 
+    @BasF.set_plotter_parametrs
     def _create_plot(self, period_coef_df, shift1_coef_df, shift2_coef_df):
         """Create statistic plots."""
         short_mach = self._create_short_mach_names()
-        super().make_windows_plot_param()
         figure = plt.figure()
         suptitle = figure.suptitle("Ремонты техники.", fontsize="x-large")
         self._create_coeff_compare(

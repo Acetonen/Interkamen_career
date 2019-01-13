@@ -135,9 +135,9 @@ class ReportAnalysis(Reports):
         stat = self.statistic(result, title1, title2)
         return stat
 
+    @Reports.set_plotter_parametrs
     def _two_plots_show(self, year, stat):
         """Combine two subplots"""
-        super().make_windows_plot_param()
         figure = plt.figure()
         suptitle = figure.suptitle("Результаты работы.", fontsize="x-large")
 
