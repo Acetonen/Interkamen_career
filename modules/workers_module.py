@@ -9,6 +9,7 @@ from typing import Dict, List
 from modules.support_modules.standart_functions import BasicFunctions
 from modules.administration.logger_cfg import Logs
 from modules.support_modules.custom_exceptions import MainMenu
+from modules.workers_salary import WorkersSalary
 
 
 LOGGER = Logs().give_logger(__name__)
@@ -130,19 +131,27 @@ class AllWorkers(BasicFunctions):
             average_sallary = round(salary_count / unzero)
             print("\033[93mСредняя з/п:\033[0m ", average_sallary, 'p.')
 
-    def _show_penalties(self, temp_worker: Worker) -> Worker:
-        """Show worker penalties."""
-        for pen_date in temp_worker.penalties:
-            print("{} - {}".format(pen_date, temp_worker.penalties[pen_date]))
-        add = input("Добавить взыскание? Y/N: ")
-        if add.lower() == 'y':
-            temp_worker = self._add_penalties(temp_worker)
+    def _change_profession(self, temp_worker: Worker) -> Worker:
+        """Change worker profession."""
+        division = temp_worker.working_place['division']
+        subdivision = temp_worker.working_place['subdivision']
+        new_profession = self._choose_profession(division, subdivision)
+        temp_worker.working_place['profession'] = new_profession
         return temp_worker
+
+    def _choose_profession(self, division, subdivision) -> str:
+        """Choose or input profession."""
+        if subdivision != 'Добычная бригада':
+            print("Выберете название профессии:")
+            new_profession = super().choise_from_list(
+                WorkersSalary().salary_list[division]
+            )
+        else:
+            new_profession = input("Введите название профессии: ")
+        return new_profession
 
     def _add_working_place(self, profession):
         """Change worker working place"""
-        if not profession:
-            profession = input("Введите название профессии: ")
         print("Выберете подразделение:")
         division = super().choise_from_list(self.interkamen)
         print("Выберете отдел:")
@@ -151,11 +160,22 @@ class AllWorkers(BasicFunctions):
         print("Выберете смену:")
         shift = super().choise_from_list(
             self.interkamen[division][subdivision])
+        if not profession:
+            profession = self._choose_profession(division, subdivision)
         working_place = {'division': division,
                          'subdivision': subdivision,
                          'profession': profession,
                          'shift': shift}
         return working_place
+
+    def _show_penalties(self, temp_worker: Worker) -> Worker:
+        """Show worker penalties."""
+        for pen_date in temp_worker.penalties:
+            print("{} - {}".format(pen_date, temp_worker.penalties[pen_date]))
+        add = input("Добавить взыскание? Y/N: ")
+        if add.lower() == 'y':
+            temp_worker = self._add_penalties(temp_worker)
+        return temp_worker
 
     def _add_worker_to_structure(self, name: str,
                                  working_place: Dict[str, str]):
@@ -237,13 +257,6 @@ class AllWorkers(BasicFunctions):
         LOGGER.warning(
             f"User '{self.user['login']}' shift worker: {temp_worker.name}"
         )
-        return temp_worker
-
-    @classmethod
-    def _change_profession(cls, temp_worker: Worker) -> Worker:
-        """Change worker profession."""
-        new_profession = input("Введите новую профессию: ")
-        temp_worker.working_place['profession'] = new_profession
         return temp_worker
 
     def edit_worker(self):
