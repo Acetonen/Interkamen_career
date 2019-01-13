@@ -287,7 +287,7 @@ class CareerStatus(BasicFunctions):
                 '> <'
             )
         unsucsesse = EmailSender().try_email(
-            recivers="career status recivers",
+            recivers_adreses="career status recivers",
             message=message,
             subject='Состояние карьера',
             add_html=html,

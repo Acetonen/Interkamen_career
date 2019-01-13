@@ -14,7 +14,6 @@ from threading import Thread, Event
 from typing import Dict, List
 
 from modules.support_modules.hi import INTERKAMEN
-from modules.support_modules.backup import check_last_backup_date
 from modules.support_modules.standart_functions import BasicFunctions as BasF
 from modules.support_modules.reminder import Reminder
 from modules.support_modules.news import News
@@ -114,7 +113,7 @@ def start_background_tasks(event, current_user):
     )
     check_backup_process = Thread(
         name='Make backup',
-        target=check_last_backup_date,
+        target=EmailSender().check_last_backup_date,
         args=(current_user, event)
     )
     good_thing_process.start()

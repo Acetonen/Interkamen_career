@@ -150,15 +150,10 @@ class Users(BasicFunctions):
         super().dump_data(self.data_path, self.users_base)
         input('\n[ENTER] - выйти')
 
-    def edit_user(self):
-        """
-        Change user parametrs.
-        """
-        print("Input number of user to edit:")
-        choosen_user = super().choise_from_list(
-            self.users_base, none_option=True)
-        super().clear_screen()
-        while choosen_user:
+    def _working_with_user(self, choosen_user):
+        """Edit choosen user."""
+        while True:
+            super().clear_screen()
             temp_user = self.users_base[choosen_user]
             print()
             print(self.users_base[choosen_user])
@@ -181,7 +176,20 @@ class Users(BasicFunctions):
                 break
             self.users_base[choosen_user] = temp_user
             super().dump_data(self.data_path, self.users_base)
+
+    def edit_user(self):
+        """
+        Change user parametrs.
+        """
+        while True:
             super().clear_screen()
+            print("Input number of user to edit:")
+            choosen_user = super().choise_from_list(
+                self.users_base, none_option=True)
+            if choosen_user:
+                self._working_with_user(choosen_user)
+            else:
+                break
 
     def change_password(self, user):
         """Changing password"""
@@ -219,17 +227,6 @@ class Users(BasicFunctions):
                 input('\n[ENTER] - продолжить.')
             return new_password
 
-    def check_login_password(self, login, password):
-        """Check user login and password."""
-        sucsesse_login = False
-        password = password.encode('utf-8')
-        if (login in self.users_base and
-                bcrypt.checkpw(password, self.users_base[login].password)):
-            sucsesse_login = True
-        else:
-            print("Неправильные имя пользователя или пароль.")
-        return sucsesse_login
-
     def try_to_enter_program(self):
         """
         Take user login/password input and return current user privilege
@@ -238,7 +235,9 @@ class Users(BasicFunctions):
         while True:
             login = input("Имя пользователя: ")
             password = getpass.getpass("Введите пароль: ")
-            sucsesse_login = self.check_login_password(login, password)
+            sucsesse_login = super().check_login_password(self.users_base,
+                                                          login,
+                                                          password)
             if sucsesse_login:
                 user_in = self.users_base[login]
                 break
@@ -259,20 +258,3 @@ class Users(BasicFunctions):
         """Get all users list"""
         users_list = [user for user in self.users_base]
         return users_list
-
-    def get_users_emails(self, user_type=None) -> List[str]:
-        """Give users emails by user type."""
-        if user_type:
-            emails_list = [
-                self.users_base[user].email
-                for user in self.users_base
-                if self.users_base[user].email
-                and self.users_base[user].accesse == user_type
-            ]
-        else:
-            emails_list = [
-                self.users_base[user].email
-                for user in self.users_base
-                if self.users_base[user].email
-            ]
-        return emails_list

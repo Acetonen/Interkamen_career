@@ -13,7 +13,6 @@ from modules.administration.logger_cfg import Logs
 from modules.administration.users import Users
 
 from modules.support_modules.emailed import EmailSender
-from modules.support_modules.backup import make_backup
 from modules.support_modules.reminder import Reminder
 from modules.support_modules.news import News
 
@@ -98,7 +97,7 @@ class Accesse:
             '\033[91m--> [databases] \033[0m': 'sub-menu',
             '\033[91m--> [reminds] \033[0m': 'sub-menu',
             '\033[91mmake backup now\033[0m':
-            lambda user: make_backup(user),
+            lambda user: EmailSender().make_backup(user),
             '\033[91mmain email settings\033[0m':
             lambda user: EmailSender().edit_main_propeties(),
             '\033[91mcareer report recivers\033[0m':

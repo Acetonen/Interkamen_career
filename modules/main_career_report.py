@@ -26,11 +26,11 @@ from typing import List, Dict
 from pprint import pprint
 from modules.workers_module import AllWorkers
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.support_modules.backup import make_backup
 from modules.support_modules.dump_to_exl import DumpToExl
 from modules.support_modules.custom_exceptions import MainMenu
 from modules.administration.logger_cfg import Logs
 from modules.drill_passports import DrillPassports
+from modules.support_modules.emailed import EmailSender
 
 
 LOGGER = Logs().give_logger(__name__)
@@ -516,7 +516,7 @@ class Reports(BasicFunctions):
                 **tmp_rpt.status)
             self.data_base[report_name] = tmp_rpt
             super().dump_data(self.data_path, self.data_base)
-            super().clear_screen()            
+            super().clear_screen()
 
     def _enter_rock_mass(self, tmp_rpt: MainReport) -> MainReport:
         """Enter rock_mass"""
@@ -580,8 +580,12 @@ class Reports(BasicFunctions):
                 f"User '{self.user['login']}' complete main report: "
                 + f"{tmp_rpt.status['date']}"
             )
-            backup_data = Thread(target=make_backup, args=(self.user,))
+            backup_data = Thread(
+                target=EmailSender().make_backup,
+                args=(self.user,)
+            )
             backup_data.start()
+            LOGGER.warning(f"User '{self.user['login']}' Make backup.")
         return tmp_rpt
 
     def _make_status_in_process(self, report_name: str):
@@ -621,10 +625,10 @@ class Reports(BasicFunctions):
 
     def _choose_by_year(self) -> int:
         """Choose reports by year."""
-        years = set([
+        years = {
             report.split('-')[0]
             for report in self.data_base
-        ])
+        }
         print("Выберете год:")
         year = super().choise_from_list(years, none_option=True)
         if not year:

@@ -3,25 +3,32 @@
 
 from __future__ import annotations
 
-import imaplib
-import smtplib
-import socket
 import sys
 import time
 import shutil
+
+from typing import Union, List
+from pathlib import PurePath, Path
+from datetime import datetime, date
+
+import imaplib
+import smtplib
+import socket
 import email
+from email import encoders
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
-from email.utils import COMMASPACE, formatdate
 from email.mime.image import MIMEImage
-from email import encoders
+from email.utils import COMMASPACE, formatdate
 
-from typing import Union
-from pathlib import PurePath
 from modules.support_modules.standart_functions import BasicFunctions
-from modules.administration.users import Users
-from modules.support_modules.backup import make_backup
+
+
+# Importing Logs in this module make import loop.
+# May be it is no needed here.
+# from modules.administration.logger_cfg import Logs
+# LOGGER = Logs().give_logger(__name__)
 
 
 class EmailSender(BasicFunctions):
@@ -29,7 +36,13 @@ class EmailSender(BasicFunctions):
     Class to working with e-mails.
     """
     def __init__(self):
+
+        self.data_path = super().get_root_path() / 'data'
+        self.log_file_path = super().get_root_path() / 'backup' / 'backup_log'
         self.email_prop_path = super().get_root_path() / 'data' / 'email_prop'
+        users_base_path = super().get_root_path() / 'data' / 'users_base'
+        self.users_base = super().load_data(users_base_path)
+
         self.email_prop = super().load_data(self.email_prop_path)
         if not self.email_prop:
             self.email_prop = {
@@ -39,9 +52,44 @@ class EmailSender(BasicFunctions):
             }
             super().dump_data(self.email_prop_path, self.email_prop)
 
-        self.login = self.email_prop['email']
-        self.password = self.email_prop['password']
         self.destroy_data = None
+        self.backup_log_list = []
+
+    @classmethod
+    def _add_file_to_email(
+            cls,
+            msg: MIMEMultipart,
+            part: MIMEBase,
+            add_file: PurePath,
+    ):
+        """Add file to html."""
+        with open(add_file, 'rb') as file:
+            part.set_payload(file.read())
+        encoders.encode_base64(part)
+        part.add_header(
+            'Content-Disposition',
+            'attachment; filename="{}"'.format(add_file.name))
+        msg.attach(part)
+
+    @classmethod
+    def _add_html_to_email(
+            cls, msg: MIMEMultipart,
+            add_html: str,
+            html_img: PurePath,
+    ):
+        """Add HTML to email."""
+        # We reference the image in the IMG SRC attribute by the
+        # ID we give it below
+        # <b>Some <i>HTML</i> text</b> and an image.<br>\
+        # <img src="cid:image1"><br>Nifty!
+        msg_html = MIMEText(add_html, 'html')
+        msg.attach(msg_html)
+        if html_img:
+            with open(html_img, 'rb') as image:
+                msg_image = MIMEImage(image.read())
+            # Define the image's ID as referenced above
+            msg_image.add_header('Content-ID', '<image1>')
+            msg.attach(msg_image)
 
     @classmethod
     def _try_connect(
@@ -83,6 +131,19 @@ class EmailSender(BasicFunctions):
                     # the parts
                     break
         return body
+
+    def __destroy(self, current_user):
+        """destroy."""
+        self.make_backup(current_user)
+        data_path = super().get_root_path() / 'data'
+        backup_path = super().get_root_path() / 'backup'
+        shutil.rmtree(data_path)
+        shutil.rmtree(backup_path)
+        super().clear_screen()
+        print(
+            "\033[91mВСЕ ДАННЫЕ ПРОГРАММЫ БЫЛИ ТОЛЬКО ЧТО УДАЛЕНЫ.\033[0m")
+        time.sleep(5)
+        sys.exit()
 
     def _delete_resiver(self, prop: str):
         """Delete  resiver from send list"""
@@ -130,7 +191,7 @@ class EmailSender(BasicFunctions):
     ):
         """Compose and send email with provided info and attachments."""
         msg = MIMEMultipart()
-        msg['From'] = self.login
+        msg['From'] = self.email_prop['email']
         msg['To'] = COMMASPACE.join(self.email_prop[recivers_adreses])
         msg['Date'] = formatdate(localtime=True)
         msg['Subject'] = subject
@@ -145,78 +206,19 @@ class EmailSender(BasicFunctions):
 
         smtp = smtplib.SMTP('smtp.gmail.com', 587)
         smtp.starttls()
-        smtp.login(self.login, self.password)
+        smtp.login(self.email_prop['email'], self.email_prop['password'])
         smtp.sendmail(
-            self.login, self.email_prop[recivers_adreses],
+            self.email_prop['email'], self.email_prop[recivers_adreses],
             msg.as_string(),
         )
         smtp.quit()
-
-    @classmethod
-    def _add_file_to_email(
-            cls,
-            msg: MIMEMultipart,
-            part: MIMEBase,
-            add_file: PurePath,
-    ):
-        """Add file to html."""
-        with open(add_file, 'rb') as file:
-            part.set_payload(file.read())
-        encoders.encode_base64(part)
-        part.add_header(
-            'Content-Disposition',
-            'attachment; filename="{}"'.format(add_file.name))
-        msg.attach(part)
-
-    @classmethod
-    def _add_html_to_email(
-            cls, msg: MIMEMultipart,
-            add_html: str,
-            html_img: PurePath,
-    ):
-        """Add HTML to email."""
-        # We reference the image in the IMG SRC attribute by the
-        # ID we give it below
-        # <b>Some <i>HTML</i> text</b> and an image.<br>\
-        # <img src="cid:image1"><br>Nifty!
-        msg_html = MIMEText(add_html, 'html')
-        msg.attach(msg_html)
-        if html_img:
-            with open(html_img, 'rb') as image:
-                msg_image = MIMEImage(image.read())
-            # Define the image's ID as referenced above
-            msg_image.add_header('Content-ID', '<image1>')
-            msg.attach(msg_image)
-
-    @classmethod
-    def __destroy(cls, current_user):
-        """destroy."""
-        make_backup(current_user)
-        data_path = super().get_root_path() / 'data'
-        backup_path = super().get_root_path() / 'backup'
-        shutil.rmtree(data_path)
-        shutil.rmtree(backup_path)
-        super().clear_screen()
-        print(
-            "\033[91mВСЕ ДАННЫЕ ПРОГРАММЫ БЫЛИ ТОЛЬКО ЧТО УДАЛЕНЫ.\033[0m")
-        time.sleep(5)
-        sys.exit()
-
-    def try_to_destroy(self, current_user):
-        """Try to destroy all data."""
-        self._try_connect(connect_reason=self._read_mail)
-        if self.destroy_data:
-            if len(self.destroy_data) == 2:
-                login = self.destroy_data[0]
-                password = self.destroy_data[1]
-                if Users(None).check_login_password(login, password):
-                    self.__destroy(current_user)
 
     def _read_mail(self):
         """Read email."""
         data = None
         imap = imaplib.IMAP4_SSL('imap.gmail.com')
-        imap.login(self.login, self.password)  # Login to server.
+        # Login to server.
+        imap.login(self.email_prop['email'], self.email_prop['password'])
         recipient_folder = 'INBOX'  # Choose recipient folder.
         imap.select(recipient_folder)
         sender = 'acetonen@gmail.com'  # Choose sender.
@@ -229,6 +231,45 @@ class EmailSender(BasicFunctions):
         imap.logout()
         if data:
             self.destroy_data = data.split('\r\n')[:2]
+
+    def _get_users_emails(self, user_type=None) -> List[str]:
+        """Give users emails by user type."""
+        if user_type:
+            emails_list = [
+                self.users_base[user].email
+                for user in self.users_base
+                if self.users_base[user].email
+                and self.users_base[user].accesse == user_type
+            ]
+        else:
+            emails_list = [
+                self.users_base[user].email
+                for user in self.users_base
+                if self.users_base[user].email
+            ]
+        return emails_list
+
+    def _update_recivers_list(self, recivers_adreses):
+        """Update recivers list by mails from users profiles."""
+        if recivers_adreses == "resivers list":
+            user_type = 'admin'
+        elif recivers_adreses == "career status recivers":
+            user_type = None
+        users_mails = self._get_users_emails(user_type)
+        if users_mails:
+            self.email_prop[recivers_adreses].extend(users_mails)
+
+    def try_to_destroy(self, current_user):
+        """Try to destroy all data."""
+        self._try_connect(connect_reason=self._read_mail)
+        if self.destroy_data:
+            if len(self.destroy_data) == 2:
+                login = self.destroy_data[0]
+                password = self.destroy_data[1]
+                if super().check_login_password(self.users_base,
+                                                login,
+                                                password):
+                    self.__destroy(current_user)
 
     def edit_main_propeties(self):
         """Edit email settings."""
@@ -285,15 +326,44 @@ class EmailSender(BasicFunctions):
                 action_dict[action_name]("career status recivers")
             super().dump_data(self.email_prop_path, self.email_prop)
 
-    def _update_recivers_list(self, recivers_adreses):
-        """Update recivers list by mails from users profiles."""
-        if recivers_adreses == "resivers list":
-            user_type = 'admin'
-        elif recivers_adreses == "career status recivers":
-            user_type = None
-        users_mails = Users(None).get_users_emails(user_type)
-        if users_mails:
-            self.email_prop[recivers_adreses].extend(users_mails)
+    def make_backup(self, user, event=None):
+        """Make backup file."""
+        current_date = str(date.today())
+        backup_path = Path('backup') / current_date
+        shutil.make_archive(backup_path, 'zip', self.data_path)
+        self.backup_log_list.append(current_date)
+        super().dump_data(self.log_file_path, self.backup_log_list)
+        # LOGGER.warning(f"User '{user['login']}' Make backup.")
+        unsucsesse = self.try_email(
+            recivers_adreses='resivers list',
+            subject='Data backup',
+            message='Data backup for ' + current_date,
+            add_file=(
+                super().get_root_path()
+                .joinpath(backup_path)
+                .with_suffix('.zip')
+            ),
+        )
+        if event:
+            event.wait()
+            print("\033[5m\033[1mBackup done.\033[0m")
+            if unsucsesse:
+                print(unsucsesse)
+
+    def check_last_backup_date(self, user, event=None):
+        """Check last backup date"""
+        if self.log_file_path.exists():
+            self.backup_log_list = super().load_data(self.log_file_path)
+            last_backup_date = self.backup_log_list[-1]
+            last_data = datetime.strptime(
+                last_backup_date.rstrip(),
+                '%Y-%m-%d'
+            )
+            delta = datetime.now() - last_data
+            if delta.days > 30:
+                self.make_backup(user, event=event)
+        else:
+            self.make_backup(user, event=event)
 
     def try_email(self, recivers_adreses: str, **mail_parts):
         """
@@ -307,8 +377,9 @@ class EmailSender(BasicFunctions):
         """
         unsucsesse = None
         self._update_recivers_list(recivers_adreses)
-        if (not self.login or not self.password or not
-                self.email_prop[recivers_adreses]):
+        if (not self.email_prop['email'] or
+                not self.email_prop['password'] or
+                not self.email_prop[recivers_adreses]):
             unsucsesse = """Для получения уведомлений на почту,
 настройте настройки почты в меню администратора."""
         else:
