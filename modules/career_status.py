@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Everyday career status."""
 
+from threading import Thread
 from itertools import zip_longest
 from datetime import date, timedelta
 from modules.support_modules.standart_functions import BasicFunctions
@@ -98,6 +99,26 @@ class CareerStatus(BasicFunctions):
         output = output.replace(
             'None', '\033[91m<Информация отсутствует>\033[0m')
         return output
+
+    @classmethod
+    def _create_plan_html(cls, works_list):
+        """Create HTML table for plan works."""
+        try:
+            works_list = ['</td><td>'.join((x, y, z, n))
+                          for (x, y, z, n) in works_list]
+        except ValueError:
+            works_list = ['</td><td>'.join(('-', '-', '-', '-'))]
+        works_list = '</td></tr><tr align="center"><td>'.join(works_list)
+        plan_table = '<tr align="center"><td>' + works_list + '</td></tr>'
+        return plan_table
+
+    @classmethod
+    def _ready_to_input(cls, title: str):
+        """Check if user ready to input."""
+        while True:
+            ready = input(f"\nЕсли готовы ввести {title}, введите [Y]: ")
+            if ready.lower() == 'y':
+                break
 
     def _format_works_list(self, works_kind: str) -> str:
         """Format planed works list to output."""
@@ -208,14 +229,6 @@ class CareerStatus(BasicFunctions):
             work_list.append('Не запланированы.')
         self.works_plan['rock_work'] = work_list
 
-    @classmethod
-    def _ready_to_input(cls, title: str):
-        """Check if user ready to input."""
-        while True:
-            ready = input(f"\nЕсли готовы ввести {title}, введите [Y]: ")
-            if ready.lower() == 'y':
-                break
-
     def _input_strage_volume(self):
         """Add rocks from storage."""
         print("Введите объем склада:")
@@ -270,7 +283,11 @@ class CareerStatus(BasicFunctions):
         """Check mechanics and master data."""
         if self.mach["to_repare"] and self.works_plan["rock_work"]:
             html = self._create_html_status()
-            self._try_to_emailed_status(name, html)
+            emailed_status = Thread(
+                target=self._try_to_emailed_status,
+                args=(name, html)
+            )
+            emailed_status.start()
 
     def _try_to_emailed_status(self, name: str, html: str):
         """Try to send status via email."""
@@ -336,18 +353,6 @@ class CareerStatus(BasicFunctions):
         contact_table = '<br />'.join(contact_table)
         table = '<p>' + contact_table + '</p>'
         return table
-
-    @classmethod
-    def _create_plan_html(cls, works_list):
-        """Create HTML table for plan works."""
-        try:
-            works_list = ['</td><td>'.join((x, y, z, n))
-                          for (x, y, z, n) in works_list]
-        except ValueError:
-            works_list = ['</td><td>'.join(('-', '-', '-', '-'))]
-        works_list = '</td></tr><tr align="center"><td>'.join(works_list)
-        plan_table = '<tr align="center"><td>' + works_list + '</td></tr>'
-        return plan_table
 
     def _create_mach_html(self):
         """Create HTML table from machine list."""
