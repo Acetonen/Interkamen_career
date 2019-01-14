@@ -4,14 +4,18 @@
 import os
 import time
 from datetime import date, timedelta
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import (BasicFunctionsS as
+                                                        BasF_S)
 from modules.main_career_report import Reports
 from modules.mechanic_report import MechReports
 from modules.support_modules.custom_exceptions import MainMenu
 
 
-class Reminder(BasicFunctions):
+class Reminder(BasF_S):
     """Make different reminder."""
+
+    __slots__ = ['reminder_path', 'remind_by_access',
+                 'reminder_path', 'reminder_file']
 
     def __init__(self):
         self.reminder_path = super().get_root_path() / 'data' / 'reminds'

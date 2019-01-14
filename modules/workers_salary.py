@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Count and change workers salsry."""
 
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as Bas_F)
 
 
-class WorkersSalary(BasicFunctions):
+class WorkersSalary(Bas_F):
     """
     Count and manage workers salary.
     """
+
+    __slots__ = ['salary_list_path', 'salary_list']
 
     def __init__(self):
         self.salary_list_path = (

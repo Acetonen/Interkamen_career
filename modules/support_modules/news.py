@@ -6,11 +6,14 @@ News module. Show news for users.
 """
 
 import os
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import (BasicFunctions
+                                                        as BasF_S)
 
 
-class News(BasicFunctions):
+class News(BasF_S):
     """Show news to users."""
+
+    __slots__ = ['news_path', 'news_memory', 'news_memory_file']
 
     def __init__(self):
         # Path for news files.

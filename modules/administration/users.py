@@ -7,14 +7,15 @@ This module work with User class and access.
 import getpass
 from typing import List
 import bcrypt
-from modules.support_modules.standart_functions import BasicFunctions as BasF
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as BasF_S)
 from modules.administration.logger_cfg import Logs
 
 
 LOGGER = Logs().give_logger(__name__)
 
 
-class User(dict, BasF):
+class User(dict, BasF_S):
     """User class."""
     def __init__(self, user_dict=None):
         super().__init__()
@@ -49,8 +50,10 @@ class User(dict, BasF):
         return output
 
 
-class Users(BasF):
+class Users(BasF_S):
     """Users warking with program."""
+
+    __slots__ = ['data_path', 'user', 'users_base']
 
     access_list = ['admin', 'boss', 'master', 'mechanic', 'info']
 
@@ -68,7 +71,7 @@ class Users(BasF):
             output.append('\n')
         return ' '.join(output)
 
-    @BasF.confirm_deletion_decorator
+    @BasF_S.confirm_deletion_decorator
     def _check_deletion(self, user: User):
         """Delete user from database"""
         if user.accesse == 'admin' and self._check_only_admin():

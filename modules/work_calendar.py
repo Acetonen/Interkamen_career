@@ -4,15 +4,19 @@
 import calendar as cl
 from typing import Tuple, List
 from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as Bas_F)
 from modules.support_modules.custom_exceptions import MainMenu
 
 
-class WCalendar(BasicFunctions):
+class WCalendar(Bas_F):
     """Career working calendar ofr current year."""
 
-    month_prnt = ''
+    __slots__ = ['year', 'working_days_in_month', 'month_prnt',
+                 'month_length', 'br_cal', 'itr_cal']
 
     def __init__(self, year: int):
+        self.month_prnt = ''
         self.year = year
         shifts = ["Смена 1", "Смена 2"]
         print("Выберете смену БРИГАДЫ"

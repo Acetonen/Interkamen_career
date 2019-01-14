@@ -22,8 +22,8 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.utils import COMMASPACE, formatdate
 
-from modules.support_modules.standart_functions import BasicFunctions
-
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as BasF_S)
 
 # Importing Logs in this module make import loop.
 # May be it is no needed here.
@@ -31,10 +31,14 @@ from modules.support_modules.standart_functions import BasicFunctions
 # LOGGER = Logs().give_logger(__name__)
 
 
-class EmailSender(BasicFunctions):
+class EmailSender(BasF_S):
     """
     Class to working with e-mails.
     """
+
+    __slots__ = ['data_path', 'log_file_path', 'email_prop_path', 'users_base',
+                 'destroy_data', 'backup_log_list', 'email_prop']
+
     def __init__(self):
 
         self.data_path = super().get_root_path() / 'data'

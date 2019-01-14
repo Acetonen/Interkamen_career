@@ -8,11 +8,14 @@ import logging.handlers
 from typing import Dict, List
 from sentry_sdk import capture_message
 from modules.support_modules.emailed import EmailSender
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as BasF_S)
 
 
-class Logs(BasicFunctions):
+class Logs(BasF_S):
     """Setup different handlers to logs."""
+
+    __slots__ = ['log_path', 'error_log_path', 'log_file']
 
     def __init__(self):
         self.log_path = super().get_root_path() / 'data' / 'file.log'
@@ -26,10 +29,13 @@ class Logs(BasicFunctions):
         """Send error log to email."""
         handler = logging.handlers.SMTPHandler(
             mailhost=('smtp.gmail.com', 587),
-            fromaddr=EmailSender().login,
+            fromaddr=EmailSender().email_prop['email'],
             toaddrs=['acetonen@gmail.com'],
             subject='ERROR',
-            credentials=(EmailSender().login, EmailSender().password),
+            credentials=(
+                EmailSender().email_prop['email'],
+                EmailSender().email_prop['password'],
+            ),
             secure=(),
         )
         handler.setLevel(logging.ERROR)
@@ -70,7 +76,10 @@ class Logs(BasicFunctions):
         try:
             smtp = smtplib.SMTP('smtp.gmail.com', 587)
             smtp.starttls()
-            smtp.login(EmailSender().login, EmailSender().password)
+            smtp.login(
+                EmailSender().email_prop['email'],
+                EmailSender().email_prop['password'],
+            )
         except (smtplib.SMTPAuthenticationError,
                 socket.gaierror,
                 ConnectionResetError):
@@ -95,7 +104,7 @@ class Logs(BasicFunctions):
             log = self.error_log_path.read_text(encoding='utf-8')
             capture_message(log)
             unsucsesse = EmailSender().try_email(
-                recivers='resivers list',
+                recivers_adreses='resivers list',
                 subject="ERROR",
                 message=log,
             )

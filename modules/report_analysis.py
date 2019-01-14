@@ -15,11 +15,14 @@ class ReportAnalysis(Reports):
     """
     Class to anilise and visualisate data from reports.
     """
+
+    __slots__ = ['base', 'shifts']
+
     statistic = namedtuple('Statistic', ['result', 'title1', 'title2'])
     horizonts = ['+108', '+114', '+120', '+126', '+132']
     month_list = ['01', '02', '03', '04', '05', '06',
                   '07', '08', '09', '10', '11', '12']
-    shifts = ['Смена 1', 'Смена 2']
+
     by_horizont = {
         'res': {
             '+108': [],
@@ -64,6 +67,7 @@ class ReportAnalysis(Reports):
 
     def __init__(self):
         super().__init__(None)
+        self.shifts = ['Смена 1', 'Смена 2']
         self.base = super().load_data(self.data_path)
 
     @classmethod

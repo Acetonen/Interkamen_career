@@ -314,7 +314,7 @@ class DrillPassports(BasF_S):
             )
             exel = input("\nЖелаете создать exel файл? Y/N: ")
             if exel.lower() == 'y':
-                if passport.__class__.__name__ == 'DPassport':
+                if passport.__class__.__name__ == 'DPassportS':
                     DumpToExl().dump_drill_pass(passport)
                 else:
                     DumpToExl().dump_drill_pass(passport,
@@ -369,7 +369,7 @@ class DrillPassports(BasF_S):
         passports_list = [
             self.drill_pass_file[passport]
             for passport in self.drill_pass_file
-            if self.drill_pass_file[passport].__class__.__name__ == 'DPassport'
+            if self.drill_pass_file[passport].__class__.__name__ == 'DPassportS'
             and passport.split(' ')[0] == pdate
         ]
         return passports_list

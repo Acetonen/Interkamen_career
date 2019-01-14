@@ -5,11 +5,15 @@ import os
 import time
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as BasF_S)
 
 
-class DumpToExl(BasicFunctions):
+class DumpToExl(BasF_S):
     """Dump data to xlsx file."""
+
+    __slots__ = ()
+
     months = [
         '', 'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
         'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'

@@ -5,7 +5,8 @@ This module contain class that provide working with brigade rating.
 
 from copy import deepcopy
 import pandas as pd
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as Bas_F)
 from modules.mechanic_report import MechReports
 from modules.main_career_report import Reports
 from modules.administration.logger_cfg import Logs
@@ -15,19 +16,23 @@ from modules.support_modules.custom_exceptions import MainMenu
 LOGGER = Logs().give_logger(__name__)
 
 
-class Rating(BasicFunctions):
+class Rating(Bas_F):
     """Working with ratings in DataFrame."""
+
+    __slots__ = ['brig_rating_path', 'totl_res', 'user',
+                 'temp_res', 'brig_rating_file']
 
     brig_columns = ['year', 'month', 'shift', 'cleanness', 'discipline',
                     'roads', 'maintain', 'user']
     shifts = ['Смена 1', 'Смена 2']
-    temp_res = {
-        'критерий': [],
-        'Смена 1': [],
-        'Смена 2': []
-    }
+
 
     def __init__(self, user):
+        self.temp_res = {
+            'критерий': [],
+            'Смена 1': [],
+            'Смена 2': []
+        }
         self.brig_rating_path = (
             super().get_root_path() / 'data' / 'brig_rating')
         self.user = user
