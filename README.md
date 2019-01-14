@@ -1,5 +1,5 @@
 # Interkamen Program 
-### ver 1.13.1
+### ver 1.14.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -43,6 +43,19 @@ Please email to acetonen@gmail.com for details on our code of conduct, and the p
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
+### what's new in 1.14.0:
+MINOR:
+1. Merge backup module with email.
+2. Add thread into status sender.
+3. New non-brigade worker profession choosing from list.
+4. Migrate users base for sample data.o
+5. Add confirm_deletion_decorator in basic functions.
+6. Add set_plotter_parametrs to standard functions.
+7. Migrate all modules to __slots__.
+PATCH:
+1. Immediately working with main report after complete.
+2. Add check_correcct_email into standard functions.
+3. Add change user email.
 ### what's new in 1.13.1:
 PATCH:
 1. Fix 'loWWer' bug.
