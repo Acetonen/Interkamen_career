@@ -3,10 +3,16 @@
 This module containe classes that provide accesse to information about workers.
 
 """
+
+
+from __future__ import annotations
+
+
 from pprint import pprint
 from datetime import date
 from typing import Dict, List
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as BasF_S)
 from modules.administration.logger_cfg import Logs
 from modules.support_modules.custom_exceptions import MainMenu
 from modules.workers_salary import WorkersSalary
@@ -14,16 +20,12 @@ from modules.workers_salary import WorkersSalary
 
 LOGGER = Logs().give_logger(__name__)
 
-
-class Worker():
+class WorkerS(BasF_S):
     """Particular worker"""
 
-    telefone_number = ''
-    employing_lay_off_dates = {'employing': '',
-                               'lay_off': ''}
-    salary = {}
-    penalties = {}
-    contributions = {}
+    __slots__ = ['name', 'working_place', 'telefone_number',
+                 'employing_lay_off_dates', 'salary', 'penalties',
+                 'contributions']
 
     def __init__(self, name, working_place):
         self.name = name
@@ -32,8 +34,19 @@ class Worker():
         #                  'subdivision': subdivision,
         #                  'profession': profession,
         #                  'shift': shift}
+        self.telefone_number = ''
+        self.employing_lay_off_dates = {'employing': '',
+                                        'lay_off': ''}
+        self.salary = {}
+        self.penalties = {}
+        self.contributions = {}
 
     def __repr__(self):
+        # For old data in DB:
+        if not self.employing_lay_off_dates:
+            self.employing_lay_off_dates = {'employing': '',
+                                            'lay_off': ''}
+
         output = ("ФИО: {}\n".format(self.name)
                   + """Подразделение: {division}
 Служба: {subdivision}
@@ -46,8 +59,12 @@ class Worker():
         return output
 
 
-class AllWorkers(BasicFunctions):
+class AllWorkers(BasF_S):
     """Infofmation about all workers and tools to manipulate."""
+
+    __slots__ = ['user', 'workers_base_path', 'workers_archive_path',
+                 'comp_structure_path', 'workers_base', 'workers_archive',
+                 'comp_structure']
 
     interkamen = {
         'Карьер': {
@@ -95,14 +112,14 @@ class AllWorkers(BasicFunctions):
             self.upd_comp_structure()
 
     @classmethod
-    def _add_worker_emp_date(cls, temp_worker: Worker) -> Worker:
+    def _add_worker_emp_date(cls, temp_worker: WorkerS) -> WorkerS:
         """Add worker emp date."""
         emp_date = input("Введите дату в формате 2018-11-30: ")
         temp_worker.employing_lay_off_dates['employing'] = emp_date
         return temp_worker
 
     @classmethod
-    def _add_penalties(cls, temp_worker: Worker) -> Worker:
+    def _add_penalties(cls, temp_worker: WorkerS) -> WorkerS:
         """Add penalties to worker."""
         pen_date = input("Введите дату в формате 2018-11-30: ")
         penalti = input("Введите причину взыскания: ")
@@ -110,7 +127,7 @@ class AllWorkers(BasicFunctions):
         return temp_worker
 
     @classmethod
-    def _change_phone_number(cls, temp_worker: Worker) -> Worker:
+    def _change_phone_number(cls, temp_worker: WorkerS) -> WorkerS:
         """Change worker phone number"""
         number = input("Введите новый номер (без восьмерки): ")
         new_number = ('+7(' + number[:3] + ')' + number[3:6]
@@ -120,7 +137,7 @@ class AllWorkers(BasicFunctions):
         return temp_worker
 
     @classmethod
-    def _show_salary(cls, temp_worker: Worker):
+    def _show_salary(cls, temp_worker: WorkerS):
         """Show worker salary"""
         salary_count = 0
         for salary_date in sorted(temp_worker.salary):
@@ -131,7 +148,7 @@ class AllWorkers(BasicFunctions):
             average_sallary = round(salary_count / unzero)
             print("\033[93mСредняя з/п:\033[0m ", average_sallary, 'p.')
 
-    def _change_profession(self, temp_worker: Worker) -> Worker:
+    def _change_profession(self, temp_worker: WorkerS) -> WorkerS:
         """Change worker profession."""
         division = temp_worker.working_place['division']
         subdivision = temp_worker.working_place['subdivision']
@@ -168,7 +185,7 @@ class AllWorkers(BasicFunctions):
                          'shift': shift}
         return working_place
 
-    def _show_penalties(self, temp_worker: Worker) -> Worker:
+    def _show_penalties(self, temp_worker: WorkerS) -> WorkerS:
         """Show worker penalties."""
         for pen_date in temp_worker.penalties:
             print("{} - {}".format(pen_date, temp_worker.penalties[pen_date]))
@@ -186,7 +203,7 @@ class AllWorkers(BasicFunctions):
         self.comp_structure[division][subdivision][shift].append(name)
         super().dump_data(self.comp_structure_path, self.comp_structure)
 
-    def _change_worker_name(self, temp_worker: Worker) -> Worker:
+    def _change_worker_name(self, temp_worker: WorkerS) -> WorkerS:
         """Change worker name."""
         self._delete_worker_from_structure(temp_worker)
         self.workers_base.pop(temp_worker.name, None)
@@ -195,7 +212,7 @@ class AllWorkers(BasicFunctions):
         self._add_worker_to_structure(new_name, temp_worker.working_place)
         return temp_worker
 
-    def _delete_worker(self, temp_worker: Worker) -> None:
+    def _delete_worker(self, temp_worker: WorkerS) -> None:
         """Delete worker."""
         self._delete_worker_from_structure(temp_worker)
         self.workers_base.pop(temp_worker.name, None)
@@ -206,7 +223,7 @@ class AllWorkers(BasicFunctions):
         temp_worker = None
         return temp_worker
 
-    def _delete_worker_from_structure(self, worker: Worker):
+    def _delete_worker_from_structure(self, worker: WorkerS):
         """Delete worker name from company structure."""
         print(worker)
         division = worker.working_place['division']
@@ -215,7 +232,7 @@ class AllWorkers(BasicFunctions):
         self.comp_structure[division][subdivision][shift].remove(worker.name)
         super().dump_data(self.comp_structure_path, self.comp_structure)
 
-    def _lay_off_worker(self, temp_worker: Worker) -> Worker:
+    def _lay_off_worker(self, temp_worker: WorkerS) -> WorkerS:
         """Lay off worker and put him in archive"""
         temp_worker.employing_lay_off_dates['lay_off'] = str(date.today())
         self.workers_archive[temp_worker.name] = temp_worker
@@ -227,7 +244,7 @@ class AllWorkers(BasicFunctions):
         temp_worker = self._delete_worker(temp_worker)
         return temp_worker
 
-    def _change_worker_shift(self, temp_worker: Worker) -> Worker:
+    def _change_worker_shift(self, temp_worker: WorkerS) -> WorkerS:
         """Change worker shift."""
         self._delete_worker_from_structure(temp_worker)
         division = temp_worker.working_place['division']
@@ -245,7 +262,7 @@ class AllWorkers(BasicFunctions):
         )
         return temp_worker
 
-    def _change_working_place(self, temp_worker: Worker) -> Worker:
+    def _change_working_place(self, temp_worker: WorkerS) -> WorkerS:
         """Change worker shift."""
         self._delete_worker_from_structure(temp_worker)
         profession = temp_worker.working_place['profession']
@@ -331,7 +348,7 @@ class AllWorkers(BasicFunctions):
         """Create new worker."""
         name = input("Введите ФИО: ")
         working_place = self._add_working_place(None)
-        new_worker = Worker(name, working_place)
+        new_worker = WorkerS(name, working_place)
         self.workers_base[name] = new_worker
         super().dump_data(self.workers_base_path, self.workers_base)
         self._add_worker_to_structure(name, working_place)
