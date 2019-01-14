@@ -15,7 +15,8 @@ from operator import sub, add
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from modules.support_modules.standart_functions import BasicFunctions as BasF
+from modules.support_modules.standart_functions import (BasicFunctionsS as
+                                                        BasF_S)
 from modules.administration.logger_cfg import Logs
 from modules.support_modules.custom_exceptions import MainMenu
 
@@ -23,12 +24,14 @@ from modules.support_modules.custom_exceptions import MainMenu
 LOGGER = Logs().give_logger(__name__)
 
 
-class MechReports(BasF):
+class MechReports(BasF_S):
     """
     Class to work with statistic of machine maintainence.
     """
 
-    mech_data = {}
+    __slots__ = ['mech_path', 'maint_path', 'user', 'temp_df', 'mech_file',
+                 'mech_data', 'machines', 'maint_path', 'maint_file']
+
     machine_list = {
         'Хоз. Машина': ['УАЗ-390945', 'УАЗ-220695', 'ГАЗ-3307'],
         'Буровая': ['Commando-110', 'Commando-120'],
@@ -58,6 +61,7 @@ class MechReports(BasF):
     }
 
     def __init__(self, user):
+        self.mech_data = {}
         self.mech_path = super().get_root_path() / 'data' / 'mechanics_report'
         self.maint_path = super().get_root_path() / 'data' / 'maintainence'
         self.user = user
@@ -282,7 +286,7 @@ class MechReports(BasF):
         coef_df = pd.DataFrame(temp_coef_list)
         return coef_df
 
-    @BasF.set_plotter_parametrs
+    @BasF_S.set_plotter_parametrs
     def _create_reasons_plot(self, reasons_df):
         """Create statistic by reasons plots."""
         figure = plt.figure()
@@ -312,7 +316,7 @@ class MechReports(BasF):
         short_mach = [x[:3]+' '+x[-3:] for x in self.machines]
         return short_mach
 
-    @BasF.set_plotter_parametrs
+    @BasF_S.set_plotter_parametrs
     def _create_plot(self, period_coef_df, shift1_coef_df, shift2_coef_df):
         """Create statistic plots."""
         short_mach = self._create_short_mach_names()
