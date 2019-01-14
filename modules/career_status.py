@@ -4,7 +4,8 @@
 from threading import Thread
 from itertools import zip_longest
 from datetime import date, timedelta
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as BasF_S)
 from modules.support_modules.emailed import EmailSender
 from modules.work_calendar import WorkCalendars
 from modules.workers_module import AllWorkers
@@ -16,9 +17,10 @@ from modules.support_modules.custom_exceptions import MainMenu
 
 LOGGER = Logs().give_logger(__name__)
 
-
-class CareerStatus(BasicFunctions):
+class CareerStatusS(BasF_S):
     """Current career status."""
+    __slots__ = ['date', 'cur', 'itr_list', 'mach',
+                 'storage', 'works_plan', 'res', 'date_numbers']
 
     def __init__(self, user):
         self.date = {
@@ -419,8 +421,10 @@ class CareerStatus(BasicFunctions):
         return output
 
 
-class Statuses(BasicFunctions):
+class Statuses(BasF_S):
     """Create and save curent status reports."""
+
+    __slots__ = ['car_stat_path', 'car_stat_file', 'user']
 
     def __init__(self, user):
         self.car_stat_path = super().get_root_path() / 'data' / 'carer_status'
@@ -436,7 +440,7 @@ class Statuses(BasicFunctions):
         if str(date.today()) in self.car_stat_file:
             self.car_stat_file[str(date.today())].add_info(self.user)
         else:
-            self.car_stat_file[str(date.today())] = CareerStatus(self.user)
+            self.car_stat_file[str(date.today())] = CareerStatusS(self.user)
         super().dump_data(self.car_stat_path, self.car_stat_file)
 
     def show_status(self):
