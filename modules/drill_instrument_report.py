@@ -7,7 +7,8 @@ import os
 from matplotlib import pyplot as plt
 import pandas as pd
 from modules.main_career_report import Reports
-from modules.support_modules.standart_functions import BasicFunctions as BasF
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as BasF_S)
 from modules.administration.logger_cfg import Logs
 from modules.support_modules.custom_exceptions import MainMenu
 from modules.drill_passports import DrillPassports
@@ -16,15 +17,19 @@ from modules.drill_passports import DrillPassports
 LOGGER = Logs().give_logger(__name__)
 
 
-class DrillInstruments(BasF):
+class DrillInstruments(BasF_S):
     """
     All information about drill instruments.
     """
+
+    __slots__ = ['drill_path', 'temp_drill_path', 'user',
+                 'drill_file', 'drill_data']
+
     month_list = ['01', '02', '03', '04', '05', '06',
                   '07', '08', '09', '10', '11', '12']
-    drill_data = {}
 
     def __init__(self, user):
+        self.drill_data = {}
         self.drill_path = (
             super().get_root_path() / 'data' / 'drill_instruments')
         self.temp_drill_path = (
@@ -165,7 +170,7 @@ class DrillInstruments(BasF):
             (all_bits1, all_bits2)
             )
 
-    @BasF.set_plotter_parametrs
+    @BasF_S.set_plotter_parametrs
     def _create_plots(self, data_by_year, shifts, bits):
         """Create plots for drill data."""
 
