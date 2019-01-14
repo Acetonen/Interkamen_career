@@ -25,6 +25,9 @@ from modules.administration.logger_cfg import Logs
 from modules.support_modules.emailed import EmailSender
 
 
+BUILD_VERSION = 'ver1.14.0dev'
+
+
 def main():
     """Main flow."""
     current_user = {
@@ -126,7 +129,7 @@ def show_news(usr_acs: str):
     if usr_acs != 'info':
         News().show_new_news(usr_acs)
         BasF().clear_screen()
-        print(INTERKAMEN)
+        print(INTERKAMEN.replace('*********', BUILD_VERSION))
 
 
 def print_menu(usr_acs: str,

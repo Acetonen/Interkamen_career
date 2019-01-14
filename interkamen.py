@@ -26,6 +26,9 @@ from modules.administration.logger_cfg import Logs
 from modules.support_modules.emailed import EmailSender
 
 
+BUILD_VERSION = 'ver1.14.0dev'
+
+
 def main(current_user: Dict[str, str]):
     """Main flow."""
     show_backround_tasks_results = Event()
@@ -117,7 +120,7 @@ def start_background_tasks(event, current_user):
 
 def login_program():
     """Login to program and loged 'enter'"""
-    print(INTERKAMEN)
+    print(INTERKAMEN.replace('*********', BUILD_VERSION))
     current_user = None
     while current_user is None:
         current_user = Users(None).try_to_enter_program()
@@ -131,7 +134,7 @@ def show_news(usr_acs: str):
     if usr_acs != 'info':
         News().show_new_news(usr_acs)
         BasF().clear_screen()
-        print(INTERKAMEN)
+        print(INTERKAMEN.replace('*********', BUILD_VERSION))
 
 
 def print_menu(usr_acs: str,
