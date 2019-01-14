@@ -15,7 +15,8 @@ from typing import Dict, List
 import sentry_sdk
 
 from modules.support_modules.hi import INTERKAMEN
-from modules.support_modules.standart_functions import BasicFunctions as BasF
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as BasF_S)
 from modules.support_modules.reminder import Reminder
 from modules.support_modules.news import News
 from modules.support_modules.custom_exceptions import MainMenu
@@ -50,9 +51,9 @@ def main(current_user: Dict[str, str]):
         show_backround_tasks_results.clear()
         print_menu(usr_acs, menu_header, menu_nesting, program_menu)
         user_choise = input("\nВыберете действие: ")
-        BasF.clear_screen()
+        BasF_S.clear_screen()
 
-        if not BasF.check_number_in_range(user_choise, program_menu):
+        if not BasF_S.check_number_in_range(user_choise, program_menu):
             continue
 
         user_choise = int(user_choise) - 1  # User choise == Index
@@ -92,7 +93,7 @@ def main(current_user: Dict[str, str]):
                 action(current_user)
             except MainMenu:
                 pass
-            BasF.clear_screen()
+            BasF_S.clear_screen()
         current_user = Users(current_user).sync_user()
 
 
@@ -124,7 +125,7 @@ def login_program():
     current_user = None
     while current_user is None:
         current_user = Users(None).try_to_enter_program()
-    BasF().clear_screen()
+    BasF_S().clear_screen()
     print(INTERKAMEN)
     return current_user
 
@@ -133,7 +134,7 @@ def show_news(usr_acs: str):
     """Try to show news."""
     if usr_acs != 'info':
         News().show_new_news(usr_acs)
-        BasF().clear_screen()
+        BasF_S().clear_screen()
         print(INTERKAMEN.replace('*********', BUILD_VERSION))
 
 
