@@ -24,8 +24,9 @@ class Reports :
 from threading import Thread
 from typing import List, Dict
 from pprint import pprint
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as BasF_S)
 from modules.workers_module import AllWorkers
-from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.dump_to_exl import DumpToExl
 from modules.support_modules.custom_exceptions import MainMenu
 from modules.administration.logger_cfg import Logs
@@ -36,10 +37,14 @@ from modules.support_modules.emailed import EmailSender
 LOGGER = Logs().give_logger(__name__)
 
 
-class MainReport(BasicFunctions):
+class MainReportS(BasF_S):
     """
     Main career report.
     """
+
+    __slots__ = ['status', 'workers_showing', 'result',
+                 'bonuses', 'rock_mass', 'totall']
+
     def __init__(self, status: str, shift: str, date: str):
         self.workers_showing = {
             'бух.': {
@@ -288,10 +293,13 @@ class MainReport(BasicFunctions):
             self._add_delta_ktu_to_worker(delta_ktu, direction)
 
 
-class Reports(BasicFunctions):
+class Reports(BasF_S):
     """
     Class to manage with reports.
     """
+    __slots__ = ['user', 'data_path', 'salary_path', 'drillers_path',
+                 'brigadiers_path', 'shifts', 'salary_workers', 'drillers',
+                 'brigadiers', 'data_base']
 
     def __init__(self, user):
         self.user = user
@@ -318,7 +326,7 @@ class Reports(BasicFunctions):
             workers_hours[worker] = int(hours)
         return workers_hours
 
-    def _input_result(self, report: MainReport) -> MainReport:
+    def _input_result(self, report: MainReportS) -> MainReportS:
         """Input working result"""
         for item in report.result:
             if isinstance(report.result[item], dict):
@@ -347,7 +355,7 @@ class Reports(BasicFunctions):
             add_meters = super().float_input(msg='Введите метры: ')
         return add_meters
 
-    def _give_drill_meters(self, report: MainReport) -> float:
+    def _give_drill_meters(self, report: MainReportS) -> float:
         """Find driller and give his meters."""
         shift = report.status['shift']
         drill_meters = DrillPassports(None).count_param_from_passports(
@@ -365,7 +373,7 @@ class Reports(BasicFunctions):
                 break
         return driller
 
-    def _change_hours(self, tmp_rpt: MainReport) -> MainReport:
+    def _change_hours(self, tmp_rpt: MainReportS) -> MainReportS:
         """Change hours value."""
         print("Выберете работника для редактирования:")
         workers = tmp_rpt.workers_showing['факт']['часы']
@@ -518,7 +526,7 @@ class Reports(BasicFunctions):
             super().dump_data(self.data_path, self.data_base)
             super().clear_screen()
 
-    def _enter_rock_mass(self, tmp_rpt: MainReport) -> MainReport:
+    def _enter_rock_mass(self, tmp_rpt: MainReportS) -> MainReportS:
         """Enter rock_mass"""
         print("Введите горную массу:")
         for gorizont in sorted(tmp_rpt.rock_mass):
@@ -526,21 +534,21 @@ class Reports(BasicFunctions):
             tmp_rpt.rock_mass[gorizont] = super().float_input(msg=': ')
         return tmp_rpt
 
-    def _enter_totall(self, tmp_rpt: MainReport) -> MainReport:
+    def _enter_totall(self, tmp_rpt: MainReportS) -> MainReportS:
         """Enter totall money"""
         tmp_rpt.totall = (super()
                           .float_input(msg="Введите итоговую сумму: "))
         return tmp_rpt
 
     @classmethod
-    def _enter_bonus(cls, tmp_rpt: MainReport) -> MainReport:
+    def _enter_bonus(cls, tmp_rpt: MainReportS) -> MainReportS:
         """Enter monthly bonus"""
         choise = input("Бригада победила в соревновании? Y/N: ")
         if choise.lower() == 'y':
             tmp_rpt.bonuses['победа по критериям'] = True
         return tmp_rpt
 
-    def _change_ktu(self, tmp_rpt: MainReport) -> MainReport:
+    def _change_ktu(self, tmp_rpt: MainReportS) -> MainReportS:
         """Manualy change worker KTU"""
         print("Выберете вид КТУ:")
         ktu_option = tmp_rpt.workers_showing
@@ -565,7 +573,7 @@ class Reports(BasicFunctions):
         tmp_rpt.coutn_delta_ktu(direction)
         return tmp_rpt
 
-    def _complete_main_report(self, tmp_rpt: MainReport) -> MainReport:
+    def _complete_main_report(self, tmp_rpt: MainReportS) -> MainReportS:
         """Complete main report"""
         choise = input("Вы уверены что хотите завершить отчет? Y/N: ")
         if choise.lower() == 'y':
@@ -723,7 +731,7 @@ class Reports(BasicFunctions):
         workers_list.extend(added_workers)
         super().clear_screen()
 
-        report = MainReport('\033[91m[не завершен]\033[0m', shift, rep_date)
+        report = MainReportS('\033[91m[не завершен]\033[0m', shift, rep_date)
         workers_hours_list = self._create_workers_hours_list(workers_list)
         report.workers_showing['факт']['часы'] = workers_hours_list
         print("\nВведите результаты добычи бригады.")
