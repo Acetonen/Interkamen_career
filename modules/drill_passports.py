@@ -6,7 +6,8 @@ from __future__ import annotations
 from typing import Union, Dict, List
 import pandas as pd
 from numpy import nan as Nan
-from modules.support_modules.standart_functions import BasicFunctions
+from modules.support_modules.standart_functions import (BasicFunctionsS
+                                                        as BasF_S)
 from modules.support_modules.dump_to_exl import DumpToExl
 from modules.administration.logger_cfg import Logs
 from modules.support_modules.custom_exceptions import MainMenu
@@ -15,8 +16,10 @@ from modules.support_modules.custom_exceptions import MainMenu
 LOGGER = Logs().give_logger(__name__)
 
 
-class DPassport(BasicFunctions):
+class DPassportS(BasF_S):
     """Drill passport."""
+
+    __slots__ = ['pass_number', 'master', 'params', 'bareholes']
 
     horizonds = ['+108', '+114', '+120', '+126', '+132']
 
@@ -202,8 +205,11 @@ class DPassport(BasicFunctions):
                 edit_menu_dict[action_name]()
 
 
-class NPassport(DPassport):
+class NPassportS(DPassportS):
     """Nongabarites passport."""
+
+    __slots__ = ['nk_count']
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.nk_count = self._input_count()
@@ -222,8 +228,12 @@ class NPassport(DPassport):
         return output
 
 
-class DrillPassports(BasicFunctions):
+class DrillPassports(BasF_S):
     """Class to create and working with drill passports."""
+
+    __slots__ = ['drill_pass_path', 'user', 'drill_pass_file',
+                 'empty_serial', 'empty_df']
+
     massive_type = ['Массив', 'Повторный', 'Негабариты']
     pass_columns = [
         'number', 'year', 'month', 'day', 'horizond', 'totall_meters',
@@ -253,7 +263,8 @@ class DrillPassports(BasicFunctions):
         pass_date = "{}-{}-{}".format(year, month, day)
         return pass_date
 
-    def _create_pass_name(self, passport: Union[DPassport, NPassport]) -> str:
+    def _create_pass_name(self, passport: Union[DPassportS,
+                                                NPassportS]) -> str:
         """Create passport name."""
         pass_date = self._crerate_pass_date(
             year=int(passport.params.year),
@@ -290,7 +301,7 @@ class DrillPassports(BasicFunctions):
                 print("Паспорт с этим номером уже существует.")
         return check
 
-    def _save_or_not(self, passport: Union[NPassport, DPassport]):
+    def _save_or_not(self, passport: Union[NPassportS, DPassportS]):
         """Save passport or not."""
         save = input("\n[c] - сохранить паспорт: ")
         if save.lower() in ['c', 'с']:
@@ -313,15 +324,20 @@ class DrillPassports(BasicFunctions):
 
     def _choose_passport_from_bd(self):
         """Choose passport from BD."""
-        years = set([passp.split('-')[0] for passp in self.drill_pass_file])
+        years = {
+            passp.split('-')[0]
+            for passp in self.drill_pass_file
+        }
         print("[ENTER] - выйти."
               "\nВыберете год:")
         year = super().choise_from_list(years, none_option=True)
         if not year:
             raise MainMenu
-        months = set([
-            report.split('-')[1] for report in self.drill_pass_file
-            if report.startswith(year)])
+        months = {
+            report.split('-')[1]
+            for report in self.drill_pass_file
+            if report.startswith(year)
+        }
         print("Выберет месяц:")
         month = super().choise_from_list(months)
         if month:
@@ -348,7 +364,7 @@ class DrillPassports(BasicFunctions):
         last_number = last_passport.split(' ')[-1]
         return last_number
 
-    def give_dpassports_for_date(self, pdate: str) -> List[DPassport]:
+    def give_dpassports_for_date(self, pdate: str) -> List[DPassportS]:
         """Give list of drill passports for given date."""
         passports_list = [
             self.drill_pass_file[passport]
@@ -391,9 +407,9 @@ class DrillPassports(BasicFunctions):
         print("Выберете тип паспорта:")
         pass_type = super().choise_from_list(self.massive_type)
         if pass_type == 'Негабариты':
-            pass_blanc = NPassport
+            pass_blanc = NPassportS
         else:
-            pass_blanc = DPassport
+            pass_blanc = DPassportS
         passport = pass_blanc(
             pass_number=number,
             master=self.user['name'],
