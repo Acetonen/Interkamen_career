@@ -131,13 +131,14 @@ class WCalendar(Bas_F):
                        workers: str,
                        month: int,
                        add_day: int) -> Tuple[int]:
-        """Create begin and end dates."""
+        """Create shifts begin and end dates."""
         if workers == "brig":
-            begin = self.month_length[month] // 2 + add_day
-            end = self.month_length[month]
+            begin = 1
+            end = self.month_length[month] // 2 + 1 + add_day
             # January holydays fix.
             if month == 0:
-                begin = begin + 1
+                begin = 3
+                end = end + 1
         elif workers == "itr":
             begin = 7
             end = self.month_length[month] // 2 + 7 - add_day
