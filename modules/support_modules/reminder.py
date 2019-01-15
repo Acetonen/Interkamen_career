@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Add reminder under maim meny, different for different user access"""
+"""
+Add reminder under maim meny, different for different user access.
+
+.make_custom_remind() - make custom reminds for different users types.
+
+.show_all_reminds() - show all reminds.
+"""
 
 import os
 import time

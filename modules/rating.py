@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """
 This module contain class that provide working with brigade rating.
+
+.give_rating() - give rating to brigade from current user.
+
+.count_brigade_winner() - count brigade winner for current month.
 """
 
 from copy import deepcopy

@@ -5,20 +5,33 @@ This module for create main career report by 'master' and complate it by 'boss'
 users.
 It can count worker salary and compilate statistic of brigades results.
 
-class Reports :
- 'brigadiers_path', - path to brigadier database.
- 'check_comma_error', - check error for wrong result input (if comma in FPN).
- 'choose_salary_or_drillers', - edit salary, drillers or brigadiers workers.
- 'create_report', - create main report.
- '_create_workers_hours_list', - input workers hours.
- 'data_path', - path to main reports database.
- 'drillers_path', - path to drillers database.
- 'edit_report', - edit main report.
- 'give_avaliable_to_edit', - give reports, avaliable to edit.
- 'give_main_results', - give main results.
- 'salary_path', - path to salary workers database.
- 'shifts', - shifts list.
- 'work_with_main_report' - complete main report.
+class MainReportS:
+
+.unofficial_workers() - return list of unofficial workers.
+
+.count_result() - count totall result for brigade stones.
+
+.count_rock_mass() - count totall result for brigade rock mass.
+
+.count_all_workers_in_report() - count sallary for all workers in report.
+
+.create_ktu_list() - create list of workers KTU.
+
+.coutn_delta_ktu() - add delta KTU for worker.
+
+class Reports:
+
+.choose_salary_or_drillers() - edit drillers or sallary workers list.
+
+.give_main_results() - return brigade drill meters, result and rock_mass.
+
+.give_avaliable_to_edit() - give reports that avaliable to edit
+
+.create_report() - create new main report.
+
+.edit_report() - edition uncompleted report by user with 'master' accesse.
+
+.choose_main_report() - choose main report by year.
 """
 
 from threading import Thread

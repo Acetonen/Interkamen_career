@@ -2,11 +2,15 @@
 """
 Mechanics reports.
 
-MechReports:
- 'create_report', - create mechanics report.
- 'machine_list', - all career self.machines.
- 'show_report', - show choosen report.
- 'show_statistic' - show month or year stats.
+.create_report() - create daily mechanics report for machines status.
+
+.edit_report() - edit mechanics report.
+
+.show_statistic(): - create plot with machine stats.
+
+.maintenance_calendar() - create maintenance calendar.
+
+.walk_thrue_maint_calendar() - working with maintainence calendar.
 """
 
 from datetime import date

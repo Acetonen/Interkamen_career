@@ -2,6 +2,32 @@
 """
 This module containe classes that provide accesse to information about workers.
 
+.add_new_worker() - add new worker to company.
+
+.edit_worker() - edit all worker information.
+
+.upd_comp_structure() - update company structure scheme, for instance if you
+whant to add new division or sub-division.
+
+.print_comp_structure() - show company structure.
+
+.print_archive_workers() - show layed off workers.
+
+.add_salary_to_workers() - add salary to workers.
+
+.return_from_archive() - return worker from archive to working place.
+
+.give_workers_from_shift() - give workers from current shift.
+
+.give_workers_from_division(self) - return worker list from current division.
+
+.give_mining_workers() - give list of mining workers.
+
+.print_workers_from_division() - print workers from division.
+
+.print_telefon_numbers() - print workers telefone numbers.
+
+.show_anniversary_workers() - show anniversary workers for this year.
 """
 
 
@@ -336,6 +362,20 @@ class AllWorkers(BasF_S):
                 self.workers_base[wor].employing_lay_off_dates['employing']]))
         return temp_list
 
+    def add_new_worker(self):
+        """Create new worker."""
+        name = input("Введите ФИО: ")
+        working_place = self._add_working_place(None)
+        new_worker = WorkerS(name, working_place)
+        self.workers_base[name] = new_worker
+        super().dump_data(self.workers_base_path, self.workers_base)
+        self._add_worker_to_structure(name, working_place)
+        print(f"\033[92m Добавлен сотрудник '{name}'. \033[0m")
+        LOGGER.warning(
+            f"User '{self.user['login']}' add worker: {name}"
+        )
+        input('\n[ENTER] - выйти.')
+
     def edit_worker(self):
         """
         Edit worker information.
@@ -370,20 +410,6 @@ class AllWorkers(BasF_S):
             print(division + ':')
             pprint(self.comp_structure[division])
         input('\n[ENTER] - выйти')
-
-    def add_new_worker(self):
-        """Create new worker."""
-        name = input("Введите ФИО: ")
-        working_place = self._add_working_place(None)
-        new_worker = WorkerS(name, working_place)
-        self.workers_base[name] = new_worker
-        super().dump_data(self.workers_base_path, self.workers_base)
-        self._add_worker_to_structure(name, working_place)
-        print(f"\033[92m Добавлен сотрудник '{name}'. \033[0m")
-        LOGGER.warning(
-            f"User '{self.user['login']}' add worker: {name}"
-        )
-        input('\n[ENTER] - выйти.')
 
     def print_archive_workers(self):
         """Print layed off workers"""
@@ -437,7 +463,7 @@ class AllWorkers(BasF_S):
         return worker_list
 
     def give_workers_from_division(self) -> List[str]:
-        """Print all users from base"""
+        """Return worker list from current division."""
         division = self._choose_division()
         if not division:
             raise MainMenu

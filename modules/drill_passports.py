@@ -1,5 +1,16 @@
 #!/usr/bin/env python3.7
-"""Module to work with drill passports."""
+"""
+Module to work with drill passports.
+
+.give_dpassports_for_date() - give list of drill passports for given date.
+
+.count_param_from_passports() - count totall drill meters for current driller
+from passports.
+
+.create_drill_passport() - create new drill passport.
+
+.def edit_passport() - edit drill passport.
+"""
 
 from __future__ import annotations
 

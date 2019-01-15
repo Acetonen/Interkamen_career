@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
-"""Working calendar module."""
+"""
+Working calendar module.
+
+.create_calendar() - create calendar of workers shifts for current year.
+
+.show_year_shifts() - show shift calendar by year.
+
+.give_current_brigade() - give brigade for current date.
+
+.give_current_itr() - give ITR for current date.
+
+.give_current_month_shifts() - give shifts days for current month.
+"""
 
 import calendar as cl
 from typing import Tuple, List

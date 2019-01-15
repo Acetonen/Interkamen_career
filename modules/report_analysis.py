@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
 Module that provide to analyse and visualise MainReport data.
-classes: ReportAnalysis: result_analysis
+
+.result_analysis() - create plots for analyse brigade results.
+
+.rock_mass_analysis() - create plots for analyse brigade rock mass.
 """
 
 from collections import namedtuple

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
 News module. Show news for users.
-'_print_news' - print news at the start of program after login.
-'show_actual_news' - show news after response from menu.
+
+.show_new_news() - show new news
+
+.show_actual_news() - showing all existance news.
 """
 
 import os

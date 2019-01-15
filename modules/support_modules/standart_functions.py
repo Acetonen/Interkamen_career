@@ -1,5 +1,8 @@
 #!/usr/bin/env python3.7
-"""Frequently using functions in modules classes."""
+"""
+Frequently using functions in modules classes.
+List of different supports functions.
+"""
 
 from __future__ import annotations
 

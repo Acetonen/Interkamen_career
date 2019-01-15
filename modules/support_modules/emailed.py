@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
-"""Email file"""
+"""
+Email file.
+
+.edit_main_propeties() - edit program email propertes.
+
+.edit_career_status_recivers() - edit list of career status recivers.
+
+.make_backup() - make backup of all program data.
+
+.check_last_backup_date() - check last backup date.
+
+.try_email() - try to send email.
+"""
 
 from __future__ import annotations
 

@@ -1,4 +1,6 @@
-"""Say hi module"""
+"""
+Say hi module.
+"""
 
 INTERKAMEN = (
     '\033[35m'

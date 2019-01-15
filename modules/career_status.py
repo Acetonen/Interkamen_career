@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Everyday career status."""
+"""
+Everyday career status.
+
+.create_career_status() - create career status report from different users
+(master and mechanic)
+
+.show_status() - show career status.
+"""
 
 from threading import Thread
 from itertools import zip_longest

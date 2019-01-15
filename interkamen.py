@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
 """
 This program provides control of all data and statistic of Career Interkamen.
-
-Functions: 'print_menu'
-           'make_header'
-           'login_program'
-           'check_backup'
-           'get_main_or_sub_menu'
 """
 
 import sys
@@ -34,7 +28,7 @@ INTERKAMEN = INTERKAMEN.replace('*********', BUILD_VERSION)
 def main(current_user: Dict[str, str]):
     """Main flow."""
     show_backround_tasks_results = Event()
-    start_background_tasks(
+    _start_background_tasks(
         event=show_backround_tasks_results,
         current_user=current_user,
     )
@@ -44,13 +38,13 @@ def main(current_user: Dict[str, str]):
     menu_nesting = []
     menu_header = ['\033[1m \t', '\033[4m ГЛАВНОЕ МЕНЮ \033[0m', '\n \033[0m']
     usr_acs = current_user['accesse']
-    show_news(usr_acs)
-    program_menu = get_main_or_sub_menu(usr_acs, menu_list, None)
+    _show_news(usr_acs)
+    program_menu = _get_main_or_sub_menu(usr_acs, menu_list, None)
 
     while True:
         show_backround_tasks_results.set()
         show_backround_tasks_results.clear()
-        print_menu(usr_acs, menu_header, menu_nesting, program_menu)
+        _print_menu(usr_acs, menu_header, menu_nesting, program_menu)
         user_choise = input("\nВыберете действие: ")
         BasF_S.clear_screen()
 
@@ -63,7 +57,7 @@ def main(current_user: Dict[str, str]):
         if '-->' in menu_list[user_choise][0]:
             menu_header[1] = menu_list[user_choise][0].split(' ')[1]
             menu_nesting.append(menu_list[user_choise][0])
-            program_menu = get_main_or_sub_menu(
+            program_menu = _get_main_or_sub_menu(
                 usr_acs, menu_list,
                 sub_menu=menu_list[user_choise][0]
             )
@@ -74,13 +68,13 @@ def main(current_user: Dict[str, str]):
             menu_nesting = menu_nesting[:-1]  # Go one menu up.
             if menu_nesting:
                 menu_header[1] = menu_nesting[-1].split(' ')[1]
-                program_menu = get_main_or_sub_menu(
+                program_menu = _get_main_or_sub_menu(
                     usr_acs, menu_list,
                     sub_menu=menu_nesting[-1]
                 )
             else:
                 menu_header[1] = '\033[4m ГЛАВНОЕ МЕНЮ \033[0m'
-                program_menu = get_main_or_sub_menu(
+                program_menu = _get_main_or_sub_menu(
                     usr_acs, menu_list)
 
         # Exit program.
@@ -98,7 +92,7 @@ def main(current_user: Dict[str, str]):
         current_user = Users(current_user).sync_user()
 
 
-def start_background_tasks(event, current_user):
+def _start_background_tasks(event, current_user):
     """Start threads for checkin program mails and make backups."""
     good_thing_process = Thread(
         name='Funny thing',
@@ -120,7 +114,7 @@ def start_background_tasks(event, current_user):
     check_backup_process.start()
 
 
-def login_program():
+def _login_program():
     """Login to program and loged 'enter'"""
     print(INTERKAMEN)
     current_user = None
@@ -131,7 +125,7 @@ def login_program():
     return current_user
 
 
-def show_news(usr_acs: str):
+def _show_news(usr_acs: str):
     """Try to show news."""
     if usr_acs != 'info':
         News().show_new_news(usr_acs)
@@ -139,10 +133,10 @@ def show_news(usr_acs: str):
         print(INTERKAMEN)
 
 
-def print_menu(usr_acs: str,
-               menu_header: str,
-               menu_nesting: List[str],
-               program_menu: Dict[str, str]):
+def _print_menu(usr_acs: str,
+                menu_header: str,
+                menu_nesting: List[str],
+                program_menu: Dict[str, str]):
     """Print program menu."""
     separator = "\033[36m------------------------------\033[0m"
     print(Reminder().give_remind(usr_acs) + '\n' + separator + '\n')
@@ -155,9 +149,9 @@ def print_menu(usr_acs: str,
     print(separator)
 
 
-def get_main_or_sub_menu(usr_acs: str,
-                         menu_list: List[str],
-                         sub_menu: str = False) -> Dict[str, str]:
+def _get_main_or_sub_menu(usr_acs: str,
+                          menu_list: List[str],
+                          sub_menu: str = False) -> Dict[str, str]:
     """create main or sub-menu if sub_menu=True"""
     if sub_menu:
         program_menu = Accesse(usr_acs).get_sub_menu(sub_menu)
@@ -173,7 +167,7 @@ if __name__ == '__main__':
         "https://832241bd50f345c6bed4ecdc9524fddb@sentry.io/1362499"
     )
     try:
-        CURRENT_USER = login_program()
+        CURRENT_USER = _login_program()
         try:
             main(CURRENT_USER)
         except Exception:

@@ -2,11 +2,11 @@
 """
 This module give to program choise tree and meny depend on user access.
 
-Classes: Accesse: 'create_list',
-                  'get_menue_list',
-                  'get_actions_list'
-                  'get_actions_with_input'
-                  'get_sub_menu'
+.create_list(cls, accesse, options_list) - create menues for different users.
+
+.get_sub_menu()
+
+.get_menu_dict() - get current menu dict.
 """
 
 from modules.administration.logger_cfg import Logs

@@ -1,5 +1,25 @@
-#!/usr/bin/env python3
-"""Logging setup."""
+#!/usr/bin/env python3.7
+"""
+Manage program logs.
+
+.send_error_to_email()
+
+.save_info_to_file()
+
+.save_error_to_file() - if no internet connection
+
+.loged_error()
+
+.emailed_error_log() - emailed error file if exist.
+
+.give_logger() - create LOGGER for program module.
+
+.show_logs() - show all logs from file.
+
+.search_in_logs() - search in all logs.
+
+.delete_all_logs()
+"""
 
 import socket
 import smtplib

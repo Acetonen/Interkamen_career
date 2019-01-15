@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Count and change workers salsry."""
+"""
+Count and change workers salsry.
+
+.manage_salary_list - method, that provides to edit list of workers with
+and add salary to them.
+"""
 
 from modules.support_modules.standart_functions import (BasicFunctionsS
                                                         as Bas_F)

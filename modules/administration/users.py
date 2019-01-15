@@ -2,6 +2,19 @@
 """
 This module work with User class and access.
 
+.create_new_user() - add new user to company.
+
+.edit_user() - edit all user propertes.
+
+.change_password() - change user password.
+
+.try_to_enter_program() check user login/password.
+
+.sync_user() - sync current user with database.
+
+.show_all_users() - print all users from base.
+
+.get_all_users_list() - get list of all users.
 """
 
 import getpass
@@ -131,6 +144,54 @@ class Users(BasF_S):
             f"User '{self.user.login}' change email {old_email} -> {new_email}"
         )
 
+    def _working_with_user(self, choosen_user):
+        """Edit choosen user."""
+        while True:
+            super().clear_screen()
+            temp_user = self.users_base[choosen_user]
+            print()
+            print(self.users_base[choosen_user])
+            edit_menu_dict = {
+                'change user access': self._change_user_access,
+                'change user name': self._change_user_name,
+                'change user password': self.change_password,
+                'delete user': self._delete_user,
+                'change email': self._change_user_email,
+                '[exit edition]': 'break',
+            }
+            print("Choose action:")
+            choosen_action = super().choise_from_list(edit_menu_dict)
+
+            print()
+            if choosen_action in ['[exit edition]', '']:
+                break
+            are_user_deleted = edit_menu_dict[choosen_action](temp_user)
+            if are_user_deleted:
+                break
+            self.users_base[choosen_user] = temp_user
+            super().dump_data(self.data_path, self.users_base)
+
+    def _try_set_new_password(self, user):
+        while True:
+            new_password = getpass.getpass("Введите новый пароль: ")
+            if not new_password:
+                break
+            repeat_password = getpass.getpass("Повторите новый пароль: ")
+            if new_password == repeat_password:
+                new_password = new_password.encode('utf-8')
+                user.password = bcrypt.hashpw(new_password, bcrypt.gensalt())
+                self.users_base[user.login] = user
+                super().dump_data(self.data_path, self.users_base)
+                print("Новый пароль сохранен.")
+                LOGGER.warning(
+                    f"User '{user.login}' change password")
+                input('\n[ENTER] - продолжить.')
+                break
+            else:
+                print("Введенные пароли не совпадают.")
+                input('\n[ENTER] - продолжить.')
+            return new_password
+
     def create_new_user(self):
         """Create new user and save him in databese"""
         name = input("Input username: ")
@@ -162,33 +223,6 @@ class Users(BasF_S):
         super().dump_data(self.data_path, self.users_base)
         input('\n[ENTER] - выйти')
 
-    def _working_with_user(self, choosen_user):
-        """Edit choosen user."""
-        while True:
-            super().clear_screen()
-            temp_user = self.users_base[choosen_user]
-            print()
-            print(self.users_base[choosen_user])
-            edit_menu_dict = {
-                'change user access': self._change_user_access,
-                'change user name': self._change_user_name,
-                'change user password': self.change_password,
-                'delete user': self._delete_user,
-                'change email': self._change_user_email,
-                '[exit edition]': 'break',
-            }
-            print("Choose action:")
-            choosen_action = super().choise_from_list(edit_menu_dict)
-
-            print()
-            if choosen_action in ['[exit edition]', '']:
-                break
-            are_user_deleted = edit_menu_dict[choosen_action](temp_user)
-            if are_user_deleted:
-                break
-            self.users_base[choosen_user] = temp_user
-            super().dump_data(self.data_path, self.users_base)
-
     def edit_user(self):
         """
         Change user parametrs.
@@ -217,27 +251,6 @@ class Users(BasF_S):
             else:
                 print("Неправильный пароль.")
                 input('\n[ENTER] - продолжить.')
-
-    def _try_set_new_password(self, user):
-        while True:
-            new_password = getpass.getpass("Введите новый пароль: ")
-            if not new_password:
-                break
-            repeat_password = getpass.getpass("Повторите новый пароль: ")
-            if new_password == repeat_password:
-                new_password = new_password.encode('utf-8')
-                user.password = bcrypt.hashpw(new_password, bcrypt.gensalt())
-                self.users_base[user.login] = user
-                super().dump_data(self.data_path, self.users_base)
-                print("Новый пароль сохранен.")
-                LOGGER.warning(
-                    f"User '{user.login}' change password")
-                input('\n[ENTER] - продолжить.')
-                break
-            else:
-                print("Введенные пароли не совпадают.")
-                input('\n[ENTER] - продолжить.')
-            return new_password
 
     def try_to_enter_program(self):
         """

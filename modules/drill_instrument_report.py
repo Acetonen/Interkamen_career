@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """
 Working with statistic of drill instrument.
+
+.create_drill_report() - create new drill report.
+
+.show_statistic_by_year() - show stats for drill instrumens by year.
 """
 
 import os

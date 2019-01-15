@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Dump data to xlsx file."""
+"""
+Dump data to xlsx file
+
+.dump_drill_pass()
+.dump_ktu()
+.dump_salary()
+"""
 
 import os
 import time
@@ -42,6 +48,57 @@ class DumpToExl(BasF_S):
         if count:
             new_bareholes[5] = count
         return new_bareholes
+
+    def _dump_real_salary(self, report: 'MainReport'):
+        """Dumpp real salary to exel blanc."""
+        real_salary_path = (
+            super().get_root_path().parent / 'Documents' / 'Табеля'
+        )
+        real_salary_blanc_path = (
+            super().get_root_path() / 'exl_blancs' / 'real_salary.xlsx'
+        )
+        workbook = load_workbook(real_salary_blanc_path)
+        worksheet = workbook.active
+        worksheet['C1'] = report.status['date']
+
+        salary = report.workers_showing['факт']['зарплата']
+        worker_number = 1
+        for worker in salary:
+            row_number = 4 + worker_number
+            worksheet['B' + str(row_number)] = worker_number
+            worksheet['C' + str(row_number)] = super().make_name_short(worker)
+            worksheet['D' + str(row_number)] = salary[worker]
+            worker_number += 1
+
+        name = f"{report.status['date']} {report.status['shift']} на руки"
+        pass_name = real_salary_path.joinpath(name).with_suffix('.xlsx')
+        workbook.save(pass_name)
+
+    def _fill_salary(self, workbook, report):
+        """Fill salary to exel."""
+        worksheet = workbook.active
+        brigadiers_path = super().get_root_path() / 'data' / 'brigadiers'
+        brigadiers = super().load_data(brigadiers_path)
+        worksheet['H28'] = report.totall
+        ktu = report.workers_showing['бух.']['КТУ']
+        hours = report.workers_showing['бух.']['часы']
+        salary = report.workers_showing['бух.']['зарплата']
+
+        worker_number = 1
+        for worker in ktu:
+            row_number = 30 + worker_number
+            worksheet['B' + str(row_number)] = worker_number
+            worksheet['C' + str(row_number)] = super().make_name_short(worker)
+            worksheet['E' + str(row_number)] = hours[worker]
+            worksheet['H' + str(row_number)] = ktu[worker]
+            worksheet['K' + str(row_number)] = salary[worker]
+            addition = 0
+            if worker in brigadiers:
+                addition = 0.15
+            worksheet['N' + str(row_number)] = addition
+            worksheet['Q' + str(row_number)] = (
+                salary[worker] + salary[worker] * addition)
+            worker_number += 1
 
     def dump_drill_pass(self, passport, negab=None):
         """Dump drill passport data to blanc exl file."""
@@ -134,31 +191,6 @@ class DumpToExl(BasF_S):
         print("\nФайл сохранен:\n", str(pass_name))
         time.sleep(3)
 
-    def _dump_real_salary(self, report: 'MainReport'):
-        """Dumpp real salary to exel blanc."""
-        real_salary_path = (
-            super().get_root_path().parent / 'Documents' / 'Табеля'
-        )
-        real_salary_blanc_path = (
-            super().get_root_path() / 'exl_blancs' / 'real_salary.xlsx'
-        )
-        workbook = load_workbook(real_salary_blanc_path)
-        worksheet = workbook.active
-        worksheet['C1'] = report.status['date']
-
-        salary = report.workers_showing['факт']['зарплата']
-        worker_number = 1
-        for worker in salary:
-            row_number = 4 + worker_number
-            worksheet['B' + str(row_number)] = worker_number
-            worksheet['C' + str(row_number)] = super().make_name_short(worker)
-            worksheet['D' + str(row_number)] = salary[worker]
-            worker_number += 1
-
-        name = f"{report.status['date']} {report.status['shift']} на руки"
-        pass_name = real_salary_path.joinpath(name).with_suffix('.xlsx')
-        workbook.save(pass_name)
-
     def dump_salary(self, report: 'MainReport'):
         """Dump Salary to exists exel tabel."""
         salary_path = super().get_root_path().parent / 'Documents' / 'Табеля'
@@ -178,29 +210,3 @@ class DumpToExl(BasF_S):
         else:
             print("Табель не найден в папке 'Табеля'")
         time.sleep(3)
-
-    def _fill_salary(self, workbook, report):
-        """Fill salary to exel."""
-        worksheet = workbook.active
-        brigadiers_path = super().get_root_path() / 'data' / 'brigadiers'
-        brigadiers = super().load_data(brigadiers_path)
-        worksheet['H28'] = report.totall
-        ktu = report.workers_showing['бух.']['КТУ']
-        hours = report.workers_showing['бух.']['часы']
-        salary = report.workers_showing['бух.']['зарплата']
-
-        worker_number = 1
-        for worker in ktu:
-            row_number = 30 + worker_number
-            worksheet['B' + str(row_number)] = worker_number
-            worksheet['C' + str(row_number)] = super().make_name_short(worker)
-            worksheet['E' + str(row_number)] = hours[worker]
-            worksheet['H' + str(row_number)] = ktu[worker]
-            worksheet['K' + str(row_number)] = salary[worker]
-            addition = 0
-            if worker in brigadiers:
-                addition = 0.15
-            worksheet['N' + str(row_number)] = addition
-            worksheet['Q' + str(row_number)] = (
-                salary[worker] + salary[worker] * addition)
-            worker_number += 1
