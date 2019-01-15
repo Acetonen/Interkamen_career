@@ -225,13 +225,22 @@ Content of program depend on user access. By default you have admin user access.
 Admin user include in test data file.
 To log in program:
 Username: admin
-Password: 0000
+Password: admin
 ### 2. Main menu
 ![main_menu](readme_screenshots/main_menu.png)
 
 In header of main menu you may see different remainder that depend on user 'access'.
 
-From this menu you have access to different sub-menus (depend on user access) and basic functions such are: [6] - 'workers telephone numbers', [7] - 'change password', [8] - 'exit program'. Red menus are 'admin-only'
+From this menu you have access to different sub-menus (depend on user access) and basic functions such are: 
+
+[7] - 'workers telephone numbers',
+[8] - 'shifts calendar'
+[9] - 'change password', 
+[10] - 'showing news'
+[11] - 'career status'
+[12] - 'exit program'. 
+
+Red menus are 'admin-only'
 
 ### 3. Admin menus
 ![admin_menu](readme_screenshots/admin_menu.png)
@@ -240,9 +249,11 @@ This menus give you access to:
 1. read/delete/search in logs
 2. create/delete/edit new user
 3. create/show company structure
-4. make backup of all data files
-5. edit email notification and backup settings
-### 4. Workers menu [5]
+4. make/edit reminds for different users category
+5. make backup of all data files
+6. edit email notification and backup settings
+7. add email to receive career status report 
+### 4. Workers menu
 ![workers_menu](readme_screenshots/workers_menu.png)
 
 In this menu u can:
@@ -251,32 +262,42 @@ In this menu u can:
 3. Show laying off workers (from worker archive)
 4. Return worker from archive
 5. Edit worker
-6. Edit list of special workers category
-7. Show anniversary workers
-### 5. Statistic menu
-![statistic_menu](readme_screenshots/statistic.png)
+6. Show anniversary workers
+7. Create shift calendar of this year
 
-In this menu u can:
-1. Create main career report
-2. Edit main career report
-3. Show statistic of career results
-4. Show statistic of career rockmass
-5. Create drill instrument report
-6. Show statistic of drill instrument
 ### 5. Financial  menu
 ![finance_menu](readme_screenshots/finance.png)
 
 In this menu u can:
 1. Count workers salary
-### 5. Financial  menu
+2. Create brigade rating total
+3. Edit list of salary
+4. Edit lists of brigadiers, salary workers, drillers
+
+### 6. Mechanics menu
 ![mechanics_menu](readme_screenshots/mechanics_menu.png)
 
 In this menu u can:
-1. Create repare report
-2. Edit repare report
-3. Show KTG and KTI statistic
-4. Show Stand reasons statistic
+1. Show plots with all mechanics stats (KTI, KTG)
+2. Create daily mechanic report, that goes to career status report automatically 
+3. Create report for machine maintenance
+4. Edit report for machine maintenance
 5. Working with maintenance calendar
+
+
+
+### 5. Mining master menu
+![statistic_menu](readme_screenshots/statistic.png)
+
+In this menu u can:
+1. Show all stats about brigade works, results, drill instruments
+2. Create main master report that goes to main career report
+3. Edit master report
+4. Create drill passport
+5. Edit drill passport
+6. Create drill instrument report
+7. Give rating to brigade
+8. Create daily master report that goes to career status report
 
 ## Authors
 
