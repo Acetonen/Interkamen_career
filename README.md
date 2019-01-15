@@ -13,7 +13,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 For working with program source you need to install on your machine:
 1. python 3.7+
-And pythons frameworks:
+And python frameworks:
 1. pandas
 2. matplotlib
 3. openpyxl
@@ -25,6 +25,10 @@ And pythons frameworks:
 
 1. Copy repository or download files on your computer.
 2. Unzip data.zip (test datafile) in root folder of program.
+3. If you want to test login system launch interkamen.py
+login: admin
+password: admin
+4. If you want to test program fast, launch dev_interkamen.py
 
 ## Built With
 
