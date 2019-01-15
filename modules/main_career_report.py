@@ -438,8 +438,8 @@ class Reports(BasF_S):
 
     def _edit_salary_or_drillers(self, data_path: 'PurePath'):
         """Edit sallary or drillers lists."""
-        super().clear_screen()
         while True:
+            super().clear_screen()
             worker_list = super(Reports, self).load_data(data_path)
             print("Работники в данной группе:")
             for worker in worker_list:
@@ -637,7 +637,10 @@ class Reports(BasF_S):
             report.split('-')[0]
             for report in self.data_base
         }
-        print("Выберете год:")
+        print("[ENTER] - выйти."
+              "\nВыберете год:")
+        if not years:
+            print("Наряды отсутствуют.")
         year = super().choise_from_list(years, none_option=True)
         if not year:
             raise MainMenu
