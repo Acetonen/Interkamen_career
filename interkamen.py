@@ -28,6 +28,7 @@ from modules.support_modules.emailed import EmailSender
 
 
 BUILD_VERSION = 'ver1.15.0dev'
+INTERKAMEN = INTERKAMEN.replace('*********', BUILD_VERSION)
 
 
 def main(current_user: Dict[str, str]):
@@ -121,7 +122,7 @@ def start_background_tasks(event, current_user):
 
 def login_program():
     """Login to program and loged 'enter'"""
-    print(INTERKAMEN.replace('*********', BUILD_VERSION))
+    print(INTERKAMEN)
     current_user = None
     while current_user is None:
         current_user = Users(None).try_to_enter_program()
@@ -135,7 +136,7 @@ def show_news(usr_acs: str):
     if usr_acs != 'info':
         News().show_new_news(usr_acs)
         BasF_S().clear_screen()
-        print(INTERKAMEN.replace('*********', BUILD_VERSION))
+        print(INTERKAMEN)
 
 
 def print_menu(usr_acs: str,
@@ -169,7 +170,7 @@ def get_main_or_sub_menu(usr_acs: str,
 
 if __name__ == '__main__':
     sentry_sdk.init(
-        "https://832241bd50f345c6bed4ecdc9524fddb@sentry.io/1362499",
+        "https://832241bd50f345c6bed4ecdc9524fddb@sentry.io/1362499"
     )
     try:
         CURRENT_USER = login_program()
