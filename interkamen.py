@@ -27,7 +27,7 @@ from modules.administration.logger_cfg import Logs
 from modules.support_modules.emailed import EmailSender
 
 
-BUILD_VERSION = 'ver1.14.0'
+BUILD_VERSION = 'ver1.15.0dev'
 
 
 def main(current_user: Dict[str, str]):

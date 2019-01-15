@@ -276,21 +276,6 @@ class AllWorkers(BasF_S):
         )
         return temp_worker
 
-    def edit_worker(self):
-        """
-        Edit worker information.
-        """
-        print("[ENTER] - выйти."
-              "\nВыберете работника для редактирования:")
-        division_workers = self.give_workers_from_division()
-        while True:
-            worker = super().choise_from_list(division_workers,
-                                              none_option=True)
-            if not worker:
-                break
-            super().clear_screen()
-            self._manage_worker_properties(worker)
-
     def _manage_worker_properties(self, worker: str):
         """Manage worker property."""
         while True:
@@ -324,6 +309,48 @@ class AllWorkers(BasF_S):
             self.workers_base[worker] = temp_worker
             super().dump_data(self.workers_base_path, self.workers_base)
             super().clear_screen()
+
+    def _give_workers(self, division: str) -> List:
+        """Give workers from current division."""
+        worker_list = [
+            worker for subdivision in self.comp_structure[division]
+            for shift in self.comp_structure[division][subdivision]
+            for worker in self.comp_structure[division][subdivision][shift]
+        ]
+        return worker_list
+
+    def _choose_division(self) -> str:
+        """Choose worker from division."""
+        print("[ENTER] - выйти."
+              "\nВыберете подразделение:")
+        division = super().choise_from_list(self.comp_structure,
+                                            none_option=True)
+        return division
+
+    def _give_anniv_workers(self, wor, emp_date) -> List[str]:
+        """Give anniversary workers for current year."""
+        temp_list = []
+        if date.today().year - int(emp_date) in [10, 15, 20, 25, 30]:
+            temp_list.append(' '.join([
+                self.workers_base[wor].name,
+                self.workers_base[wor].employing_lay_off_dates['employing']]))
+        return temp_list
+
+    def edit_worker(self):
+        """
+        Edit worker information.
+        """
+        division = self._choose_division()
+        while True:
+            print("[ENTER] - выйти."
+                  "\nВыберете работника для редактирования:")
+            division_workers = self._give_workers(division)
+            worker = super().choise_from_list(division_workers,
+                                              none_option=True)
+            super().clear_screen()
+            if not worker:
+                break
+            self._manage_worker_properties(worker)
 
     def upd_comp_structure(self):
         """Add new division in base"""
@@ -411,17 +438,10 @@ class AllWorkers(BasF_S):
 
     def give_workers_from_division(self) -> List[str]:
         """Print all users from base"""
-        print("[ENTER] - выйти."
-              "\nВыберете подразделение:")
-        division = super().choise_from_list(self.comp_structure,
-                                            none_option=True)
+        division = self._choose_division()
         if not division:
             raise MainMenu
-        worker_list = [
-            worker for subdivision in self.comp_structure[division]
-            for shift in self.comp_structure[division][subdivision]
-            for worker in self.comp_structure[division][subdivision][shift]
-        ]
+        worker_list = self._give_workers(division)
         return worker_list
 
     def give_mining_workers(self) -> List[str]:
@@ -479,12 +499,3 @@ class AllWorkers(BasF_S):
         else:
             print("Нет юбиляров в этом году")
         input('\n[ENTER] - выйти.')
-
-    def _give_anniv_workers(self, wor, emp_date) -> List[str]:
-        """Give anniversary workers for current year."""
-        temp_list = []
-        if date.today().year - int(emp_date) in [10, 15, 20, 25, 30]:
-            temp_list.append(' '.join([
-                self.workers_base[wor].name,
-                self.workers_base[wor].employing_lay_off_dates['employing']]))
-        return temp_list
