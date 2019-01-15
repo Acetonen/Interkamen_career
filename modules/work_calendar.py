@@ -3,7 +3,6 @@
 
 import calendar as cl
 from typing import Tuple, List
-from modules.support_modules.standart_functions import BasicFunctions
 from modules.support_modules.standart_functions import (BasicFunctionsS
                                                         as Bas_F)
 from modules.support_modules.custom_exceptions import MainMenu
@@ -206,8 +205,10 @@ class WCalendar(Bas_F):
         return curr_month_shifts
 
 
-class WorkCalendars(BasicFunctions):
+class WorkCalendars(Bas_F):
     """Manage calendars."""
+
+    __slots__ = ['calendar_path', 'calendar_file']
 
     def __init__(self):
         self.calendar_path = (

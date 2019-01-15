@@ -6,7 +6,7 @@ News module. Show news for users.
 """
 
 import os
-from modules.support_modules.standart_functions import (BasicFunctions
+from modules.support_modules.standart_functions import (BasicFunctionsS
                                                         as BasF_S)
 
 
