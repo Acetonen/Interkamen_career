@@ -48,7 +48,7 @@ class Logs(BasF_S):
 
     def save_info_to_file(self):
         """Save info log to file."""
-        handler = logging.FileHandler(self.log_path)
+        handler = logging.FileHandler(self.log_path, 'a', 'utf-8')
         handler.setLevel(logging.WARNING)
         log_format = logging.Formatter('[%(asctime)s] %(message)s')
         handler.setFormatter(log_format)
