@@ -43,9 +43,10 @@ class User(dict, BasF_S):
 
     def __getattr__(self, name):
         if name in self:
-            return self[name]
+            name = self[name]
         else:
             raise AttributeError("No such attribute: " + name)
+        return name
 
     def __setattr__(self, key, value):
         self[key] = value
@@ -66,13 +67,19 @@ class User(dict, BasF_S):
 class Users(BasF_S):
     """Users warking with program."""
 
-    __slots__ = ['data_path', 'user', 'users_base']
+    __slots__ = (
+        'data_path',
+        'user',
+        'users_base',
+    )
 
     access_list = ['admin', 'boss', 'master', 'mechanic', 'info']
 
     def __init__(self, user):
-        self.data_path = super().get_root_path() / 'data' / 'users_base'
         self.user = user
+        self.data_path = super().get_root_path() / 'data' / 'users_base'
+        if not self.data_path.exists():
+            self._create_new_users_base()
         self.users_base = super().load_data(self.data_path)
 
     def __repr__(self):
@@ -84,11 +91,29 @@ class Users(BasF_S):
             output.append('\n')
         return ' '.join(output)
 
+    def _create_new_users_base(self):
+        """Create new users base with new 'admin' account and key
+        for encrypt database
+        """
+        new_key = super().create_new_key()
+        password = bcrypt.hashpw(b'admin', bcrypt.gensalt())
+        admin_user = {
+            'name': 'Main Program Admin',
+            'accesse': 'admin',
+            'login': 'admin',
+            'password': password,
+            'email': 'empty',
+            'key': new_key,
+        }
+        admin_user = User(admin_user)
+        users_base = {'admin': admin_user}
+        super().dump_data(self.data_path, users_base)
+
     @BasF_S.confirm_deletion_decorator
     def _check_deletion(self, user: User):
         """Delete user from database"""
-        if user.accesse == 'admin' and self._check_only_admin():
-            print("If 'admin' user alone you can't delete him.")
+        if 'key' in user:
+            print("Yoy can't delete main admin user.")
             check = False
         else:
             check = True
@@ -106,17 +131,6 @@ class Users(BasF_S):
                 f"User '{self.user['login']}' delete user '{user['login']}'")
         input('\n[ENTER] - выйти')
         return user_deleted
-
-    def _check_only_admin(self):
-        """Check if admin user only one in base"""
-        check = False
-        admin_counter = 0
-        for login in self.users_base:
-            if self.users_base[login].accesse == 'admin':
-                admin_counter += 1
-        if admin_counter == 1:
-            check = True
-        return check
 
     def _change_user_access(self, user: User):
         """Change_user_access"""

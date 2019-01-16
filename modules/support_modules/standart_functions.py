@@ -16,6 +16,8 @@ import calendar as cl
 from pathlib import Path, PurePath
 from typing import Set, Dict, List
 import bcrypt
+from Crypto.PublicKey import RSA
+from Crypto import Random
 from matplotlib import rcParams as window_parametrs
 from modules.support_modules.custom_exceptions import MainMenu
 
@@ -160,6 +162,22 @@ class BasicFunctionsS:
         return wrapper
 
     @staticmethod
+    def load_data(data_path: PurePath):
+        """Load data from pickle"""
+        if data_path.exists():
+            with open(data_path, 'rb') as base_file:
+                base = pickle.load(base_file)
+        else:
+            base = {}
+        return base
+
+    @staticmethod
+    def dump_data(data_path: PurePath, base_to_dump):
+        """Dumb data to pickle."""
+        with open(data_path, 'wb') as base_file:
+            pickle.dump(base_to_dump, base_file)
+
+    @staticmethod
     def check_date_format(rep_date: str) -> bool:
         """Check if date format correct"""
         date_numbers = rep_date.split('-')
@@ -266,22 +284,6 @@ class BasicFunctionsS:
             os.system('clear')
 
     @staticmethod
-    def load_data(data_path: PurePath):
-        """Load data from pickle"""
-        if data_path.exists():
-            with open(data_path, 'rb') as base_file:
-                base = pickle.load(base_file)
-        else:
-            base = {}
-        return base
-
-    @staticmethod
-    def dump_data(data_path: PurePath, base_to_dump):
-        """Dumb data to pickle."""
-        with open(data_path, 'wb') as base_file:
-            pickle.dump(base_to_dump, base_file)
-
-    @staticmethod
     def count_unzero_items(items_list):
         """Count nonzero items in list."""
         counter = 0
@@ -299,3 +301,10 @@ class BasicFunctionsS:
         window_parametrs['font.size'] = 12
         window_parametrs['legend.fontsize'] = 'large'
         window_parametrs['figure.titlesize'] = 'large'
+
+    @staticmethod
+    def create_new_key():
+        """Create new RSA keys"""
+        random_generator = Random.new().read
+        key = RSA.generate(1024, random_generator)
+        return key
