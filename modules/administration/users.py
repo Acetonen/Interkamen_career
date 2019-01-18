@@ -80,7 +80,7 @@ class Users(BasF_S):
         self.data_path = super().get_root_path() / 'data' / 'users_base'
         if not self.data_path.exists():
             self._create_new_users_base()
-        self.users_base = super().load_data(self.data_path)
+        self.users_base = super().load_data(self.data_path, decrypt=False)
 
     def __repr__(self):
         output = ['']
@@ -107,7 +107,7 @@ class Users(BasF_S):
         }
         admin_user = User(admin_user)
         users_base = {'admin': admin_user}
-        super().dump_data(self.data_path, users_base)
+        super().dump_data(self.data_path, users_base, encrypt=False)
 
     @BasF_S.confirm_deletion_decorator
     def _check_deletion(self, user: User):
@@ -125,7 +125,7 @@ class Users(BasF_S):
         deletion_approved = self._check_deletion(user)
         if deletion_approved:
             self.users_base.pop(user.login, None)
-            super().dump_data(self.data_path, self.users_base)
+            super().dump_data(self.data_path, self.users_base, encrypt=False)
             user_deleted = True
             LOGGER.warning(
                 f"User '{self.user['login']}' delete user '{user['login']}'")
@@ -183,7 +183,7 @@ class Users(BasF_S):
             if are_user_deleted:
                 break
             self.users_base[choosen_user] = temp_user
-            super().dump_data(self.data_path, self.users_base)
+            super().dump_data(self.data_path, self.users_base, encrypt=False)
 
     def _try_set_new_password(self, user):
         while True:
@@ -195,7 +195,9 @@ class Users(BasF_S):
                 new_password = new_password.encode('utf-8')
                 user.password = bcrypt.hashpw(new_password, bcrypt.gensalt())
                 self.users_base[user.login] = user
-                super().dump_data(self.data_path, self.users_base)
+                super().dump_data(self.data_path,
+                                  self.users_base,
+                                  encrypt=False)
                 print("Новый пароль сохранен.")
                 LOGGER.warning(
                     f"User '{user.login}' change password")
@@ -234,7 +236,7 @@ class Users(BasF_S):
         print(f"\033[92m user '{login}' created. \033[0m")
         LOGGER.warning(
             f"User '{self.user.login}' create new user: '{login}'")
-        super().dump_data(self.data_path, self.users_base)
+        super().dump_data(self.data_path, self.users_base, encrypt=False)
         input('\n[ENTER] - выйти')
 
     def edit_user(self):
@@ -284,7 +286,7 @@ class Users(BasF_S):
 
     def sync_user(self):
         """Sync current user with base"""
-        self.users_base = super().load_data(self.data_path)
+        self.users_base = super().load_data(self.data_path, decrypt=False)
         return self.users_base[self.user.login]
 
     def show_all_users(self):

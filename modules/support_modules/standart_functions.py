@@ -16,8 +16,9 @@ import calendar as cl
 from pathlib import Path, PurePath
 from typing import Set, Dict, List
 import bcrypt
-from Crypto.PublicKey import RSA
 from Crypto import Random
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
 from matplotlib import rcParams as window_parametrs
 from modules.support_modules.custom_exceptions import MainMenu
 
@@ -162,22 +163,6 @@ class BasicFunctionsS:
         return wrapper
 
     @staticmethod
-    def load_data(data_path: PurePath):
-        """Load data from pickle"""
-        if data_path.exists():
-            with open(data_path, 'rb') as base_file:
-                base = pickle.load(base_file)
-        else:
-            base = {}
-        return base
-
-    @staticmethod
-    def dump_data(data_path: PurePath, base_to_dump):
-        """Dumb data to pickle."""
-        with open(data_path, 'wb') as base_file:
-            pickle.dump(base_to_dump, base_file)
-
-    @staticmethod
     def check_date_format(rep_date: str) -> bool:
         """Check if date format correct"""
         date_numbers = rep_date.split('-')
@@ -305,6 +290,60 @@ class BasicFunctionsS:
     @staticmethod
     def create_new_key():
         """Create new RSA keys"""
-        random_generator = Random.new().read
-        key = RSA.generate(1024, random_generator)
+        key = Random.new().read(16)
         return key
+
+    @classmethod
+    def _find_key(cls):
+        """Find key for database."""
+        users_path = cls.get_root_path() / 'data' / 'users_base'
+        users_base = pickle.loads(users_path.read_bytes())
+        key = None
+        for user in users_base:
+            if 'admin' in users_base[user].accesse:
+                key = users_base[user].key
+        if not key:
+            raise Exception("Can't find decrypt key.")
+        return key
+
+    @classmethod
+    def _encrypt_data(cls, base_to_byte):
+        """Encrypt data with AES/CBF."""
+        key = cls._find_key()
+        i_vector = Random.new().read(AES.block_size)
+        cipher = AES.new(key, AES.MODE_CFB, i_vector)
+        enc_data = i_vector + cipher.encrypt(base_to_byte)
+        return enc_data
+
+    @classmethod
+    def _decrypt_data(cls, base_bytes):
+        """Decrypt data with AES/CBF."""
+        key = cls._find_key()
+        i_vector = base_bytes[:AES.block_size]
+        cipher = AES.new(key, AES.MODE_CFB, i_vector)
+        dec_data = cipher.decrypt(base_bytes[AES.block_size:])
+        return dec_data
+
+    @classmethod
+    def dump_data(cls, data_path: PurePath, base_to_dump, *, encrypt=True):
+        """
+        Dumb data to pickle.
+        If you whant to encrypt data use: encrypt=True
+        """
+        base_to_byte = pickle.dumps(base_to_dump)
+
+        if encrypt:
+            base_to_byte = cls._encrypt_data(base_to_byte)
+
+        data_path.write_bytes(base_to_byte)
+
+    @classmethod
+    def load_data(cls, data_path: PurePath, *, decrypt=True):
+        """Load data from pickle"""
+        base = {}
+        if data_path.exists():
+            base_bytes = data_path.read_bytes()
+            if decrypt:
+                base_bytes = cls._decrypt_data(base_bytes)
+            base = pickle.loads(base_bytes)
+        return base

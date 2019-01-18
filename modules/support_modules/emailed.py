@@ -57,7 +57,7 @@ class EmailSender(BasF_S):
         self.log_file_path = super().get_root_path() / 'backup' / 'backup_log'
         self.email_prop_path = super().get_root_path() / 'data' / 'email_prop'
         users_base_path = super().get_root_path() / 'data' / 'users_base'
-        self.users_base = super().load_data(users_base_path)
+        self.users_base = super().load_data(users_base_path, decrypt=False)
 
         self.email_prop = super().load_data(self.email_prop_path)
         if not self.email_prop:
@@ -369,7 +369,8 @@ class EmailSender(BasF_S):
     def check_last_backup_date(self, user, event=None):
         """Check last backup date"""
         if self.log_file_path.exists():
-            self.backup_log_list = super().load_data(self.log_file_path)
+            self.backup_log_list = super().load_data(self.log_file_path,
+                                                     decrypt=False)
             last_backup_date = self.backup_log_list[-1]
             last_data = datetime.strptime(
                 last_backup_date.rstrip(),
