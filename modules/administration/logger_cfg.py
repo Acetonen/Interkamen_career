@@ -25,7 +25,7 @@ import socket
 import smtplib
 import logging
 import logging.handlers
-from typing import Dict, List
+from typing import List
 from sentry_sdk import capture_message
 from modules.support_modules.emailed import EmailSender
 from modules.support_modules.standart_functions import (BasicFunctionsS
@@ -35,7 +35,11 @@ from modules.support_modules.standart_functions import (BasicFunctionsS
 class Logs(BasF_S):
     """Setup different handlers to logs."""
 
-    __slots__ = ['log_path', 'error_log_path', 'log_file']
+    __slots__ = [
+        'log_path',
+        'error_log_path',
+        'log_file',
+    ]
 
     def __init__(self):
         self.log_path = super().get_root_path() / 'data' / 'file.log'
@@ -44,17 +48,32 @@ class Logs(BasF_S):
             with open(self.log_path, 'r', encoding='utf-8') as file:
                 self.log_file = file.readlines()[::-1]
 
+
+    def save_info_to_file(self):
+        """Save info log to file."""
+        handler = logging.FileHandler(self.log_path, 'a', 'utf-8')
+        handler.setLevel(logging.WARNING)
+        log_format = logging.Formatter('[%(asctime)s] %(message)s')
+        handler.setFormatter(log_format)
+        return handler
+
+    def give_logger(self, name: str):
+        "give logger to module."
+        logger = logging.getLogger(name)
+        logger.addHandler(self.save_info_to_file())
+        return logger
+
     @classmethod
-    def send_error_to_email(cls):
+    def send_error_to_email(cls, user):
         """Send error log to email."""
         handler = logging.handlers.SMTPHandler(
             mailhost=('smtp.gmail.com', 587),
-            fromaddr=EmailSender().email_prop['email'],
+            fromaddr=EmailSender(user).email_prop['email'],
             toaddrs=['acetonen@gmail.com'],
             subject='ERROR',
             credentials=(
-                EmailSender().email_prop['email'],
-                EmailSender().email_prop['password'],
+                EmailSender(user).email_prop['email'],
+                EmailSender(user).email_prop['password'],
             ),
             secure=(),
         )
@@ -63,14 +82,6 @@ class Logs(BasF_S):
             '[%(asctime)s] %(filename)s [LINE:%(lineno)d]# %(levelname)-8s'
             + '%(message)s'
         )
-        handler.setFormatter(log_format)
-        return handler
-
-    def save_info_to_file(self):
-        """Save info log to file."""
-        handler = logging.FileHandler(self.log_path, 'a', 'utf-8')
-        handler.setLevel(logging.WARNING)
-        log_format = logging.Formatter('[%(asctime)s] %(message)s')
         handler.setFormatter(log_format)
         return handler
 
@@ -85,10 +96,11 @@ class Logs(BasF_S):
         handler.setFormatter(log_format)
         return handler
 
-    def loged_error(self, current_user: Dict[str, str]):
+    def loged_error(self, user):
         """Make error log."""
         err_logger = logging.getLogger("ERR")
         super().clear_screen()
+        connection_problem = False
         print(
             "\033[91mВНИМАНИЕ! Произошла ошибка преведшая к завершению "
             "программы \nПожалуйста, не закрывайте окно, лог ошибки "
@@ -97,8 +109,8 @@ class Logs(BasF_S):
             smtp = smtplib.SMTP('smtp.gmail.com', 587)
             smtp.starttls()
             smtp.login(
-                EmailSender().email_prop['email'],
-                EmailSender().email_prop['password'],
+                EmailSender(user).email_prop['email'],
+                EmailSender(user).email_prop['password'],
             )
         except (smtplib.SMTPAuthenticationError,
                 socket.gaierror,
@@ -107,10 +119,10 @@ class Logs(BasF_S):
             connection_problem = True
         else:
             # Dont needed while using sentry sdk.
-            # err_logger.addHandler(self.send_error_to_email())
+            # err_logger.addHandler(self.send_error_to_email(user))
             connection_problem = False
         finally:
-            err_logger.exception(f"User '{current_user['login']}' make error:")
+            err_logger.exception(f"User '{user.login}' make error:")
             if connection_problem:
                 print("\033[93m\nПроблемы с подключением к интернету."
                       "\nЛог сохранен в файл и будет отправлен при "
@@ -118,12 +130,12 @@ class Logs(BasF_S):
             else:
                 print("\033[92m\nЛог отправлен, спасибо за ожидание.\033[0m")
 
-    def emailed_error_log(self, event):
+    def emailed_error_log(self, user, event):
         """Try to emailed error log file if exist."""
         if self.error_log_path.exists():
             log = self.error_log_path.read_text(encoding='utf-8')
             capture_message(log)
-            unsucsesse = EmailSender().try_email(
+            unsucsesse = EmailSender(user).try_email(
                 recivers_adreses='resivers list',
                 subject="ERROR",
                 message=log,
@@ -133,12 +145,6 @@ class Logs(BasF_S):
                 print(unsucsesse)
             else:
                 self.error_log_path.unlink()
-
-    def give_logger(self, name: str):
-        "give logger to module."
-        logger = logging.getLogger(name)
-        logger.addHandler(self.save_info_to_file())
-        return logger
 
     def show_logs(self, logs: List[str] = None):
         """show_all_logs"""

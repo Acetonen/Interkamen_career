@@ -74,11 +74,14 @@ class DumpToExl(BasF_S):
         pass_name = real_salary_path.joinpath(name).with_suffix('.xlsx')
         workbook.save(pass_name)
 
-    def _fill_salary(self, workbook, report):
+    def _fill_salary(self, workbook, report, user):
         """Fill salary to exel."""
         worksheet = workbook.active
         brigadiers_path = super().get_root_path() / 'data' / 'brigadiers'
-        brigadiers = super().load_data(brigadiers_path)
+        brigadiers = super().load_data(
+            data_path=brigadiers_path,
+            user=user,
+        )
         worksheet['H28'] = report.totall
         ktu = report.workers_showing['бух.']['КТУ']
         hours = report.workers_showing['бух.']['часы']
@@ -191,7 +194,7 @@ class DumpToExl(BasF_S):
         print("\nФайл сохранен:\n", str(pass_name))
         time.sleep(3)
 
-    def dump_salary(self, report: 'MainReport'):
+    def dump_salary(self, report: 'MainReport', user):
         """Dump Salary to exists exel tabel."""
         salary_path = super().get_root_path().parent / 'Documents' / 'Табеля'
         name = report.status['date'] + ' ' + report.status['shift']
@@ -203,7 +206,7 @@ class DumpToExl(BasF_S):
         if find:
             file_path = salary_path.joinpath(find).with_suffix('.xlsx')
             workbook = load_workbook(file_path)
-            self._fill_salary(workbook, report)
+            self._fill_salary(workbook, report, user)
             workbook.save(file_path)
             self._dump_real_salary(report)
             print("\nФайл сохранен:\n", salary_path.joinpath(find))

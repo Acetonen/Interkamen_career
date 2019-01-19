@@ -16,7 +16,7 @@ from modules.support_modules.news import News
 from modules.support_modules.custom_exceptions import MainMenu
 
 from modules.administration.accesse_options import Accesse
-from modules.administration.users import Users
+from modules.administration.users import Users, User
 from modules.administration.logger_cfg import Logs
 from modules.support_modules.emailed import EmailSender
 
@@ -25,7 +25,7 @@ BUILD_VERSION = 'ver1.15.0dev'
 INTERKAMEN = INTERKAMEN.replace('*********', BUILD_VERSION)
 
 
-def main(current_user: Dict[str, str]):
+def main(current_user: User):
     """Main flow."""
     show_backround_tasks_results = Event()
     _start_background_tasks(
@@ -33,18 +33,18 @@ def main(current_user: Dict[str, str]):
         current_user=current_user,
     )
     logger = Logs().give_logger(__name__)
-    logger.warning(f"User '{current_user['login']}' enter program")
+    logger.warning(f"User '{current_user.login}' enter program")
     menu_list = []
     menu_nesting = []
     menu_header = ['\033[1m \t', '\033[4m ГЛАВНОЕ МЕНЮ \033[0m', '\n \033[0m']
-    usr_acs = current_user['accesse']
-    _show_news(usr_acs)
+    usr_acs = current_user.accesse
+    _show_news(current_user)
     program_menu = _get_main_or_sub_menu(usr_acs, menu_list, None)
 
     while True:
         show_backround_tasks_results.set()
         show_backround_tasks_results.clear()
-        _print_menu(usr_acs, menu_header, menu_nesting, program_menu)
+        _print_menu(current_user, menu_header, menu_nesting, program_menu)
         user_choise = input("\nВыберете действие: ")
         BasF_S.clear_screen()
 
@@ -89,25 +89,23 @@ def main(current_user: Dict[str, str]):
             except MainMenu:
                 pass
             BasF_S.clear_screen()
-        current_user = Users(current_user).sync_user()
 
 
 def _start_background_tasks(event, current_user):
     """Start threads for checkin program mails and make backups."""
     good_thing_process = Thread(
         name='Funny thing',
-        target=EmailSender().try_to_destroy,
-        args=(current_user,),
+        target=EmailSender(current_user).try_to_destroy,
     )
     email_error_process = Thread(
         name='Error file mail',
         target=Logs().emailed_error_log,
-        args=(event,),
+        args=(current_user, event),
     )
     check_backup_process = Thread(
         name='Make backup',
-        target=EmailSender().check_last_backup_date,
-        args=(current_user, event)
+        target=EmailSender(current_user).check_last_backup_date,
+        args=(event,)
     )
     good_thing_process.start()
     email_error_process.start()
@@ -125,21 +123,28 @@ def _login_program():
     return current_user
 
 
-def _show_news(usr_acs: str):
+def _show_news(current_user):
     """Try to show news."""
-    if usr_acs != 'info':
-        News().show_new_news(usr_acs)
+    if current_user.accesse != 'info':
+        News(current_user).show_new_news(current_user.accesse)
         BasF_S().clear_screen()
         print(INTERKAMEN)
 
 
-def _print_menu(usr_acs: str,
-                menu_header: str,
-                menu_nesting: List[str],
-                program_menu: Dict[str, str]):
+def _print_menu(
+        current_user,
+        menu_header: str,
+        menu_nesting: List[str],
+        program_menu: Dict[str, str]
+):
     """Print program menu."""
     separator = "\033[36m------------------------------\033[0m"
-    print(Reminder().give_remind(usr_acs) + '\n' + separator + '\n')
+    print(
+        Reminder(current_user).give_remind(current_user.accesse)
+        + '\n'
+        + separator
+        + '\n'
+    )
     if menu_nesting:
         print(''.join(menu_nesting), '\n')
     print(' '.join(menu_header))

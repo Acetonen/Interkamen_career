@@ -26,10 +26,21 @@ LOGGER = Logs().give_logger(__name__)
 
 class CareerStatusS(BasF_S):
     """Current career status."""
-    __slots__ = ['date', 'cur', 'itr_list', 'mach',
-                 'storage', 'works_plan', 'res', 'date_numbers']
+
+    __slots__ = [
+        'date',
+        'cur',
+        'itr_list',
+        'mach',
+        'storage',
+        'works_plan',
+        'res',
+        'date_numbers',
+        'user'
+    ]
 
     def __init__(self, user):
+        self.user = user
         self.date = {
             "today": str(date.today()),
             "tomorrow": str(date.today() + timedelta(days=1)),
@@ -37,15 +48,15 @@ class CareerStatusS(BasF_S):
         self.date_numbers = list(map(int, self.date['today'].split('-')))
         self.cur = {
             "brig":
-            WorkCalendars().give_current_brigade(self.date_numbers),
+            WorkCalendars(user).give_current_brigade(self.date_numbers),
             "itr":
-            WorkCalendars().give_current_itr(
+            WorkCalendars(user).give_current_itr(
                 list(map(int, self.date['tomorrow'].split('-')))
             ),
             'month_shifts':
-            WorkCalendars().give_current_month_shifts(self.date_numbers),
+            WorkCalendars(user).give_current_month_shifts(self.date_numbers),
         }
-        self.itr_list = AllWorkers(None).print_telefon_numbers(
+        self.itr_list = AllWorkers(user).print_telefon_numbers(
             itr_shift=self.cur["itr"])
         self.mach = {
             "to_repare": None,
@@ -146,7 +157,7 @@ class CareerStatusS(BasF_S):
     def _check_tomorrow_passports(self):
         """Check if tomorrow passports exists."""
         tomorrow_passports = (
-            DrillPassports(None)
+            DrillPassports(self.user)
             .give_dpassports_for_date(self.date["tomorrow"])
         )
         if not tomorrow_passports:
@@ -250,7 +261,7 @@ class CareerStatusS(BasF_S):
         if self.cur["brig"] == 'Бригада 1':
             self.res["month"] = self.res["shift"]
         else:
-            shift1_res = Reports(None).give_main_results(
+            shift1_res = Reports(self.user).give_main_results(
                 *str(date.today()).split('-')[:-1], 'Смена 1')[1]
             self.res["month"] = (round(shift1_res, 1) + self.res["shift"])
 
@@ -300,7 +311,7 @@ class CareerStatusS(BasF_S):
 
     def _try_to_emailed_status(self, name: str, html: str):
         """Try to send status via email."""
-        message = EmailSender().email_prop["status message"]
+        message = EmailSender(self.user).email_prop["status message"]
         if name:
             message += f"\nВНИМАНИЕ! {name} внес корректировки в отчет:"
             html = html.replace(
@@ -312,7 +323,7 @@ class CareerStatusS(BasF_S):
                 '>future_correction<',
                 '> <'
             )
-        unsucsesse = EmailSender().try_email(
+        unsucsesse = EmailSender(self.user).try_email(
             recivers_adreses="career status recivers",
             message=message,
             subject='Состояние карьера',
@@ -336,22 +347,33 @@ class CareerStatusS(BasF_S):
         rock_table = self._create_plan_html(self.works_plan['rock_work'])
         contact_table = self._create_contact_table()
         html = html.format(
-            self.date['today'], self.cur['brig'], self.cur['itr'],
-            round(self.res['month'], 2), round(self.res['shift'], 2),
-            self.storage['KOTC'], self.storage['sale'], mach_table,
-            self.date['tomorrow'], expl_table, rock_table, shift_calendar,
+            self.date['today'],
+            self.cur['brig'],
+            self.cur['itr'],
+            round(self.res['month'], 2),
+            round(self.res['shift'], 2),
+            self.storage['KOTC'],
+            self.storage['sale'],
+            mach_table,
+            self.date['tomorrow'],
+            expl_table,
+            rock_table,
+            shift_calendar,
             contact_table
         )
         return html
 
     def _create_shift_calendar(self):
         """Create calendar of ITR and brigade shifts."""
-        calendar = WorkCalendars().give_current_month_shifts(
-            self.date_numbers, cal_format='html')
+        calendar = WorkCalendars(self.user).give_current_month_shifts(
+            self.date_numbers,
+            cal_format='html',
+        )
         tomorrow = self.date['tomorrow'].split('-')[-1]
         tomorrow = str(int(tomorrow))
         calendar = calendar.replace(
-            f'>{tomorrow}<', f' style="color:red"><b>{tomorrow}</b><'
+            f'>{tomorrow}<',
+            f' style="color:red"><b>{tomorrow}</b><',
         )
         return calendar
 
@@ -401,7 +423,7 @@ class CareerStatusS(BasF_S):
         name = None
         if self.mach["to_repare"] and self.works_plan["rock_work"]:
             answer = self._ask_for_recreate()
-            name = super().make_name_short(user['name'])
+            name = super().make_name_short(user.name)
         if answer:
             info_type = {
                 'master': self._add_master_info,
@@ -409,7 +431,7 @@ class CareerStatusS(BasF_S):
                 'admin': self._choose_info_to_add,
                 'boss': self._choose_info_to_add,
             }
-            info_type[user['accesse']](user['login'])
+            info_type[user.accesse](user.login)
             self._check_if_report_comlete(name)
         else:
             print("\033[91mВы отменили изменение отчета.\033[0m")
@@ -431,16 +453,27 @@ class CareerStatusS(BasF_S):
 class Statuses(BasF_S):
     """Create and save curent status reports."""
 
-    __slots__ = ['car_stat_path', 'car_stat_file', 'user']
+    __slots__ = [
+        'car_stat_path',
+        'car_stat_file',
+        'user',
+    ]
 
     def __init__(self, user):
         self.car_stat_path = super().get_root_path() / 'data' / 'carer_status'
         self.user = user
         if self.car_stat_path.exists():
-            self.car_stat_file = super().load_data(self.car_stat_path)
+            self.car_stat_file = super().load_data(
+                data_path=self.car_stat_path,
+                user=user,
+            )
         else:
             self.car_stat_file = {}
-            super().dump_data(self.car_stat_path, self.car_stat_file)
+            super().dump_data(
+                data_path=self.car_stat_path,
+                base_to_dump=self.car_stat_file,
+                user=user,
+            )
 
     def create_career_status(self):
         """Create status if not exist."""
@@ -448,7 +481,11 @@ class Statuses(BasF_S):
             self.car_stat_file[str(date.today())].add_info(self.user)
         else:
             self.car_stat_file[str(date.today())] = CareerStatusS(self.user)
-        super().dump_data(self.car_stat_path, self.car_stat_file)
+        super().dump_data(
+            data_path=self.car_stat_path,
+            base_to_dump=self.car_stat_file,
+            user=self.user,
+        )
 
     def show_status(self):
         """Show career status."""

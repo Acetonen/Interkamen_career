@@ -26,8 +26,13 @@ class DrillInstruments(BasF_S):
     All information about drill instruments.
     """
 
-    __slots__ = ['drill_path', 'temp_drill_path', 'user',
-                 'drill_file', 'drill_data']
+    __slots__ = [
+        'drill_path',
+        'temp_drill_path',
+        'user',
+        'drill_file',
+        'drill_data'
+    ]
 
     month_list = ['01', '02', '03', '04', '05', '06',
                   '07', '08', '09', '10', '11', '12']
@@ -40,10 +45,17 @@ class DrillInstruments(BasF_S):
             super().get_root_path() / 'data' / 'temp_drill_inst')
         self.user = user
         if self.drill_path.exists():
-            self.drill_file = super().load_data(self.drill_path)
+            self.drill_file = super().load_data(
+                data_path=self.drill_path,
+                user=user,
+            )
         else:
             self.drill_file = pd.DataFrame(self.drill_data, index=[0])
-            super().dump_data(self.drill_path, self.drill_file)
+            super().dump_data(
+                data_path=self.drill_path,
+                base_to_dump=self.drill_file,
+                user=user,
+            )
         # Try to complete drill report if temp file exist.
         self._comlete_drill_report()
 
@@ -149,12 +161,16 @@ class DrillInstruments(BasF_S):
         """Save drill report and create log file."""
         self.drill_file = self.drill_file.append(self.drill_data,
                                                  ignore_index=True)
-        super().dump_data(self.drill_path, self.drill_file)
+        super().dump_data(
+            data_path=self.drill_path,
+            base_to_dump=self.drill_file,
+            user=self.user,
+        )
         report_name = '{}-{}-{}'.format(self.drill_data['year'],
                                         self.drill_data['month'],
                                         self.drill_data['shift'])
         LOGGER.warning(
-            f"User '{self.user['login']}' create drill inst.: {report_name}"
+            f"User '{self.user.login}' create drill inst.: {report_name}"
         )
 
     def _visualise_statistic(self, year):
@@ -198,11 +214,11 @@ class DrillInstruments(BasF_S):
         self.drill_data['bits35'] = int(input("коронки 35: "))
         self.drill_data['bar3'] = int(input("штанги 3м: "))
         self.drill_data['bar6'] = int(input("штанги 6м: "))
-        self.drill_data['driller'] = Reports(None).find_driller(
+        self.drill_data['driller'] = Reports(self.user).find_driller(
             self.drill_data['shift'])
         rep_date = f"{self.drill_data['year']}-{self.drill_data['month']}"
         self.drill_data['bits_in_rock'] = int(
-            DrillPassports(None).count_param_from_passports(
+            DrillPassports(self.user).count_param_from_passports(
                 driller=self.drill_data['driller'],
                 rep_date=rep_date,
                 parametr='bits_in_rock',
@@ -219,11 +235,11 @@ class DrillInstruments(BasF_S):
         self.drill_data['month'] = super().choise_from_list(self.month_list)
         print("Выберете смену:")
         self.drill_data['shift'] = super().choise_from_list(
-            Reports(None).shifts)
+            Reports(self.user).shifts)
 
     def _bring_data_from_main_report(self):
         """Bring meters, result and rock mass from main_career_report."""
-        main_report_results = Reports(None).give_main_results(
+        main_report_results = Reports(self.user).give_main_results(
             self.drill_data['year'],
             self.drill_data['month'],
             self.drill_data['shift'])
@@ -237,11 +253,18 @@ class DrillInstruments(BasF_S):
 
     def _save_drill_report_to_temp(self):
         """Save drill report to temp file, until main report be complete."""
-        super().dump_data(self.temp_drill_path, self.drill_data)
+        super().dump_data(
+            data_path=self.temp_drill_path,
+            base_to_dump=self.drill_data,
+            user=self.user,
+        )
 
     def _load_from_temp_drill(self):
         """Load data from temp drill file."""
-        self.drill_data = super().load_data(self.temp_drill_path)
+        self.drill_data = super().load_data(
+            data_path=self.temp_drill_path,
+            user=self.user,
+        )
 
     def _comlete_drill_report(self):
         """Complete drill report with meters, result

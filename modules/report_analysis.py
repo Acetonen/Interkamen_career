@@ -19,7 +19,10 @@ class ReportAnalysis(Reports):
     Class to anilise and visualisate data from reports.
     """
 
-    __slots__ = ['base', 'shifts']
+    __slots__ = [
+        'base',
+        'shifts',
+    ]
 
     statistic = namedtuple('Statistic', ['result', 'title1', 'title2'])
     horizonts = ['+108', '+114', '+120', '+126', '+132']
@@ -68,10 +71,13 @@ class ReportAnalysis(Reports):
     }
     year_reports = {}
 
-    def __init__(self):
-        super().__init__(None)
+    def __init__(self, user):
+        super().__init__(user)
         self.shifts = ['Смена 1', 'Смена 2']
-        self.base = super().load_data(self.data_path)
+        self.base = super().load_data(
+            data_path=self.data_path,
+            user=self.user,
+        )
 
     @classmethod
     def count_persent(cls, rock_mass, result):

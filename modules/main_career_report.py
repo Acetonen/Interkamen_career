@@ -55,8 +55,14 @@ class MainReportS(BasF_S):
     Main career report.
     """
 
-    __slots__ = ['status', 'workers_showing', 'result',
-                 'bonuses', 'rock_mass', 'totall']
+    __slots__ = [
+        'status',
+        'workers_showing',
+        'result',
+        'bonuses',
+        'rock_mass',
+        'totall',
+    ]
 
     def __init__(self, status: str, shift: str, date: str):
         self.workers_showing = {
@@ -106,24 +112,30 @@ class MainReportS(BasF_S):
         return totall
 
     @classmethod
-    def _colorise_salary_and_drillers(cls, name: str, output: str) -> str:
+    def _colorise_salary_and_drillers(cls, name: str, output: str, user) -> str:
         """Colorise sallary and drillers in report output."""
-        if (name in Reports(None).salary_workers or
-                name in Reports(None).drillers):
+        if (name in Reports(user).salary_workers or
+                name in Reports(user).drillers):
             output = ''.join(['\033[36m', output, '\033[0m'])
         return output
 
     @classmethod
-    def _colorise_brigadiers(cls, name: str, output: str) -> str:
+    def _colorise_brigadiers(cls, name: str, output: str, user) -> str:
         """Colorise sallary and drillers in report output."""
-        if name in Reports(None).brigadiers:
+        if name in Reports(user).brigadiers:
             if '\033[36m' in output:
                 output = output.replace('\033[36m', '\033[91m')
             else:
                 output = ''.join(['\033[91m', output, '\033[0m'])
         return output
 
-    def __repr__(self):
+    def _add_color_to_repr(self, name, t_output, user):
+        """Colorise driller, salary adn brigadiers."""
+        t_output = self._colorise_salary_and_drillers(name, t_output, user)
+        t_output = self._colorise_brigadiers(name, t_output, user)
+        return t_output
+
+    def __repr__(self, user=None):
         """Print main report"""
         output = "\n{date} {shift} {status}".format(**self.status)
         output += ("""\n
@@ -173,8 +185,8 @@ class MainReportS(BasF_S):
                     self.workers_showing['бух.']['зарплата'][name]
                 )
             )
-            t_output = self._colorise_salary_and_drillers(name, t_output)
-            t_output = self._colorise_brigadiers(name, t_output)
+            if user:
+                t_output = self._add_color_to_repr(name, t_output, user)
             output += t_output
         unofficial_workers = self.unofficial_workers()
         for name in unofficial_workers:
@@ -183,8 +195,8 @@ class MainReportS(BasF_S):
                 short_name, self.workers_showing['факт']['часы'][name],
                 self.workers_showing['факт']['КТУ'][name],
                 self.workers_showing['факт']['зарплата'][name])
-            t_output = self._colorise_salary_and_drillers(name, t_output)
-            t_output = self._colorise_brigadiers(name, t_output)
+            if user:
+                t_output = self._add_color_to_repr(name, t_output, user)
             output += t_output
         return output
 
@@ -195,13 +207,13 @@ class MainReportS(BasF_S):
             * self.totall * coefficient
             / len(self.workers_showing[direction]['КТУ']), 2)
 
-    def _count_sal_workers_and_drill(self, worker: str):
+    def _count_sal_workers_and_drill(self, worker: str, user):
         """Count sallary workers and drillers"""
         oklad = 0
-        if worker in Reports(None).salary_workers:
+        if worker in Reports(user).salary_workers:
             oklad = (self.workers_showing['факт']['часы'][worker]
                      / 11 * 50000 / 15)
-        elif worker in Reports(None).drillers:
+        elif worker in Reports(user).drillers:
             oklad = (self.result['шпурометры'] * 36)
         if self.bonuses['более 250 кубов']:
             oklad += (5000 / 15 / 11
@@ -213,9 +225,9 @@ class MainReportS(BasF_S):
         if self.bonuses['победа по критериям']:
             self.workers_showing['факт']['зарплата'][worker] += 3000
 
-    def _add_brigadiers_persent(self, worker: str, direction: str):
+    def _add_brigadiers_persent(self, worker: str, direction: str, user):
         """Add persent if worker are brigadier."""
-        if worker in Reports(None).brigadiers:
+        if worker in Reports(user).brigadiers:
             if direction == 'бух.':
                 persent = 1.15
             elif direction == 'факт':
@@ -264,15 +276,15 @@ class MainReportS(BasF_S):
             result += self.rock_mass[item]
         return result
 
-    def count_all_workers_in_report(self):
+    def count_all_workers_in_report(self, user):
         """Apply action to all workers in report"""
         self.count_result()
         for direction in self.workers_showing:
             for worker in self.workers_showing[direction]['КТУ']:
-                if ((worker in Reports(None).salary_workers or
-                     worker in Reports(None).drillers) and
+                if ((worker in Reports(user).salary_workers or
+                     worker in Reports(user).drillers) and
                         direction == 'факт'):
-                    self._count_sal_workers_and_drill(worker)
+                    self._count_sal_workers_and_drill(worker, user)
                 elif direction == 'бух.':
                     coefficient = 1
                     self._count_salary(direction, worker, coefficient)
@@ -280,7 +292,7 @@ class MainReportS(BasF_S):
                     coefficient = 1.5
                     self._count_salary(direction, worker, coefficient)
                 self._add_brigad_bonus(worker)
-                self._add_brigadiers_persent(worker, direction)
+                self._add_brigadiers_persent(worker, direction, user)
 
     def create_ktu_list(self):
         """Create ktu list"""
@@ -310,9 +322,18 @@ class Reports(BasF_S):
     """
     Class to manage with reports.
     """
-    __slots__ = ['user', 'data_path', 'salary_path', 'drillers_path',
-                 'brigadiers_path', 'shifts', 'salary_workers', 'drillers',
-                 'brigadiers', 'data_base']
+    __slots__ = [
+        'user',
+        'data_path',
+        'salary_path',
+        'drillers_path',
+        'brigadiers_path',
+        'shifts',
+        'salary_workers',
+        'drillers',
+        'brigadiers',
+        'data_base',
+    ]
 
     def __init__(self, user):
         self.user = user
@@ -322,14 +343,28 @@ class Reports(BasF_S):
         self.drillers_path = super().get_root_path() / 'data' / 'drillers'
         self.brigadiers_path = super().get_root_path() / 'data' / 'brigadiers'
         self.shifts = ['Смена 1', 'Смена 2']
-        self.salary_workers = super().load_data(self.salary_path)
-        self.drillers = super().load_data(self.drillers_path)
-        self.brigadiers = super().load_data(self.brigadiers_path)
-        self.data_base = super().load_data(self.data_path)
+        self.salary_workers = super().load_data(
+            data_path=self.salary_path,
+            user=user,
+            )
+        self.drillers = super().load_data(
+            data_path=self.drillers_path,
+            user=user,
+            )
+        self.brigadiers = super().load_data(
+            data_path=self.brigadiers_path,
+            user=user,
+            )
+        self.data_base = super().load_data(
+            data_path=self.data_path,
+            user=user,
+            )
 
     @classmethod
-    def _create_workers_hours_list(cls,
-                                   workers_list: List[str]) -> Dict[str, int]:
+    def _create_workers_hours_list(
+            cls,
+            workers_list: List[str]
+    ) -> Dict[str, int]:
         """Create workers hous list."""
         print("\nВведите количество часов:")
         workers_hours = {}
@@ -371,7 +406,7 @@ class Reports(BasF_S):
     def _give_drill_meters(self, report: MainReportS) -> float:
         """Find driller and give his meters."""
         shift = report.status['shift']
-        drill_meters = DrillPassports(None).count_param_from_passports(
+        drill_meters = DrillPassports(self.user).count_param_from_passports(
             driller=self.find_driller(shift),
             rep_date=report.status['date'],
             parametr='totall_meters',
@@ -381,7 +416,7 @@ class Reports(BasF_S):
     def find_driller(self, shift: str) -> str:
         """Find Driller in shift."""
         for worker in self.drillers:
-            if worker in AllWorkers(None).give_workers_from_shift(shift):
+            if worker in AllWorkers(self.user).give_workers_from_shift(shift):
                 driller = worker
                 break
         return driller
@@ -401,7 +436,7 @@ class Reports(BasF_S):
         self.shifts.remove(shift)
         different_shift = self.shifts[0]
         other_shift_workers = (
-            AllWorkers(None).give_workers_from_shift(different_shift))
+            AllWorkers(self.user).give_workers_from_shift(different_shift))
         while True:
             add_worker = input(
                 "\nДобавить работника из другой бригады? Y/N: ")
@@ -434,26 +469,37 @@ class Reports(BasF_S):
             new_name = "{date} {shift} {status}".format(
                 **tmp_rpt.status)
             self.data_base[new_name] = tmp_rpt
-            self.data_base.pop(report_name, None)
-            super().dump_data(self.data_path, self.data_base)
+            self.data_base.pop(report_name, self.user)
+            super().dump_data(
+                data_path=self.data_path,
+                base_to_dump=self.data_base,
+                user=self.user,
+            )
             LOGGER.warning(
-                f"User '{self.user['login']}' uncomplete report: {new_name}"
+                f"User '{self.user.login}' uncomplete report: {new_name}"
             )
 
     def _delete_report(self, report_name: str):
         """Delete report."""
         if super().confirm_deletion(report_name):
             self.data_base.pop(report_name, None)
-            super().dump_data(self.data_path, self.data_base)
+            super().dump_data(
+                data_path=self.data_path,
+                base_to_dump=self.data_base,
+                user=self.user,
+            )
             LOGGER.warning(
-                f"User '{self.user['login']}' delete report: {report_name}"
+                f"User '{self.user.login}' delete report: {report_name}"
             )
 
     def _edit_salary_or_drillers(self, data_path: 'PurePath'):
         """Edit sallary or drillers lists."""
         while True:
             super().clear_screen()
-            worker_list = super(Reports, self).load_data(data_path)
+            worker_list = super().load_data(
+                data_path=data_path,
+                user=self.user,
+            )
             print("Работники в данной группе:")
             for worker in worker_list:
                 print('\t', worker)
@@ -468,24 +514,34 @@ class Reports(BasF_S):
 
     def _add_salary_or_driller(self, data_path: 'PurePath'):
         """Add worker from salary or driller list."""
-        worker_list = super(Reports, self).load_data(data_path)
+        worker_list = super().load_data(
+            data_path=data_path,
+            user=self.user,
+        )
         if not worker_list:
             worker_list = []
         print("Выберете работника:")
         worker = super(Reports, self).choise_from_list(
-            AllWorkers(None).give_mining_workers(), none_option=True
+            AllWorkers(self.user).give_mining_workers(), none_option=True
         )
         if worker:
             worker_list.append(worker)
-            super().dump_data(data_path, worker_list)
+            super().dump_data(
+                data_path=data_path,
+                base_to_dump=worker_list,
+                user=self.user,
+            )
             print("worker {} aded".format(worker))
             LOGGER.warning(
-                f"User '{self.user['login']}' add worker {worker} to list"
+                f"User '{self.user.login}' add worker {worker} to list"
             )
 
     def _delete_salary_or_driller(self, data_path: 'PurePath'):
         """Delete worker from salary or driller list."""
-        worker_list = super(Reports, self).load_data(data_path)
+        worker_list = super().load_data(
+            data_path=data_path,
+            user=self.user,
+        )
         if not worker_list:
             worker_list = []
         print("Выберете работника для удаления:")
@@ -493,10 +549,14 @@ class Reports(BasF_S):
             worker_list, none_option=True)
         if worker:
             worker_list.remove(worker)
-            super().dump_data(data_path, worker_list)
+            super().dump_data(
+                data_path=data_path,
+                base_to_dump=worker_list,
+                user=self.user,
+            )
             print("worker {} deleted".format(worker))
             LOGGER.warning(
-                f"User '{self.user['login']}' delete worker {worker} from list"
+                f"User '{self.user.login}' delete worker {worker} from list"
             )
 
     def _edit_main_report(self, report_name: str):
@@ -536,7 +596,11 @@ class Reports(BasF_S):
             report_name = "{date} {shift} {status}".format(
                 **tmp_rpt.status)
             self.data_base[report_name] = tmp_rpt
-            super().dump_data(self.data_path, self.data_base)
+            super().dump_data(
+                data_path=self.data_path,
+                base_to_dump=self.data_base,
+                user=self.user,
+            )
             super().clear_screen()
 
     def _enter_rock_mass(self, tmp_rpt: MainReportS) -> MainReportS:
@@ -590,23 +654,23 @@ class Reports(BasF_S):
         """Complete main report"""
         choise = input("Вы уверены что хотите завершить отчет? Y/N: ")
         if choise.lower() == 'y':
-            tmp_rpt.count_all_workers_in_report()
+            tmp_rpt.count_all_workers_in_report(self.user)
             tmp_rpt.status['status'] = '\033[92m[завершен]\033[0m'
-            AllWorkers(None).add_salary_to_workers(
+            AllWorkers(self.user).add_salary_to_workers(
                 tmp_rpt.workers_showing['факт']['зарплата'],
                 tmp_rpt.status['date'],
                 tmp_rpt.unofficial_workers()
             )
             LOGGER.warning(
-                f"User '{self.user['login']}' complete main report: "
+                f"User '{self.user.login}' complete main report: "
                 + f"{tmp_rpt.status['date']}"
             )
             backup_data = Thread(
-                target=EmailSender().make_backup,
+                target=EmailSender(self.user).make_backup,
                 args=(self.user,)
             )
             backup_data.start()
-            LOGGER.warning(f"User '{self.user['login']}' Make backup.")
+            LOGGER.warning(f"User '{self.user.login}' Make backup.")
         return tmp_rpt
 
     def _make_status_in_process(self, report_name: str):
@@ -615,19 +679,23 @@ class Reports(BasF_S):
         tmp_report = self.data_base[report_name]
         print("Введите ОФИЦИАЛЬНЫЕ часы работы:")
         shift = tmp_report.status['shift']
-        workers_list = AllWorkers(None).give_workers_from_shift(shift)
+        workers_list = AllWorkers(self.user).give_workers_from_shift(shift)
         workers_hours_list = self._create_workers_hours_list(workers_list)
         tmp_report.workers_showing['бух.']['часы'] = workers_hours_list
         super().clear_screen()
         tmp_report.create_ktu_list()
-        tmp_report.count_all_workers_in_report()
+        tmp_report.count_all_workers_in_report(self.user)
         tmp_report.status['status'] = '\033[93m[в процессе]\033[0m'
         self.data_base.pop(report_name, None)
         new_name = "{date} {shift} {status}".format(**tmp_report.status)
         self.data_base[new_name] = tmp_report
-        super().dump_data(self.data_path, self.data_base)
+        super().dump_data(
+            data_path=self.data_path,
+            base_to_dump=self.data_base,
+            user=self.user,
+        )
         LOGGER.warning(
-            f"User '{self.user['login']}' make report: "
+            f"User '{self.user.login}' make report: "
             + f"{new_name}"
         )
         self._edit_main_report(new_name)
@@ -668,15 +736,18 @@ class Reports(BasF_S):
         elif '[завершен]' in report_name:
             print(self.data_base[report_name])
             print("[E] - сохранить в данные в exel табель.")
-            if self.user['accesse'] == 'admin':
+            if self.user.accesse == 'admin':
                 print(
                     "\033[91m[un]\033[0m Возвратить статус "
                     "'\033[93m[в процессе]\033[0m'\n"
                 )
             choise = input()
             if choise.lower() in ['e', 'е']:
-                DumpToExl().dump_salary(self.data_base[report_name])
-            elif self.user['accesse'] == 'admin' and choise == 'un':
+                DumpToExl().dump_salary(
+                    report=self.data_base[report_name],
+                    user=self.user,
+                )
+            elif self.user.accesse == 'admin' and choise == 'un':
                 self._uncomplete_main_report(report_name)
 
     def choose_salary_or_drillers(self):
@@ -687,15 +758,15 @@ class Reports(BasF_S):
         if choose == '1':
             self._edit_salary_or_drillers(self.salary_path)
             LOGGER.warning(
-                f"User '{self.user['login']}' working with salary list")
+                f"User '{self.user.login}' working with salary list")
         elif choose == '2':
             self._edit_salary_or_drillers(self.drillers_path)
             LOGGER.warning(
-                f"User '{self.user['login']}' working with drillers list")
+                f"User '{self.user.login}' working with drillers list")
         elif choose == '3':
             self._edit_salary_or_drillers(self.brigadiers_path)
             LOGGER.warning(
-                f"User '{self.user['login']}' working with brigadiers list")
+                f"User '{self.user.login}' working with brigadiers list")
 
     def give_main_results(self, year: str, month: str, shift: str):
         """Return drill meters, result and rock_mass.
@@ -737,7 +808,7 @@ class Reports(BasF_S):
             if self._check_if_report_exist(shift, rep_date):
                 break
 
-        workers_list = AllWorkers(None).give_workers_from_shift(shift)
+        workers_list = AllWorkers(self.user).give_workers_from_shift(shift)
         print(shift)
         for worker in workers_list:
             print(worker)
@@ -755,9 +826,13 @@ class Reports(BasF_S):
         print("\nТабель бригады заполнен.\n")
         report_name = "{date} {shift} {status}".format(**report.status)
         self.data_base[report_name] = report
-        super().dump_data(self.data_path, self.data_base)
+        super().dump_data(
+            data_path=self.data_path,
+            base_to_dump=self.data_base,
+            user=self.user,
+        )
         LOGGER.warning(
-            f"User '{self.user['login']}' create main report: {report_name}")
+            f"User '{self.user.login}' create main report: {report_name}")
         input('\n[ENTER] - выйти.')
 
     def edit_report(self):
@@ -775,7 +850,7 @@ class Reports(BasF_S):
             avaliable_reports, none_option=True)
         if report_name:
             LOGGER.warning(
-                f"User '{self.user['login']}' edit main report: {report_name}")
+                f"User '{self.user.login}' edit main report: {report_name}")
         super().clear_screen()
         while report_name:
             tmp_rpt = self.data_base[report_name]
@@ -796,7 +871,11 @@ class Reports(BasF_S):
                 break
             tmp_rpt = edit_menu_dict[action_name](tmp_rpt)
             self.data_base[report_name] = tmp_rpt
-            super().dump_data(self.data_path, self.data_base)
+            super().dump_data(
+                data_path=self.data_path,
+                base_to_dump=self.data_base,
+                user=self.user,
+            )
             super().clear_screen()
 
     def choose_main_report(self):

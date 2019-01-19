@@ -15,20 +15,32 @@ class WorkersSalary(Bas_F):
     Count and manage workers salary.
     """
 
-    __slots__ = ['salary_list_path', 'salary_list']
+    __slots__ = [
+        'salary_list_path',
+        'salary_list',
+        'user',
+    ]
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.salary_list_path = (
             super().get_root_path() / 'data' / 'salary_list')
         if self.salary_list_path.exists():
-            self.salary_list = super().load_data(self.salary_list_path)
+            self.salary_list = super().load_data(
+                data_path=self.salary_list_path,
+                user=user,
+            )
         else:
             self.salary_list = {
                 'Карьер': {},
                 'Офис': {},
                 'КОЦ': {},
             }
-            super().dump_data(self.salary_list_path, self.salary_list)
+            super().dump_data(
+                data_path=self.salary_list_path,
+                base_to_dump=self.salary_list,
+                user=user
+            )
 
     def _choose_division(self):
         """Choose divisioon to manage."""
@@ -80,5 +92,9 @@ class WorkersSalary(Bas_F):
                 break
             else:
                 actions_list[action](division)
-            super().dump_data(self.salary_list_path, self.salary_list)
+            super().dump_data(
+                data_path=self.salary_list_path,
+                base_to_dump=self.salary_list,
+                user=self.user,
+            )
             super().clear_screen()

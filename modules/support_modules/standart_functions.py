@@ -17,7 +17,6 @@ from pathlib import Path, PurePath
 from typing import Set, Dict, List
 import bcrypt
 from Crypto import Random
-from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
 from matplotlib import rcParams as window_parametrs
 from modules.support_modules.custom_exceptions import MainMenu
@@ -227,7 +226,6 @@ class BasicFunctionsS:
     def check_login_password(users_base, login, password):
         """Check user login and password."""
         sucsesse_login = False
-        password = password.encode('utf-8')
         if (login in users_base and
                 bcrypt.checkpw(password, users_base[login].password)):
             sucsesse_login = True
@@ -293,57 +291,59 @@ class BasicFunctionsS:
         key = Random.new().read(16)
         return key
 
-    @classmethod
-    def _find_key(cls):
-        """Find key for database."""
-        users_path = cls.get_root_path() / 'data' / 'users_base'
-        users_base = pickle.loads(users_path.read_bytes())
-        key = None
-        for user in users_base:
-            if 'admin' in users_base[user].accesse:
-                key = users_base[user].key
-        if not key:
-            raise Exception("Can't find decrypt key.")
-        return key
+    @staticmethod
+    def make_key_length(key):
+        """Make key length 16 or 32 bit."""
+        return key + (16 - len(key)%16) * b'0'
 
-    @classmethod
-    def _encrypt_data(cls, base_to_byte):
+    @staticmethod
+    def encrypt_data(key, base_to_byte):
         """Encrypt data with AES/CBF."""
-        key = cls._find_key()
         i_vector = Random.new().read(AES.block_size)
         cipher = AES.new(key, AES.MODE_CFB, i_vector)
         enc_data = i_vector + cipher.encrypt(base_to_byte)
         return enc_data
 
-    @classmethod
-    def _decrypt_data(cls, base_bytes):
+    @staticmethod
+    def decrypt_data(key, base_bytes):
         """Decrypt data with AES/CBF."""
-        key = cls._find_key()
         i_vector = base_bytes[:AES.block_size]
         cipher = AES.new(key, AES.MODE_CFB, i_vector)
         dec_data = cipher.decrypt(base_bytes[AES.block_size:])
         return dec_data
 
     @classmethod
-    def dump_data(cls, data_path: PurePath, base_to_dump, *, encrypt=True):
+    def dump_data(
+            cls,
+            *,
+            data_path: PurePath,
+            base_to_dump,
+            user=None,
+            encrypt=True
+    ):
         """
         Dumb data to pickle.
         If you whant to encrypt data use: encrypt=True
         """
         base_to_byte = pickle.dumps(base_to_dump)
-
         if encrypt:
-            base_to_byte = cls._encrypt_data(base_to_byte)
+            base_to_byte = cls.encrypt_data(user.temp_datakey, base_to_byte)
 
         data_path.write_bytes(base_to_byte)
 
     @classmethod
-    def load_data(cls, data_path: PurePath, *, decrypt=True):
+    def load_data(
+            cls,
+            *,
+            data_path: PurePath,
+            user=None,
+            decrypt=True
+    ):
         """Load data from pickle"""
         base = {}
         if data_path.exists():
             base_bytes = data_path.read_bytes()
             if decrypt:
-                base_bytes = cls._decrypt_data(base_bytes)
+                base_bytes = cls.decrypt_data(user.temp_datakey, base_bytes)
             base = pickle.loads(base_bytes)
         return base

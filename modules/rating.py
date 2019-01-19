@@ -42,10 +42,17 @@ class Rating(Bas_F):
         self.user = user
         self.totl_res = deepcopy(self.temp_res)
         if self.brig_rating_path.exists():
-            self.brig_rating_file = super().load_data(self.brig_rating_path)
+            self.brig_rating_file = super().load_data(
+                data_path=self.brig_rating_path,
+                user=user,
+            )
         else:
             self.brig_rating_file = pd.DataFrame(columns=self.brig_columns)
-            super().dump_data(self.brig_rating_path, self.brig_rating_file)
+            super().dump_data(
+                data_path=self.brig_rating_path,
+                base_to_dump=self.brig_rating_file,
+                user=user,
+            )
 
     def _create_rating(self, user, year, month, shift):
         """Create rating record."""
@@ -78,14 +85,18 @@ class Rating(Bas_F):
         if confirm.lower() == 's':
             self._save_rating(tmp_rating)
             LOGGER.warning(
-                f"User '{self.user['login']}' give rating: {rating_name}"
+                f"User '{self.user.login}' give rating: {rating_name}"
             )
 
     def _save_rating(self, tmp_rating):
         """Save temp rating to data frame."""
         self.brig_rating_file = self.brig_rating_file.append(
             tmp_rating, ignore_index=True)
-        super().dump_data(self.brig_rating_path, self.brig_rating_file)
+        super().dump_data(
+            data_path=self.brig_rating_path,
+            base_to_dump=self.brig_rating_file,
+            user=self.user,
+        )
         print("\033[92mОценки сохранены.\033[0m")
 
     def _show_rating(self):
@@ -129,7 +140,7 @@ class Rating(Bas_F):
         """Add main brigades results from Main Report to average rating."""
         self.totl_res['критерий'].extend(['result', 'rock_mass'])
         for shift in self.shifts:
-            brig_results = Reports(None).give_main_results(
+            brig_results = Reports(self.user).give_main_results(
                 str(year), str(month), shift)
             if brig_results:
                 self.totl_res[shift].extend(brig_results[1:])
@@ -139,7 +150,10 @@ class Rating(Bas_F):
     def _add_average_kti(self, year, month):
         """Add average kti from Mechanic Report to average rating."""
         self.totl_res = pd.DataFrame(self.totl_res)
-        brigades_kti = MechReports(None).give_average_shifs_kti(year, month)
+        brigades_kti = (
+            MechReports(self.user)
+            .give_average_shifs_kti(year, month)
+        )
         self.totl_res = self.totl_res.append(brigades_kti, ignore_index=True)
 
     def _count_wining_points(self):
@@ -167,7 +181,7 @@ class Rating(Bas_F):
             shift = super().choise_from_list(self.shifts)
             rep_date.update({
                 'shift': shift,
-                'user': self.user['name'].split(' ')[0]
+                'user': self.user.name.split(' ')[0]
                 })
             check = super().check_date_in_dataframe(
                 self.brig_rating_file, rep_date)

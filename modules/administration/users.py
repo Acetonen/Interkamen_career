@@ -28,38 +28,40 @@ from modules.administration.logger_cfg import Logs
 LOGGER = Logs().give_logger(__name__)
 
 
-class User(dict, BasF_S):
+class User(BasF_S):
     """User class."""
-    def __init__(self, user_dict=None):
-        super().__init__()
-        if isinstance(user_dict, dict):
-            self.update(user_dict)
-        else:
-            self.name = 'empty'
-            self.accesse = 'info'
-            self.login = 'empty'
-            self.password = 'empty'
-            self.email = 'empty'
 
-    def __getattr__(self, name):
-        if name in self:
-            name = self[name]
-        else:
-            raise AttributeError("No such attribute: " + name)
-        return name
+    __slots__ = (
+        'name',
+        'accesse',
+        'login',
+        'password',
+        'email',
+        'data_key',
+        'temp_datakey'
+    )
 
-    def __setattr__(self, key, value):
-        self[key] = value
-
-    def __delattr__(self, name):
-        if name in self:
-            del self[name]
-        else:
-            raise AttributeError("No such attribute: " + name)
+    def __init__(
+            self,
+            name,
+            accesse,
+            login,
+            password,
+            email,
+            data_key,
+            temp_datakey
+    ):
+        self.name = name
+        self.accesse = accesse
+        self.login = login
+        self.password = password
+        self.email = email
+        self.data_key = data_key
+        self.temp_datakey = temp_datakey
 
     def __repr__(self):
         output = (f"\nname:{self.name}\nlogin:{self.login}"
-                  f"\npassword:{self.password}\naccesse:{self.accesse}"
+                  f"\naccesse:{self.accesse}"
                   f"\nemail:{self.email}")
         return output
 
@@ -80,7 +82,10 @@ class Users(BasF_S):
         self.data_path = super().get_root_path() / 'data' / 'users_base'
         if not self.data_path.exists():
             self._create_new_users_base()
-        self.users_base = super().load_data(self.data_path, decrypt=False)
+        self.users_base = super().load_data(
+            data_path=self.data_path,
+            decrypt=False,
+        )
 
     def __repr__(self):
         output = ['']
@@ -91,26 +96,68 @@ class Users(BasF_S):
             output.append('\n')
         return ' '.join(output)
 
+    def _save_data_key(self, data_key):
+        """Save data_key to file."""
+        root_path = super().get_root_path() / 'secret_key'
+        root_path.write_bytes(data_key)
+        print(
+            "'secret_key' file was created in:"
+            f"\n{str(root_path)}"
+            "\nSave it in safe place!"
+            "\nIt'll be imposible to restore files if you miss it."
+        )
+
     def _create_new_users_base(self):
         """Create new users base with new 'admin' account and key
-        for encrypt database
+        for encrypt database.
         """
-        new_key = super().create_new_key()
-        password = bcrypt.hashpw(b'admin', bcrypt.gensalt())
-        admin_user = {
-            'name': 'Main Program Admin',
-            'accesse': 'admin',
-            'login': 'admin',
+        data_key = super().create_new_key()
+        self._save_data_key(data_key)
+        admin_user = self._fill_new_user(
+            name='Main Program Admin',
+            accesse='admin',
+            login='admin',
+            password='admin',
+            data_key=data_key,
+        )
+        users_base = {'admin': admin_user}
+        super().dump_data(
+            data_path=self.data_path,
+            base_to_dump=users_base,
+            encrypt=False,
+        )
+        print(
+            "\nDefault administration account created:"
+            "\nlogin: admin"
+            "\npassword: admin\n"
+        )
+
+    def _fill_new_user(self, name, accesse, login, password, data_key) -> User:
+        """Fill new user."""
+        password = password.encode('utf-8')
+        coded_datakey = self._encode_datakey_with_pass(password, data_key)
+        password = bcrypt.hashpw(password, bcrypt.gensalt())
+        new_user = {
+            'name': name,
+            'accesse': accesse,
+            'login': login,
             'password': password,
             'email': 'empty',
-            'key': new_key,
+            'data_key': coded_datakey,
+            'temp_datakey': None,
         }
-        admin_user = User(admin_user)
-        users_base = {'admin': admin_user}
-        super().dump_data(self.data_path, users_base, encrypt=False)
+        new_user = User(**new_user)
+        return new_user
 
+    def _encode_datakey_with_pass(self, password, datakey):
+        """Encode datakey with user password."""
+        password_to_key = super().make_key_length(password)
+        coded_datakey = super().encrypt_data(password_to_key, datakey)
+        return coded_datakey
+
+    @classmethod
     @BasF_S.confirm_deletion_decorator
-    def _check_deletion(self, user: User):
+    def _check_deletion(cls, user: User):
         """Delete user from database"""
         if 'key' in user:
             print("Yoy can't delete main admin user.")
@@ -125,10 +172,14 @@ class Users(BasF_S):
         deletion_approved = self._check_deletion(user)
         if deletion_approved:
             self.users_base.pop(user.login, None)
-            super().dump_data(self.data_path, self.users_base, encrypt=False)
+            super().dump_data(
+                data_path=self.data_path,
+                base_to_dump=self.users_base,
+                encrypt=False,
+            )
             user_deleted = True
             LOGGER.warning(
-                f"User '{self.user['login']}' delete user '{user['login']}'")
+                f"User '{self.user.login}' delete user '{user.login}'")
         input('\n[ENTER] - выйти')
         return user_deleted
 
@@ -183,7 +234,11 @@ class Users(BasF_S):
             if are_user_deleted:
                 break
             self.users_base[choosen_user] = temp_user
-            super().dump_data(self.data_path, self.users_base, encrypt=False)
+            super().dump_data(
+                data_path=self.data_path,
+                base_to_dump=self.users_base,
+                encrypt=False,
+            )
 
     def _try_set_new_password(self, user):
         while True:
@@ -192,57 +247,67 @@ class Users(BasF_S):
                 break
             repeat_password = getpass.getpass("Повторите новый пароль: ")
             if new_password == repeat_password:
-                new_password = new_password.encode('utf-8')
-                user.password = bcrypt.hashpw(new_password, bcrypt.gensalt())
-                self.users_base[user.login] = user
-                super().dump_data(self.data_path,
-                                  self.users_base,
-                                  encrypt=False)
+                self._save_user_with_new_pass(user, new_password)
                 print("Новый пароль сохранен.")
                 LOGGER.warning(
                     f"User '{user.login}' change password")
                 input('\n[ENTER] - продолжить.')
-                break
+                return new_password
             else:
                 print("Введенные пароли не совпадают.")
                 input('\n[ENTER] - продолжить.')
             return new_password
 
+    def _save_user_with_new_pass(self, user, new_password):
+        """Save user with new password in users base."""
+        new_password = new_password.encode('utf-8')
+        user.data_key = self._encode_datakey_with_pass(
+            new_password,
+            user.temp_datakey
+        )
+        save_data_key = user.temp_datakey
+        # We must save in base without decrypted data key.
+        user.temp_datakey = None
+        user.password = bcrypt.hashpw(new_password, bcrypt.gensalt())
+        self.users_base[user.login] = user
+        super().dump_data(
+            data_path=self.data_path,
+            base_to_dump=self.users_base,
+            encrypt=False,
+        )
+        # Return data key to current user.
+        user.temp_datakey = save_data_key
+
     def create_new_user(self):
         """Create new user and save him in databese"""
-        name = input("Input username: ")
+        new_user = {}
+        new_user['name'] = input("Input username: ")
         while True:
-            login = input("Input login: ")
-            if login in self.users_base:
+            new_user['login'] = input("Input login: ")
+            if new_user['login'] in self.users_base:
                 print("Login alredy exist, try enother.")
-            elif not login:
+            elif not new_user['login']:
                 print("You must input login.")
             else:
                 break
-        password = input("Input password: ")
-        password = password.encode('utf-8')
-        password = bcrypt.hashpw(password, bcrypt.gensalt())
+        new_user['password'] = input("Input password: ")
         print("Choose access by number:")
-        access = super().choise_from_list(self.access_list)
-        email = super().check_correct_email()
-        new_user = {
-            'login': login,
-            'name': name,
-            'accesse': access,
-            'password': password,
-            'email': email,
-        }
-        self.users_base[login] = User(new_user)
-        print(f"\033[92m user '{login}' created. \033[0m")
+        new_user['accesse'] = super().choise_from_list(self.access_list)
+        new_user['data_key'] = self.user.temp_datakey
+        new_user = self._fill_new_user(**new_user)
+        self.users_base[new_user.login] = new_user
+        print(f"\033[92m user '{new_user.login}' created. \033[0m")
         LOGGER.warning(
-            f"User '{self.user.login}' create new user: '{login}'")
-        super().dump_data(self.data_path, self.users_base, encrypt=False)
+            f"User '{self.user.login}' create new user: '{new_user.login}'")
+        super().dump_data(
+            data_path=self.data_path,
+            base_to_dump=self.users_base,
+            encrypt=False,
+        )
         input('\n[ENTER] - выйти')
 
     def edit_user(self):
-        """
-        Change user parametrs.
-        """
+        """Change user parametrs."""
         while True:
             super().clear_screen()
             print("Input number of user to edit:")
@@ -254,7 +319,7 @@ class Users(BasF_S):
                 break
 
     def change_password(self, user):
-        """Changing password"""
+        """Changing password."""
         while True:
             old_password = input("Введите старый пароль: ")
             old_password = old_password.encode('utf-8')
@@ -269,25 +334,27 @@ class Users(BasF_S):
                 input('\n[ENTER] - продолжить.')
 
     def try_to_enter_program(self):
-        """
-        Take user login/password input and return current user privilege
+        """Take user login/password input and return current user privilege.
         """
         user_in = None
         while True:
             login = input("Имя пользователя: ")
             password = getpass.getpass("Введите пароль: ")
-            sucsesse_login = super().check_login_password(self.users_base,
-                                                          login,
-                                                          password)
+            password = password.encode('utf-8')
+            sucsesse_login = super().check_login_password(
+                self.users_base,
+                login,
+                password
+            )
             if sucsesse_login:
+                key = super().make_key_length(password)
                 user_in = self.users_base[login]
+                user_in.temp_datakey = super().decrypt_data(
+                    key,
+                    user_in.data_key
+                )
                 break
         return user_in
-
-    def sync_user(self):
-        """Sync current user with base"""
-        self.users_base = super().load_data(self.data_path, decrypt=False)
-        return self.users_base[self.user.login]
 
     def show_all_users(self):
         """Print all users from base"""

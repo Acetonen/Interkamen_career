@@ -72,14 +72,26 @@ class MechReports(BasF_S):
         self.temp_df = pd.DataFrame()
         # Try to load mech reports file.
         if self.mech_path.exists():
-            self.mech_file = super().load_data(self.mech_path)
+            self.mech_file = super().load_data(
+                data_path=self.mech_path,
+                user=user,
+            )
+
         else:
             self.mech_file = pd.DataFrame(self.mech_data, index=[0])
-            super().dump_data(self.mech_path, self.mech_file)
-        self.machines = sorted(set(self.mech_file.mach_name))
+            super().dump_data(
+                data_path=self.mech_path,
+                base_to_dump=self.mech_file,
+                user=user,
+            )
+        if 'mach_name' in self.mech_file:
+            self.machines = sorted(set(self.mech_file.mach_name))
         # Try to load maintainence file.
         if self.maint_path.exists():
-            self.maint_file = super().load_data(self.maint_path)
+            self.maint_file = super().load_data(
+                data_path=self.maint_path,
+                user=user,
+            )
         else:
             self.maint_file = self._create_blanc_maint()
 
@@ -139,14 +151,22 @@ class MechReports(BasF_S):
         self.maint_file.loc[
             select_mach, 'hours_pass'] = self.maint_file.loc[
                 select_mach, 'cycle']
-        super().dump_data(self.maint_path, self.maint_file)
+        super().dump_data(
+            data_path=self.maint_path,
+            base_to_dump=self.maint_file,
+            user=self.user,
+        )
 
     def _create_blanc_maint(self):
         """Crete new maintenance DF."""
         maint_df = pd.DataFrame(
             self.maint_dict, columns=['mach_name', 'cycle',
                                       'last_maintain_date', 'hours_pass'])
-        super().dump_data(self.maint_path, maint_df)
+        super().dump_data(
+            data_path=self.maint_path,
+            base_to_dump=maint_df,
+            user=self.user,
+        )
         return maint_df
 
     def _create_blanc(self, rep_date):
@@ -197,7 +217,11 @@ class MechReports(BasF_S):
         else:
             self.mech_file = self.mech_file.append(self.temp_df)
         self.walk_thrue_maint_calendar(sub)
-        super().dump_data(self.mech_path, self.mech_file)
+        super().dump_data(
+            data_path=self.mech_path,
+            base_to_dump=self.mech_file,
+            user=self.user,
+        )
 
     def _stat_by_period(self, *stand_reason, month):
         print("Выберете год:")
@@ -379,7 +403,7 @@ class MechReports(BasF_S):
             if choise.lower() == 's':
                 self._save_report()
                 LOGGER.warning(
-                    f"User '{self.user['login']}' create mechanics report: "
+                    f"User '{self.user.login}' create mechanics report: "
                     + '{year}.{month}.{day}'.format(**rep_date)
                 )
                 print("\n\033[92mДанные сохранены.\033[0m")
@@ -410,7 +434,11 @@ class MechReports(BasF_S):
         self.walk_thrue_maint_calendar(add)
         self.mech_file = self.mech_file.append(
             self.temp_df).drop_duplicates(keep=False)
-        super().dump_data(self.mech_path, self.mech_file)
+        super().dump_data(
+            data_path=self.mech_path,
+            base_to_dump=self.mech_file,
+            user=self.user,
+        )
 
     def _add_hours_to_maint_counter(self, oper, check,
                                     add_hours, maint_mach):
@@ -420,7 +448,11 @@ class MechReports(BasF_S):
                 int(self.maint_file.loc[maint_mach, 'hours_pass']),
                 int(add_hours)
                 )
-            super().dump_data(self.maint_path, self.maint_file)
+            super().dump_data(
+                data_path=self.maint_path,
+                base_to_dump=self.maint_file,
+                user=self.user,
+            )
 
     def create_report(self):
         """Create daily report."""

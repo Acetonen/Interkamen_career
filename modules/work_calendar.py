@@ -23,8 +23,14 @@ from modules.support_modules.custom_exceptions import MainMenu
 class WCalendar(Bas_F):
     """Career working calendar ofr current year."""
 
-    __slots__ = ['year', 'working_days_in_month', 'month_prnt',
-                 'month_length', 'br_cal', 'itr_cal']
+    __slots__ = [
+        'year',
+        'working_days_in_month',
+        'month_prnt',
+        'month_length',
+        'br_cal',
+        'itr_cal',
+    ]
 
     def __init__(self, year: int):
         self.month_prnt = ''
@@ -221,14 +227,18 @@ class WCalendar(Bas_F):
 class WorkCalendars(Bas_F):
     """Manage calendars."""
 
-    __slots__ = ['calendar_path', 'calendar_file']
+    __slots__ = ['calendar_path', 'calendar_file', 'user']
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.calendar_path = (
             super().get_root_path() / 'data' / 'working_calendar')
         self.calendar_file = {}
         if self.calendar_path.exists():
-            self.calendar_file = super().load_data(self.calendar_path)
+            self.calendar_file = super().load_data(
+                data_path=self.calendar_path,
+                user=self.user,
+            )
 
     def create_calendar(self):
         """Create working calendar."""
@@ -238,7 +248,11 @@ class WorkCalendars(Bas_F):
         year = int(year)
         work_calendar = WCalendar(year)
         self.calendar_file[year] = work_calendar
-        super().dump_data(self.calendar_path, self.calendar_file)
+        super().dump_data(
+            data_path=self.calendar_path,
+            base_to_dump=self.calendar_file,
+            user=self.user,
+        )
         print(f"Рабочий календарь {year} создан.")
         print(work_calendar)
         input('\n[ENTER] - выйти.')

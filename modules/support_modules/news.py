@@ -15,9 +15,15 @@ from modules.support_modules.standart_functions import (BasicFunctionsS
 class News(BasF_S):
     """Show news to users."""
 
-    __slots__ = ['news_path', 'news_memory', 'news_memory_file']
+    __slots__ = [
+        'news_path',
+        'news_memory',
+        'news_memory_file',
+        'user',
+    ]
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         # Path for news files.
         self.news_path = super().get_root_path() / 'news'
         # Path for information of showing to users.
@@ -25,9 +31,16 @@ class News(BasF_S):
         if (not os.listdir(self.news_path) or
                 not self.news_memory.exists()):
             self.news_memory_file = {}
-            super().dump_data(self.news_memory, self.news_memory_file)
+            super().dump_data(
+                data_path=self.news_memory,
+                base_to_dump=self.news_memory_file,
+                user=user,
+            )
         else:
-            self.news_memory_file = super().load_data(self.news_memory)
+            self.news_memory_file = super().load_data(
+                data_path=self.news_memory,
+                user=user,
+            )
 
     @classmethod
     def _print_news(cls, new_news):
@@ -66,7 +79,11 @@ class News(BasF_S):
                 new = self.news_path.joinpath(news).read_text(encoding='utf-8')
                 new_news.append(new)
                 self._add_news_to_user(user_login, news)
-                super().dump_data(self.news_memory, self.news_memory_file)
+                super().dump_data(
+                    data_path=self.news_memory,
+                    base_to_dump=self.news_memory_file,
+                    user=self.user,
+                )
         if new_news:
             self._print_news(new_news)
 

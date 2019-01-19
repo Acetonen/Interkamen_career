@@ -9,6 +9,7 @@ Add reminder under maim meny, different for different user access.
 
 import os
 import time
+from copy import deepcopy
 from datetime import date, timedelta
 from modules.support_modules.standart_functions import (BasicFunctionsS as
                                                         BasF_S)
@@ -20,10 +21,16 @@ from modules.support_modules.custom_exceptions import MainMenu
 class Reminder(BasF_S):
     """Make different reminder."""
 
-    __slots__ = ['reminder_path', 'remind_by_access',
-                 'reminder_path', 'reminder_file']
+    __slots__ = [
+        'reminder_path',
+        'remind_by_access',
+        'reminder_path',
+        'reminder_file',
+        'user',
+    ]
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.reminder_path = super().get_root_path() / 'data' / 'reminds'
         self.remind_by_access = {
             'mechanic': [self._maintenance_remind],
@@ -38,12 +45,19 @@ class Reminder(BasF_S):
         }
 
         if self.reminder_path.exists():
-            self.reminder_file = super().load_data(self.reminder_path)
+            self.reminder_file = super().load_data(
+                data_path=self.reminder_path,
+                user=user,
+            )
         else:
             self.reminder_file = {}
             for users in self.remind_by_access:
                 self.reminder_file[users] = {}
-            super().dump_data(self.reminder_path, self.reminder_file)
+            super().dump_data(
+                data_path=self.reminder_path,
+                base_to_dump=self.reminder_file,
+                user=user,
+            )
 
     @classmethod
     def _update_career_map(cls):
@@ -57,11 +71,10 @@ class Reminder(BasF_S):
                 header = '\033[91mНеобходимо обновить карту карьера.\033[0m'
         return header
 
-    @classmethod
-    def _main_report_remind(cls):
+    def _main_report_remind(self):
         """Remind if main report uncomplete."""
         header = ''
-        reports_need_to_edit = Reports(None).give_avaliable_to_edit(
+        reports_need_to_edit = Reports(self.user).give_avaliable_to_edit(
             '[не завершен]', '[в процессе]')
         if reports_need_to_edit:
             header = "Недооформленные документы:\n" + '\n'.join(
@@ -69,10 +82,9 @@ class Reminder(BasF_S):
             )
         return header
 
-    @classmethod
-    def _maintenance_remind(cls):
+    def _maintenance_remind(self):
         """Remind for machine maintenance."""
-        header = MechReports(None).walk_thrue_maint_calendar()
+        header = MechReports(self.user).walk_thrue_maint_calendar()
         return header
 
     def give_remind(self, user_access):
@@ -82,9 +94,14 @@ class Reminder(BasF_S):
             if remind_cond:
                 remind_list.append(remind_cond())
         for remind in self.reminder_file[user_access]:
-            if date.today() > self.reminder_file[user_access][remind]:
-                self.reminder_file[user_access].pop(remind)
-                super().dump_data(self.reminder_path, self.reminder_file)
+            temp_remind_list = deepcopy(self.reminder_file)
+            if date.today() > temp_remind_list[user_access][remind]:
+                temp_remind_list[user_access].pop(remind)
+                super().dump_data(
+                    data_path=self.reminder_path,
+                    base_to_dump=temp_remind_list,
+                    user=self.user,
+                )
             else:
                 remind_list.append('\n' + remind)
         header = ' '.join(remind_list)
@@ -108,7 +125,11 @@ class Reminder(BasF_S):
                 self.reminder_file[user][remind] = deadline
         else:
             self.reminder_file[users][remind] = deadline
-        super().dump_data(self.reminder_path, self.reminder_file)
+        super().dump_data(
+            data_path=self.reminder_path,
+            base_to_dump=self.reminder_file,
+            user=self.user,
+        )
         print("remind save: ", remind, str(deadline))
         input('\n[ENTER] - выйти')
 
@@ -123,7 +144,11 @@ class Reminder(BasF_S):
                 self.reminder_file[user_access].pop(remind, None)
         else:
             self.reminder_file[users].pop(remind)
-        super().dump_data(self.reminder_path, self.reminder_file)
+        super().dump_data(
+            data_path=self.reminder_path,
+            base_to_dump=self.reminder_file,
+            user=self.user,
+        )
         print("remind deleted.")
         input('\n[ENTER] - выйти')
 

@@ -30,7 +30,12 @@ LOGGER = Logs().give_logger(__name__)
 class DPassportS(BasF_S):
     """Drill passport."""
 
-    __slots__ = ['pass_number', 'master', 'params', 'bareholes']
+    __slots__ = [
+        'pass_number',
+        'master',
+        'params',
+        'bareholes',
+    ]
 
     horizonds = ['+108', '+114', '+120', '+126', '+132']
 
@@ -140,7 +145,10 @@ class DPassportS(BasF_S):
     def _set_driller(self):
         """Choose driller."""
         drillers_path = super().get_root_path() / 'data' / 'drillers'
-        drillers = super().load_data(drillers_path)
+        drillers = super().load_data(
+            data_path=drillers_path,
+            user=self.user,
+        )
         print("Выберете бурильщика:")
         self.params.driller = super().choise_from_list(drillers)
 
@@ -242,8 +250,13 @@ class NPassportS(DPassportS):
 class DrillPassports(BasF_S):
     """Class to create and working with drill passports."""
 
-    __slots__ = ['drill_pass_path', 'user', 'drill_pass_file',
-                 'empty_serial', 'empty_df']
+    __slots__ = [
+        'drill_pass_path',
+        'user',
+        'drill_pass_file',
+        'empty_serial',
+        'empty_df',
+    ]
 
     massive_type = ['Массив', 'Повторный', 'Негабариты']
     pass_columns = [
@@ -259,10 +272,17 @@ class DrillPassports(BasF_S):
         self.user = user
         self._create_empty_df()
         if self.drill_pass_path.exists():
-            self.drill_pass_file = super().load_data(self.drill_pass_path)
+            self.drill_pass_file = super().load_data(
+                data_path=self.drill_pass_path,
+                user=user,
+            )
         else:
             self.drill_pass_file = {}
-            super().dump_data(self.drill_pass_path, self.drill_pass_file)
+            super().dump_data(
+                data_path=self.drill_pass_path,
+                base_to_dump=self.drill_pass_file,
+                user=user,
+            )
 
     @classmethod
     def _crerate_pass_date(cls, *, year: int, day: int, month: int) -> str:
@@ -319,9 +339,13 @@ class DrillPassports(BasF_S):
             pass_name = self._create_pass_name(passport)
             print('\033[92m', pass_name, ' - cохранен.\033[0m')
             self.drill_pass_file[pass_name] = passport
-            super().dump_data(self.drill_pass_path, self.drill_pass_file)
+            super().dump_data(
+                data_path=self.drill_pass_path,
+                base_to_dump=self.drill_pass_file,
+                user=self.user,
+            )
             LOGGER.warning(
-                f"User '{self.user['login']}' create drill pass.: {pass_name}"
+                f"User '{self.user.login}' create drill pass.: {pass_name}"
             )
             exel = input("\nЖелаете создать exel файл? Y/N: ")
             if exel.lower() == 'y':
@@ -423,7 +447,7 @@ class DrillPassports(BasF_S):
             pass_blanc = DPassportS
         passport = pass_blanc(
             pass_number=number,
-            master=self.user['name'],
+            master=self.user.name,
             empty_df=self.empty_serial,
             massive_type=pass_type,
             rep_date=rep_date,
@@ -442,9 +466,13 @@ class DrillPassports(BasF_S):
         passport.change_parametrs()
         if not passport.params.number:
             self.drill_pass_file.pop(passport_name)
-            super().dump_data(self.drill_pass_path, self.drill_pass_file)
+            super().dump_data(
+                data_path=self.drill_pass_path,
+                base_to_dump=self.drill_pass_file,
+                user=self.user,
+            )
             LOGGER.warning(
-                f"User '{self.user['login']}' delete drill pass.: "
+                f"User '{self.user.login}' delete drill pass.: "
                 + f"{passport_name}"
             )
         else:

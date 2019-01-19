@@ -33,8 +33,12 @@ class Accesse:
     Give to program 'choise tree' and 'meny' depend on user access.
     """
 
-    __slots__ = ['menu_list', 'menu_options', 'sub_menus',
-                 'sub_standart_options']
+    __slots__ = [
+        'menu_list',
+        'menu_options',
+        'sub_menus',
+        'sub_standart_options',
+    ]
 
     def __init__(self, accesse='mechanic'):
 
@@ -45,15 +49,15 @@ class Accesse:
             },
             'basic': {
                 'Телефоны работников':
-                lambda user: AllWorkers(None).print_telefon_numbers(),
+                lambda user: AllWorkers(user).print_telefon_numbers(),
                 'Календарь пересменок':
-                lambda user: WorkCalendars().show_year_shifts(),
+                lambda user: WorkCalendars(user).show_year_shifts(),
                 'Поменять пароль':
                 lambda user: Users(user).change_password(user),
                 'Показать новости':
-                lambda user: News().show_actual_news(),
+                lambda user: News(user).show_actual_news(),
                 'Состояние карьера':
-                lambda user: Statuses(None).show_status(),
+                lambda user: Statuses(user).show_status(),
                 '\033[93mВыйти из программы\033[0m': 'exit program',
             },
             'mechanic': {
@@ -102,17 +106,17 @@ class Accesse:
                 '\033[91m--> [databases] \033[0m': 'sub-menu',
                 '\033[91m--> [reminds] \033[0m': 'sub-menu',
                 '\033[91mmake backup now\033[0m':
-                lambda user: EmailSender().make_backup(user),
+                lambda user: EmailSender(user).make_backup(),
                 '\033[91mmain email settings\033[0m':
-                lambda user: EmailSender().edit_main_propeties(),
+                lambda user: EmailSender(user).edit_main_propeties(),
                 '\033[91mcareer report recivers\033[0m':
-                lambda user: EmailSender().edit_career_status_recivers(),
+                lambda user: EmailSender(user).edit_career_status_recivers(),
             },
             '\033[91m--> [reminds] \033[0m': {
                 '\033[91mcreate reminder\033[0m':
-                lambda user: Reminder().make_custom_remind(),
+                lambda user: Reminder(user).make_custom_remind(),
                 '\033[91mshow all reminds\033[0m':
-                lambda user: Reminder().show_all_reminds(),
+                lambda user: Reminder(user).show_all_reminds(),
             },
             '\033[91m--> [log_menu] \033[0m': {
                 'search in logs':
@@ -134,23 +138,23 @@ class Accesse:
                 'Новый работник':
                 lambda user: AllWorkers(user).add_new_worker(),
                 'Показать работников подразделения':
-                lambda user: AllWorkers(None).print_workers_from_division(),
+                lambda user: AllWorkers(user).print_workers_from_division(),
                 'Показать уволеных работников':
-                lambda user: AllWorkers(None).print_archive_workers(),
+                lambda user: AllWorkers(user).print_archive_workers(),
                 'Вернуть работника из архива':
                 lambda user: AllWorkers(user).return_from_archive(),
                 'Редактировать работника':
                 lambda user: AllWorkers(user).edit_worker(),
                 'Показать юбиляров этого года':
-                lambda user: AllWorkers(None).show_anniversary_workers(),
+                lambda user: AllWorkers(user).show_anniversary_workers(),
                 'Создать календарь пересменок':
-                lambda user: WorkCalendars().create_calendar(),
+                lambda user: WorkCalendars(user).create_calendar(),
             },
             '\033[91m--> [databases] \033[0m': {
                 'upd company structure':
                 lambda user: AllWorkers(user).upd_comp_structure(),
                 'print company structure':
-                lambda user: AllWorkers(None).print_comp_structure(),
+                lambda user: AllWorkers(user).print_comp_structure(),
             },
             '--> [Финансы]': {
                 'Наряд бригады':
@@ -158,7 +162,7 @@ class Accesse:
                 'Сформировать итог по рейтингу':
                 lambda user: Rating(user).count_brigade_winner(),
                 'Редактировать список окладов':
-                lambda user: WorkersSalary().manage_salary_list(),
+                lambda user: WorkersSalary(user).manage_salary_list(),
                 'Бригадиры, окладники, бурильщики':
                 lambda user: Reports(user).choose_salary_or_drillers(),
             },
@@ -166,15 +170,15 @@ class Accesse:
             '--> [Меню_мастера]': self.menu_options['master'],
             '--> [Статистика_ремонтов]': {
                 'Показать статистику КТГ и КТИ':
-                lambda user: MechReports(None).show_statistic(),
+                lambda user: MechReports(user).show_statistic(),
                 'Статистика по причинам простоев':
-                lambda user: MechReports(None).show_statistic(True),
+                lambda user: MechReports(user).show_statistic(True),
             },
             '--> [Статистика_добычи]': {
                 'Статистика добычи по кубатуре':
-                lambda user: ReportAnalysis().result_analysis(),
+                lambda user: ReportAnalysis(user).result_analysis(),
                 'Статистика по горной массе':
-                lambda user: ReportAnalysis().rock_mass_analysis(),
+                lambda user: ReportAnalysis(user).rock_mass_analysis(),
                 'Статистика по буровому инструменту':
                 lambda user: DrillInstruments(user).show_statistic_by_year(),
             }

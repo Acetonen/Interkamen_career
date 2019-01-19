@@ -48,25 +48,43 @@ class EmailSender(BasF_S):
     Class to working with e-mails.
     """
 
-    __slots__ = ['data_path', 'log_file_path', 'email_prop_path', 'users_base',
-                 'destroy_data', 'backup_log_list', 'email_prop']
+    __slots__ = [
+        'data_path',
+        'log_file_path',
+        'email_prop_path',
+        'users_base',
+        'destroy_data',
+        'backup_log_list',
+        'email_prop',
+        'user',
+    ]
 
-    def __init__(self):
-
+    def __init__(self, user):
+        self.user = user
         self.data_path = super().get_root_path() / 'data'
         self.log_file_path = super().get_root_path() / 'backup' / 'backup_log'
         self.email_prop_path = super().get_root_path() / 'data' / 'email_prop'
         users_base_path = super().get_root_path() / 'data' / 'users_base'
-        self.users_base = super().load_data(users_base_path, decrypt=False)
+        self.users_base = super().load_data(
+            data_path=users_base_path,
+            decrypt=False,
+        )
 
-        self.email_prop = super().load_data(self.email_prop_path)
+        self.email_prop = super().load_data(
+            data_path=self.email_prop_path,
+            user=user,
+        )
         if not self.email_prop:
             self.email_prop = {
-                'email': '',
-                'password': '',
+                'email': None,
+                'password': None,
                 'resivers list': [],
             }
-            super().dump_data(self.email_prop_path, self.email_prop)
+            super().dump_data(
+                data_path=self.email_prop_path,
+                base_to_dump=self.email_prop,
+                user=user,
+            )
 
         self.destroy_data = None
         self.backup_log_list = []
@@ -275,17 +293,19 @@ class EmailSender(BasF_S):
         if users_mails:
             self.email_prop[recivers_adreses].extend(users_mails)
 
-    def try_to_destroy(self, current_user):
+    def try_to_destroy(self):
         """Try to destroy all data."""
         self._try_connect(connect_reason=self._read_mail)
         if self.destroy_data:
             if len(self.destroy_data) == 2:
                 login = self.destroy_data[0]
                 password = self.destroy_data[1]
-                if super().check_login_password(self.users_base,
-                                                login,
-                                                password):
-                    self.__destroy(current_user)
+                if super().check_login_password(
+                        self.users_base,
+                        login,
+                        password
+                    ):
+                    self.__destroy(self.user)
 
     def edit_main_propeties(self):
         """Edit email settings."""
@@ -314,7 +334,11 @@ class EmailSender(BasF_S):
                 break
             else:
                 action_dict[action]()
-            super().dump_data(self.email_prop_path, self.email_prop)
+            super().dump_data(
+                data_path=self.email_prop_path,
+                base_to_dump=self.email_prop,
+                user=self.user,
+            )
 
     def edit_career_status_recivers(self):
         """Edit resiver list for dayli career status."""
@@ -340,16 +364,24 @@ class EmailSender(BasF_S):
                 break
             else:
                 action_dict[action_name]("career status recivers")
-            super().dump_data(self.email_prop_path, self.email_prop)
+            super().dump_data(
+                data_path=self.email_prop_path,
+                base_to_dump=self.email_prop,
+                user=self.user,
+            )
 
-    def make_backup(self, user, event=None):
+    def make_backup(self, event=None):
         """Make backup file."""
         current_date = str(date.today())
         backup_path = Path('backup') / current_date
         shutil.make_archive(backup_path, 'zip', self.data_path)
         self.backup_log_list.append(current_date)
-        super().dump_data(self.log_file_path, self.backup_log_list)
-        # LOGGER.warning(f"User '{user['login']}' Make backup.")
+        super().dump_data(
+            data_path=self.log_file_path,
+            base_to_dump=self.backup_log_list,
+            user=self.user,
+        )
+        # LOGGER.warning(f"User '{self.user.login}' Make backup.")
         unsucsesse = self.try_email(
             recivers_adreses='resivers list',
             subject='Data backup',
@@ -366,11 +398,13 @@ class EmailSender(BasF_S):
             if unsucsesse:
                 print(unsucsesse)
 
-    def check_last_backup_date(self, user, event=None):
+    def check_last_backup_date(self, event=None):
         """Check last backup date"""
         if self.log_file_path.exists():
-            self.backup_log_list = super().load_data(self.log_file_path,
-                                                     decrypt=False)
+            self.backup_log_list = super().load_data(
+                data_path=self.log_file_path,
+                decrypt=False,
+            )
             last_backup_date = self.backup_log_list[-1]
             last_data = datetime.strptime(
                 last_backup_date.rstrip(),
@@ -378,9 +412,9 @@ class EmailSender(BasF_S):
             )
             delta = datetime.now() - last_data
             if delta.days > 30:
-                self.make_backup(user, event=event)
+                self.make_backup(event=event)
         else:
-            self.make_backup(user, event=event)
+            self.make_backup(event=event)
 
     def try_email(self, recivers_adreses: str, **mail_parts):
         """
@@ -389,7 +423,7 @@ class EmailSender(BasF_S):
                           "career status recivers"
         "resivers list" is list of emails that contain mails for administration
         information.
-        "career status recivers" is list of emails to recive dayli career
+        "career status recivers" is list of emails to recive daily career
         status information.
         """
         unsucsesse = None
