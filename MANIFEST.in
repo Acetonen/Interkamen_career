@@ -1,5 +1,5 @@
 include README.md LICENSE
 recursive-include readme_screenshots *
-recursive-include exl_blancs *
-recursive-include html_blancs *
-recursive-include support_img *
+recursive-include InterkamenCorp/exl_blancs *
+recursive-include InterkamenCorp/html_blancs *
+recursive-include InterkamenCorp/support_img *

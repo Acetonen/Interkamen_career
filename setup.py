@@ -10,7 +10,7 @@ from shutil import rmtree
 
 from setuptools import find_packages, setup, Command
 
-NAME = 'interkamen'
+NAME = 'InterkamenCorp'
 DESCRIPTION = 'Manage mining company.'
 URL = 'https://github.com/Acetonen/Interkamen_career'
 EMAIL = 'acetonen@gmail.com'
@@ -92,9 +92,7 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    packages=find_packages(exclude=(
-        'Documents', 'data', '__pycache__', '.ipynb_checkpoints', 'backup',
-    )),
+    packages=find_packages(),
     install_requires=REQUIRED,
     extras_require=EXTRAS,
     include_package_data=True,
