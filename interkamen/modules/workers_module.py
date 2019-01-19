@@ -37,11 +37,13 @@ from __future__ import annotations
 from pprint import pprint
 from datetime import date
 from typing import Dict, List
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as BasF_S)
-from modules.administration.logger_cfg import Logs
-from modules.support_modules.custom_exceptions import MainMenu
-from modules.workers_salary import WorkersSalary
+from .administration.logger_cfg import Logs
+from .support_modules.custom_exceptions import MainMenu
+from .workers_salary import WorkersSalary
+from .support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 
 LOGGER = Logs().give_logger(__name__)
@@ -49,9 +51,15 @@ LOGGER = Logs().give_logger(__name__)
 class WorkerS(BasF_S):
     """Particular worker"""
 
-    __slots__ = ['name', 'working_place', 'telefone_number',
-                 'employing_lay_off_dates', 'salary', 'penalties',
-                 'contributions']
+    __slots__ = [
+        'name',
+        'working_place',
+        'telefone_number',
+        'employing_lay_off_dates',
+        'salary',
+        'penalties',
+        'contributions',
+    ]
 
     def __init__(self, name, working_place):
         self.name = name
@@ -61,13 +69,15 @@ class WorkerS(BasF_S):
         #                  'profession': profession,
         #                  'shift': shift}
         self.telefone_number = ''
-        self.employing_lay_off_dates = {'employing': '',
-                                        'lay_off': ''}
+        self.employing_lay_off_dates = {
+            'employing': '',
+            'lay_off': ''
+        }
         self.salary = {}
         self.penalties = {}
         self.contributions = {}
 
-    def __repr__(self):
+    def __str__(self):
         # For old data in DB:
         if not self.employing_lay_off_dates:
             self.employing_lay_off_dates = {'employing': '',
@@ -83,6 +93,9 @@ class WorkerS(BasF_S):
                       self.employing_lay_off_dates['employing']
                   ))
         return output
+
+    def __repr__(self):
+        return self.name
 
 
 class AllWorkers(BasF_S):
@@ -411,11 +424,16 @@ class AllWorkers(BasF_S):
         """
         division = self._choose_division()
         while True:
-            print("[ENTER] - выйти."
-                  "\nВыберете работника для редактирования:")
+            super().clear_screen()
+            print(
+                "[ENTER] - выйти."
+                "\nВыберете работника для редактирования:"
+            )
             division_workers = self._give_workers(division)
-            worker = super().choise_from_list(division_workers,
-                                              none_option=True)
+            worker = super().choise_from_list(
+                division_workers,
+                none_option=True
+            )
             super().clear_screen()
             if not worker:
                 break
@@ -559,9 +577,12 @@ class AllWorkers(BasF_S):
         """Show workers with this year anniversary."""
         anniv_list = []
         for wor in self.workers_base:
-            emp_date = (self.workers_base[wor]
-                        .employing_lay_off_dates['employing'][:4])
+            emp_date = (
+                self.workers_base[wor]
+                .employing_lay_off_dates['employing']
+            )
             if emp_date:
+                emp_date = emp_date[:4]
                 anniv_list.extend(self._give_anniv_workers(wor, emp_date))
         if anniv_list:
             print("Юбиляры этого года:")

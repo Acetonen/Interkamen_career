@@ -8,20 +8,23 @@ from threading import Thread, Event
 from typing import Dict, List
 import sentry_sdk
 
-from modules.support_modules.hi import INTERKAMEN
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as BasF_S)
-from modules.support_modules.reminder import Reminder
-from modules.support_modules.news import News
-from modules.support_modules.custom_exceptions import MainMenu
+from __version__ import __version__
 
-from modules.administration.accesse_options import Accesse
-from modules.administration.users import Users, User
-from modules.administration.logger_cfg import Logs
-from modules.support_modules.emailed import EmailSender
+from .modules.support_modules.hi import INTERKAMEN
+from .modules.support_modules.reminder import Reminder
+from .modules.support_modules.news import News
+from .modules.support_modules.custom_exceptions import MainMenu
+from .modules.administration.accesse_options import Accesse
+from .modules.administration.users import Users, User
+from .modules.administration.logger_cfg import Logs
+from .modules.support_modules.emailed import EmailSender
+from .modules.support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 
-BUILD_VERSION = 'ver1.15.0'
+BUILD_VERSION = __version__
 INTERKAMEN = INTERKAMEN.replace('*********', BUILD_VERSION)
 
 
@@ -89,6 +92,13 @@ def main(current_user: User):
             except MainMenu:
                 pass
             BasF_S.clear_screen()
+
+
+def _create_data_folder():
+    """Crete 'data' folder if not exist."""
+    data_path = BasF_S.get_root_path() / 'data'
+    if not data_path.exists():
+        data_path.mkdir(parents=True, exist_ok=True)
 
 
 def _start_background_tasks(event, current_user):

@@ -15,12 +15,14 @@ Working calendar module.
 
 import calendar as cl
 from typing import Tuple, List
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as Bas_F)
-from modules.support_modules.custom_exceptions import MainMenu
+from .support_modules.custom_exceptions import MainMenu
+from .support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 
-class WCalendar(Bas_F):
+class WCalendar(BasF_S):
     """Career working calendar ofr current year."""
 
     __slots__ = [
@@ -224,10 +226,14 @@ class WCalendar(Bas_F):
         return curr_month_shifts
 
 
-class WorkCalendars(Bas_F):
+class WorkCalendars(BasF_S):
     """Manage calendars."""
 
-    __slots__ = ['calendar_path', 'calendar_file', 'user']
+    __slots__ = [
+        'calendar_path',
+        'calendar_file',
+        'user'
+    ]
 
     def __init__(self, user):
         self.user = user

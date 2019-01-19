@@ -17,11 +17,13 @@ from __future__ import annotations
 from typing import Union, Dict, List
 import pandas as pd
 from numpy import nan as Nan
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as BasF_S)
-from modules.support_modules.dump_to_exl import DumpToExl
-from modules.administration.logger_cfg import Logs
-from modules.support_modules.custom_exceptions import MainMenu
+from .support_modules.dump_to_exl import DumpToExl
+from .administration.logger_cfg import Logs
+from .support_modules.custom_exceptions import MainMenu
+from .support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 
 LOGGER = Logs().give_logger(__name__)

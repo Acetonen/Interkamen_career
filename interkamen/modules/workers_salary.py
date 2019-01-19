@@ -6,11 +6,13 @@ Count and change workers salsry.
 and add salary to them.
 """
 
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as Bas_F)
+from .support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 
-class WorkersSalary(Bas_F):
+class WorkersSalary(BasF_S):
     """
     Count and manage workers salary.
     """

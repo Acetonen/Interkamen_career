@@ -10,8 +10,8 @@ Module that provide to analyse and visualise MainReport data.
 from collections import namedtuple
 from copy import deepcopy
 from matplotlib import pyplot as plt
-from modules.main_career_report import Reports
-from modules.support_modules.custom_exceptions import MainMenu
+from .main_career_report import Reports
+from .support_modules.custom_exceptions import MainMenu
 
 
 class ReportAnalysis(Reports):

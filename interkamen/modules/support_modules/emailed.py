@@ -34,8 +34,10 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.utils import COMMASPACE, formatdate
 
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as BasF_S)
+from .standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 # Importing Logs in this module make import loop.
 # May be it is no needed here.

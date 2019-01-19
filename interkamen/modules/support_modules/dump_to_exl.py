@@ -11,8 +11,7 @@ import os
 import time
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as BasF_S)
+from .standart_functions import BasicFunctionsS as BasF_S
 
 
 class DumpToExl(BasF_S):

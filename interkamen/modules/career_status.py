@@ -11,15 +11,17 @@ Everyday career status.
 from threading import Thread
 from itertools import zip_longest
 from datetime import date, timedelta
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as BasF_S)
-from modules.support_modules.emailed import EmailSender
-from modules.work_calendar import WorkCalendars
-from modules.workers_module import AllWorkers
-from modules.main_career_report import Reports
-from modules.administration.logger_cfg import Logs
-from modules.drill_passports import DrillPassports
-from modules.support_modules.custom_exceptions import MainMenu
+from .support_modules.emailed import EmailSender
+from .work_calendar import WorkCalendars
+from .workers_module import AllWorkers
+from .main_career_report import Reports
+from .administration.logger_cfg import Logs
+from .drill_passports import DrillPassports
+from .support_modules.custom_exceptions import MainMenu
+from .support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 
 LOGGER = Logs().give_logger(__name__)

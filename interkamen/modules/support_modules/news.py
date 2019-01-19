@@ -8,8 +8,10 @@ News module. Show news for users.
 """
 
 import os
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as BasF_S)
+from .standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 
 class News(BasF_S):

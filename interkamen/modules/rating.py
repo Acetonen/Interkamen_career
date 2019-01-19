@@ -9,18 +9,20 @@ This module contain class that provide working with brigade rating.
 
 from copy import deepcopy
 import pandas as pd
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as Bas_F)
-from modules.mechanic_report import MechReports
-from modules.main_career_report import Reports
-from modules.administration.logger_cfg import Logs
-from modules.support_modules.custom_exceptions import MainMenu
+from .mechanic_report import MechReports
+from .main_career_report import Reports
+from .administration.logger_cfg import Logs
+from .support_modules.custom_exceptions import MainMenu
+from .support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 
 LOGGER = Logs().give_logger(__name__)
 
 
-class Rating(Bas_F):
+class Rating(BasF_S):
     """Working with ratings in DataFrame."""
 
     __slots__ = ['brig_rating_path', 'totl_res', 'user',

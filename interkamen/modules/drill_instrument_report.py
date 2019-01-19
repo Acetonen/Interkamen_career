@@ -10,13 +10,14 @@ Working with statistic of drill instrument.
 import os
 from matplotlib import pyplot as plt
 import pandas as pd
-from modules.main_career_report import Reports
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as BasF_S)
-from modules.administration.logger_cfg import Logs
-from modules.support_modules.custom_exceptions import MainMenu
-from modules.drill_passports import DrillPassports
-
+from .main_career_report import Reports
+from .administration.logger_cfg import Logs
+from .support_modules.custom_exceptions import MainMenu
+from .drill_passports import DrillPassports
+from .support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 LOGGER = Logs().give_logger(__name__)
 

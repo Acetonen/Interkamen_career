@@ -37,14 +37,16 @@ class Reports:
 from threading import Thread
 from typing import List, Dict
 from pprint import pprint
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as BasF_S)
-from modules.workers_module import AllWorkers
-from modules.support_modules.dump_to_exl import DumpToExl
-from modules.support_modules.custom_exceptions import MainMenu
-from modules.administration.logger_cfg import Logs
-from modules.drill_passports import DrillPassports
-from modules.support_modules.emailed import EmailSender
+from .workers_module import AllWorkers
+from .support_modules.dump_to_exl import DumpToExl
+from .support_modules.custom_exceptions import MainMenu
+from .administration.logger_cfg import Logs
+from .drill_passports import DrillPassports
+from .support_modules.emailed import EmailSender
+from .support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 
 LOGGER = Logs().give_logger(__name__)

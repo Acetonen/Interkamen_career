@@ -19,10 +19,12 @@ from operator import sub, add
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from modules.support_modules.standart_functions import (BasicFunctionsS as
-                                                        BasF_S)
-from modules.administration.logger_cfg import Logs
-from modules.support_modules.custom_exceptions import MainMenu
+from .administration.logger_cfg import Logs
+from .support_modules.custom_exceptions import MainMenu
+from .support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 
 LOGGER = Logs().give_logger(__name__)

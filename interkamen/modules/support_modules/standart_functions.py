@@ -19,7 +19,7 @@ import bcrypt
 from Crypto import Random
 from Crypto.Cipher import AES
 from matplotlib import rcParams as window_parametrs
-from modules.support_modules.custom_exceptions import MainMenu
+from .custom_exceptions import MainMenu
 
 
 PROGRAM_PATH = Path(sys.argv[0]).resolve().parent
