@@ -11,8 +11,8 @@ import os
 import time
 from copy import deepcopy
 from datetime import date, timedelta
-from interkamen.modules.main_career_report import Reports
-from interkamen.modules.mechanic_report import MechReports
+from modules.main_career_report import Reports
+from modules.mechanic_report import MechReports
 from .custom_exceptions import MainMenu
 from .standart_functions import (
     BasicFunctionsS

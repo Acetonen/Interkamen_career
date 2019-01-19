@@ -28,8 +28,10 @@ import logging.handlers
 from typing import List
 from sentry_sdk import capture_message
 from modules.support_modules.emailed import EmailSender
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as BasF_S)
+from modules.support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 
 
 class Logs(BasF_S):

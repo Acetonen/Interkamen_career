@@ -20,8 +20,10 @@ This module work with User class and access.
 import getpass
 from typing import List
 import bcrypt
-from modules.support_modules.standart_functions import (BasicFunctionsS
-                                                        as BasF_S)
+from modules.support_modules.standart_functions import (
+    BasicFunctionsS
+    as BasF_S
+)
 from modules.administration.logger_cfg import Logs
 
 
