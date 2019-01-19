@@ -1,3 +1,4 @@
+"""Setup file for Interkamen program."""
 #!/usr/bin/env python3.7
 # -*- coding: utf-8 -*-
 
@@ -23,22 +24,22 @@ REQUIRED = [
 
 EXTRAS = {}
 
-here = os.path.abspath(os.path.dirname(__file__))
+HERE = os.path.abspath(os.path.dirname(__file__))
 
 # Import the README and use it as the long-description.
 try:
-    with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
-        long_description = '\n' + f.read()
+    with io.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as f:
+        LONG_DESCRIPTION = '\n' + f.read()
 except FileNotFoundError:
-    long_description = DESCRIPTION
+    LONG_DESCRIPTION = DESCRIPTION
 
 # Load the package's __version__.py module as a dictionary.
-about = {}
+ABOUT = {}
 if not VERSION:
-    with open(os.path.join(here, NAME, '__version__.py')) as f:
-        exec(f.read(), about)
+    with open(os.path.join(HERE, NAME, '__version__.py')) as file:
+        exec(file.read(), ABOUT)
 else:
-    about['__version__'] = VERSION
+    ABOUT['__version__'] = VERSION
 
 
 class UploadCommand(Command):
@@ -48,20 +49,23 @@ class UploadCommand(Command):
     user_options = []
 
     @staticmethod
-    def status(s):
+    def status(status):
         """Prints things in bold."""
-        print('\033[1m{0}\033[0m'.format(s))
+        print('\033[1m{0}\033[0m'.format(status))
 
     def initialize_options(self):
+        """initialize."""
         pass
 
     def finalize_options(self):
+        """finalize."""
         pass
 
     def run(self):
+        """run upload."""
         try:
             self.status('Removing previous builds…')
-            rmtree(os.path.join(here, 'dist'))
+            rmtree(os.path.join(HERE, 'dist'))
         except OSError:
             pass
 
@@ -72,7 +76,7 @@ class UploadCommand(Command):
         os.system('twine upload dist/*')
 
         self.status('Pushing git tags…')
-        os.system('git tag v{0}'.format(about['__version__']))
+        os.system('git tag v{0}'.format(ABOUT['__version__']))
         os.system('git push --tags')
 
         sys.exit()
@@ -80,9 +84,9 @@ class UploadCommand(Command):
 
 setup(
     name=NAME,
-    version=about['__version__'],
+    version=ABOUT['__version__'],
     description=DESCRIPTION,
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     author=AUTHOR,
     author_email=EMAIL,
