@@ -21,7 +21,7 @@ from modules.administration.logger_cfg import Logs
 from modules.support_modules.emailed import EmailSender
 
 
-BUILD_VERSION = 'ver1.15.0dev'
+BUILD_VERSION = 'ver1.15.0'
 INTERKAMEN = INTERKAMEN.replace('*********', BUILD_VERSION)
 
 

@@ -47,6 +47,15 @@ Please email to acetonen@gmail.com for details on our code of conduct, and the p
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
+### what's new in 1.15.0:
+MINOR:
+1. Creation default admin account.
+2. Add strong cryptography.
+PATCH:
+1. Fix logger bug with encoding log file.
+2. Fix deleting workers.
+3. Fix program version view.
+4. Fix shift calendar.
 ### what's new in 1.14.0:
 MINOR:
 1. Merge backup module with email.
