@@ -295,9 +295,18 @@ class EmailSender(BasF_S):
         if users_mails:
             self.email_prop[recivers_adreses].extend(users_mails)
 
+    def _check_email_properties_exists(self, recivers_adreses='resivers list'):
+        """Check if email login/password exists."""
+        return (
+            self.email_prop['email'] and
+            self.email_prop['password'] and
+            self.email_prop[recivers_adreses]
+        )
+
     def try_to_destroy(self):
         """Try to destroy all data."""
-        self._try_connect(connect_reason=self._read_mail)
+        if self._check_email_properties_exists():
+            self._try_connect(connect_reason=self._read_mail)
         if self.destroy_data:
             if len(self.destroy_data) == 2:
                 login = self.destroy_data[0]
@@ -430,9 +439,8 @@ class EmailSender(BasF_S):
         """
         unsucsesse = None
         self._update_recivers_list(recivers_adreses)
-        if (not self.email_prop['email'] or
-                not self.email_prop['password'] or
-                not self.email_prop[recivers_adreses]):
+
+        if not self._check_email_properties_exists(recivers_adreses):
             unsucsesse = """Для получения уведомлений на почту,
 настройте настройки почты в меню администратора."""
         else:

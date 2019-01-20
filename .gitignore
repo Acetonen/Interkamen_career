@@ -59,8 +59,6 @@ target/
 # Data experiments
 data/
 backup/
-news/
-Буровые_паспорта
 
 #Jupyter files
 *.ipynb_checkpoints
