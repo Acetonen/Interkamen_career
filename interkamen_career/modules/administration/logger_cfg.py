@@ -27,8 +27,8 @@ import logging
 import logging.handlers
 from typing import List
 from sentry_sdk import capture_message
-from modules.support_modules.emailed import EmailSender
-from modules.support_modules.standart_functions import (
+from interkamen_career.modules.support_modules.emailed import EmailSender
+from interkamen_career.modules.support_modules.standart_functions import (
     BasicFunctionsS
     as BasF_S
 )
@@ -44,18 +44,12 @@ class Logs(BasF_S):
     ]
 
     def __init__(self):
-        self._create_data_folder()
+        super().create_folder('data')
         self.log_path = super().get_root_path() / 'data' / 'file.log'
         self.error_log_path = super().get_root_path() / 'data' / 'error.log'
         if self.log_path.exists():
             with open(self.log_path, 'r', encoding='utf-8') as file:
                 self.log_file = file.readlines()[::-1]
-
-    def _create_data_folder(self):
-        """Crete 'data' folder if not exist."""
-        data_path = BasF_S.get_root_path() / 'data'
-        if not data_path.exists():
-            data_path.mkdir(parents=True, exist_ok=True)
 
     def save_info_to_file(self):
         """Save info log to file."""
@@ -120,9 +114,12 @@ class Logs(BasF_S):
                 EmailSender(user).email_prop['email'],
                 EmailSender(user).email_prop['password'],
             )
-        except (smtplib.SMTPAuthenticationError,
+        except (
+                smtplib.SMTPAuthenticationError,
                 socket.gaierror,
-                ConnectionResetError):
+                AttributeError,
+                ConnectionResetError
+        ):
             err_logger.addHandler(self.save_error_to_file())
             connection_problem = True
         else:

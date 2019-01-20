@@ -9,23 +9,23 @@ This module give to program choise tree and meny depend on user access.
 .get_menu_dict() - get current menu dict.
 """
 
-from modules.administration.logger_cfg import Logs
-from modules.administration.users import Users
+from interkamen_career.modules.administration.logger_cfg import Logs
+from interkamen_career.modules.administration.users import Users
 
-from modules.support_modules.emailed import EmailSender
-from modules.support_modules.reminder import Reminder
-from modules.support_modules.news import News
+from interkamen_career.modules.support_modules.emailed import EmailSender
+from interkamen_career.modules.support_modules.reminder import Reminder
+from interkamen_career.modules.support_modules.news import News
 
-from modules.workers_module import AllWorkers
-from modules.main_career_report import Reports
-from modules.report_analysis import ReportAnalysis
-from modules.drill_instrument_report import DrillInstruments
-from modules.mechanic_report import MechReports
-from modules.rating import Rating
-from modules.drill_passports import DrillPassports
-from modules.work_calendar import WorkCalendars
-from modules.career_status import Statuses
-from modules.workers_salary import WorkersSalary
+from interkamen_career.modules.workers_module import AllWorkers
+from interkamen_career.modules.main_career_report import Reports
+from interkamen_career.modules.report_analysis import ReportAnalysis
+from interkamen_career.modules.drill_instrument_report import DrillInstruments
+from interkamen_career.modules.mechanic_report import MechReports
+from interkamen_career.modules.rating import Rating
+from interkamen_career.modules.drill_passports import DrillPassports
+from interkamen_career.modules.work_calendar import WorkCalendars
+from interkamen_career.modules.career_status import Statuses
+from interkamen_career.modules.workers_salary import WorkersSalary
 
 
 class Accesse:

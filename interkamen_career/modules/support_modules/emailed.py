@@ -63,6 +63,7 @@ class EmailSender(BasF_S):
 
     def __init__(self, user):
         self.user = user
+        super().create_folder('backup')
         self.data_path = super().get_root_path() / 'data'
         self.log_file_path = super().get_root_path() / 'backup' / 'backup_log'
         self.email_prop_path = super().get_root_path() / 'data' / 'email_prop'

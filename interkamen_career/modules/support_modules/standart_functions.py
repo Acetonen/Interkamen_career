@@ -22,7 +22,7 @@ from matplotlib import rcParams as window_parametrs
 from .custom_exceptions import MainMenu
 
 
-PROGRAM_PATH = Path(sys.argv[0]).resolve().parent
+PROGRAM_PATH = Path(__file__).resolve().parent.parent.parent
 
 class BasicFunctionsS:
     """Frequently using functions in modules classes."""
@@ -347,3 +347,10 @@ class BasicFunctionsS:
                 base_bytes = cls.decrypt_data(user.temp_datakey, base_bytes)
             base = pickle.loads(base_bytes)
         return base
+
+    @classmethod
+    def create_folder(cls, folder_name: str):
+        """Crete folder in root program directory, if not exists."""
+        data_path = cls.get_root_path() / folder_name
+        if not data_path.exists():
+            data_path.mkdir(parents=True, exist_ok=True)

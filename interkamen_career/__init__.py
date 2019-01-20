@@ -1,1 +1,1 @@
-import main_script
+from . import main_script

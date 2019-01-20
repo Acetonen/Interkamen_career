@@ -20,11 +20,12 @@ This module work with User class and access.
 import getpass
 from typing import List
 import bcrypt
-from modules.support_modules.standart_functions import (
+from interkamen_career.modules.administration.logger_cfg import Logs
+from interkamen_career.modules.support_modules.standart_functions import (
     BasicFunctionsS
     as BasF_S
 )
-from modules.administration.logger_cfg import Logs
+
 
 
 LOGGER = Logs().give_logger(__name__)
