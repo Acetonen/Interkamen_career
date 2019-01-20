@@ -144,12 +144,12 @@ class DPassportS(BasF_S):
         # Detonators:
         self.params.detonators = int(input("Введите количество ЭД: "))
 
-    def _set_driller(self):
+    def _set_driller(self, user):
         """Choose driller."""
         drillers_path = super().get_root_path() / 'data' / 'drillers'
         drillers = super().load_data(
             data_path=drillers_path,
-            user=self.user,
+            user=user,
         )
         print("Выберете бурильщика:")
         self.params.driller = super().choise_from_list(drillers)
@@ -191,13 +191,13 @@ class DPassportS(BasF_S):
         self._set_block_parametrs(bareholes_number)
         self._count_expl_volume(bareholes_number)
 
-    def fill_passport(self):
+    def fill_passport(self, user):
         """Fill passport."""
         self.params.number = self.pass_number
         self.params.master = self.master
         self._set_horizond()
         self._set_pownder_parametrs()
-        self._set_driller()
+        self._set_driller(user)
         self._bareholes_and_dependencies()
         self._set_bits_in_rock()
 
@@ -454,7 +454,7 @@ class DrillPassports(BasF_S):
             massive_type=pass_type,
             rep_date=rep_date,
             )
-        passport.fill_passport()
+        passport.fill_passport(self.user)
         super().clear_screen()
         print(passport)
         self._save_or_not(passport)
