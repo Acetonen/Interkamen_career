@@ -92,7 +92,7 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    packages=find_packages(),
+    packages=find_packages(exclude=('dev_interkamen',)),
     install_requires=REQUIRED,
     extras_require=EXTRAS,
     include_package_data=True,
