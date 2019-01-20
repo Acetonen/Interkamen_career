@@ -28,15 +28,15 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 # Import the README and use it as the long-description.
 try:
-    with io.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as f:
-        LONG_DESCRIPTION = '\n' + f.read()
+    with io.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as file:
+        LONG_DESCRIPTION = '\n' + file.read()
 except FileNotFoundError:
     LONG_DESCRIPTION = DESCRIPTION
 
 # Load the package's __version__.py module as a dictionary.
 ABOUT = {}
 if not VERSION:
-    with open(os.path.join(HERE, NAME, '__version__.py')) as file:
+    with open(os.path.join(HERE, 'interkamen', '__version__.py')) as file:
         exec(file.read(), ABOUT)
 else:
     ABOUT['__version__'] = VERSION

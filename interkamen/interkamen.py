@@ -94,13 +94,6 @@ def main(current_user: User):
             BasF_S.clear_screen()
 
 
-def _create_data_folder():
-    """Crete 'data' folder if not exist."""
-    data_path = BasF_S.get_root_path() / 'data'
-    if not data_path.exists():
-        data_path.mkdir(parents=True, exist_ok=True)
-
-
 def _start_background_tasks(event, current_user):
     """Start threads for checkin program mails and make backups."""
     good_thing_process = Thread(
