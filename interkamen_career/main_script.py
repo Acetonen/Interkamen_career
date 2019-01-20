@@ -180,12 +180,17 @@ def _try_init_sentry_sdk(user):
         sentry_sdk.init(sentry_token)
 
 
-try:
-    CURRENT_USER = _login_program()
-    _try_init_sentry_sdk(CURRENT_USER)
-    try:
-        main(CURRENT_USER)
-    except Exception:
-        Logs().loged_error(CURRENT_USER)
-except KeyboardInterrupt:
-    print('\nExit with keyboard interrupt.')
+def run(args):
+    """Run program."""
+    if args.version:
+        print(f"ver. {__version__}")
+    elif args.login:
+        try:
+            current_user = _login_program()
+            _try_init_sentry_sdk(current_user)
+            try:
+                main(current_user)
+            except Exception:
+                Logs().loged_error(current_user)
+        except KeyboardInterrupt:
+            print('\nExit with keyboard interrupt.')

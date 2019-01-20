@@ -1,3 +1,28 @@
 #!/usr/bin/env python3.7
 
-import interkamen_career
+"""Initial script."""
+
+import argparse
+from interkamen_career import main_script
+
+PARSER = argparse.ArgumentParser(
+    description="Program to manage mining corporation."
+)
+GROUP = PARSER.add_mutually_exclusive_group()
+
+GROUP.add_argument(
+    "-v",
+    "--version",
+    help="return program current version.",
+    action="store_true",
+)
+GROUP.add_argument(
+    "-l",
+    "--login",
+    help="log in program.",
+    action="store_true",
+)
+
+ARGS = PARSER.parse_args()
+
+main_script.run(ARGS)
