@@ -123,8 +123,9 @@ class Logs(BasF_S):
             err_logger.addHandler(self.save_error_to_file())
             connection_problem = True
         else:
-            # Dont needed while using sentry sdk.
-            # err_logger.addHandler(self.send_error_to_email(user))
+            sentry_token = EmailSender(user).email_prop['sentry token']
+            if not sentry_token:
+                err_logger.addHandler(self.send_error_to_email(user))
             connection_problem = False
         finally:
             err_logger.exception(f"User '{user.login}' make error:")
