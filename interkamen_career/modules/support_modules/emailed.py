@@ -81,6 +81,7 @@ class EmailSender(BasF_S):
                 'email': None,
                 'password': None,
                 'resivers list': [],
+                'sentry token': None,
             }
             super().dump_data(
                 data_path=self.email_prop_path,
@@ -208,12 +209,12 @@ class EmailSender(BasF_S):
             self.email_prop[prop].append(new_email)
             print("\033[92memail add.\033[0m")
 
-    def _change_password(self, prop: str):
+    def _change_property(self, prop: str):
         """Change e-mail password."""
-        new_password = input("enter new password: ")
-        self.email_prop[prop] = new_password
+        new_prop = input(f"enter new {prop}: ")
+        self.email_prop[prop] = new_prop
         super().clear_screen()
-        print("\033[92mpassword changed.\033[0m")
+        print(f"\033[92m{prop} changed.\033[0m")
 
     def _send_mail(
             self,
@@ -325,18 +326,22 @@ class EmailSender(BasF_S):
     login   : {}\n\
     password: {}\n\
     Send to:".format(self.email_prop['email'], self.email_prop['password']))
+
             for mail in self.email_prop['resivers list']:
                 print('\t', mail)
+            print('\nSentry token:', self.email_prop['sentry token'])
 
             action_dict = {
                 'change login':
                 lambda arg='email': self._change_email(arg),
                 'change password':
-                lambda arg='password': self._change_password(arg),
+                lambda arg='password': self._change_property(arg),
                 'add resiver':
                 lambda arg='resivers list': self._change_email(arg),
                 'delete resiver':
                 lambda arg='resivers list': self._delete_resiver(arg),
+                'add sentry token':
+                lambda arg='sentry token': self._change_property(arg),
                 'exit': 'break',
             }
             print("\nChoose action:")

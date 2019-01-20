@@ -35,8 +35,10 @@ def main(current_user: User):
         event=show_backround_tasks_results,
         current_user=current_user,
     )
+
     logger = Logs().give_logger(__name__)
     logger.warning(f"User '{current_user.login}' enter program")
+
     menu_list = []
     menu_nesting = []
     menu_header = ['\033[1m \t', '\033[4m ГЛАВНОЕ МЕНЮ \033[0m', '\n \033[0m']
@@ -153,13 +155,14 @@ def _print_menu(
     print(' '.join(menu_header))
     for index, item in enumerate(program_menu, 1):
         print("[{}] - {}".format(index, item))
-    print()
-    print(separator)
+    print('\n' + separator)
 
 
-def _get_main_or_sub_menu(usr_acs: str,
-                          menu_list: List[str],
-                          sub_menu: str = False) -> Dict[str, str]:
+def _get_main_or_sub_menu(
+        usr_acs: str,
+        menu_list: List[str],
+        sub_menu: str = False
+) -> Dict[str, str]:
     """create main or sub-menu if sub_menu=True"""
     if sub_menu:
         program_menu = Accesse(usr_acs).get_sub_menu(sub_menu)
@@ -170,15 +173,19 @@ def _get_main_or_sub_menu(usr_acs: str,
     return program_menu
 
 
-if __name__ == '__main__':
-    sentry_sdk.init(
-        "https://832241bd50f345c6bed4ecdc9524fddb@sentry.io/1362499"
-    )
+def _try_init_sentry_sdk(user):
+    """If sentry token exists, init it."""
+    sentry_token = EmailSender(user).email_prop['sentry token']
+    if sentry_token:
+        sentry_sdk.init(sentry_token)
+
+
+try:
+    CURRENT_USER = _login_program()
+    _try_init_sentry_sdk(CURRENT_USER)
     try:
-        CURRENT_USER = _login_program()
-        try:
-            main(CURRENT_USER)
-        except Exception:
-            Logs().loged_error(CURRENT_USER)
-    except KeyboardInterrupt:
-        print('\nExit with keyboard interrupt.')
+        main(CURRENT_USER)
+    except Exception:
+        Logs().loged_error(CURRENT_USER)
+except KeyboardInterrupt:
+    print('\nExit with keyboard interrupt.')

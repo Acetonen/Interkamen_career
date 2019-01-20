@@ -10,7 +10,7 @@ from shutil import rmtree
 
 from setuptools import find_packages, setup, Command
 
-NAME = 'InterkamenCorp'
+NAME = 'interkamen_career'
 DESCRIPTION = 'Manage mining company.'
 URL = 'https://github.com/Acetonen/Interkamen_career'
 EMAIL = 'acetonen@gmail.com'
@@ -36,7 +36,7 @@ except FileNotFoundError:
 # Load the package's __version__.py module as a dictionary.
 ABOUT = {}
 if not VERSION:
-    with open(os.path.join(HERE, 'interkamen', '__version__.py')) as file:
+    with open(os.path.join(HERE, NAME, '__version__.py')) as file:
         exec(file.read(), ABOUT)
 else:
     ABOUT['__version__'] = VERSION
@@ -96,6 +96,7 @@ setup(
     install_requires=REQUIRED,
     extras_require=EXTRAS,
     include_package_data=True,
+    scripts=['bin/interkamen'],
     license='MIT',
     classifiers=[
         'Environment :: Console',
