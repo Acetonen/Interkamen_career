@@ -1,5 +1,5 @@
-# Interkamen Program 
-### ver 1.14.0
+# Interkamen Program
+### ver 1.16.0
 
 ![intro](readme_screenshots/intro.png)
 
@@ -37,7 +37,7 @@ password: admin
 * [matplotlib](https://matplotlib.org/) - Python 2D plotting library.
 * [openpyxl](https://openpyxl.readthedocs.io/en/stable/#) - A Python library to read/write Excel 2010 xlsx/xlsm files.
 * [Pillow](https://pillow.readthedocs.io/en/5.3.x/) - PIL is the Python Imaging Library.
-* [Sentry](https://sentry.io/welcome/) - Open-source error tracking. 
+* [Sentry](https://sentry.io/welcome/) - Open-source error tracking.
 * [bcrypt](https://pypi.org/project/bcrypt/) - Good password hashing for your software and your servers.
 
 ## Contributing
@@ -47,6 +47,11 @@ Please email to acetonen@gmail.com for details on our code of conduct, and the p
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
+### what's new in 1.16.0:
+MINOR:
+1. Add sentry token input.
+2. Add optional logger error configure.
+3. Add argparser.
 ### what's new in 1.15.0:
 MINOR:
 1. Creation default admin account.
@@ -240,14 +245,14 @@ Password: admin
 
 In header of main menu you may see different remainder that depend on user 'access'.
 
-From this menu you have access to different sub-menus (depend on user access) and basic functions such are: 
+From this menu you have access to different sub-menus (depend on user access) and basic functions such are:
 
 [7] - 'workers telephone numbers',
 [8] - 'shifts calendar'
-[9] - 'change password', 
+[9] - 'change password',
 [10] - 'showing news'
 [11] - 'career status'
-[12] - 'exit program'. 
+[12] - 'exit program'.
 
 Red menus are 'admin-only'
 
@@ -261,7 +266,7 @@ This menus give you access to:
 4. make/edit reminds for different users category
 5. make backup of all data files
 6. edit email notification and backup settings
-7. add email to receive career status report 
+7. add email to receive career status report
 ### 4. Workers menu
 ![workers_menu](readme_screenshots/workers_menu.png)
 
@@ -288,7 +293,7 @@ In this menu u can:
 
 In this menu u can:
 1. Show plots with all mechanics stats (KTI, KTG)
-2. Create daily mechanic report, that goes to career status report automatically 
+2. Create daily mechanic report, that goes to career status report automatically
 3. Create report for machine maintenance
 4. Edit report for machine maintenance
 5. Working with maintenance calendar
