@@ -396,7 +396,7 @@ class EmailSender(BasF_S):
         super().dump_data(
             data_path=self.log_file_path,
             base_to_dump=self.backup_log_list,
-            user=self.user,
+            encrypt=False,
         )
         # LOGGER.warning(f"User '{self.user.login}' Make backup.")
         unsucsesse = self.try_email(

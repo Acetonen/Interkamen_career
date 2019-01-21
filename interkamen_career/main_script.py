@@ -46,8 +46,7 @@ def main(current_user: User):
     usr_acs = current_user.accesse
     _show_news(current_user)
     program_menu = _get_main_or_sub_menu(usr_acs, menu_list, None)
-    signal.signal(signal.SIGTSTP, exit_main_menu_ctrlz)
-
+    _set_signal_to_main_menu()
     while True:
         show_backround_tasks_results.set()
         show_backround_tasks_results.clear()
@@ -122,6 +121,15 @@ def _start_background_tasks(event, current_user):
     email_error_process.start()
     check_backup_process.start()
     check_sentry_sdk.start()
+
+
+def _set_signal_to_main_menu():
+    """Set signal to return in main menu."""
+    if sys.platform[:3] == 'win':
+        signal.signal(signal.SIGTERM, exit_main_menu_ctrlz)
+    else:
+        signal.signal(signal.SIGTSTP, exit_main_menu_ctrlz)
+
 
 def _try_init_sentry_sdk(user, event):
     """If sentry token exists, init it."""
