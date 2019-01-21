@@ -4,6 +4,7 @@ This program provides control of all data and statistic of Career Interkamen.
 """
 
 import sys
+import signal
 from threading import Thread, Event
 from typing import Dict, List
 import sentry_sdk
@@ -13,7 +14,6 @@ from .__version__ import __version__
 from .modules.support_modules.hi import INTERKAMEN
 from .modules.support_modules.reminder import Reminder
 from .modules.support_modules.news import News
-from .modules.support_modules.custom_exceptions import MainMenu
 from .modules.administration.accesse_options import Accesse
 from .modules.administration.users import Users, User
 from .modules.administration.logger_cfg import Logs
@@ -22,7 +22,10 @@ from .modules.support_modules.standart_functions import (
     BasicFunctionsS
     as BasF_S
 )
-
+from .modules.support_modules.custom_exceptions import (
+    MainMenu,
+    exit_main_menu_ctrlz
+)
 
 BUILD_VERSION = __version__
 INTERKAMEN = INTERKAMEN.replace('*********', BUILD_VERSION)
@@ -43,6 +46,7 @@ def main(current_user: User):
     usr_acs = current_user.accesse
     _show_news(current_user)
     program_menu = _get_main_or_sub_menu(usr_acs, menu_list, None)
+    signal.signal(signal.SIGTSTP, exit_main_menu_ctrlz)
 
     while True:
         show_backround_tasks_results.set()
@@ -50,7 +54,6 @@ def main(current_user: User):
         _print_menu(current_user, menu_header, menu_nesting, program_menu)
         user_choise = input("\nВыберете действие: ")
         BasF_S.clear_screen()
-
         if not BasF_S.check_number_in_range(user_choise, program_menu):
             continue
 
