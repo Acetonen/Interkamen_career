@@ -23,7 +23,11 @@ from matplotlib import rcParams as window_parametrs
 from .custom_exceptions import MainMenu
 
 
-PROGRAM_PATH = Path(__file__).resolve().parent.parent.parent
+if sys.platform[:3] == 'win':
+    PROGRAM_PATH = Path(sys.argv[0]).resolve().parent
+else:
+    PROGRAM_PATH = Path(__file__).resolve().parent.parent.parent
+
 # Append PYTHONPATH to capability with old pickle data.
 sys.path.append(str(PROGRAM_PATH))
 
