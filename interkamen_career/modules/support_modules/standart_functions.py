@@ -165,6 +165,49 @@ class BasicFunctionsS:
             return value
         return wrapper
 
+    @classmethod
+    def dump_data(
+            cls,
+            *,
+            data_path: PurePath,
+            base_to_dump,
+            user=None,
+            encrypt=True
+    ):
+        """
+        Dumb data to pickle.
+        If you whant to encrypt data use: encrypt=True
+        """
+        base_to_byte = dill.dumps(base_to_dump)
+        if encrypt:
+            base_to_byte = cls.encrypt_data(user.temp_datakey, base_to_byte)
+
+        data_path.write_bytes(base_to_byte)
+
+    @classmethod
+    def load_data(
+            cls,
+            *,
+            data_path: PurePath,
+            user=None,
+            decrypt=True
+    ):
+        """Load data from pickle"""
+        base = {}
+        if data_path.exists():
+            base_bytes = data_path.read_bytes()
+            if decrypt:
+                base_bytes = cls.decrypt_data(user.temp_datakey, base_bytes)
+            base = dill.loads(base_bytes)
+        return base
+
+    @classmethod
+    def create_folder(cls, folder_name: str):
+        """Crete folder in root program directory, if not exists."""
+        data_path = cls.get_root_path() / folder_name
+        if not data_path.exists():
+            data_path.mkdir(parents=True, exist_ok=True)
+
     @staticmethod
     def check_date_format(rep_date: str) -> bool:
         """Check if date format correct"""
@@ -315,46 +358,3 @@ class BasicFunctionsS:
         cipher = AES.new(key, AES.MODE_CFB, i_vector)
         dec_data = cipher.decrypt(base_bytes[AES.block_size:])
         return dec_data
-
-    @classmethod
-    def dump_data(
-            cls,
-            *,
-            data_path: PurePath,
-            base_to_dump,
-            user=None,
-            encrypt=True
-    ):
-        """
-        Dumb data to pickle.
-        If you whant to encrypt data use: encrypt=True
-        """
-        base_to_byte = dill.dumps(base_to_dump)
-        if encrypt:
-            base_to_byte = cls.encrypt_data(user.temp_datakey, base_to_byte)
-
-        data_path.write_bytes(base_to_byte)
-
-    @classmethod
-    def load_data(
-            cls,
-            *,
-            data_path: PurePath,
-            user=None,
-            decrypt=True
-    ):
-        """Load data from pickle"""
-        base = {}
-        if data_path.exists():
-            base_bytes = data_path.read_bytes()
-            if decrypt:
-                base_bytes = cls.decrypt_data(user.temp_datakey, base_bytes)
-            base = dill.loads(base_bytes)
-        return base
-
-    @classmethod
-    def create_folder(cls, folder_name: str):
-        """Crete folder in root program directory, if not exists."""
-        data_path = cls.get_root_path() / folder_name
-        if not data_path.exists():
-            data_path.mkdir(parents=True, exist_ok=True)

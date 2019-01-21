@@ -35,10 +35,8 @@ def main(current_user: User):
         event=show_backround_tasks_results,
         current_user=current_user,
     )
-
     logger = Logs().give_logger(__name__)
     logger.warning(f"User '{current_user.login}' enter program")
-
     menu_list = []
     menu_nesting = []
     menu_header = ['\033[1m \t', '\033[4m ГЛАВНОЕ МЕНЮ \033[0m', '\n \033[0m']
@@ -112,10 +110,26 @@ def _start_background_tasks(event, current_user):
         target=EmailSender(current_user).check_last_backup_date,
         args=(event,)
     )
+    check_sentry_sdk = Thread(
+        name='Make backup',
+        target=_try_init_sentry_sdk,
+        args=(current_user, event)
+    )
     good_thing_process.start()
     email_error_process.start()
     check_backup_process.start()
+    check_sentry_sdk.start()
 
+def _try_init_sentry_sdk(user, event):
+    """If sentry token exists, init it."""
+    sentry_token = EmailSender(user).email_prop['sentry token']
+    if sentry_token:
+        try:
+            sentry_sdk.init(sentry_token)
+        except sentry_sdk.utils.BadDsn:
+            if event:
+                event.wait()
+                print("\033[91msentry_sdk token incorrect.\033[0m")
 
 def _login_program():
     """Login to program and loged 'enter'"""
@@ -173,13 +187,6 @@ def _get_main_or_sub_menu(
     return program_menu
 
 
-def _try_init_sentry_sdk(user):
-    """If sentry token exists, init it."""
-    sentry_token = EmailSender(user).email_prop['sentry token']
-    if sentry_token:
-        sentry_sdk.init(sentry_token)
-
-
 def run(args):
     """Run program."""
     if args.version:
@@ -187,7 +194,6 @@ def run(args):
     elif args.login:
         try:
             current_user = _login_program()
-            _try_init_sentry_sdk(current_user)
             try:
                 main(current_user)
             except Exception:
