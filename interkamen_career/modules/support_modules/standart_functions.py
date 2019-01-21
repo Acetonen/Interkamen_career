@@ -8,13 +8,14 @@ from __future__ import annotations
 
 import sys
 import os
-import pickle
 import time
 import re
 import functools
 import calendar as cl
 from pathlib import Path, PurePath
 from typing import Set, Dict, List
+
+import dill
 import bcrypt
 from Crypto import Random
 from Crypto.Cipher import AES
@@ -23,6 +24,9 @@ from .custom_exceptions import MainMenu
 
 
 PROGRAM_PATH = Path(__file__).resolve().parent.parent.parent
+# Append PYTHONPATH to capability with old pickle data.
+sys.path.append(str(PROGRAM_PATH))
+
 
 class BasicFunctionsS:
     """Frequently using functions in modules classes."""
@@ -325,7 +329,7 @@ class BasicFunctionsS:
         Dumb data to pickle.
         If you whant to encrypt data use: encrypt=True
         """
-        base_to_byte = pickle.dumps(base_to_dump)
+        base_to_byte = dill.dumps(base_to_dump)
         if encrypt:
             base_to_byte = cls.encrypt_data(user.temp_datakey, base_to_byte)
 
@@ -345,7 +349,7 @@ class BasicFunctionsS:
             base_bytes = data_path.read_bytes()
             if decrypt:
                 base_bytes = cls.decrypt_data(user.temp_datakey, base_bytes)
-            base = pickle.loads(base_bytes)
+            base = dill.loads(base_bytes)
         return base
 
     @classmethod
