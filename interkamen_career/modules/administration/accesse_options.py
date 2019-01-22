@@ -157,6 +157,7 @@ class Accesse:
                 lambda user: AllWorkers(user).print_comp_structure(),
             },
             '--> [Финансы]': {
+                '--> [Финансовая_статистика]': 'sub-menu',
                 'Наряд бригады':
                 lambda user: Reports(user).choose_main_report(),
                 'Сформировать итог по рейтингу':
@@ -181,6 +182,10 @@ class Accesse:
                 lambda user: ReportAnalysis(user).rock_mass_analysis(),
                 'Статистика по буровому инструменту':
                 lambda user: DrillInstruments(user).show_statistic_by_year(),
+            },
+            '--> [Финансовая_статистика]': {
+                'Оценка зарплат бригады':
+                lambda user: ReportAnalysis(user).brigade_financial_analysis(),
             }
         }
 

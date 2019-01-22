@@ -71,36 +71,46 @@ class MainReportS(BasF_S):
             'бух.': {
                 'КТУ': {},
                 'часы': {},
-                'зарплата': {}
+                'зарплата': {},
             },
             'факт': {
                 'КТУ': {},
                 'часы': {},
-                'зарплата': {}
+                'зарплата': {},
             }}
         self.result = {
             'машины второго сорта': 0,
             'шпурометры': 0,
-            'категории': {'меньше 0.7': 0,
-                          '0.7-1.5': 0,
-                          'выше 1.5': 0},
-            'погоризонтно': {'+108': 0,
-                             '+114': 0,
-                             '+120': 0,
-                             '+126': 0,
-                             '+132': 0}
+            'категории': {
+                'меньше 0.7': 0,
+                '0.7-1.5': 0,
+                'выше 1.5': 0,
+            },
+            'погоризонтно': {
+                '+108': 0,
+                '+114': 0,
+                '+120': 0,
+                '+126': 0,
+                '+132': 0,
+                }
             }
-        self.bonuses = {'более 250 кубов': False,
-                        'победа по критериям': False}
-        self.rock_mass = {'+108': 0,
-                          '+114': 0,
-                          '+120': 0,
-                          '+126': 0,
-                          '+132': 0}
+        self.bonuses = {
+            'более 250 кубов': False,
+            'победа по критериям': False,
+        }
+        self.rock_mass = {
+            '+108': 0,
+            '+114': 0,
+            '+120': 0,
+            '+126': 0,
+            '+132': 0,
+        }
         self.totall = 0
-        self.status = {'status': status,
-                       'shift': shift,
-                       'date': date}
+        self.status = {
+            'status': status,
+            'shift': shift,
+            'date': date,
+        }
         # Avaliable statuses: '\033[91m[не завершен]\033[0m'
         #                     '\033[93m[в процессе]\033[0m'
         #                     '\033[92m[завершен]\033[0m'
@@ -669,7 +679,6 @@ class Reports(BasF_S):
             )
             backup_data = Thread(
                 target=EmailSender(self.user).make_backup,
-                args=(self.user,)
             )
             backup_data.start()
             LOGGER.warning(f"User '{self.user.login}' Make backup.")

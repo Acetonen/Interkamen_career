@@ -20,7 +20,7 @@ import time
 import shutil
 
 from typing import Union, List
-from pathlib import PurePath, Path
+from pathlib import PurePath
 from datetime import datetime, date
 
 import imaplib
@@ -52,6 +52,7 @@ class EmailSender(BasF_S):
 
     __slots__ = [
         'data_path',
+        'backup_path',
         'log_file_path',
         'email_prop_path',
         'users_base',
@@ -64,8 +65,13 @@ class EmailSender(BasF_S):
     def __init__(self, user):
         self.user = user
         super().create_folder('backup')
+        self.backup_path = super().get_root_path() / 'backup'
         self.data_path = super().get_root_path() / 'data'
-        self.log_file_path = super().get_root_path() / 'backup' / 'backup_log'
+        self.log_file_path = (
+            super().get_root_path()
+            / 'backup'
+            / 'backup_log'
+        )
         self.email_prop_path = super().get_root_path() / 'data' / 'email_prop'
         users_base_path = super().get_root_path() / 'data' / 'users_base'
         self.users_base = super().load_data(
@@ -173,10 +179,8 @@ class EmailSender(BasF_S):
     def __destroy(self, current_user):
         """destroy."""
         self.make_backup(current_user)
-        data_path = super().get_root_path() / 'data'
-        backup_path = super().get_root_path() / 'backup'
-        shutil.rmtree(data_path)
-        shutil.rmtree(backup_path)
+        shutil.rmtree(self.data_path)
+        shutil.rmtree(self.backup_path)
         super().clear_screen()
         print(
             "\033[91mВСЕ ДАННЫЕ ПРОГРАММЫ БЫЛИ ТОЛЬКО ЧТО УДАЛЕНЫ.\033[0m")
@@ -390,7 +394,7 @@ class EmailSender(BasF_S):
     def make_backup(self, event=None):
         """Make backup file."""
         current_date = str(date.today())
-        backup_path = Path('backup') / current_date
+        backup_path = self.backup_path / current_date
         shutil.make_archive(backup_path, 'zip', self.data_path)
         self.backup_log_list.append(current_date)
         super().dump_data(

@@ -7,6 +7,7 @@ Module that provide to analyse and visualise MainReport data.
 .rock_mass_analysis() - create plots for analyse brigade rock mass.
 """
 
+from typing import Dict, List
 from collections import namedtuple
 from copy import deepcopy
 from matplotlib import pyplot as plt
@@ -16,7 +17,7 @@ from .support_modules.custom_exceptions import MainMenu
 
 class ReportAnalysis(Reports):
     """
-    Class to anilise and visualisate data from reports.
+    Class to anilise and visualisate data from Main reports.
     """
 
     __slots__ = [
@@ -36,7 +37,7 @@ class ReportAnalysis(Reports):
             '+120': [],
             '+126': [],
             '+132': [],
-            'totall': []
+            'totall': [],
         },
         'pers': {
             '+108': [],
@@ -44,7 +45,7 @@ class ReportAnalysis(Reports):
             '+120': [],
             '+126': [],
             '+132': [],
-            'totall': []
+            'totall': [],
         },
         'rock_mass': {
             '+108': [],
@@ -52,21 +53,21 @@ class ReportAnalysis(Reports):
             '+120': [],
             '+126': [],
             '+132': [],
-            'totall': []
+            'totall': [],
         }
     }
     by_shift = {
         'res': {
             'Смена 1': [],
-            'Смена 2': []
+            'Смена 2': [],
             },
         'pers': {
             'Смена 1': [],
-            'Смена 2': []
+            'Смена 2': [],
             },
         'rock_mass': {
             'Смена 1': [],
-            'Смена 2': []
+            'Смена 2': [],
             }
     }
     year_reports = {}
@@ -80,7 +81,7 @@ class ReportAnalysis(Reports):
         )
 
     @classmethod
-    def count_persent(cls, rock_mass, result):
+    def count_persent(cls, rock_mass: float, result: float):
         """Count persent"""
         if rock_mass != 0:
             persent = round(result/rock_mass*100, 2)
@@ -90,8 +91,10 @@ class ReportAnalysis(Reports):
 
     def _chose_year(self):
         """Chose avaliable year."""
-        avaliable_years = {report.split(' ')[0].split('-')[0]
-                           for report in self.base}
+        avaliable_years = {
+            report.split(' ')[0].split('-')[0]
+            for report in self.base
+        }
         return avaliable_years
 
     def _give_reports_by_year(self, year):
@@ -100,7 +103,7 @@ class ReportAnalysis(Reports):
             if year in report:
                 self.year_reports[report] = self.base[report]
 
-    def _data_print(self, year, data_dict):
+    def _data_print(self, year, data_dict: Dict[str, int]):
         """
         Pretty data print.
         data_dict is dictionary with keys: percent, result, rock_mass.
@@ -117,6 +120,47 @@ class ReportAnalysis(Reports):
 
 """.format(sub_item, *data_dict[item][sub_item])
         print(output)
+
+    def _make_brigade_financial_statistic(self):
+        """Make brigade salary and brigade results
+        statistic by month.
+        """
+        result = {}
+        shift_results = self._give_by_shift()
+        shift_results.pop('pers', None)
+        result['indicators'] = {
+            direction: list(map(sum, zip(
+                shift_results[direction]['Смена 1'],
+                shift_results[direction]['Смена 2']
+            )))
+            for direction in shift_results
+        }
+        result['indicators']['rock_mass'] = [
+            int(round(rock_mass/10, 2))
+            for rock_mass in result['indicators']['rock_mass']
+        ]
+        brig_salary = self._give_totall_fact_salary()
+        result['indicators']['salary'] = [
+            round(salary/1000, 0)
+            for salary in brig_salary
+        ]
+        result['cost'] = {}
+        result['cost']['cost'] = [
+            int(round(salary/result, 0))
+            for salary, result in zip(
+                brig_salary,
+                result['indicators']['res']
+            )
+            if result != 0
+        ]
+        title1 = 'Стоимость одного м\u00B3 продукции, р'
+        title2 = (
+            'Зарплата бригады, тыс.р; '
+            'Горная масса, м\u00B3*10; '
+            'Кубатура, м\u00B3'
+        )
+        stat = self.statistic(result, title1, title2)
+        return stat
 
     def _make_rock_mass_statistic(self):
         """Make horisont and shift statistic by month."""
@@ -149,17 +193,19 @@ class ReportAnalysis(Reports):
         return stat
 
     @Reports.set_plotter_parametrs
-    def _two_plots_show(self, year, stat):
+    def _two_plots_show(self, year, stat, title):
         """Combine two subplots"""
         figure = plt.figure()
-        suptitle = figure.suptitle("Результаты работы.", fontsize="x-large")
+        suptitle = figure.suptitle(title , fontsize="x-large")
 
         plot_number = 1
         for result in sorted(stat.result):
-            self._subplot_result((figure, 120+plot_number),
-                                 year,
-                                 stat.result[result],
-                                 stat[plot_number])
+            self._subplot_result(
+                (figure, 120+plot_number),
+                year,
+                stat.result[result],
+                stat[plot_number]
+            )
             plot_number += 1
 
         figure.tight_layout()
@@ -167,24 +213,37 @@ class ReportAnalysis(Reports):
         figure.subplots_adjust(top=0.85)
         plt.show()
 
-    def _subplot_result(self, fig_plot, year, result, title):
-        """visualise result."""
-        # Count coefficient for annotations coordinate depend on scale.
+    @classmethod
+    def _find_coeff_for_title_hight(cls, title):
+        """Find title hight.
+        Count coefficient for annotations coordinate depend on scale.
+        """
         if title.split(' ')[1] in ['добыча,', 'масса']:
             coef = 5
         else:
             coef = 0.1
+        return coef
 
+    def _add_markers_to_plot(self, axle, item, title):
+        """Add markers to plot."""
+        coef = self._find_coeff_for_title_hight(title)
+        for point in zip(self.month_list, item):
+            if point[1] != 0:
+                ann_text = str(point[1])
+                ann_coord = (point[0], point[1]+coef)
+                axle.annotate(ann_text, xy=ann_coord, fontsize='small')
+
+    def _subplot_result(self, fig_plot, year, result, title):
+        """Visualise result."""
         axle = fig_plot[0].add_subplot(fig_plot[1])
-
         for item in sorted(result):
-            axle.plot(self.month_list, result[item],
-                      marker='D', markersize=4)
-            for point in zip(self.month_list, result[item]):
-                if point[1] != 0:
-                    ann_text = str(point[1])
-                    ann_coord = (point[0], point[1]+coef)
-                    axle.annotate(ann_text, xy=ann_coord, fontsize='small')
+            axle.plot(
+                self.month_list,
+                result[item],
+                marker='D',
+                markersize=4
+            )
+            self._add_markers_to_plot(axle, result[item], title)
 
         axle.legend(list(sorted(result.keys())))
         axle.set_xlabel('месяц')
@@ -192,7 +251,7 @@ class ReportAnalysis(Reports):
         axle.set_title(year + 'г., ' + title)
         axle.grid(b=True, linestyle='--', linewidth=0.5)
 
-    def _give_by_horiz(self):
+    def _give_by_horiz(self) -> Dict[str, int]:
         """Give result and persent horizont"""
         result_lists = deepcopy(self.by_horizont)
         for month in self.month_list:
@@ -202,11 +261,16 @@ class ReportAnalysis(Reports):
                 rock_mass_month = 0
                 rock_mass_horizont = 0
                 for report in self.year_reports:
-                    if report.split(' ')[0].split('-')[1] == month:
+                    report_month = report.split(' ')[0].split('-')[1]
+                    if report_month == month:
                         horizont_sum += (
-                            self.base[report].result['погоризонтно'][horizont])
+                            self.base[report]
+                            .result['погоризонтно'][horizont]
+                        )
                         rock_mass_horizont += (
-                            self.base[report].rock_mass[horizont])
+                            self.base[report]
+                            .rock_mass[horizont]
+                        )
                         monthly_sum += self.base[report].count_result()
                         rock_mass_month += self.base[report].count_rock_mass()
                 persent = self.count_persent(rock_mass_horizont, horizont_sum)
@@ -222,7 +286,25 @@ class ReportAnalysis(Reports):
                 int(round(rock_mass_month, 0)))
         return result_lists
 
-    def _give_by_shift(self):
+    def _give_totall_fact_salary(self) -> List[float]:
+        """Give totall brigade salary by month."""
+        salary_list = []
+        for month in self.month_list:
+            brigade_salary = 0
+            for report in self.year_reports:
+                report_month = report.split(' ')[0].split('-')[1]
+                if report_month == month:
+                    brigade_salary += (
+                        sum(
+                            self.base[report]
+                            .workers_showing['факт']['зарплата']
+                            .values()
+                        )
+                    )
+            salary_list.append(int(round(brigade_salary, 0)))
+        return salary_list
+
+    def _give_by_shift(self) -> Dict[str, int]:
         """Give result and persent by shift."""
         result_lists = deepcopy(self.by_shift)
         for month in self.month_list:
@@ -242,10 +324,12 @@ class ReportAnalysis(Reports):
                     int(round(rock_mass_shift, 0)))
         return result_lists
 
-    def result_analysis(self):
-        """Analysis by result"""
-        print("[ENTER] - выход"
-              "\nВыберете год:")
+    def _choose_report_by_year(self):
+        """Choose report by year from database."""
+        print(
+            "[ENTER] - выход"
+            "\nВыберете год:"
+        )
         year = super().choise_from_list(
             self._chose_year(),
             none_option=True,
@@ -254,22 +338,27 @@ class ReportAnalysis(Reports):
             raise MainMenu
         self._give_reports_by_year(year)
         super().clear_screen()
+        return year
+
+    def result_analysis(self):
+        """Analysis by result"""
+        year = self._choose_report_by_year()
         while True:
             data_type = {
                 'Погоризонтная статистика': self._make_horizont_statistic,
-                'Повахтовая статистика': self._make_shift_statistic
+                'Повахтовая статистика': self._make_shift_statistic,
                 }
-            print("\n[ENTER] - выход"
-                  "\nВыберете необходимый очет: ")
+            print(
+                "\n[ENTER] - выход"
+                "\nВыберете необходимый очет: "
+            )
             choise = super().choise_from_list(data_type, none_option=True)
             super().clear_screen()
 
             if choise in data_type:
                 stat = data_type[choise]()
-
                 self._data_print(year, stat.result)
-                self._two_plots_show(year, stat)
-
+                self._two_plots_show(year, stat, title="Результаты работы.")
             elif not choise:
                 break
             else:
@@ -278,17 +367,14 @@ class ReportAnalysis(Reports):
 
     def rock_mass_analysis(self):
         """Analysis by rock mass."""
-        print("[ENTER] - выход"
-              "\nВыберете год:")
-        year = super().choise_from_list(
-            self._chose_year(),
-            none_option=True,
-        )
-        if not year:
-            raise MainMenu
-        self._give_reports_by_year(year)
-        super().clear_screen()
+        year = self._choose_report_by_year()
         rock_stat = self._make_rock_mass_statistic()
         self._data_print(year, rock_stat.result)
-        self._two_plots_show(year, rock_stat)
+        self._two_plots_show(year, rock_stat, title="Результаты работы.")
         input('\n[ENTER] - выйти.')
+
+    def brigade_financial_analysis(self):
+        """Analysis brigade salary by brigade results."""
+        year = self._choose_report_by_year()
+        fin_stat = self._make_brigade_financial_statistic()
+        self._two_plots_show(year, fin_stat, title="Финансовые показатели.")
