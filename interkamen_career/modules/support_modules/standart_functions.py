@@ -15,12 +15,13 @@ import calendar as cl
 from pathlib import Path, PurePath
 from typing import Set, Dict, List
 
-import dill
 import bcrypt
+import pandas as pd
 from Crypto import Random
 from Crypto.Cipher import AES
 from matplotlib import rcParams as window_parametrs
 from .custom_exceptions import MainMenu
+import dill
 
 
 if sys.platform[:3] == 'win':
@@ -85,11 +86,14 @@ class BasicFunctionsS:
         return rep_dict
 
     @classmethod
-    def check_date_in_dataframe(cls, dataframe,
-                                rep_date: Dict[str, int]) -> bool:
+    def check_date_in_dataframe(
+            cls,
+            dataframe,
+            rep_date: Dict[str, int]
+    ) -> bool:
         """
         Check if report allready exist in DataFrame
-        rep_date can contain keys: year, month, day or shift (optionaly)
+        rep_date can contain keys: year, month, day or shift (optional)
         """
         if dataframe.empty:
             check = False
@@ -362,3 +366,12 @@ class BasicFunctionsS:
         cipher = AES.new(key, AES.MODE_CFB, i_vector)
         dec_data = cipher.decrypt(base_bytes[AES.block_size:])
         return dec_data
+
+    @staticmethod
+    def print_all_dataframe(data):
+        """Showing all drill data"""
+        with pd.option_context(
+                'display.max_rows', None,
+                'display.max_columns', None
+        ):
+            print(data)

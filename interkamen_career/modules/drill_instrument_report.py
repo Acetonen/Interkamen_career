@@ -41,9 +41,11 @@ class DrillInstruments(BasF_S):
     def __init__(self, user):
         self.drill_data = {}
         self.drill_path = (
-            super().get_root_path() / 'data' / 'drill_instruments')
+            super().get_root_path() / 'data' / 'drill_instruments'
+        )
         self.temp_drill_path = (
-            super().get_root_path() / 'data' / 'temp_drill_inst')
+            super().get_root_path() / 'data' / 'temp_drill_inst'
+        )
         self.user = user
         if self.drill_path.exists():
             self.drill_file = super().load_data(
@@ -134,13 +136,6 @@ class DrillInstruments(BasF_S):
         bit_by_rock.grid(b=True, linestyle='--', linewidth=0.5)
         bit_by_rock.set_title('Коронок на тысячу кубов горной массы.')
 
-    @classmethod
-    def _print_statistic_by_year(cls, data):
-        """Showing all drill data"""
-        with pd.option_context('display.max_rows', None,
-                               'display.max_columns', None):
-            print(data)
-
     def _check_correctly_input(self, results_exist):
         """Check if data input corretly."""
         print("Отчет: ")
@@ -160,16 +155,20 @@ class DrillInstruments(BasF_S):
 
     def _save_drill_report(self):
         """Save drill report and create log file."""
-        self.drill_file = self.drill_file.append(self.drill_data,
-                                                 ignore_index=True)
+        self.drill_file = self.drill_file.append(
+            self.drill_data,
+            ignore_index=True
+        )
         super().dump_data(
             data_path=self.drill_path,
             base_to_dump=self.drill_file,
             user=self.user,
         )
-        report_name = '{}-{}-{}'.format(self.drill_data['year'],
-                                        self.drill_data['month'],
-                                        self.drill_data['shift'])
+        report_name = '{}-{}-{}'.format(
+            self.drill_data['year'],
+            self.drill_data['month'],
+            self.drill_data['shift']
+        )
         LOGGER.warning(
             f"User '{self.user.login}' create drill inst.: {report_name}"
         )
@@ -178,26 +177,32 @@ class DrillInstruments(BasF_S):
         """Visualise statistic."""
         drill_year = self.drill_file.year == year
         data_by_year = self.drill_file[drill_year].sort_values(by=['month'])
-        self._print_statistic_by_year(data_by_year)
+        super().print_all_dataframe(data_by_year)
         shift1 = data_by_year['shift'] == 'Смена 1'
         shift2 = data_by_year['shift'] == 'Смена 2'
-        all_bits1 = (data_by_year[shift1].bits32
-                     + data_by_year[shift1].bits35)
-        all_bits2 = (data_by_year[shift2].bits32
-                     + data_by_year[shift2].bits35)
+        all_bits1 = (
+            data_by_year[shift1].bits32
+            + data_by_year[shift1].bits35
+        )
+        all_bits2 = (
+            data_by_year[shift2].bits32
+            + data_by_year[shift2].bits35
+        )
         self._create_plots(
             data_by_year,
             (shift1, shift2),
             (all_bits1, all_bits2)
-            )
+        )
 
     @BasF_S.set_plotter_parametrs
     def _create_plots(self, data_by_year, shifts, bits):
         """Create plots for drill data."""
 
         figure = plt.figure()
-        suptitle = figure.suptitle("Отчет по буровому инструменту.",
-                                   fontsize="x-large")
+        suptitle = figure.suptitle(
+            "Отчет по буровому инструменту.",
+            fontsize="x-large"
+        )
         data_to_plot = (figure, data_by_year, shifts, bits)
         self._create_meters_by_month(*data_to_plot[:-1])
         self._create_all_bits(*data_to_plot)
@@ -275,7 +280,7 @@ class DrillInstruments(BasF_S):
             result_comlete = self._bring_data_from_main_report()
             if result_comlete:
                 self._save_drill_report()
-                os.remove(self.temp_drill_path)
+                self.temp_drill_path.unlink()
                 print("Temp Drill report completed.")
 
     def create_drill_report(self):
@@ -292,10 +297,12 @@ class DrillInstruments(BasF_S):
         if isinstance(self.drill_file, pd.DataFrame):
             print("[ENTER] - выход"
                   "\nВыберете год:")
-            year = super().choise_from_list(sorted(set(self.drill_file.year)),
-                                            none_option=True)
+            year = super().choise_from_list(
+                sorted(set(self.drill_file.year)),
+                none_option=True
+            )
         else:
-            print("Статистик по буровому инструменту отстутствует.")
+            print("Статистика по буровому инструменту отстутствует.")
         if year:
             self._visualise_statistic(year)
         input('\n[ENTER] - выйти.')

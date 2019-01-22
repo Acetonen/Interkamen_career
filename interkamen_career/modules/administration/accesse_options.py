@@ -26,6 +26,7 @@ from interkamen_career.modules.drill_passports import DrillPassports
 from interkamen_career.modules.work_calendar import WorkCalendars
 from interkamen_career.modules.career_status import Statuses
 from interkamen_career.modules.workers_salary import WorkersSalary
+from interkamen_career.modules.mechanics_economic import MechEconomic
 
 
 class Accesse:
@@ -166,6 +167,8 @@ class Accesse:
                 lambda user: WorkersSalary(user).manage_salary_list(),
                 'Бригадиры, окладники, бурильщики':
                 lambda user: Reports(user).choose_salary_or_drillers(),
+                'Внести затраты на технику':
+                lambda user: MechEconomic(user).create_mech_econom(),
             },
             '--> [Меню_механика]': self.menu_options['mechanic'],
             '--> [Меню_мастера]': self.menu_options['master'],
@@ -186,6 +189,8 @@ class Accesse:
             '--> [Финансовая_статистика]': {
                 'Оценка зарплат бригады':
                 lambda user: ReportAnalysis(user).brigade_financial_analysis(),
+                'Статистика затрат на технику':
+                lambda user: MechEconomic(user).show_econ_statistic(),
             }
         }
 

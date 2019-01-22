@@ -35,8 +35,17 @@ class MechReports(BasF_S):
     Class to work with statistic of machine maintainence.
     """
 
-    __slots__ = ['mech_path', 'maint_path', 'user', 'temp_df', 'mech_file',
-                 'mech_data', 'machines', 'maint_path', 'maint_file']
+    __slots__ = [
+        'mech_path',
+        'maint_path',
+        'user',
+        'temp_df',
+        'mech_file',
+        'mech_data',
+        'machines',
+        'maint_path',
+        'maint_file'
+    ]
 
     machine_list = {
         'Хоз. Машина': ['УАЗ-390945', 'УАЗ-220695', 'ГАЗ-3307'],
@@ -57,7 +66,8 @@ class MechReports(BasF_S):
             'Commando-120', 'Komazu-WA470', 'Volvo-L150', 'КС-5363А',
             'КС-5363Б', 'КС-5363Б2 ', 'AtlasC-881', 'AtlasC-882',
             'Hitachi-350', 'Hitachi-400', 'КрАЗ-914', 'КрАЗ-413',
-            'КрАЗ-069', 'Бул-10', 'ДЭС-AD'],
+            'КрАЗ-069', 'Бул-10', 'ДЭС-AD'
+        ],
         'cycle': [400, 400, 400, 250,
                   250, 250, 250, 400,
                   400, 400, 250, 250,
@@ -162,8 +172,11 @@ class MechReports(BasF_S):
     def _create_blanc_maint(self):
         """Crete new maintenance DF."""
         maint_df = pd.DataFrame(
-            self.maint_dict, columns=['mach_name', 'cycle',
-                                      'last_maintain_date', 'hours_pass'])
+            self.maint_dict, columns=[
+                'mach_name', 'cycle',
+                'last_maintain_date', 'hours_pass'
+            ]
+        )
         super().dump_data(
             data_path=self.maint_path,
             base_to_dump=maint_df,
@@ -272,7 +285,7 @@ class MechReports(BasF_S):
             'mach': [],
             'sum_plan': [],
             'sum_acs': [],
-            'sum_sep': []
+            'sum_sep': [],
         }
         for mach in self.machines:
             mach_period = curr_base[curr_base.mach_name == mach]
@@ -292,13 +305,16 @@ class MechReports(BasF_S):
             'mach': [],
             'ktg': [],
             'kti': [],
-            'rel_kti': []
+            'rel_kti': [],
         }
         for mach in self.machines:
             mach_period = curr_base[curr_base.mach_name == mach]
             kalendar_time = mach_period.shape[0] * 12
             stand_time = sum(
-                mach_period.st_plan + mach_period.st_sep + mach_period.st_acs)
+                mach_period.st_plan
+                + mach_period.st_sep
+                + mach_period.st_acs
+            )
             avail_time = kalendar_time - stand_time
             if kalendar_time:
                 ktg = avail_time / kalendar_time * 100
@@ -357,19 +373,19 @@ class MechReports(BasF_S):
             labels=(period_coef_df.mach, 'КТГ', 'КТИ'),
             title='КТГ и КТИ за выбранный период.',
             coefs=(period_coef_df.ktg, period_coef_df.rel_kti)
-            )
+        )
         self._create_coeff_compare(
             (figure, 132),
             labels=(short_mach, 'Бригада 1', 'Бригада 2'),
             title='Сравнительные КТИ бригад.',
             coefs=(shift1_coef_df.kti, shift2_coef_df.kti)
-            )
+        )
         self._create_coeff_compare(
             (figure, 133),
             labels=(short_mach, 'Бригада 1', 'Бригада 2'),
             title='Сравнительные КТГ бригад.',
             coefs=(shift1_coef_df.ktg, shift2_coef_df.ktg)
-            )
+        )
         figure.tight_layout()
         suptitle.set_y(0.95)
         figure.subplots_adjust(top=0.85)
@@ -380,7 +396,7 @@ class MechReports(BasF_S):
         if month:
             period_base = self.mech_file[
                 (self.mech_file.year == year) & (self.mech_file.month == month)
-                ]
+            ]
         else:
             period_base = self.mech_file[(self.mech_file.year == year)]
         if not reason:
@@ -399,9 +415,11 @@ class MechReports(BasF_S):
             print(self.temp_df[
                 ['mach_name', 'st_plan', 'st_acs', 'st_sep', 'work', 'notes']
                 ])
-            choise = input("\n[d] - выйти и \033[91mУДАЛИТЬ\033[m данные."
-                           "\n[s] - \033[92mСОХРАНИТЬ\033[0m отчет.\n"
-                           "\nВыберете технику для внесения данных: ")
+            choise = input(
+                "\n[d] - выйти и \033[91mУДАЛИТЬ\033[m данные."
+                "\n[s] - \033[92mСОХРАНИТЬ\033[0m отчет.\n"
+                "\nВыберете технику для внесения данных: "
+            )
             if choise.lower() == 's':
                 self._save_report()
                 LOGGER.warning(
@@ -449,12 +467,17 @@ class MechReports(BasF_S):
             self.maint_file.loc[maint_mach, 'hours_pass'] = oper(
                 int(self.maint_file.loc[maint_mach, 'hours_pass']),
                 int(add_hours)
-                )
+            )
             super().dump_data(
                 data_path=self.maint_path,
                 base_to_dump=self.maint_file,
                 user=self.user,
             )
+
+    def give_dataframe_by_year(self, year: int):
+        """Return info by year."""
+        data_by_year = self.mech_file[self.mech_file.year == year]
+        return data_by_year
 
     def create_report(self):
         """Create daily report."""
@@ -522,8 +545,10 @@ class MechReports(BasF_S):
         while True:
             super().clear_screen()
             print(self.maint_file)
-            choise = input("\n[e] - выйти.\n"
-                           "\nВыберете технику для обслуживания: ")
+            choise = input(
+                "\n[e] - выйти.\n"
+                "\nВыберете технику для обслуживания: "
+            )
             if choise.lower() in ['e', 'е']:
                 break
             elif not choise.isdigit():
@@ -547,9 +572,11 @@ class MechReports(BasF_S):
             check = self.maint_file.loc[maint_mach, 'last_maintain_date']
             counter = self.maint_file.loc[maint_mach, 'hours_pass']
             if oper:
-                self._add_hours_to_maint_counter(oper, check,
-                                                 add_hours, maint_mach)
+                self._add_hours_to_maint_counter(
+                    oper, check, add_hours, maint_mach
+                )
             else:
                 header += self._check_maintenance_alarm(
-                    check, machine, counter)
+                    check, machine, counter
+                )
         return header
