@@ -301,17 +301,35 @@ class CareerStatusS(BasF_S):
             mach_list.append('Отсутствуют.')
         return mach_list
 
-    def _check_if_report_comlete(self, name):
+    def check_if_report_comlete(
+            self,
+            name=None,
+            *,
+            manualy_complete=False,
+            user=None,
+    ):
         """Check mechanics and master data."""
-        if self.mach["to_repare"] and self.works_plan["rock_work"]:
+        report_completion = (
+            self.mach["to_repare"] and
+            self.works_plan["rock_work"]
+        )
+        if report_completion:
             html = self._create_html_status()
             emailed_status = Thread(
                 target=self._try_to_emailed_status,
                 args=(name, html)
             )
             emailed_status.start()
+            if manualy_complete:
+                input("Отчет разослан.")
+        elif not report_completion and manualy_complete:
+            self.add_info(user)
 
-    def _try_to_emailed_status(self, name: str, html: str):
+    def _try_to_emailed_status(
+            self,
+            name: str = None,
+            html: str = None
+    ):
         """Try to send status via email."""
         message = EmailSender(self.user).email_prop["status message"]
         if name:
@@ -434,7 +452,7 @@ class CareerStatusS(BasF_S):
                 'boss': self._choose_info_to_add,
             }
             info_type[user.accesse](user.login)
-            self._check_if_report_comlete(name)
+            self.check_if_report_comlete(name)
         else:
             print("\033[91mВы отменили изменение отчета.\033[0m")
             input('\n[ENTER] - выйти.')
@@ -497,10 +515,23 @@ class Statuses(BasF_S):
         if status:
             super().clear_screen()
             print(self.car_stat_file[status])
-            calendar = input("\n[k] - показать календарь пересменок.\n"
-                             "[ENTER] - выйти: ")
+            calendar = input(
+                "\n[k] - показать календарь пересменок."
+                "\n[m] - разослать отчет подписчикам."
+                "\n[ENTER] - выйти: "
+            )
             if calendar.lower() in ['k', 'к']:
                 print(self.car_stat_file[status].give_shift_calendar())
                 input('\n[ENTER] - выйти.')
+            elif (calendar.lower() in ['m', 'M'] and
+                  self.user.accesse == 'admin'):
+                self.car_stat_file[status].check_if_report_comlete(
+                    user=self.user,
+                    manualy_complete=True
+                )
+            elif calendar.lower() in ['m', 'M']:
+                print("Доступно только пользователям с правами администратора")
+                input("[ENTER] - выйти")
         else:
             print("Ежедневные отчеты отсутствуют.")
+            input("[ENTER] - выйти")
