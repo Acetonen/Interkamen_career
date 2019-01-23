@@ -88,6 +88,8 @@ class EmailSender(BasF_S):
                 'email': None,
                 'password': None,
                 'resivers list': [],
+                "career status recivers": [],
+                "status message": '',
                 'sentry token': None,
             }
             super().dump_data(
@@ -363,10 +365,6 @@ class EmailSender(BasF_S):
 
     def edit_career_status_recivers(self):
         """Edit resiver list for dayli career status."""
-        if "career status recivers" not in self.email_prop:
-            self.email_prop["career status recivers"] = []
-        if "status message" not in self.email_prop:
-            self.email_prop["status message"] = ''
         while True:
             super().clear_screen()
             print("Daily Status Recivers:\nSend to:")

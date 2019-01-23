@@ -38,7 +38,7 @@ def main(current_user: User):
         event=show_backround_tasks_results,
         current_user=current_user,
     )
-    # _try_init_sentry_sdk(current_user)
+    _try_init_sentry_sdk(current_user)
     logger = Logs().give_logger(__name__)
     logger.warning(f"User '{current_user.login}' enter program")
     menu_list = []
