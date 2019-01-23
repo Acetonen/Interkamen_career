@@ -118,8 +118,11 @@ class WCalendar(BasF_S):
         self.working_days_in_month.append('same')
         self.month_length.append(30)
 
-    def _count_changes_dates(self, whos_long: str,
-                             workers: str) -> List[Tuple[int]]:
+    def _count_changes_dates(
+            self,
+            whos_long: str,
+            workers: str
+    ) -> List[Tuple[int]]:
         """Count changes days in months."""
         changes_dates = []
         if whos_long == 'Смена 1':
@@ -135,10 +138,12 @@ class WCalendar(BasF_S):
             changes_dates.append(self._begin_and_end(workers, month, add_day))
         return changes_dates
 
-    def _begin_and_end(self,
-                       workers: str,
-                       month: int,
-                       add_day: int) -> Tuple[int]:
+    def _begin_and_end(
+            self,
+            workers: str,
+            month: int,
+            add_day: int
+    ) -> Tuple[int]:
         """Create shifts begin and end dates."""
         if workers == "brig":
             begin = 1
@@ -149,11 +154,16 @@ class WCalendar(BasF_S):
                 end = end + 1
         elif workers == "itr":
             begin = 7
-            end = self.month_length[month] // 2 + 7 - add_day
+            end = (
+                self.month_length[month]
+                - self.month_length[month] // 2 // 2
+                - self.month_length[month] // 2 % 2
+                - add_day
+            )
             # January holydays fix.
             if month == 0:
                 begin = begin + 2
-                end = end + 2
+                end = end + 1
         return begin, end
 
     def _count_end_spaces(self, month: int) -> str:
