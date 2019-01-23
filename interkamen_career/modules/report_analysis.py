@@ -121,11 +121,20 @@ class ReportAnalysis(Reports):
 """.format(sub_item, *data_dict[item][sub_item])
         print(output)
 
-    def _make_brigade_financial_statistic(self):
+    def _make_brigade_financial_statistic(self, sal_anal):
         """Make brigade salary and brigade results
         statistic by month.
         """
-        result = {}
+        result = {
+            'indicators': {
+                'res': [],
+                'rock_mass': [],
+                'salary': [],
+            },
+            'cost': {
+                'cost': []
+            }
+        }
         shift_results = self._give_by_shift()
         shift_results.pop('pers', None)
         result['indicators'] = {
@@ -144,7 +153,6 @@ class ReportAnalysis(Reports):
             round(salary/1000, 0)
             for salary in brig_salary
         ]
-        result['cost'] = {}
         result['cost']['cost'] = [
             int(round(salary/result, 0))
             for salary, result in zip(
@@ -153,14 +161,55 @@ class ReportAnalysis(Reports):
             )
             if result != 0
         ]
+        if sal_anal:
+            result = self._create_analise_data(result, sal_anal)
         title1 = 'Стоимость одного м\u00B3 продукции, р'
         title2 = (
             'Зарплата бригады, тыс.р; '
             'Горная масса, м\u00B3*10; '
             'Кубатура, м\u00B3'
         )
+        # from pprint import pprint # TODO: del
+        # pprint(result)
+        # input()
         stat = self.statistic(result, title1, title2)
         return stat
+
+    @classmethod
+    def _create_analise_data(cls, result, sal_anal):
+        """Create data to analise."""
+        cost_min_up_cube = sal_anal.up_salary / sal_anal.up_shift
+        progect_salary_list = []
+        for res in result['indicators']['res']:
+            # Count KTU workers.
+            if res < sal_anal.down_shift*2:
+                ktu_sal = sal_anal.min_salary
+            else:
+                ktu_sal = res * cost_min_up_cube / 2
+            # Count salary workers.
+            if res > 300:
+                salary_workers_salaries = 50000*10
+            elif 300 < res < 400:
+                salary_workers_salaries = 50000*10 + 5000*5
+            elif res > 400:
+                salary_workers_salaries = 50000*10 + 5000*10
+
+            month_salary = ktu_sal*8 + salary_workers_salaries
+
+            progect_salary_list.append(month_salary)
+
+        result['indicators']['progect_salary'] = [
+            int(round(progect_salary/1000, 0))
+            for progect_salary in progect_salary_list
+        ]
+        result['cost']['progect_cost'] = [
+            int(round(progect_salary/res, 0))
+            for progect_salary, res in zip(
+                progect_salary_list,
+                result['indicators']['res']
+            )
+        ]
+        return result
 
     def _make_rock_mass_statistic(self):
         """Make horisont and shift statistic by month."""
@@ -196,7 +245,7 @@ class ReportAnalysis(Reports):
     def _two_plots_show(self, year, stat, title):
         """Combine two subplots"""
         figure = plt.figure()
-        suptitle = figure.suptitle(title , fontsize="x-large")
+        suptitle = figure.suptitle(title, fontsize="x-large")
 
         plot_number = 1
         for result in sorted(stat.result):
@@ -245,7 +294,13 @@ class ReportAnalysis(Reports):
             )
             self._add_markers_to_plot(axle, result[item], title)
 
-        axle.legend(list(sorted(result.keys())))
+        legend = list(sorted(result.keys()))
+        for position, item in enumerate(legend):
+            if item in ['salary', 'progect_salary']:
+                year_sum = int(round(sum(result[item]), 0))
+                legend[position] = f'{item} (year sum = {year_sum} Krub)'
+
+        axle.legend(legend)
         axle.set_xlabel('месяц')
         axle.set_ylabel(title.split(' ')[-1])
         axle.set_title(year + 'г., ' + title)
@@ -376,5 +431,34 @@ class ReportAnalysis(Reports):
     def brigade_financial_analysis(self):
         """Analysis brigade salary by brigade results."""
         year = self._choose_report_by_year()
-        fin_stat = self._make_brigade_financial_statistic()
-        self._two_plots_show(year, fin_stat, title="Финансовые показатели.")
+        while True:
+            sal_anal = self._add_analyse_option()
+            fin_stat = self._make_brigade_financial_statistic(sal_anal)
+            self._two_plots_show(year, fin_stat, title="Финансовые показатели.")
+
+    @classmethod
+    def _add_analyse_option(cls):
+        """Add analyse to brigade salary."""
+        choose = input(
+            "\n[a] - Добавить анализ."
+            "\n[s] - Только статистика."
+            "\n[ENTER] - выйти в меню: "
+        )
+        if not choose:
+            raise MainMenu
+        elif choose.lower() == 'a':
+            analyse = namedtuple('Analyse', [
+                'down_shift',
+                'up_shift',
+                'min_salary',
+                'up_salary',
+            ])
+            sal_anal = analyse(
+                int(input("Введите нижнюю границу: ")),
+                int(input("Введите верхнюю границу: ")),
+                int(input("Введите минимальный оклад: ")),
+                int(input("Введите з/п верхней границы: ")),
+            )
+        else:
+            sal_anal = None
+        return sal_anal

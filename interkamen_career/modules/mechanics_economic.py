@@ -67,6 +67,24 @@ class MechEconomic(MechReports):
             f"User '{self.user.login}' create drill inst.: {report_name}"
         )
 
+    def _visualise_one_day_cost(self):
+        """Visualise cost of one day by each machine."""
+        year = self._chose_year()
+        data_by_year = super().give_dataframe_by_year(year)
+        data_for_plot = {
+            'mach': [],
+            'day_cost': [],
+        }
+        for mach in super().maint_dict['mach_name']:
+            totall_cost = sum(self.mech_econ_file[mach])
+            total_work = sum(data_by_year.work)
+            number_of_wdays = total_work
+            day_cost = round(totall_cost/number_of_wdays, 0)
+            data_for_plot['mach'].append(mach)
+            data_for_plot['day_cost'].append(day_cost)
+        data_for_plot = pd.DataFrame(data_for_plot)
+        self._create_one_day_cost_plot(data_for_plot)
+
     def _input_machines_econ(self, mech_econ_date):
         """Input money, spent for machine in month."""
         self.mech_econ_data['year'] = mech_econ_date['year']
@@ -109,6 +127,31 @@ class MechEconomic(MechReports):
         else:
             raise MainMenu
 
+    @BasF_S.set_plotter_parametrs
+    def _create_one_day_cost_plot(self, dataframe):
+        """Create one day cost plot."""
+        figure = plt.figure()
+
+        x_cost = list(range(len(super().maint_dict['mach_name'])))
+
+        axle = figure.add_subplot(111)
+        axle.bar(
+            x_cost, dataframe.day_cost, 0.3, alpha=0.4, color='r',
+            label='Коэффициент', tick_label=dataframe.mach
+        )
+        axle.tick_params(labelrotation=90)
+        axle.set_title(
+            "Коэффициент целесообразности содержания техники руб/час. ",
+            fontsize="x-large")
+        axle.set_ylabel('руб.')
+        axle.legend()
+        axle.grid(
+            True, linestyle='--', which='major',
+            color='grey', alpha=.25, axis='y'
+        )
+        figure.tight_layout()
+        plt.show()
+
     def create_mech_econom(self):
         """Create drill report"""
         mech_econ_date = self.input_date()
@@ -126,7 +169,7 @@ class MechEconomic(MechReports):
         """Show machine economic statistic.
         """
         stat_variants = {
-            'Стоимость одной рабочей смены':
+            'Целесообразность затрат на содержание техники.':
             self._visualise_one_day_cost,
         }
         print("[ENTER] - выйти."
@@ -134,46 +177,3 @@ class MechEconomic(MechReports):
         stat = super().choise_from_list(stat_variants, none_option=True)
         if stat:
             stat_variants[stat]()
-
-    def _visualise_one_day_cost(self):
-        """Visualise cost of one day by each machine."""
-        year = self._chose_year()
-        data_by_year = super().give_dataframe_by_year(year)
-        data_for_plot = {
-            'mach': [],
-            'day_cost': [],
-        }
-        for mach in super().maint_dict['mach_name']:
-            totall_cost = sum(self.mech_econ_file[mach])
-            total_work = sum(data_by_year.work)
-            number_of_wdays = total_work / 12 / 15
-            day_cost = round(totall_cost/number_of_wdays, 0)
-            data_for_plot['mach'].append(mach)
-            data_for_plot['day_cost'].append(day_cost)
-        data_for_plot = pd.DataFrame(data_for_plot)
-        self._create_one_day_cost_plot(data_for_plot)
-
-    @BasF_S.set_plotter_parametrs
-    def _create_one_day_cost_plot(self, dataframe):
-        """Create one day cost plot."""
-        figure = plt.figure()
-
-        x_cost = list(range(len(super().maint_dict['mach_name'])))
-
-        axle = figure.add_subplot(111)
-        axle.bar(
-            x_cost, dataframe.day_cost, 0.3, alpha=0.4, color='r',
-            label='Стоимость', tick_label=dataframe.mach
-        )
-        axle.tick_params(labelrotation=90)
-        axle.set_title(
-            "Стоимость ПОЛНОЙ вахты работы техники. "
-            "(15 дней по 12 часов)", fontsize="x-large")
-        axle.set_ylabel('руб.')
-        axle.legend()
-        axle.grid(
-            True, linestyle='--', which='major',
-            color='grey', alpha=.25, axis='y'
-        )
-        figure.tight_layout()
-        plt.show()

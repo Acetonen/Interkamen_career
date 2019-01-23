@@ -195,7 +195,6 @@ class Accesse:
         }
 
         self.sub_standart_options = {
-            '<-- [Предыдущее меню]': 'menu before',
             '\033[93mВыйти из программы\033[0m': 'exit program',
         }
 

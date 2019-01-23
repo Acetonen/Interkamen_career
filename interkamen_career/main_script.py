@@ -52,25 +52,15 @@ def main(current_user: User):
         show_backround_tasks_results.set()
         show_backround_tasks_results.clear()
         _print_menu(current_user, menu_header, menu_nesting, program_menu)
-        user_choise = input("\nВыберете действие: ")
+        if menu_nesting:
+            message = "\n[enter] - предыдущее меню\nВыберете действие: "
+        else:
+            message = "\nВыберете действие: "
+        user_choise = input(message)
         BasF_S.clear_screen()
-        if not BasF_S.check_number_in_range(user_choise, program_menu):
-            continue
-
-        user_choise = int(user_choise) - 1  # User choise == Index
-
-        # Enter sub-menu.
-        if '-->' in menu_list[user_choise][0]:
-            menu_header[1] = menu_list[user_choise][0].split(' ')[1]
-            menu_nesting.append(menu_list[user_choise][0])
-            program_menu = _get_main_or_sub_menu(
-                usr_acs, menu_list,
-                sub_menu=menu_list[user_choise][0]
-            )
-            continue
 
         # Exit sub-menu.
-        elif '<--' in menu_list[user_choise][0]:
+        if not user_choise and menu_nesting:
             menu_nesting = menu_nesting[:-1]  # Go one menu up.
             if menu_nesting:
                 menu_header[1] = menu_nesting[-1].split(' ')[1]
@@ -81,7 +71,25 @@ def main(current_user: User):
             else:
                 menu_header[1] = '\033[4m ГЛАВНОЕ МЕНЮ \033[0m'
                 program_menu = _get_main_or_sub_menu(
-                    usr_acs, menu_list)
+                    usr_acs, menu_list
+                )
+            continue
+
+        elif not BasF_S.check_number_in_range(user_choise, program_menu):
+            continue
+
+        user_choise = int(user_choise) - 1  # User choise == Index
+
+        # Enter sub-menu.
+        if '-->' in menu_list[user_choise][0]:
+            menu_header[1] = menu_list[user_choise][0].split(' ')[1]
+            menu_nesting.append(menu_list[user_choise][0])
+            program_menu = _get_main_or_sub_menu(
+                usr_acs,
+                menu_list,
+                sub_menu=menu_list[user_choise][0]
+            )
+            continue
 
         # Exit program.
         elif menu_list[user_choise][1] == 'exit program':
