@@ -1,7 +1,6 @@
 # Interkamen Program
 ### ver 1.17.0
 
-![intro](readme_screenshots/intro.png)
 
 This is corporative program of mining company to work with statistic and financial reports.
 
@@ -256,7 +255,6 @@ To log in program:
 Username: admin
 Password: admin
 ### 2. Main menu
-![main_menu](readme_screenshots/main_menu.png)
 
 In header of main menu you may see different remainder that depend on user 'access'.
 
@@ -272,7 +270,6 @@ From this menu you have access to different sub-menus (depend on user access) an
 Red menus are 'admin-only'
 
 ### 3. Admin menus
-![admin_menu](readme_screenshots/admin_menu.png)
 
 This menus give you access to:
 1. read/delete/search in logs
@@ -282,8 +279,8 @@ This menus give you access to:
 5. make backup of all data files
 6. edit email notification and backup settings
 7. add email to receive career status report
+
 ### 4. Workers menu
-![workers_menu](readme_screenshots/workers_menu.png)
 
 In this menu u can:
 1. Create new worker
@@ -295,7 +292,6 @@ In this menu u can:
 7. Create shift calendar of this year
 
 ### 5. Financial  menu
-![finance_menu](readme_screenshots/finance.png)
 
 In this menu u can:
 1. Count workers salary
@@ -304,7 +300,6 @@ In this menu u can:
 4. Edit lists of brigadiers, salary workers, drillers
 
 ### 6. Mechanics menu
-![mechanics_menu](readme_screenshots/mechanics_menu.png)
 
 In this menu u can:
 1. Show plots with all mechanics stats (KTI, KTG)
@@ -316,7 +311,6 @@ In this menu u can:
 
 
 ### 5. Mining master menu
-![statistic_menu](readme_screenshots/statistic.png)
 
 In this menu u can:
 1. Show all stats about brigade works, results, drill instruments

@@ -28,7 +28,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 # Import the README and use it as the long-description.
 try:
-    with io.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as file:
+    with io.open(os.path.join(HERE, 'PIP_README.md'), encoding='utf-8') as file:
         LONG_DESCRIPTION = '\n' + file.read()
 except FileNotFoundError:
     LONG_DESCRIPTION = DESCRIPTION
