@@ -7,8 +7,11 @@ Dump data to xlsx file
 .dump_salary()
 """
 
+from __future__ import annotations
+
 import os
 import time
+from pathlib import PurePath
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
 from .standart_functions import BasicFunctionsS as BasF_S
@@ -27,12 +30,22 @@ class DumpToExl(BasF_S):
     @classmethod
     def _create_pass_name(cls, passport) -> str:
         """Create passport name."""
-        pass_name = ("{}-{}-{} {}"
-                     .format(passport.params.year,
-                             passport.params.month,
-                             passport.params.day,
-                             int(passport.params.number)))
+        pass_name = (
+            "{}-{}-{} {}"
+            .format(
+                passport.params.year,
+                passport.params.month,
+                passport.params.day,
+                int(passport.params.number)
+            )
+        )
         return pass_name
+
+    @classmethod
+    def _check_dir(cls, dir: PurePath):
+        """Create empty directory if not exists."""
+        if not dir.exists():
+            dir.mkdir(parents=True)
 
     @classmethod
     def _normilise_barehole(cls, bareholes):
@@ -53,6 +66,7 @@ class DumpToExl(BasF_S):
         real_salary_path = (
             super().get_root_path().parent / 'Documents' / 'Табеля'
         )
+        self._check_dir(real_salary_path)
         real_salary_blanc_path = (
             super().get_root_path() / 'exl_blancs' / 'real_salary.xlsx'
         )
@@ -108,6 +122,7 @@ class DumpToExl(BasF_S):
             super().get_root_path() / 'exl_blancs' / 'drill_passport.xlsx')
         drill_pass_path = (
             super().get_root_path().parent / 'Documents' / 'Буровые_паспорта')
+        self._check_dir(drill_pass_path)
         workbook = load_workbook(blanc_drill_path)
         worksheet = workbook.active
         if negab:
@@ -135,8 +150,10 @@ class DumpToExl(BasF_S):
             worksheet['D' + str(row_number)] = int(norm_bareholes[length])
             row_number += 1
         # Volume
-        volume = round(float(passport.params.pownder) * 5 +
-                       float(passport.params.d_sh) / 10, 1)
+        volume = round(
+            float(passport.params.pownder) * 5
+            + float(passport.params.d_sh) / 10, 1
+        )
         worksheet['K27'] = volume
         # Block params.
         height = float(passport.params.block_height)
@@ -158,6 +175,7 @@ class DumpToExl(BasF_S):
     def dump_ktu(self, report):
         """Dump KTU data to blanc exl file."""
         ktu_path = super().get_root_path().parent / 'Documents' / 'КТУ'
+        self._check_dir(ktu_path)
         blanc_ktu_path = super().get_root_path() / 'exl_blancs' / 'ktu.xlsx'
         ktu = report.workers_showing['бух.']['КТУ']
         hours = report.workers_showing['бух.']['часы']
@@ -196,6 +214,7 @@ class DumpToExl(BasF_S):
     def dump_salary(self, report: 'MainReport', user):
         """Dump Salary to exists exel tabel."""
         salary_path = super().get_root_path().parent / 'Documents' / 'Табеля'
+        self._check_dir(salary_path)
         name = report.status['date'] + ' ' + report.status['shift']
         find = None
         for file in os.listdir(salary_path):
