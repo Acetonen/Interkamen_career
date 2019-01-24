@@ -44,7 +44,7 @@ class MechReports(BasF_S):
         'mech_data',
         'machines',
         'maint_path',
-        'maint_file'
+        'maint_file',
     ]
 
     machine_list = {
@@ -150,8 +150,10 @@ class MechReports(BasF_S):
         header = ''
         if not check.isnull().any() and int(counter) <= 0:
             header = (
-                '\n\033[91mПодошло ТО для:\033[0m ' + machine +
-                ' дата последнего ТО: ' + check.values[0]
+                '\n\033[91mПодошло ТО для:\033[0m '
+                + machine
+                + ' дата последнего ТО: '
+                + check.values[0]
             )
         return header
 
@@ -447,10 +449,10 @@ class MechReports(BasF_S):
     def _make_day_report_temp(self, rep_date):
         """Make report of day temr and drop it from DF."""
         self.temp_df = self.mech_file[
-            (self.mech_file['year'] == rep_date['year']) &
-            (self.mech_file['month'] == rep_date['month']) &
-            (self.mech_file['day'] == rep_date['day'])
-            ]
+            (self.mech_file['year'] == rep_date['year'])
+            & (self.mech_file['month'] == rep_date['month'])
+            & (self.mech_file['day'] == rep_date['day'])
+        ]
         self.walk_thrue_maint_calendar(add)
         self.mech_file = self.mech_file.append(
             self.temp_df).drop_duplicates(keep=False)

@@ -3,6 +3,9 @@
 This program provides control of all data and statistic of Career Interkamen.
 """
 
+from __future__ import annotations
+
+
 import sys
 import signal
 from threading import Thread, Event
@@ -142,6 +145,7 @@ def _try_init_sentry_sdk(user):
             sentry_sdk.init(sentry_token)
         except sentry_sdk.utils.BadDsn:
             print("\033[91msentry_sdk token incorrect.\033[0m")
+
 
 def _login_program():
     """Login to program and loged 'enter'"""

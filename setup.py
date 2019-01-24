@@ -19,7 +19,7 @@ REQUIRES_PYTHON = '>=3.7.0'
 VERSION = None
 
 REQUIRED = [
-    'pandas', 'matplotlib', 'openpyxl', 'pillow', 'sentry-sdk', 'bcrypt'
+    'pandas', 'matplotlib', 'openpyxl', 'pillow', 'sentry-sdk', 'bcrypt', 'dill'
 ]
 
 EXTRAS = {}

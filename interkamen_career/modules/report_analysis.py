@@ -169,9 +169,6 @@ class ReportAnalysis(Reports):
             'Горная масса, м\u00B3*10; '
             'Кубатура, м\u00B3'
         )
-        # from pprint import pprint # TODO: del
-        # pprint(result)
-        # input()
         stat = self.statistic(result, title1, title2)
         return stat
 
@@ -179,19 +176,20 @@ class ReportAnalysis(Reports):
     def _create_analise_data(cls, result, sal_anal):
         """Create data to analise."""
         cost_min_up_cube = sal_anal.up_salary / sal_anal.up_shift
+        down_shift = sal_anal.min_salary / cost_min_up_cube
         progect_salary_list = []
         for res in result['indicators']['res']:
             # Count KTU workers.
-            if res < sal_anal.down_shift*2:
+            if res < down_shift*2:
                 ktu_sal = sal_anal.min_salary
             else:
                 ktu_sal = res * cost_min_up_cube / 2
             # Count salary workers.
-            if res > 300:
+            if res > 400:
                 salary_workers_salaries = 50000*10
-            elif 300 < res < 400:
+            elif 400 < res < 500:
                 salary_workers_salaries = 50000*10 + 5000*5
-            elif res > 400:
+            elif res > 500:
                 salary_workers_salaries = 50000*10 + 5000*10
 
             month_salary = ktu_sal*8 + salary_workers_salaries
@@ -402,7 +400,7 @@ class ReportAnalysis(Reports):
             data_type = {
                 'Погоризонтная статистика': self._make_horizont_statistic,
                 'Повахтовая статистика': self._make_shift_statistic,
-                }
+            }
             print(
                 "\n[ENTER] - выход"
                 "\nВыберете необходимый очет: "
@@ -434,7 +432,11 @@ class ReportAnalysis(Reports):
         while True:
             sal_anal = self._add_analyse_option()
             fin_stat = self._make_brigade_financial_statistic(sal_anal)
-            self._two_plots_show(year, fin_stat, title="Финансовые показатели.")
+            self._two_plots_show(
+                year,
+                fin_stat,
+                title="Финансовые показатели."
+            )
 
     @classmethod
     def _add_analyse_option(cls):
@@ -448,13 +450,11 @@ class ReportAnalysis(Reports):
             raise MainMenu
         elif choose.lower() == 'a':
             analyse = namedtuple('Analyse', [
-                'down_shift',
                 'up_shift',
                 'min_salary',
                 'up_salary',
             ])
             sal_anal = analyse(
-                int(input("Введите нижнюю границу: ")),
                 int(input("Введите верхнюю границу: ")),
                 int(input("Введите минимальный оклад: ")),
                 int(input("Введите з/п верхней границы: ")),

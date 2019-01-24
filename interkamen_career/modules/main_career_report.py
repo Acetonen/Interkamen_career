@@ -34,9 +34,14 @@ class Reports:
 .choose_main_report() - choose main report by year.
 """
 
+
+from __future__ import annotations
+
+
 from threading import Thread
 from typing import List, Dict
 from pprint import pprint
+from pathlib import PurePath
 from .workers_module import AllWorkers
 from .support_modules.dump_to_exl import DumpToExl
 from .support_modules.custom_exceptions import MainMenu
@@ -124,10 +129,16 @@ class MainReportS(BasF_S):
         return totall
 
     @classmethod
-    def _colorise_salary_and_drillers(cls, name: str, output: str, user) -> str:
+    def _colorise_salary_and_drillers(
+            cls,
+            name: str,
+            output: str, user
+    ) -> str:
         """Colorise sallary and drillers in report output."""
-        if (name in Reports(user).salary_workers or
-                name in Reports(user).drillers):
+        if (
+                name in Reports(user).salary_workers
+                or name in Reports(user).drillers
+        ):
             output = ''.join(['\033[36m', output, '\033[0m'])
         return output
 
@@ -152,8 +163,8 @@ class MainReportS(BasF_S):
         output = "\n{date} {shift} {status}".format(**self.status)
         output += ("""\n
 машины второго сорта: {0[машины второго сорта]}
-шпурометры: {0[шпурометры]}\n""".format(self.result) +
-                   """\nкубатура:
+шпурометры: {0[шпурометры]}\n""".format(self.result)
+                   + """\nкубатура:
 меньше 0.7: {0[меньше 0.7]}
 0.7-1.5: {0[0.7-1.5]}
 выше 1.5: {0[выше 1.5]}\n""".format(self.result['категории']))
@@ -293,9 +304,11 @@ class MainReportS(BasF_S):
         self.count_result()
         for direction in self.workers_showing:
             for worker in self.workers_showing[direction]['КТУ']:
-                if ((worker in Reports(user).salary_workers or
-                     worker in Reports(user).drillers) and
-                        direction == 'факт'):
+                if (
+                    (worker in Reports(user).salary_workers
+                     or worker in Reports(user).drillers)
+                    and direction == 'факт'
+                ):
                     self._count_sal_workers_and_drill(worker, user)
                 elif direction == 'бух.':
                     coefficient = 1
@@ -504,7 +517,7 @@ class Reports(BasF_S):
                 f"User '{self.user.login}' delete report: {report_name}"
             )
 
-    def _edit_salary_or_drillers(self, data_path: 'PurePath'):
+    def _edit_salary_or_drillers(self, data_path: PurePath):
         """Edit sallary or drillers lists."""
         while True:
             super().clear_screen()
@@ -524,7 +537,7 @@ class Reports(BasF_S):
             else:
                 edit_menu_dict[action_name](data_path)
 
-    def _add_salary_or_driller(self, data_path: 'PurePath'):
+    def _add_salary_or_driller(self, data_path: PurePath):
         """Add worker from salary or driller list."""
         worker_list = super().load_data(
             data_path=data_path,
@@ -785,8 +798,10 @@ class Reports(BasF_S):
         report_name = year + '-' + month + ' ' + shift
         result_tuplet = ()
         for report in self.data_base:
-            if (report_name in report and
-                    self.data_base[report].count_result() != 0):
+            if (
+                    report_name in report
+                    and self.data_base[report].count_result() != 0
+            ):
                 drill_meters = self.data_base[report].result['шпурометры']
                 result = self.data_base[report].count_result()
                 rock_mass = self.data_base[report].count_rock_mass()

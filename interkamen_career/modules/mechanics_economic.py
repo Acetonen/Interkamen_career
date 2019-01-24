@@ -3,9 +3,11 @@
 """Visualise statistic by machine economic."""
 
 
+from __future__ import annotations
+
 import pandas as pd
 from matplotlib import pyplot as plt
-
+from typing import Dict
 from .mechanic_report import MechReports
 from .administration.logger_cfg import Logs
 from .support_modules.custom_exceptions import MainMenu
@@ -165,7 +167,7 @@ class MechEconomic(MechReports):
         else:
             self._input_machines_econ(mech_econ_date)
 
-    def show_econ_statistic(self):
+    def show_econ_statistic(self, stat_variants: Dict):
         """Show machine economic statistic.
         """
         stat_variants = {
