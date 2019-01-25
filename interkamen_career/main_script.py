@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
-"""
-This program provides control of all data and statistic of Career Interkamen.
+
+"""Main Script.
+
+This program provides control of all
+data and statistic of Career Interkamen.
 """
 
 from __future__ import annotations
@@ -35,7 +38,7 @@ INTERKAMEN = INTERKAMEN.replace('*********', BUILD_VERSION)
 
 
 def main(current_user: User):
-    """Main flow."""
+    """Maining flow."""
     show_backround_tasks_results = Event()
     _start_background_tasks(
         event=show_backround_tasks_results,
@@ -151,7 +154,7 @@ def _try_init_sentry_sdk(user):
 
 
 def _login_program():
-    """Login to program and loged 'enter'"""
+    """Login to program and loged 'enter'."""
     print(INTERKAMEN)
     current_user = None
     while current_user is None:
@@ -196,7 +199,7 @@ def _get_main_or_sub_menu(
         menu_list: List[str],
         sub_menu: str = False
 ) -> Dict[str, str]:
-    """create main or sub-menu if sub_menu=True"""
+    """Create main or sub-menu if sub_menu=True."""
     if sub_menu:
         program_menu = Accesse(usr_acs).get_sub_menu(sub_menu)
     else:

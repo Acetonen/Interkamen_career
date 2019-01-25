@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+
 """
 Main career report.
+
 This module for create main career report by 'master' and complate it by 'boss'
 users.
 It can count worker salary and compilate statistic of brigades results.
@@ -58,9 +60,7 @@ LOGGER = Logs().give_logger(__name__)
 
 
 class MainReportS(BasF_S):
-    """
-    Main career report.
-    """
+    """Main career report."""
 
     __slots__ = [
         'status',
@@ -122,7 +122,7 @@ class MainReportS(BasF_S):
 
     @classmethod
     def _count_totall(cls, value_list: List):
-        """Count totall hours"""
+        """Count totall hours."""
         totall = 0
         for worker in value_list:
             totall += value_list[worker]
@@ -159,7 +159,7 @@ class MainReportS(BasF_S):
         return t_output
 
     def __repr__(self, user=None):
-        """Print main report"""
+        """Print main report."""
         output = "\n{date} {shift} {status}".format(**self.status)
         output += ("""\n
 машины второго сорта: {0[машины второго сорта]}
@@ -224,14 +224,14 @@ class MainReportS(BasF_S):
         return output
 
     def _count_salary(self, direction: str, worker: str, coefficient: float):
-        """Count totall salary"""
+        """Count totall salary."""
         self.workers_showing[direction]['зарплата'][worker] = round(
             self.workers_showing[direction]['КТУ'][worker]
             * self.totall * coefficient
             / len(self.workers_showing[direction]['КТУ']), 2)
 
     def _count_sal_workers_and_drill(self, worker: str, user):
-        """Count sallary workers and drillers"""
+        """Count sallary workers and drillers."""
         oklad = 0
         if worker in Reports(user).salary_workers:
             oklad = (self.workers_showing['факт']['часы'][worker]
@@ -244,7 +244,7 @@ class MainReportS(BasF_S):
         self.workers_showing['факт']['зарплата'][worker] = round(oklad, 2)
 
     def _add_brigad_bonus(self, worker: str):
-        """Add bonus if brigad win monthly challenge"""
+        """Add bonus if brigad win monthly challenge."""
         if self.bonuses['победа по критериям']:
             self.workers_showing['факт']['зарплата'][worker] += 3000
 
@@ -263,7 +263,7 @@ class MainReportS(BasF_S):
                 oklad, 2)
 
     def _add_delta_ktu_to_worker(self, delta: float, direction: str):
-        """Add delta ktu to worker"""
+        """Add delta ktu to worker."""
         print('\n' + 'КТУ: ' + direction)
         workers_list = self.workers_showing[direction]['КТУ'].items()
         print("\nВыберете работника, которому хотите добавить остаток:")
@@ -276,7 +276,7 @@ class MainReportS(BasF_S):
         pprint(self.workers_showing[direction]['КТУ'])
 
     def unofficial_workers(self) -> List[str]:
-        """Return unofficial workers"""
+        """Return unofficial workers."""
         unofficial_workers = [
             worker
             for worker in self.workers_showing['факт']['часы']
@@ -285,7 +285,7 @@ class MainReportS(BasF_S):
         return unofficial_workers
 
     def count_result(self):
-        """Count totall stone result"""
+        """Count totall stone result."""
         result = 0
         for item in self.result['категории']:
             result += self.result['категории'][item]
@@ -294,14 +294,14 @@ class MainReportS(BasF_S):
         return result
 
     def count_rock_mass(self) -> float:
-        """Count totall rock_mass"""
+        """Count totall rock_mass."""
         result = 0
         for item in self.rock_mass:
             result += self.rock_mass[item]
         return result
 
     def count_all_workers_in_report(self, user):
-        """Apply action to all workers in report"""
+        """Apply action to all workers in report."""
         self.count_result()
         for direction in self.workers_showing:
             for worker in self.workers_showing[direction]['КТУ']:
@@ -321,7 +321,7 @@ class MainReportS(BasF_S):
                 self._add_brigadiers_persent(worker, direction, user)
 
     def create_ktu_list(self):
-        """Create ktu list"""
+        """Create ktu list."""
         for direction in self.workers_showing:
             totall_hours = self._count_totall(
                 self.workers_showing[direction]['часы'])
@@ -335,7 +335,7 @@ class MainReportS(BasF_S):
             self.coutn_delta_ktu(direction)
 
     def coutn_delta_ktu(self, direction: str):
-        """Add delta ktu to worker"""
+        """Add delta ktu to worker."""
         totall_ktu = self._count_totall(self.workers_showing[direction]['КТУ'])
         delta_ktu = len(self.workers_showing[direction]['КТУ']) - totall_ktu
         delta_ktu = round(delta_ktu, 2)
@@ -345,9 +345,8 @@ class MainReportS(BasF_S):
 
 
 class Reports(BasF_S):
-    """
-    Class to manage with reports.
-    """
+    """Class to manage with reports."""
+
     __slots__ = [
         'user',
         'data_path',
@@ -401,7 +400,7 @@ class Reports(BasF_S):
         return workers_hours
 
     def _input_result(self, report: MainReportS) -> MainReportS:
-        """Input working result"""
+        """Input working result."""
         for item in report.result:
             if isinstance(report.result[item], dict):
                 for sub_item in report.result[item]:
@@ -477,7 +476,7 @@ class Reports(BasF_S):
                 print("Введите 'Y' или 'N'.")
 
     def _check_if_report_exist(self, shift: str, date: str):
-        """Check if report exist in base"""
+        """Check if report exist in base."""
         check = True
         for report in self.data_base:
             if shift in report and date in report:
@@ -487,7 +486,7 @@ class Reports(BasF_S):
         return check
 
     def _uncomplete_main_report(self, report_name: str):
-        """Uncomlete main report"""
+        """Uncomlete main report."""
         choise = input("Are you shure, you want to uncomplete report? Y/n: ")
         if choise.lower() == 'y':
             tmp_rpt = self.data_base[report_name]
@@ -586,9 +585,7 @@ class Reports(BasF_S):
             )
 
     def _edit_main_report(self, report_name: str):
-        """
-        Edition main report by boss or admin usser.
-        """
+        """Edition main report by boss or admin usser."""
         while True:
             tmp_rpt = self.data_base[report_name]
             print(tmp_rpt)
@@ -630,7 +627,7 @@ class Reports(BasF_S):
             super().clear_screen()
 
     def _enter_rock_mass(self, tmp_rpt: MainReportS) -> MainReportS:
-        """Enter rock_mass"""
+        """Enter rock_mass."""
         print("Введите горную массу:")
         for gorizont in sorted(tmp_rpt.rock_mass):
             print(gorizont, end='')
@@ -638,21 +635,21 @@ class Reports(BasF_S):
         return tmp_rpt
 
     def _enter_totall(self, tmp_rpt: MainReportS) -> MainReportS:
-        """Enter totall money"""
+        """Enter totall money."""
         tmp_rpt.totall = (super()
                           .float_input(msg="Введите итоговую сумму: "))
         return tmp_rpt
 
     @classmethod
     def _enter_bonus(cls, tmp_rpt: MainReportS) -> MainReportS:
-        """Enter monthly bonus"""
+        """Enter monthly bonus."""
         choise = input("Бригада победила в соревновании? Y/N: ")
         if choise.lower() == 'y':
             tmp_rpt.bonuses['победа по критериям'] = True
         return tmp_rpt
 
     def _change_ktu(self, tmp_rpt: MainReportS) -> MainReportS:
-        """Manualy change worker KTU"""
+        """Manualy change worker KTU."""
         print("Выберете вид КТУ:")
         ktu_option = tmp_rpt.workers_showing
         direction = super().choise_from_list(ktu_option)
@@ -677,7 +674,7 @@ class Reports(BasF_S):
         return tmp_rpt
 
     def _complete_main_report(self, tmp_rpt: MainReportS) -> MainReportS:
-        """Complete main report"""
+        """Complete main report."""
         choise = input("Вы уверены что хотите завершить отчет? Y/N: ")
         if choise.lower() == 'y':
             tmp_rpt.count_all_workers_in_report(self.user)
@@ -699,7 +696,7 @@ class Reports(BasF_S):
         return tmp_rpt
 
     def _make_status_in_process(self, report_name: str):
-        """Change status from 'not complete' to 'in process'"""
+        """Change status from 'not complete' to 'in process'."""
         print(self.data_base[report_name])
         tmp_report = self.data_base[report_name]
         print("Введите ОФИЦИАЛЬНЫЕ часы работы:")
@@ -795,7 +792,9 @@ class Reports(BasF_S):
 
     def give_main_results(self, year: str, month: str, shift: str):
         """Return drill meters, result and rock_mass.
-        Return None, if report not exist."""
+
+        Return None, if report not exist.
+        """
         report_name = year + '-' + month + ' ' + shift
         result_tuplet = ()
         for report in self.data_base:
@@ -810,7 +809,7 @@ class Reports(BasF_S):
         return result_tuplet
 
     def give_avaliable_to_edit(self, *statuses) -> List[str]:
-        """Give reports that avaliable to edit"""
+        """Give reports that avaliable to edit."""
         avaliable_reports = []
         avaliable_reports = [
             report
@@ -863,9 +862,7 @@ class Reports(BasF_S):
         input('\n[ENTER] - выйти.')
 
     def edit_report(self):
-        """
-        Edition uncompleted report by user with 'master' accesse.
-        """
+        """Edition uncompleted report by user with 'master' accesse."""
         avaliable_reports = self.give_avaliable_to_edit('[не завершен]')
         print("""\
 Вам доступны для редактирования только отчеты со статусом: \
@@ -906,7 +903,7 @@ class Reports(BasF_S):
             super().clear_screen()
 
     def choose_main_report(self):
-        """Choose MainReport"""
+        """Choose MainReport."""
         year = self._choose_by_year()
         while True:
             reports_by_year = [
