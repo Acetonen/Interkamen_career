@@ -282,26 +282,25 @@ class ReportAnalysis(Reports):
     def _subplot_result(self, fig_plot, year, result, title):
         """Visualise result."""
         axle = fig_plot[0].add_subplot(fig_plot[1])
-        for item in sorted(result):
-            axle.plot(
-                self.month_list,
-                result[item],
-                marker='D',
-                markersize=4
-            )
+        for item in result:
+            axle.plot(self.month_list, result[item], marker='D', markersize=4)
             self._add_markers_to_plot(axle, result[item], title)
 
-        legend = list(sorted(result.keys()))
-        for position, item in enumerate(legend):
-            if item in ['salary', 'progect_salary']:
-                year_sum = int(round(sum(result[item]), 0))
-                legend[position] = f'{item} (year sum = {year_sum} Krub)'
-
+        legend = self._replace_legend(result)
         axle.legend(legend)
         axle.set_xlabel('месяц')
         axle.set_ylabel(title.split(' ')[-1])
         axle.set_title(year + 'г., ' + title)
         axle.grid(b=True, linestyle='--', linewidth=0.5)
+
+    def _replace_legend(self, result):
+        """Replays legend to years totall."""
+        legend = list(sorted(result.keys()))
+        for position, item in enumerate(legend):
+            if item in ['salary', 'progect_salary']:
+                year_sum = int(round(sum(result[item]), 0))
+                legend[position] = f'{item} (year sum = {year_sum} Krub)'
+        return legend
 
     def _give_by_horiz(self) -> Dict[str, int]:
         """Give result and persent horizont"""
