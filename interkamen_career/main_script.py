@@ -142,7 +142,10 @@ def _try_init_sentry_sdk(user):
     sentry_token = EmailSender(user).email_prop['sentry token']
     if sentry_token:
         try:
-            sentry_sdk.init(sentry_token)
+            sentry_sdk.init(
+                sentry_token,
+                release=f"interkamen_career@{__version__}",
+            )
         except sentry_sdk.utils.BadDsn:
             print("\033[91msentry_sdk token incorrect.\033[0m")
 

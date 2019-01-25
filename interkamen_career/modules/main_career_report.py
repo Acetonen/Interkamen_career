@@ -256,7 +256,8 @@ class MainReportS(BasF_S):
             elif direction == 'факт':
                 persent = 1.1
             oklad = (
-                self.workers_showing[direction]['зарплата'][worker] * persent
+                self.workers_showing[direction]['зарплата'][worker]
+                * persent
             )
             self.workers_showing[direction]['зарплата'][worker] = round(
                 oklad, 2)
