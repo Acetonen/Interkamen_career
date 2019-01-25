@@ -27,7 +27,6 @@ from interkamen_career.modules.support_modules.standart_functions import (
 )
 
 
-
 LOGGER = Logs().give_logger(__name__)
 
 
@@ -343,6 +342,7 @@ class Users(BasF_S):
         while True:
             login = input("Имя пользователя: ")
             password = getpass.getpass("Введите пароль: ")
+            difficult = password
             password = password.encode('utf-8')
             sucsesse_login = super().check_login_password(
                 self.users_base,
@@ -350,6 +350,7 @@ class Users(BasF_S):
                 password
             )
             if sucsesse_login:
+                super().check_password_dificult(difficult)
                 key = super().make_key_length(password)
                 user_in = self.users_base[login]
                 user_in.temp_datakey = super().decrypt_data(

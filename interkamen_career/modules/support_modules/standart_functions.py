@@ -107,8 +107,10 @@ class BasicFunctionsS:
                 tmp_check = tmp_check[1:]
             check = check.any()
         elif len(rep_date) == 2 and rep_date['month']:
-            check_items = ((dataframe['year'] == rep_date['year']) &
-                           (dataframe['month'] == rep_date['month']))
+            check_items = (
+                (dataframe['year'] == rep_date['year'])
+                & (dataframe['month'] == rep_date['month'])
+            )
             if 'day' in dataframe[check_items]:
                 avail_days = dataframe[check_items].day
                 avail_days = sorted(set(avail_days))
@@ -121,8 +123,10 @@ class BasicFunctionsS:
                     )
                 )
             check = check_items.any()
-        elif (len(rep_date) == 1 or
-              (len(rep_date) == 2 and not rep_date['month'])):
+        elif (
+                len(rep_date) == 1
+                or (len(rep_date) == 2 and not rep_date['month'])
+        ):
             check_items = dataframe['year'] == rep_date['year']
             check = (check_items).any()
             avail_months = dataframe[check_items].month
@@ -220,13 +224,15 @@ class BasicFunctionsS:
     def check_date_format(rep_date: str) -> bool:
         """Check if date format correct"""
         date_numbers = rep_date.split('-')
-        correct = (rep_date[4] == '-' and
-                   len(date_numbers) == 2 and
-                   len(date_numbers[1]) == 2 and
-                   date_numbers[0].isdigit() and
-                   date_numbers[1].isdigit() and
-                   int(date_numbers[1]) < 13 and
-                   int(date_numbers[1]) > 0)
+        correct = (
+            rep_date[4] == '-'
+            and len(date_numbers) == 2
+            and len(date_numbers[1]) == 2
+            and date_numbers[0].isdigit()
+            and date_numbers[1].isdigit()
+            and int(date_numbers[1]) < 13
+            and int(date_numbers[1]) > 0
+        )
         return correct
 
     @staticmethod
@@ -281,12 +287,31 @@ class BasicFunctionsS:
     def check_login_password(users_base, login, password):
         """Check user login and password."""
         sucsesse_login = False
-        if (login in users_base and
-                bcrypt.checkpw(password, users_base[login].password)):
+        if (
+                login in users_base
+                and bcrypt.checkpw(password, users_base[login].password)
+        ):
             sucsesse_login = True
         else:
             print("Неправильные имя пользователя или пароль.")
         return sucsesse_login
+
+    @classmethod
+    def check_password_dificult(cls, password):
+        """Check password dificult."""
+        difficult = (
+            len(password) >= 5
+            and list(filter(
+                lambda x: x == password[0],
+                password)
+            ) == len(password)
+        )
+        if not difficult:
+            input(
+                "Ваш пароль слишком простой, поменяйте пароль"
+                "\nили ваш аккаунт будет \033[91mУДАЛЕН\033[0m."
+                "[ENTER] - продолжить."
+            )
 
     @staticmethod
     def check_number_in_range(user_input, list_range: List):
@@ -349,7 +374,7 @@ class BasicFunctionsS:
     @staticmethod
     def make_key_length(key):
         """Make key length 16 or 32 bit."""
-        return key + (16 - len(key)%16) * b'0'
+        return key + (16 - len(key) % 16) * b'0'
 
     @staticmethod
     def encrypt_data(key, base_to_byte):
