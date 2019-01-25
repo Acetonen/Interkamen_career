@@ -184,15 +184,8 @@ class ReportAnalysis(Reports):
                 ktu_sal = sal_anal.min_salary
             else:
                 ktu_sal = res * cost_min_up_cube / 2
-            # Count salary workers.
-            if res > 400:
-                salary_workers_salaries = 50000*10
-            elif 400 < res < 500:
-                salary_workers_salaries = 50000*10 + 5000*5
-            elif res > 500:
-                salary_workers_salaries = 50000*10 + 5000*10
 
-            month_salary = ktu_sal*8 + salary_workers_salaries
+            month_salary = ktu_sal*18 + sal_anal.bonus*9
 
             progect_salary_list.append(month_salary)
 
@@ -214,9 +207,11 @@ class ReportAnalysis(Reports):
         result = {}
         result['shift'] = self._give_by_shift()['rock_mass']
         result['horiz'] = self._give_by_horiz()['rock_mass']
-        title1 = 'Горная масса по горизонтам, м\u00B3'
-        title2 = 'Горная масса по вахтам, м\u00B3'
-        stat = self.statistic(result, title1, title2)
+        stat = self.statistic(
+            result,
+            'Горная масса по горизонтам, м\u00B3',
+            'Горная масса по вахтам, м\u00B3'
+        )
         return stat
 
     def _make_shift_statistic(self):
@@ -224,9 +219,11 @@ class ReportAnalysis(Reports):
         result = self._give_by_shift()
         # result == self.by_shift
         result.pop('rock_mass', None)
-        title1 = 'Повахтовый выход, %'
-        title2 = 'Повахтовая добыча м\u00B3'
-        stat = self.statistic(result, title1, title2)
+        stat = self.statistic(
+            result,
+            'Повахтовый выход, %',
+            'Повахтовая добыча м\u00B3'
+        )
         return stat
 
     def _make_horizont_statistic(self):
@@ -234,9 +231,11 @@ class ReportAnalysis(Reports):
         result = self._give_by_horiz()
         # result == self.by_horisond
         result.pop('rock_mass', None)
-        title1 = 'Погоризонтный выход, %'
-        title2 = 'Погоризонтная добыча, м\u00B3'
-        stat = self.statistic(result, title1, title2)
+        stat = self.statistic(
+            result,
+            'Погоризонтный выход, %',
+            'Погоризонтная добыча, м\u00B3'
+        )
         return stat
 
     @Reports.set_plotter_parametrs
@@ -453,11 +452,13 @@ class ReportAnalysis(Reports):
                 'up_shift',
                 'min_salary',
                 'up_salary',
+                'bonus'
             ])
             sal_anal = analyse(
                 int(input("Введите верхнюю границу: ")),
                 int(input("Введите минимальный оклад: ")),
                 int(input("Введите з/п верхней границы: ")),
+                int(input("Введите приработок 'специалистов': ")),
             )
         else:
             sal_anal = None
