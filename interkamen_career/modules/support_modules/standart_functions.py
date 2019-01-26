@@ -304,13 +304,13 @@ class BasicFunctionsS:
             and list(filter(
                 lambda x: x == password[0],
                 password)
-            ) == len(password)
+            ) != len(password)
         )
         if not difficult:
             input(
                 "Ваш пароль слишком простой, поменяйте пароль"
                 "\nили ваш аккаунт будет \033[91mУДАЛЕН\033[0m."
-                "[ENTER] - продолжить."
+                "\n[ENTER] - продолжить."
             )
 
     @staticmethod
