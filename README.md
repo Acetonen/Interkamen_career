@@ -20,6 +20,8 @@ And python frameworks:
 4. Pillow
 5. Sentry
 6. bcrypt
+7. pytcrypto
+8. dill
 
 ### Installing
 

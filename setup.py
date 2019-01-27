@@ -1,6 +1,5 @@
+#!/usr/bin/env python3
 """Setup file for Interkamen program."""
-#!/usr/bin/env python3.7
-# -*- coding: utf-8 -*-
 
 
 import io
@@ -19,7 +18,8 @@ REQUIRES_PYTHON = '>=3.7.0'
 VERSION = None
 
 REQUIRED = [
-    'pandas', 'matplotlib', 'openpyxl', 'pillow', 'sentry-sdk', 'bcrypt', 'dill'
+    'pandas', 'matplotlib', 'openpyxl', 'pillow',
+    'sentry-sdk', 'bcrypt', 'dill', 'pycrypto'
 ]
 
 EXTRAS = {}
@@ -28,8 +28,8 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 # Import the README and use it as the long-description.
 try:
-    with io.open(os.path.join(HERE, 'PIP_README.md'), encoding='utf-8') as file:
-        LONG_DESCRIPTION = '\n' + file.read()
+    with io.open(os.path.join(HERE, 'PIP_README.md'), encoding='utf-8') as fil:
+        LONG_DESCRIPTION = '\n' + fil.read()
 except FileNotFoundError:
     LONG_DESCRIPTION = DESCRIPTION
 
@@ -50,7 +50,7 @@ class UploadCommand(Command):
 
     @staticmethod
     def status(status):
-        """Prints things in bold."""
+        """Print things in bold."""
         print('\033[1m{0}\033[0m'.format(status))
 
     def initialize_options(self):
@@ -62,7 +62,7 @@ class UploadCommand(Command):
         pass
 
     def run(self):
-        """run upload."""
+        """Run upload."""
         try:
             self.status('Removing previous builds…')
             rmtree(os.path.join(HERE, 'dist'))
@@ -70,7 +70,9 @@ class UploadCommand(Command):
             pass
 
         self.status('Building Source and Wheel (universal) distribution…')
-        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+        os.system(
+            '{0} setup.py sdist bdist_wheel --universal'.format(sys.executable)
+        )
 
         self.status('Uploading the package to PyPI via Twine…')
         os.system('twine upload dist/*')

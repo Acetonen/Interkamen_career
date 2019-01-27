@@ -7,7 +7,7 @@ data and statistic of Career Interkamen.
 """
 
 from __future__ import annotations
-
+import time
 
 import sys
 import signal
@@ -37,7 +37,7 @@ BUILD_VERSION = __version__
 INTERKAMEN = INTERKAMEN.replace('*********', BUILD_VERSION)
 
 
-def main(current_user: User):
+def main(current_user: User, START):
     """Maining flow."""
     show_backround_tasks_results = Event()
     _start_background_tasks(
@@ -67,7 +67,7 @@ def main(current_user: User):
 
         # Exit sub-menu.
         if not user_choise and menu_nesting:
-            menu_nesting = menu_nesting[:-1]  # Go one menu up.
+            menu_nesting.pop()  # Go one menu up.
             if menu_nesting:
                 menu_header[1] = menu_nesting[-1].split(' ')[1]
                 program_menu = _get_main_or_sub_menu(
@@ -216,8 +216,9 @@ def run(args):
     elif args.login:
         try:
             current_user = _login_program()
+            START = time.perf_counter()
             try:
-                main(current_user)
+                main(current_user, START)
             except Exception:
                 Logs().loged_error(current_user)
         except KeyboardInterrupt:
