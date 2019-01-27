@@ -25,8 +25,13 @@ LOGGER = Logs().give_logger(__name__)
 class Rating(BasF_S):
     """Working with ratings in DataFrame."""
 
-    __slots__ = ['brig_rating_path', 'totl_res', 'user',
-                 'temp_res', 'brig_rating_file']
+    __slots__ = [
+        'brig_rating_path',
+        'totl_res',
+        'user',
+        'temp_res',
+        'brig_rating_file'
+    ]
 
     brig_columns = ['year', 'month', 'shift', 'cleanness', 'discipline',
                     'roads', 'maintain', 'user']
@@ -184,7 +189,7 @@ class Rating(BasF_S):
             rep_date.update({
                 'shift': shift,
                 'user': self.user.name.split(' ')[0]
-                })
+            })
             check = super().check_date_in_dataframe(
                 self.brig_rating_file, rep_date)
             if check:

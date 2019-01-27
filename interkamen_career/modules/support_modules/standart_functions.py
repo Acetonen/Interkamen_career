@@ -1,4 +1,5 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3
+
 """
 Frequently using functions in modules classes.
 List of different supports functions.
@@ -91,11 +92,11 @@ class BasicFunctionsS:
             dataframe,
             rep_date: Dict[str, int]
     ) -> bool:
-        """
-        Check if report allready exist in DataFrame
+        """Check if report allready exist in DataFrame.
+
         rep_date can contain keys: year, month, day or shift (optional)
         """
-        if dataframe.empty:
+        if not dataframe:
             check = False
         elif len(rep_date) >= 3:
             tmp_check = []
@@ -111,17 +112,7 @@ class BasicFunctionsS:
                 (dataframe['year'] == rep_date['year'])
                 & (dataframe['month'] == rep_date['month'])
             )
-            if 'day' in dataframe[check_items]:
-                avail_days = dataframe[check_items].day
-                avail_days = sorted(set(avail_days))
-                print(
-                    "Имеющиеся отчеты:\n\t",
-                    cls.colorise_avaliable_date(
-                        rep_date['year'],
-                        rep_date['month'],
-                        avail_days
-                    )
-                )
+            cls.show_colorising_days(dataframe[check_items], rep_date)
             check = check_items.any()
         elif (
                 len(rep_date) == 1
@@ -133,6 +124,21 @@ class BasicFunctionsS:
             print("Имеющиеся отчеты: {}".format(sorted(set(avail_months))))
 
         return check
+
+    @classmethod
+    def show_colorising_days(cls, dataframe_items, rep_date):
+        """Show colorising avaliable days in dataframe."""
+        if 'day' in dataframe_items:
+            avail_days = dataframe_items.day
+            avail_days = sorted(set(avail_days))
+            print(
+                "Имеющиеся отчеты:\n\t",
+                cls.colorise_avaliable_date(
+                    rep_date['year'],
+                    rep_date['month'],
+                    avail_days
+                )
+            )
 
     @classmethod
     def check_correct_email(cls) -> str:

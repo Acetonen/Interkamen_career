@@ -48,8 +48,9 @@ from .support_modules.standart_functions import (
 
 LOGGER = Logs().give_logger(__name__)
 
+
 class WorkerS(BasF_S):
-    """Particular worker"""
+    """Particular worker."""
 
     __slots__ = [
         'name',
@@ -62,6 +63,7 @@ class WorkerS(BasF_S):
     ]
 
     def __init__(self, name, working_place):
+        """Create worker."""
         self.name = name
         self.working_place = working_place
         # working_place = {'division': division,
@@ -101,9 +103,15 @@ class WorkerS(BasF_S):
 class AllWorkers(BasF_S):
     """Infofmation about all workers and tools to manipulate."""
 
-    __slots__ = ['user', 'workers_base_path', 'workers_archive_path',
-                 'comp_structure_path', 'workers_base', 'workers_archive',
-                 'comp_structure']
+    __slots__ = [
+        'user',
+        'workers_base_path',
+        'workers_archive_path',
+        'comp_structure_path',
+        'workers_base',
+        'workers_archive',
+        'comp_structure'
+    ]
 
     interkamen = {
         'Карьер': {
@@ -138,11 +146,14 @@ class AllWorkers(BasF_S):
     def __init__(self, user):
         self.user = user
         self.workers_base_path = (
-            super().get_root_path() / 'data' / 'workers_base')
+            super().get_root_path() / 'data' / 'workers_base'
+        )
         self.workers_archive_path = (
-            super().get_root_path() / 'data' / 'workers_archive')
+            super().get_root_path() / 'data' / 'workers_archive'
+        )
         self.comp_structure_path = (
-            super().get_root_path() / 'data' / 'company_structure')
+            super().get_root_path() / 'data' / 'company_structure'
+        )
         self.workers_base = super().load_data(
             data_path=self.workers_base_path,
             user=user,
@@ -176,7 +187,7 @@ class AllWorkers(BasF_S):
 
     @classmethod
     def _change_phone_number(cls, temp_worker: WorkerS) -> WorkerS:
-        """Change worker phone number"""
+        """Change worker phone number."""
         number = input("Введите новый номер (без восьмерки): ")
         new_number = ('+7(' + number[:3] + ')' + number[3:6]
                       + '-' + number[6:8] + '-' + number[8:])
@@ -186,7 +197,7 @@ class AllWorkers(BasF_S):
 
     @classmethod
     def _show_salary(cls, temp_worker: WorkerS):
-        """Show worker salary"""
+        """Show worker salary."""
         salary_count = 0
         for salary_date in sorted(temp_worker.salary):
             print(salary_date, '-', temp_worker.salary[salary_date], 'р.')
@@ -195,6 +206,30 @@ class AllWorkers(BasF_S):
             unzero = super().count_unzero_items(temp_worker.salary)
             average_sallary = round(salary_count / unzero)
             print("\033[93mСредняя з/п:\033[0m ", average_sallary, 'p.')
+
+    def _dump_workers_base(self):
+        """Dump workers base to file."""
+        super().dump_data(
+            data_path=self.workers_base_path,
+            base_to_dump=self.workers_base,
+            user=self.user,
+        )
+
+    def _dump_company_structure(self):
+        """Dump company structure to file."""
+        super().dump_data(
+            data_path=self.comp_structure_path,
+            base_to_dump=self.comp_structure,
+            user=self.user,
+        )
+
+    def _dump_workers_archive(self):
+        """Dump workers archive to file."""
+        super().dump_data(
+            data_path=self.workers_archive_path,
+            base_to_dump=self.workers_archive,
+            user=self.user,
+        )
 
     def _change_profession(self, temp_worker: WorkerS) -> WorkerS:
         """Change worker profession."""
@@ -216,7 +251,7 @@ class AllWorkers(BasF_S):
         return new_profession
 
     def _add_working_place(self, profession):
-        """Change worker working place"""
+        """Change worker working place."""
         print("Выберете подразделение:")
         division = super().choise_from_list(self.interkamen)
         print("Выберете отдел:")
@@ -227,10 +262,12 @@ class AllWorkers(BasF_S):
             self.interkamen[division][subdivision])
         if not profession:
             profession = self._choose_profession(division, subdivision)
-        working_place = {'division': division,
-                         'subdivision': subdivision,
-                         'profession': profession,
-                         'shift': shift}
+        working_place = {
+            'division': division,
+            'subdivision': subdivision,
+            'profession': profession,
+            'shift': shift,
+        }
         return working_place
 
     def _show_penalties(self, temp_worker: WorkerS) -> WorkerS:
@@ -242,18 +279,16 @@ class AllWorkers(BasF_S):
             temp_worker = self._add_penalties(temp_worker)
         return temp_worker
 
-    def _add_worker_to_structure(self, name: str,
-                                 working_place: Dict[str, str]):
+    def _add_worker_to_structure(
+            self, name: str,
+            working_place: Dict[str, str]
+    ):
         """Add worker to company structure."""
         division = working_place['division']
         subdivision = working_place['subdivision']
         shift = working_place['shift']
         self.comp_structure[division][subdivision][shift].append(name)
-        super().dump_data(
-            data_path=self.comp_structure_path,
-            base_to_dump=self.comp_structure,
-            user=self.user,
-        )
+        self._dump_company_structure()
 
     def _change_worker_name(self, temp_worker: WorkerS) -> WorkerS:
         """Change worker name."""
@@ -282,21 +317,13 @@ class AllWorkers(BasF_S):
         subdivision = worker.working_place['subdivision']
         shift = worker.working_place['shift']
         self.comp_structure[division][subdivision][shift].remove(worker.name)
-        super().dump_data(
-            data_path=self.comp_structure_path,
-            base_to_dump=self.comp_structure,
-            user=self.user,
-        )
+        self._dump_company_structure()
 
     def _lay_off_worker(self, temp_worker: WorkerS) -> WorkerS:
-        """Lay off worker and put him in archive"""
+        """Lay off worker and put him in archive."""
         temp_worker.employing_lay_off_dates['lay_off'] = str(date.today())
         self.workers_archive[temp_worker.name] = temp_worker
-        super().dump_data(
-            data_path=self.workers_archive_path,
-            base_to_dump=self.workers_archive,
-            user=self.user,
-        )
+        self._dump_workers_archive()
         print(f"\033[91m{temp_worker.name} - уволен. \033[0m")
         LOGGER.warning(
             f"User '{self.user.login}' lay off worker: {temp_worker.name}"
@@ -367,11 +394,7 @@ class AllWorkers(BasF_S):
                 break
             worker = temp_worker.name
             self.workers_base[worker] = temp_worker
-            super().dump_data(
-                data_path=self.workers_base_path,
-                base_to_dump=self.workers_base,
-                user=self.user,
-            )
+            self._dump_workers_base()
             super().clear_screen()
 
     def _give_workers(self, division: str) -> List:
@@ -406,11 +429,7 @@ class AllWorkers(BasF_S):
         working_place = self._add_working_place(None)
         new_worker = WorkerS(name, working_place)
         self.workers_base[name] = new_worker
-        super().dump_data(
-            data_path=self.workers_base_path,
-            base_to_dump=self.workers_base,
-            user=self.user,
-        )
+        self._dump_workers_base()
         self._add_worker_to_structure(name, working_place)
         print(f"\033[92m Добавлен сотрудник '{name}'. \033[0m")
         LOGGER.warning(
@@ -419,9 +438,7 @@ class AllWorkers(BasF_S):
         input('\n[ENTER] - выйти.')
 
     def edit_worker(self):
-        """
-        Edit worker information.
-        """
+        """Edit worker information."""
         division = self._choose_division()
         while True:
             super().clear_screen()
@@ -440,7 +457,7 @@ class AllWorkers(BasF_S):
             self._manage_worker_properties(worker)
 
     def upd_comp_structure(self):
-        """Add new division in base"""
+        """Add new division in base."""
         for division in self.interkamen:
             if division not in self.comp_structure:
                 self.comp_structure[division] = self.interkamen[division]
@@ -448,22 +465,18 @@ class AllWorkers(BasF_S):
                 LOGGER.warning(
                     f"User '{self.user.login}' update company structure."
                 )
-        super().dump_data(
-            data_path=self.comp_structure_path,
-            base_to_dump=self.comp_structure,
-            user=self.user,
-        )
+        self._dump_company_structure()
         input('\n[ENTER] - выйти')
 
     def print_comp_structure(self):
-        """Print company structure"""
+        """Print company structure."""
         for division in self.comp_structure:
             print(division + ':')
             pprint(self.comp_structure[division])
         input('\n[ENTER] - выйти')
 
     def print_archive_workers(self):
-        """Print layed off workers"""
+        """Print layed off workers."""
         for worker in self.workers_archive:
             print(
                 worker,
@@ -483,11 +496,7 @@ class AllWorkers(BasF_S):
                 temp_worker = self.workers_base[worker]
                 temp_worker.salary[salary_date] = salary_dict[worker]
                 self.workers_base[worker] = temp_worker
-        super().dump_data(
-            data_path=self.workers_base_path,
-            base_to_dump=self.workers_base,
-            user=self.user,
-        )
+        self._dump_workers_base()
 
     def return_from_archive(self):
         """Return worker from archive."""
@@ -497,17 +506,9 @@ class AllWorkers(BasF_S):
         if choose:
             worker = self.workers_archive[choose]
             self.workers_archive.pop(choose, None)
-            super().dump_data(
-                data_path=self.workers_archive_path,
-                base_to_dump=self.workers_archive,
-                user=self.user,
-            )
+            self._dump_workers_archive()
             self.workers_base[worker.name] = worker
-            super().dump_data(
-                data_path=self.workers_base_path,
-                base_to_dump=self.workers_base,
-                user=self.user,
-            )
+            self._dump_workers_base()
             self._add_worker_to_structure(worker.name, worker.working_place)
             print(f"\033[92mCотрудник '{worker.name}' возвращен\033[0m")
             LOGGER.warning(
@@ -542,7 +543,7 @@ class AllWorkers(BasF_S):
         return mining_workers_list
 
     def print_workers_from_division(self):
-        """Output workers from division"""
+        """Output workers from division."""
         workers_list = self.give_workers_from_division()
         for worker in sorted(workers_list):
             print(self.workers_base[worker])
@@ -550,7 +551,9 @@ class AllWorkers(BasF_S):
 
     def print_telefon_numbers(self, itr_shift=None):
         """Print telefone numbers of workers from division.
-        if itr shift, print numbers from itr users with short names"""
+
+        If itr shift, print numbers from itr users with short names.
+        """
         workers_list = []
         if itr_shift:
             workers = self.comp_structure[

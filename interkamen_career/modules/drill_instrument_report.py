@@ -7,7 +7,6 @@ Working with statistic of drill instrument.
 .show_statistic_by_year() - show stats for drill instrumens by year.
 """
 
-import os
 from matplotlib import pyplot as plt
 import pandas as pd
 from .main_career_report import Reports
@@ -23,9 +22,7 @@ LOGGER = Logs().give_logger(__name__)
 
 
 class DrillInstruments(BasF_S):
-    """
-    All information about drill instruments.
-    """
+    """All information about drill instruments."""
 
     __slots__ = [
         'drill_path',
@@ -197,7 +194,6 @@ class DrillInstruments(BasF_S):
     @BasF_S.set_plotter_parametrs
     def _create_plots(self, data_by_year, shifts, bits):
         """Create plots for drill data."""
-
         figure = plt.figure()
         suptitle = figure.suptitle(
             "Отчет по буровому инструменту.",

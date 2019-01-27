@@ -31,9 +31,7 @@ LOGGER = Logs().give_logger(__name__)
 
 
 class MechReports(BasF_S):
-    """
-    Class to work with statistic of machine maintainence.
-    """
+    """Class to work with statistic of machine maintainence."""
 
     __slots__ = [
         'mech_path',
@@ -41,7 +39,6 @@ class MechReports(BasF_S):
         'user',
         'temp_df',
         'mech_file',
-        'mech_data',
         'machines',
         'maint_path',
         'maint_file',
@@ -77,10 +74,11 @@ class MechReports(BasF_S):
     }
 
     def __init__(self, user):
-        self.mech_data = {}
+        """Load mech reports."""
+        self.user = user
         self.mech_path = super().get_root_path() / 'data' / 'mechanics_report'
         self.maint_path = super().get_root_path() / 'data' / 'maintainence'
-        self.user = user
+
         self.temp_df = pd.DataFrame()
         # Try to load mech reports file.
         if self.mech_path.exists():
@@ -88,16 +86,12 @@ class MechReports(BasF_S):
                 data_path=self.mech_path,
                 user=user,
             )
-
         else:
-            self.mech_file = pd.DataFrame(self.mech_data, index=[0])
-            super().dump_data(
-                data_path=self.mech_path,
-                base_to_dump=self.mech_file,
-                user=user,
-            )
+            self.mech_file = None
+
         if 'mach_name' in self.mech_file:
             self.machines = sorted(set(self.mech_file.mach_name))
+
         # Try to load maintainence file.
         if self.maint_path.exists():
             self.maint_file = super().load_data(
@@ -109,7 +103,7 @@ class MechReports(BasF_S):
 
     @classmethod
     def _check_hours_input(cls, hours):
-        """Check input hours are correct"""
+        """Check input hours are correct."""
         hours = hours.split('-')
         try:
             correct = sum(list(map(int, hours))) < 13 and len(hours) == 4
@@ -126,10 +120,17 @@ class MechReports(BasF_S):
         x_kti = [x - 0.35 for x in x_ktg]
 
         axle = fig_plot[0].add_subplot(fig_plot[1])
-        axle.barh(x_ktg, coefs[0], 0.35, alpha=0.4, color='b',
-                  label=labels[1], tick_label=labels[0])
-        axle.barh(x_kti, coefs[1], 0.35, alpha=0.4, color='g',
-                  label=labels[2])
+        axle.barh(
+            x_ktg, coefs[0], 0.35,
+            alpha=0.4, color='b',
+            label=labels[1],
+            tick_label=labels[0]
+        )
+        axle.barh(
+            x_kti, coefs[1], 0.35,
+            alpha=0.4, color='g',
+            label=labels[2]
+        )
         axle.set_title(title)
         axle.set_xlabel('%')
         axle.legend()
@@ -157,14 +158,16 @@ class MechReports(BasF_S):
             )
         return header
 
-    def _start_maintainance(self, select_mach):
-        """Start or reset maintainence of mach."""
-        current_date = str(date.today())
-        self.maint_file.loc[
-            select_mach, 'last_maintain_date'] = current_date
-        self.maint_file.loc[
-            select_mach, 'hours_pass'] = self.maint_file.loc[
-                select_mach, 'cycle']
+    def _dump_mech_reports(self):
+        """Dump mech reports to file."""
+        super().dump_data(
+            data_path=self.mech_path,
+            base_to_dump=self.mech_file,
+            user=self.user,
+        )
+
+    def _dump_maint_calend(self):
+        """Dump maintainence calendar to file."""
         super().dump_data(
             data_path=self.maint_path,
             base_to_dump=self.maint_file,
@@ -175,34 +178,55 @@ class MechReports(BasF_S):
         """Crete new maintenance DF."""
         maint_df = pd.DataFrame(
             self.maint_dict, columns=[
-                'mach_name', 'cycle',
-                'last_maintain_date', 'hours_pass'
+                'mach_name',
+                'cycle',
+                'last_maintain_date',
+                'hours_pass',
             ]
-        )
-        super().dump_data(
-            data_path=self.maint_path,
-            base_to_dump=maint_df,
-            user=self.user,
         )
         return maint_df
 
+    def _start_maintainance(self, select_mach):
+        """Start or reset maintainence of mach."""
+        current_date = str(date.today())
+        self.maint_file.loc[
+            select_mach,
+            'last_maintain_date'
+        ] = current_date
+        self.maint_file.loc[
+            select_mach,
+            'hours_pass'
+        ] = self.maint_file.loc[select_mach, 'cycle']
+        self._dump_maint_calend()
+
     def _create_blanc(self, rep_date):
         """Create blanc for report."""
+        mech_data = {}
         for mach_type in self.machine_list:
             for mach_name in self.machine_list[mach_type]:
-                self.mech_data['year'] = rep_date['year']
-                self.mech_data['month'] = rep_date['month']
-                self.mech_data['day'] = rep_date['day']
-                self.mech_data['mach_type'] = mach_type
-                self.mech_data['mach_name'] = mach_name
-                self.mech_data['st_plan'] = 0
-                self.mech_data['st_acs'] = 0
-                self.mech_data['st_sep'] = 0
-                self.mech_data['work'] = 0
-                self.mech_data['notes'] = ''
-                self.temp_df = self.temp_df.append(self.mech_data,
-                                                   ignore_index=True)
+                mech_data['year'] = rep_date['year']
+                mech_data['month'] = rep_date['month']
+                mech_data['day'] = rep_date['day']
+                mech_data['mach_type'] = mach_type
+                mech_data['mach_name'] = mach_name
+                mech_data['st_plan'] = 0
+                mech_data['st_acs'] = 0
+                mech_data['st_sep'] = 0
+                mech_data['work'] = 0
+                mech_data['notes'] = ''
+                self.temp_df = self.temp_df.append(
+                    mech_data, ignore_index=True
+                )
         self.temp_df = self.temp_df[self.columns]
+
+    def _save_report(self):
+        """Save daily report to base."""
+        if not self.mech_file:
+            self.mech_file = self.temp_df
+        else:
+            self.mech_file = self.mech_file.append(self.temp_df)
+        self.walk_thrue_maint_calendar(sub)
+        self._dump_mech_reports()
 
     def _input_hours(self):
         """Input hours."""
@@ -226,19 +250,6 @@ class MechReports(BasF_S):
         """Add note to mach."""
         note = input("Введите примечание: ")
         self.temp_df.loc[select_mach, 'notes'] = note
-
-    def _save_report(self):
-        """Save daily report to base."""
-        if self.mech_file.empty:
-            self.mech_file = self.temp_df
-        else:
-            self.mech_file = self.mech_file.append(self.temp_df)
-        self.walk_thrue_maint_calendar(sub)
-        super().dump_data(
-            data_path=self.mech_path,
-            base_to_dump=self.mech_file,
-            user=self.user,
-        )
 
     def _stat_by_period(self, *stand_reason, month):
         print("Выберете год:")
@@ -271,15 +282,6 @@ class MechReports(BasF_S):
         shift1_coef_df = self._create_coef_df(shift1_base)
         shift2_coef_df = self._create_coef_df(shift2_base)
         return period_coef_df, shift1_coef_df, shift2_coef_df
-
-    def give_average_shifs_kti(self, year, month):
-        """Give average shifts KTI for month."""
-        kti_dict = {'критерий': 'kti'}
-        coeff_dfs = self._create_coefficient_df(year, month)
-        shift1_df, shift2_df = coeff_dfs[1:]
-        kti_dict['Смена 1'] = round(shift1_df.kti.mean(), 1)
-        kti_dict['Смена 2'] = round(shift2_df.kti.mean(), 1)
-        return kti_dict
 
     def _create_reasons_df(self, curr_base):
         """Create coef DF for cerrent period."""
@@ -344,23 +346,35 @@ class MechReports(BasF_S):
         x_sep = [x + 0.3 for x in x_acs]
 
         axle = figure.add_subplot(111)
-        axle.bar(x_plan, reasons_df.sum_plan, 0.3, alpha=0.4, color='b',
-                 label='Плановый ремонт')
-        axle.bar(x_acs, reasons_df.sum_acs, 0.3, alpha=0.4, color='r',
-                 label='Аварийный ремонт', tick_label=reasons_df.mach)
+        axle.bar(
+            x_plan, reasons_df.sum_plan, 0.3,
+            alpha=0.4, color='b',
+            label='Плановый ремонт'
+        )
+        axle.bar(
+            x_sep, reasons_df.sum_sep, 0.3,
+            alpha=0.4, color='g',
+            label='Ожидание запчастей'
+        )
+        axle.bar(
+            x_acs, reasons_df.sum_acs, 0.3,
+            alpha=0.4, color='r',
+            label='Аварийный ремонт',
+            tick_label=reasons_df.mach
+        )
         axle.tick_params(labelrotation=90)
-        axle.bar(x_sep, reasons_df.sum_sep, 0.3, alpha=0.4, color='g',
-                 label='Ожидание запчастей')
         axle.set_title("Причины простоев.", fontsize="x-large")
         axle.set_ylabel('часы')
         axle.legend()
-        axle.grid(True, linestyle='--', which='major',
-                  color='grey', alpha=.25, axis='y')
+        axle.grid(
+            True, linestyle='--', which='major',
+            color='grey', alpha=.25, axis='y'
+        )
         figure.tight_layout()
         plt.show()
 
     def _create_short_mach_names(self):
-        """ Create compact machine names."""
+        """Create compact machine names."""
         short_mach = [x[:3]+' '+x[-3:] for x in self.machines]
         return short_mach
 
@@ -394,7 +408,7 @@ class MechReports(BasF_S):
         plt.show()
 
     def _count_data_for_period(self, year, month, reason):
-        """Create data frames for current period)"""
+        """Create data frames for current period."""
         if month:
             period_base = self.mech_file[
                 (self.mech_file.year == year) & (self.mech_file.month == month)
@@ -456,11 +470,7 @@ class MechReports(BasF_S):
         self.walk_thrue_maint_calendar(add)
         self.mech_file = self.mech_file.append(
             self.temp_df).drop_duplicates(keep=False)
-        super().dump_data(
-            data_path=self.mech_path,
-            base_to_dump=self.mech_file,
-            user=self.user,
-        )
+        self._dump_mech_reports()
 
     def _add_hours_to_maint_counter(self, oper, check,
                                     add_hours, maint_mach):
@@ -470,11 +480,16 @@ class MechReports(BasF_S):
                 int(self.maint_file.loc[maint_mach, 'hours_pass']),
                 int(add_hours)
             )
-            super().dump_data(
-                data_path=self.maint_path,
-                base_to_dump=self.maint_file,
-                user=self.user,
-            )
+            self._dump_maint_calend()
+
+    def give_average_shifs_kti(self, year, month):
+        """Give average shifts KTI for month."""
+        kti_dict = {'критерий': 'kti'}
+        coeff_dfs = self._create_coefficient_df(year, month)
+        shift1_df, shift2_df = coeff_dfs[1:]
+        kti_dict['Смена 1'] = round(shift1_df.kti.mean(), 1)
+        kti_dict['Смена 2'] = round(shift2_df.kti.mean(), 1)
+        return kti_dict
 
     def give_dataframe_by_year(self, year: int):
         """Return info by year."""
@@ -495,6 +510,7 @@ class MechReports(BasF_S):
             check = super().check_date_in_dataframe(self.mech_file, rep_date)
             if check:
                 print("Отчет за это число уже существует.")
+                input("\n[ENTER] - выйти.")
             else:
                 self._create_blanc(rep_date)
                 self._working_with_report(rep_date)
@@ -526,9 +542,10 @@ class MechReports(BasF_S):
             self._working_with_report(rep_date)
 
     def show_statistic(self, *stand_reason):
-        """
-        Show statistic for mechanics report. If no stand_reason arg, it'll
-        show coefficient stat, if are - stand reason comparison.
+        """Show statistic for mechanics report.
+
+        If no stand_reason arg, it'll show coefficient stat,
+        if are - stand reason comparison.
         """
         stat_variants = {
             'Месячная статистика':
@@ -563,8 +580,10 @@ class MechReports(BasF_S):
 
     def walk_thrue_maint_calendar(self, oper=None):
         """Work with maintaine calendar.
+
         oper - is a flag to do operations (add hours) with maint calendar.
-        if None method only check maintenance count."""
+        if None method only check maintenance count.
+        """
         header = ''
         for machine in set(self.maint_file.mach_name):
             if not self.temp_df.empty:

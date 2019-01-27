@@ -27,12 +27,11 @@ from interkamen_career.modules.work_calendar import WorkCalendars
 from interkamen_career.modules.career_status import Statuses
 from interkamen_career.modules.workers_salary import WorkersSalary
 from interkamen_career.modules.mechanics_economic import MechEconomic
+from interkamen_career.modules.count_workers_salary import SalaryCounter
 
 
 class Accesse:
-    """
-    Give to program 'choise tree' and 'meny' depend on user access.
-    """
+    """Give to program 'choise tree' and 'meny' depend on user access."""
 
     __slots__ = [
         'menu_list',
@@ -42,7 +41,7 @@ class Accesse:
     ]
 
     def __init__(self, accesse='mechanic'):
-
+        """Make options lists."""
         self.menu_options = {
             'info': {
                 '--> [Статистика_ремонтов]': 'sub-menu',
@@ -161,6 +160,8 @@ class Accesse:
                 '--> [Финансовая_статистика]': 'sub-menu',
                 'Наряд бригады':
                 lambda user: Reports(user).choose_main_report(),
+                'Зарплата работникам':
+                lambda user: SalaryCounter(user).count_salary_workers(),
                 'Сформировать итог по рейтингу':
                 lambda user: Rating(user).count_brigade_winner(),
                 'Редактировать список окладов':
@@ -202,17 +203,17 @@ class Accesse:
 
     @classmethod
     def create_list(cls, accesse, options_list):
-        """Create accesse and options menus"""
+        """Create accesse and options menus."""
         for name in ('mechanic', 'master', 'boss', 'info'):
             options_list[name].update(options_list['basic'])
         options_list['admin'].update(options_list['boss'])
         return options_list[accesse]
 
     def get_sub_menu(self, sub_menu_name):
-        """Return sub-menu"""
+        """Return sub-menu."""
         self.sub_menus[sub_menu_name].update(self.sub_standart_options)
         return self.sub_menus[sub_menu_name]
 
     def get_menu_dict(self):
-        """Give menu dict"""
+        """Give menu dict."""
         return self.menu_list

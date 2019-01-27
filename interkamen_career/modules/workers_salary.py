@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
 """
-Count and change workers salsry.
+Count and change workers salary.
 
 .manage_salary_list - method, that provides to edit list of workers with
 and add salary to them.
 """
 
 from .support_modules.standart_functions import (
-    BasicFunctionsS
-    as BasF_S
+    BasicFunctionsS as BasF_S
 )
 
 
 class WorkersSalary(BasF_S):
-    """
-    Count and manage workers salary.
-    """
+    """Manage workers salary."""
 
     __slots__ = [
         'salary_list_path',
@@ -24,9 +21,11 @@ class WorkersSalary(BasF_S):
     ]
 
     def __init__(self, user):
+        """Load data."""
         self.user = user
         self.salary_list_path = (
-            super().get_root_path() / 'data' / 'salary_list')
+            super().get_root_path() / 'data' / 'salary_list'
+        )
         if self.salary_list_path.exists():
             self.salary_list = super().load_data(
                 data_path=self.salary_list_path,
@@ -38,11 +37,15 @@ class WorkersSalary(BasF_S):
                 'Офис': {},
                 'КОЦ': {},
             }
-            super().dump_data(
-                data_path=self.salary_list_path,
-                base_to_dump=self.salary_list,
-                user=user
-            )
+            self._dump_salary_list()
+
+    def _dump_salary_list(self):
+        """Dump salary list to file."""
+        super().dump_data(
+            data_path=self.salary_list_path,
+            base_to_dump=self.salary_list,
+            user=self.user
+        )
 
     def _choose_division(self):
         """Choose divisioon to manage."""
@@ -94,9 +97,5 @@ class WorkersSalary(BasF_S):
                 break
             else:
                 actions_list[action](division)
-            super().dump_data(
-                data_path=self.salary_list_path,
-                base_to_dump=self.salary_list,
-                user=self.user,
-            )
+            self._dump_salary_list()
             super().clear_screen()

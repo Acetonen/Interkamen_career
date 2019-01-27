@@ -29,6 +29,7 @@ class MechEconomic(MechReports):
     )
 
     def __init__(self, user):
+        """Load mech econom data."""
         super().__init__(user)
         self.mech_econ_data = {}
         self.mech_econ_path = (
@@ -41,32 +42,32 @@ class MechEconomic(MechReports):
             )
         else:
             self.mech_econ_file = pd.DataFrame(self.mech_econ_data, index=[0])
-            super().dump_data(
-                data_path=self.mech_econ_path,
-                base_to_dump=self.mech_econ_file,
-                user=user,
-            )
 
     def _save_mech_econom(self):
-        """Save drill report and create log file."""
-        if self.mech_econ_file.empty:
-            self.mech_econ_file = pd.DataFrame(self.mech_econ_data, index=[0])
-        else:
-            self.mech_econ_file = self.mech_econ_file.append(
-                self.mech_econ_data,
-                ignore_index=True
-            )
+        """Save mech econom and create log file."""
+        self.mech_econ_file = self.mech_econ_file.append(
+            self.mech_econ_data,
+            ignore_index=True
+        )
+        self._dump_mech_econ_data()
+        self._log_mech_econ_creation()
+
+    def _dump_mech_econ_data(self):
+        """Dump salary data to file."""
         super().dump_data(
             data_path=self.mech_econ_path,
             base_to_dump=self.mech_econ_file,
             user=self.user,
         )
+
+    def _log_mech_econ_creation(self):
+        """Save log about salary creation."""
         report_name = '{}-{}'.format(
             self.mech_econ_data['year'],
             self.mech_econ_data['month'],
         )
         LOGGER.warning(
-            f"User '{self.user.login}' create drill inst.: {report_name}"
+            f"User '{self.user.login}' create mechanic econom.: {report_name}"
         )
 
     def _visualise_one_day_cost(self):
@@ -117,7 +118,7 @@ class MechEconomic(MechReports):
         input("\n[ENTER] - выйти.")
 
     def _chose_year(self):
-        """Showing statistic about drill instrument."""
+        """Show statistic about drill instrument."""
         print("[ENTER] - выход"
               "\nВыберете год:")
         year = super().choise_from_list(
@@ -155,7 +156,7 @@ class MechEconomic(MechReports):
         plt.show()
 
     def create_mech_econom(self):
-        """Create drill report"""
+        """Create mechanic econom data report."""
         mech_econ_date = self.input_date()
         check = super().check_date_in_dataframe(
             self.mech_econ_file,
@@ -168,8 +169,7 @@ class MechEconomic(MechReports):
             self._input_machines_econ(mech_econ_date)
 
     def show_econ_statistic(self, stat_variants: Dict):
-        """Show machine economic statistic.
-        """
+        """Show machine economic statistic."""
         stat_variants = {
             'Целесообразность затрат на содержание техники.':
             self._visualise_one_day_cost,
