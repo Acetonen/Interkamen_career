@@ -100,21 +100,20 @@ class DumpToExl(BasF_S):
         hours = report.workers_showing['бух.']['часы']
         salary = report.workers_showing['бух.']['зарплата']
 
-        worker_number = 1
-        for worker in ktu:
+        for worker_number, worker in enumerate(ktu, start=1):
             row_number = 30 + worker_number
             worksheet['B' + str(row_number)] = worker_number
             worksheet['C' + str(row_number)] = super().make_name_short(worker)
-            worksheet['E' + str(row_number)] = hours[worker]
-            worksheet['H' + str(row_number)] = ktu[worker]
-            worksheet['K' + str(row_number)] = salary[worker]
+            worksheet['D' + str(row_number)] = hours[worker]
+            worksheet['G' + str(row_number)] = ktu[worker]
             addition = 0
             if worker in brigadiers:
                 addition = 0.15
-            worksheet['N' + str(row_number)] = addition
-            worksheet['Q' + str(row_number)] = (
-                salary[worker] + salary[worker] * addition)
-            worker_number += 1
+            worksheet['M' + str(row_number)] = addition
+            worksheet['P' + str(row_number)] = salary[worker]
+            worksheet['J' + str(row_number)] = (
+                salary[worker] + salary[worker] * addition
+            )
 
     def dump_drill_pass(self, passport, negab=None):
         """Dump drill passport data to blanc exl file."""
