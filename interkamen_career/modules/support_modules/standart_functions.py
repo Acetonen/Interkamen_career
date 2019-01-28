@@ -163,7 +163,7 @@ class BasicFunctionsS:
 
     @classmethod
     def confirm_deletion_decorator(cls, func):
-        """Decorator to confirm item deletion."""
+        """Decorate to confirm item deletion."""
         def wrapper(*args, **kwargs) -> bool:
             condition, item_name = func(*args, **kwargs)
             if condition:
@@ -192,8 +192,8 @@ class BasicFunctionsS:
             user=None,
             encrypt=True
     ):
-        """
-        Dumb data to pickle.
+        """Dumb data to pickle.
+
         If you whant to encrypt data use: encrypt=True
         """
         base_to_byte = dill.dumps(base_to_dump)
@@ -210,7 +210,7 @@ class BasicFunctionsS:
             user=None,
             decrypt=True
     ):
-        """Load data from pickle"""
+        """Load data from pickle."""
         base = {}
         if data_path.exists():
             base_bytes = data_path.read_bytes()
@@ -228,7 +228,7 @@ class BasicFunctionsS:
 
     @staticmethod
     def check_date_format(rep_date: str) -> bool:
-        """Check if date format correct"""
+        """Check if date format correct."""
         date_numbers = rep_date.split('-')
         correct = (
             rep_date[4] == '-'
@@ -276,17 +276,17 @@ class BasicFunctionsS:
 
     @staticmethod
     def make_name_short(name: str):
-        """Make short name for workers or users
-        Ковалев Антон Викторович -> Ковалев А.В."""
+        """Make short name for workers or users.
+
+        Ковалев Антон Викторович -> Ковалев А.В.
+        """
         name = name.split(' ')
         sh_name = name[0] + ' ' + name[1][0] + '.' + name[2][0] + '.'
         return sh_name
 
     @staticmethod
     def get_root_path() -> PurePath:
-        """
-        Make absolyte path to root program directory.
-        """
+        """Make absolyte path to root program directory."""
         return PROGRAM_PATH
 
     @staticmethod
@@ -374,7 +374,7 @@ class BasicFunctionsS:
 
     @staticmethod
     def create_new_key():
-        """Create new RSA keys"""
+        """Create new RSA keys."""
         key = Random.new().read(16)
         return key
 
@@ -401,7 +401,7 @@ class BasicFunctionsS:
 
     @staticmethod
     def print_all_dataframe(data):
-        """Showing all drill data"""
+        """Show all drill data."""
         with pd.option_context(
                 'display.max_rows', None,
                 'display.max_columns', None

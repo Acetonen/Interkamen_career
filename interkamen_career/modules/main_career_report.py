@@ -362,6 +362,7 @@ class Reports(BasF_S):
     ]
 
     def __init__(self, user):
+        """Load reports data."""
         self.user = user
         self.data_path = (
             super().get_root_path() / 'data' / 'main_career_report')

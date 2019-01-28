@@ -81,6 +81,7 @@ class ReportAnalysis(Reports):
     year_reports = {}
 
     def __init__(self, user):
+        """Prepare data."""
         super().__init__(user)
         self.shifts = ['Смена 1', 'Смена 2']
         self.base = super().load_data(
