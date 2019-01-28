@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-"""
-Frequently using functions in modules classes.
+"""Frequently using functions in modules classes.
+
 List of different supports functions.
 """
 
@@ -96,7 +96,7 @@ class BasicFunctionsS:
 
         rep_date can contain keys: year, month, day or shift (optional)
         """
-        if not dataframe:
+        if dataframe.empty:
             check = False
         elif len(rep_date) >= 3:
             tmp_check = []
@@ -333,7 +333,7 @@ class BasicFunctionsS:
 
     @staticmethod
     def confirm_deletion(item):
-        """Deletion confirmation."""
+        """Delete confirmation."""
         confirm = input(
             "Вы уверены что хотите удалить '{}'? Y/N: ".format(item))
         if confirm.lower() == 'y':
@@ -342,11 +342,12 @@ class BasicFunctionsS:
         else:
             confirm = False
             print("\nВы отменили удаление.\n")
+        input('\n[ENTER] - выйти.')
         return confirm
 
     @staticmethod
     def clear_screen():
-        """Clear shell screen"""
+        """Clear shell screen."""
         if sys.platform[:3] == 'win':
             os.system('cls')
         else:

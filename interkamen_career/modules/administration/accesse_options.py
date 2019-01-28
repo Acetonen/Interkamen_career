@@ -160,8 +160,10 @@ class Accesse:
                 '--> [Финансовая_статистика]': 'sub-menu',
                 'Наряд бригады':
                 lambda user: Reports(user).choose_main_report(),
-                'Зарплата работникам':
+                'Рассчитать зарплаты за месяц':
                 lambda user: SalaryCounter(user).count_salary_workers(),
+                'Редактировать зарплаты за месяц':
+                lambda user: SalaryCounter(user).edit_report(),
                 'Сформировать итог по рейтингу':
                 lambda user: Rating(user).count_brigade_winner(),
                 'Редактировать список окладов':

@@ -80,6 +80,7 @@ class WorkerS(BasF_S):
         self.contributions = {}
 
     def __str__(self):
+        """Print all worker info."""
         # For old data in DB:
         if not self.employing_lay_off_dates:
             self.employing_lay_off_dates = {'employing': '',
@@ -97,6 +98,7 @@ class WorkerS(BasF_S):
         return output
 
     def __repr__(self):
+        """Print only worker name."""
         return self.name
 
 
@@ -144,6 +146,7 @@ class AllWorkers(BasF_S):
         }
 
     def __init__(self, user):
+        """Load workers base."""
         self.user = user
         self.workers_base_path = (
             super().get_root_path() / 'data' / 'workers_base'
@@ -206,6 +209,7 @@ class AllWorkers(BasF_S):
             unzero = super().count_unzero_items(temp_worker.salary)
             average_sallary = round(salary_count / unzero)
             print("\033[93mСредняя з/п:\033[0m ", average_sallary, 'p.')
+        input("\n[ENTER] - выйти.")
 
     def _dump_workers_base(self):
         """Dump workers base to file."""
@@ -486,9 +490,10 @@ class AllWorkers(BasF_S):
 
     def add_salary_to_workers(
             self,
+            *,
             salary_dict: Dict[str, float],
             salary_date: str,
-            unofficial_workers: List[str],
+            unofficial_workers: List[str] = [],
     ):
         """Add monthly salary to workers."""
         for worker in salary_dict:

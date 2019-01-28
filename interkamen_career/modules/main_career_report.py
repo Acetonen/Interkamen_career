@@ -72,6 +72,7 @@ class MainReportS(BasF_S):
     ]
 
     def __init__(self, status: str, shift: str, date: str):
+        """Create blanc report."""
         self.workers_showing = {
             'бух.': {
                 'КТУ': {},
@@ -152,12 +153,6 @@ class MainReportS(BasF_S):
                 output = ''.join(['\033[91m', output, '\033[0m'])
         return output
 
-    def _add_color_to_repr(self, name, t_output, user):
-        """Colorise driller, salary adn brigadiers."""
-        t_output = self._colorise_salary_and_drillers(name, t_output, user)
-        t_output = self._colorise_brigadiers(name, t_output, user)
-        return t_output
-
     def __repr__(self, user=None):
         """Print main report."""
         output = "\n{date} {shift} {status}".format(**self.status)
@@ -222,6 +217,12 @@ class MainReportS(BasF_S):
                 t_output = self._add_color_to_repr(name, t_output, user)
             output += t_output
         return output
+
+    def _add_color_to_repr(self, name, t_output, user):
+        """Colorise driller, salary adn brigadiers."""
+        t_output = self._colorise_salary_and_drillers(name, t_output, user)
+        t_output = self._colorise_brigadiers(name, t_output, user)
+        return t_output
 
     def _count_salary(self, direction: str, worker: str, coefficient: float):
         """Count totall salary."""
@@ -437,14 +438,6 @@ class Reports(BasF_S):
             parametr='totall_meters',
         )
         return drill_meters
-
-    def find_driller(self, shift: str) -> str:
-        """Find Driller in shift."""
-        for worker in self.drillers:
-            if worker in AllWorkers(self.user).give_workers_from_shift(shift):
-                driller = worker
-                break
-        return driller
 
     def _change_hours(self, tmp_rpt: MainReportS) -> MainReportS:
         """Change hours value."""
@@ -680,20 +673,24 @@ class Reports(BasF_S):
             tmp_rpt.count_all_workers_in_report(self.user)
             tmp_rpt.status['status'] = '\033[92m[завершен]\033[0m'
             AllWorkers(self.user).add_salary_to_workers(
-                tmp_rpt.workers_showing['факт']['зарплата'],
-                tmp_rpt.status['date'],
-                tmp_rpt.unofficial_workers()
+                salary_dict=tmp_rpt.workers_showing['факт']['зарплата'],
+                salary_date=tmp_rpt.status['date'],
+                unofficial_workers=tmp_rpt.unofficial_workers()
             )
-            LOGGER.warning(
-                f"User '{self.user.login}' complete main report: "
-                + f"{tmp_rpt.status['date']}"
-            )
-            backup_data = Thread(
-                target=EmailSender(self.user).make_backup,
-            )
-            backup_data.start()
-            LOGGER.warning(f"User '{self.user.login}' Make backup.")
+            self._make_backup_and_log(tmp_rpt)
         return tmp_rpt
+
+    def _make_backup_and_log(self, tmp_rpt):
+        """Make backup and save log."""
+        backup_data = Thread(
+            target=EmailSender(self.user).make_backup,
+        )
+        backup_data.start()
+        LOGGER.warning(f"User '{self.user.login}' Make backup.")
+        LOGGER.warning(
+            f"User '{self.user.login}' complete main report: "
+            + f"{tmp_rpt.status['date']}"
+        )
 
     def _make_status_in_process(self, report_name: str):
         """Change status from 'not complete' to 'in process'."""
@@ -771,6 +768,14 @@ class Reports(BasF_S):
                 )
             elif self.user.accesse == 'admin' and choise == 'un':
                 self._uncomplete_main_report(report_name)
+
+    def find_driller(self, shift: str) -> str:
+        """Find Driller in shift."""
+        for worker in self.drillers:
+            if worker in AllWorkers(self.user).give_workers_from_shift(shift):
+                driller = worker
+                break
+        return driller
 
     def choose_salary_or_drillers(self):
         """Chose list to edit, salary or drillers."""
@@ -914,8 +919,10 @@ class Reports(BasF_S):
             super().clear_screen()
             print("[ENTER] - выход."
                   "\nВыберет отчет:")
-            report_name = super().choise_from_list(reports_by_year,
-                                                   none_option=True)
+            report_name = super().choise_from_list(
+                reports_by_year,
+                none_option=True
+            )
             if not report_name:
                 raise MainMenu
             self._working_with_main_report(report_name)

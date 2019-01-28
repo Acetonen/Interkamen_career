@@ -87,7 +87,7 @@ class MechReports(BasF_S):
                 user=user,
             )
         else:
-            self.mech_file = None
+            self.mech_file = pd.DataFrame()
 
         if 'mach_name' in self.mech_file:
             self.machines = sorted(set(self.mech_file.mach_name))
@@ -221,7 +221,7 @@ class MechReports(BasF_S):
 
     def _save_report(self):
         """Save daily report to base."""
-        if not self.mech_file:
+        if self.mech_file.empty:
             self.mech_file = self.temp_df
         else:
             self.mech_file = self.mech_file.append(self.temp_df)
@@ -437,28 +437,30 @@ class MechReports(BasF_S):
                 "\nВыберете технику для внесения данных: "
             )
             if choise.lower() == 's':
-                self._save_report()
-                LOGGER.warning(
-                    f"User '{self.user.login}' create mechanics report: "
-                    + '{year}.{month}.{day}'.format(**rep_date)
-                )
-                print("\n\033[92mДанные сохранены.\033[0m")
-                input('\n[ENTER] - выйти.')
+                self._save_report_and_make_log(rep_date)
                 break
             elif choise.lower() == 'd':
-                confirm = super().confirm_deletion('отчет')
-                if confirm:
-                    input('\n[ENTER] - выйти.')
+                if super().confirm_deletion('отчет'):
                     break
                 continue
             elif not choise.isdigit():
                 continue
-            elif int(choise) > 18:
+            elif int(choise) > self.temp_df.shape()[0]:
                 continue
             select_mach = self._select_machine(choise, self.temp_df)
             hours_data = self._input_hours()
             self._add_hours_to_mach(select_mach, hours_data)
             self._add_note_to_mach(select_mach)
+
+    def _save_report_and_make_log(self, rep_date):
+        """Make log about report savre."""
+        self._save_report()
+        LOGGER.warning(
+            f"User '{self.user.login}' create mechanics report: "
+            + '{year}.{month}.{day}'.format(**rep_date)
+        )
+        print("\n\033[92mДанные сохранены.\033[0m")
+        input('\n[ENTER] - выйти.')
 
     def _make_day_report_temp(self, rep_date):
         """Make report of day temr and drop it from DF."""
@@ -520,7 +522,10 @@ class MechReports(BasF_S):
         """Show report for current date."""
         print("[ENTER] - выйти."
               "\nВыберете год:")
-        year = super().choise_from_list(sorted(set(self.mech_file.year)))
+        year = super().choise_from_list(
+            sorted(set(self.mech_file.year)),
+            none_option=True
+        )
         if not year:
             raise MainMenu
         print("Выберете месяц:")
