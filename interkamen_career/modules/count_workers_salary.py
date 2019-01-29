@@ -7,6 +7,7 @@ from .workers_module import AllWorkers
 from .workers_salary import WorkersSalary
 from .administration.logger_cfg import Logs
 from .support_modules.custom_exceptions import MainMenu
+from .support_modules.dump_to_exl import DumpToExl
 
 
 LOGGER = Logs().give_logger(__name__)
@@ -161,8 +162,9 @@ class SalaryCounter(AllWorkers):
                 ['name', 'profession', 'days', 'salary']
             ])
             choise = input(
-                "\n[d] - выйти и \033[91mУДАЛИТЬ\033[m данные."
-                "\n[s] - \033[92mСОХРАНИТЬ\033[0m отчет.\n"
+                "\n[D] - выйти и \033[91mУДАЛИТЬ\033[m данные."
+                "\n[S] - \033[92mСОХРАНИТЬ\033[0m отчет.\n"
+                "\n[E] - экспортировать в exel файл."
                 "\nВыберете работника для редактирования: "
             )
             if choise.lower() == 's':
@@ -175,6 +177,9 @@ class SalaryCounter(AllWorkers):
             elif choise.lower() == 'd':
                 if super().confirm_deletion('отчет'):
                     break
+                continue
+            elif choise.lower() == 'e':
+                DumpToExl.dump_worker_salary(self.temp_salary_file)
                 continue
             elif not choise.isdigit():
                 continue

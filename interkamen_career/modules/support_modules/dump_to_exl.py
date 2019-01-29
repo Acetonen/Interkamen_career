@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Dump data to xlsx file
+"""Dump data to xlsx file.
 
 .dump_drill_pass()
 .dump_ktu()
@@ -9,8 +8,8 @@ Dump data to xlsx file
 
 from __future__ import annotations
 
-import os
 import time
+import pandas as pd
 from pathlib import PurePath
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
@@ -61,12 +60,13 @@ class DumpToExl(BasF_S):
             new_bareholes[5] = count
         return new_bareholes
 
-    def _dump_real_salary(self, report: 'MainReport'):
+    @classmethod
+    def _dump_real_salary(cls, report: 'MainReport'):
         """Dumpp real salary to exel blanc."""
         real_salary_path = (
             super().get_root_path().parent / 'Documents' / 'Табеля'
         )
-        self._check_dir(real_salary_path)
+        cls._check_dir(real_salary_path)
         real_salary_blanc_path = (
             super().get_root_path() / 'exl_blancs' / 'real_salary.xlsx'
         )
@@ -75,19 +75,18 @@ class DumpToExl(BasF_S):
         worksheet['C1'] = report.status['date']
 
         salary = report.workers_showing['факт']['зарплата']
-        worker_number = 1
-        for worker in salary:
+        for worker_number, worker in enumerate(salary, start=1):
             row_number = 4 + worker_number
             worksheet['B' + str(row_number)] = worker_number
             worksheet['C' + str(row_number)] = super().make_name_short(worker)
             worksheet['D' + str(row_number)] = salary[worker]
-            worker_number += 1
 
         name = f"{report.status['date']} {report.status['shift']} на руки"
         pass_name = real_salary_path.joinpath(name).with_suffix('.xlsx')
         workbook.save(pass_name)
 
-    def _fill_salary(self, workbook, report, user):
+    @classmethod
+    def _fill_salary(cls, workbook, report, user):
         """Fill salary to exel."""
         worksheet = workbook.active
         brigadiers_path = super().get_root_path() / 'data' / 'brigadiers'
@@ -115,13 +114,14 @@ class DumpToExl(BasF_S):
                 salary[worker] / (addition+1)
             )
 
-    def dump_drill_pass(self, passport, negab=None):
+    @classmethod
+    def dump_drill_pass(cls, passport, negab=None):
         """Dump drill passport data to blanc exl file."""
         blanc_drill_path = (
             super().get_root_path() / 'exl_blancs' / 'drill_passport.xlsx')
         drill_pass_path = (
             super().get_root_path().parent / 'Documents' / 'Буровые_паспорта')
-        self._check_dir(drill_pass_path)
+        cls._check_dir(drill_pass_path)
         workbook = load_workbook(blanc_drill_path)
         worksheet = workbook.active
         if negab:
@@ -135,19 +135,18 @@ class DumpToExl(BasF_S):
         worksheet.add_image(img, 'A29')
         worksheet['K1'] = int(passport.params.number)  # Passport number.
         worksheet['J5'] = str(passport.params.day)  # Day.
-        worksheet['K5'] = self.months[int(passport.params.month)]  # Month.
+        worksheet['K5'] = cls.months[int(passport.params.month)]  # Month.
         worksheet['M5'] = str(passport.params.year)  # Year.
         worksheet['Q6'] = str(passport.params.horizond)  # Horizond.
         worksheet['F9'] = float(passport.params.pownder)  # Pownder.
         worksheet['K9'] = int(passport.params.d_sh)  # D_SH.
         worksheet['P9'] = int(passport.params.detonators)  # Detonators.
         # Bareholes.
-        row_number = 15
-        norm_bareholes = self._normilise_barehole(passport.bareholes)
-        for length in norm_bareholes:
+        norm_bareholes = cls._normilise_barehole(passport.bareholes)
+        for row_number, length in enumerate(norm_bareholes, start=1):
+            row_number += 15
             worksheet['G' + str(row_number)] = length
             worksheet['D' + str(row_number)] = int(norm_bareholes[length])
-            row_number += 1
         # Volume
         volume = round(
             float(passport.params.pownder) * 5
@@ -166,21 +165,23 @@ class DumpToExl(BasF_S):
         master = super().make_name_short(str(passport.params.master))
         worksheet['J47'] = master
         # Save file.
-        pass_name = self._create_pass_name(passport)
+        pass_name = cls._create_pass_name(passport)
         pass_name = drill_pass_path.joinpath(pass_name).with_suffix('.xlsx')
         workbook.save(pass_name)
         print("\nФайл сохранен:\n", str(pass_name))
+        time.sleep(3)
 
-    def dump_ktu(self, report):
+    @classmethod
+    def dump_ktu(cls, report):
         """Dump KTU data to blanc exl file."""
         ktu_path = super().get_root_path().parent / 'Documents' / 'КТУ'
-        self._check_dir(ktu_path)
+        cls._check_dir(ktu_path)
         blanc_ktu_path = super().get_root_path() / 'exl_blancs' / 'ktu.xlsx'
         ktu = report.workers_showing['бух.']['КТУ']
         hours = report.workers_showing['бух.']['часы']
         year = report.status['date'].split('-')[0]
         month = (
-            self.months[int(report.status['date'].split('-')[1][:2])][:-1]+'е'
+            cls.months[int(report.status['date'].split('-')[1][:2])][:-1]+'е'
         )
         shift = report.status['shift']
         brig_list = {
@@ -194,14 +195,12 @@ class DumpToExl(BasF_S):
         worksheet['C4'] = brig
         worksheet['C5'] = month
         worksheet['D5'] = year
-        worker_number = 1
-        for worker in ktu:
+        for worker_number, worker in enumerate(ktu, start=1):
             row_number = 7 + worker_number
             worksheet['A' + str(row_number)] = worker_number
             worksheet['B' + str(row_number)] = super().make_name_short(worker)
             worksheet['C' + str(row_number)] = hours[worker]
             worksheet['D' + str(row_number)] = ktu[worker]
-            worker_number += 1
         # Save file.
         pass_name = '-'.join([
             year, report.status['date'].split('-')[1][:2], shift])
@@ -210,23 +209,54 @@ class DumpToExl(BasF_S):
         print("\nФайл сохранен:\n", str(pass_name))
         time.sleep(3)
 
-    def dump_salary(self, report: 'MainReport', user):
+    @classmethod
+    def dump_salary(cls, report: 'MainReport', user):
         """Dump Salary to exists exel tabel."""
         salary_path = super().get_root_path().parent / 'Documents' / 'Табеля'
-        self._check_dir(salary_path)
+        cls._check_dir(salary_path)
         name = report.status['date'] + ' ' + report.status['shift']
         find = None
-        for file in os.listdir(salary_path):
+        for file in salary_path.iterdir():
             if name in file:
                 find = name
                 break
         if find:
             file_path = salary_path.joinpath(find).with_suffix('.xlsx')
             workbook = load_workbook(file_path)
-            self._fill_salary(workbook, report, user)
+            cls._fill_salary(workbook, report, user)
             workbook.save(file_path)
-            self._dump_real_salary(report)
+            cls._dump_real_salary(report)
             print("\nФайл сохранен:\n", salary_path.joinpath(find))
         else:
             print("Табель не найден в папке 'Табеля'")
+        time.sleep(3)
+
+    @classmethod
+    def dump_worker_salary(cls, salary: pd.DataFrame):
+        """Dump non brigade workers salary to exel."""
+        worker_salary_path = (
+            super().get_root_path().parent / 'Documents' / 'Табеля'
+        )
+        cls._check_dir(worker_salary_path)
+        worker_salary_blanc_path = (
+            super().get_root_path() / 'exl_blancs' / 'workers_salary.xlsx'
+        )
+        workbook = load_workbook(worker_salary_blanc_path)
+        worksheet = workbook.active
+
+        worksheet['C1'] = cls.months[int(list(set(salary.month))[0])]
+
+        for row_number, worker in enumerate(salary.name, start=1):
+            row = 5 + row_number
+            worker_name = super().make_name_short(worker)
+            worker_salary = salary[salary.name == worker]
+            worksheet['B' + str(row)] = row_number
+            worksheet['C' + str(row)] = worker_name
+            worksheet['D' + str(row)] = float(worker_salary['salary'])
+
+        pass_name = worker_salary_path.joinpath(
+            f"Суммы {worksheet['C1'].value} {list(set(salary['shift']))[0]}"
+        ).with_suffix('.xlsx')
+        workbook.save(pass_name)
+        print("\nФайл сохранен:\n", str(pass_name))
         time.sleep(3)
