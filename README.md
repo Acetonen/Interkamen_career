@@ -1,7 +1,6 @@
 # Interkamen Program
-### ver 1.18.0 dev
+### ver 1.18.0 
 
-![intro](readme_screenshots/intro.png)
 
 This is corporative program of mining company to work with statistic and financial reports.
 
@@ -52,6 +51,20 @@ Please email to acetonen@gmail.com for details on our code of conduct, and the p
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
+### what's new in 1.18.0:
+MINOR:
+1. Add empty path creation in dump to exel module.
+2. Add bonus for salary workers.
+3. Add version associated with sentry.
+4. Add password difficult check.
+5. Add workers salary counter module.
+6. Add dump to exel workers salary.
+PATCH:
+1. Refactoring report analyses.
+2. Update setup requirements.
+3. Refactoring mechanics report.
+4. Fix brigadires salary.
+5. Fix exel main report fill.
 ### what's new in 1.17.0:
 MINOR:
 1. Migrate to dill from pickle.
@@ -261,7 +274,6 @@ To log in program:
 Username: admin
 Password: admin
 ### 2. Main menu
-![main_menu](readme_screenshots/main_menu.png)
 
 In header of main menu you may see different remainder that depend on user 'access'.
 
@@ -277,7 +289,6 @@ From this menu you have access to different sub-menus (depend on user access) an
 Red menus are 'admin-only'
 
 ### 3. Admin menus
-![admin_menu](readme_screenshots/admin_menu.png)
 
 This menus give you access to:
 1. read/delete/search in logs
@@ -288,7 +299,6 @@ This menus give you access to:
 6. edit email notification and backup settings
 7. add email to receive career status report
 ### 4. Workers menu
-![workers_menu](readme_screenshots/workers_menu.png)
 
 In this menu u can:
 1. Create new worker
@@ -300,7 +310,6 @@ In this menu u can:
 7. Create shift calendar of this year
 
 ### 5. Financial  menu
-![finance_menu](readme_screenshots/finance.png)
 
 In this menu u can:
 1. Count workers salary
@@ -309,7 +318,6 @@ In this menu u can:
 4. Edit lists of brigadiers, salary workers, drillers
 
 ### 6. Mechanics menu
-![mechanics_menu](readme_screenshots/mechanics_menu.png)
 
 In this menu u can:
 1. Show plots with all mechanics stats (KTI, KTG)
@@ -321,7 +329,6 @@ In this menu u can:
 
 
 ### 5. Mining master menu
-![statistic_menu](readme_screenshots/statistic.png)
 
 In this menu u can:
 1. Show all stats about brigade works, results, drill instruments
