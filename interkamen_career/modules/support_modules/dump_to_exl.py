@@ -95,7 +95,7 @@ class DumpToExl(BasF_S):
             data_path=brigadiers_path,
             user=user,
         )
-        worksheet['H28'] = report.totall
+        worksheet['G28'] = report.totall
         ktu = report.workers_showing['бух.']['КТУ']
         hours = report.workers_showing['бух.']['часы']
         salary = report.workers_showing['бух.']['зарплата']
@@ -112,7 +112,7 @@ class DumpToExl(BasF_S):
             worksheet['M' + str(row_number)] = addition
             worksheet['P' + str(row_number)] = salary[worker]
             worksheet['J' + str(row_number)] = (
-                salary[worker] + salary[worker] * addition
+                salary[worker] / (addition+1)
             )
 
     def dump_drill_pass(self, passport, negab=None):
