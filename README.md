@@ -1,5 +1,5 @@
 # Interkamen Program
-### ver 1.17.0
+### ver 1.18.0 dev
 
 ![intro](readme_screenshots/intro.png)
 
