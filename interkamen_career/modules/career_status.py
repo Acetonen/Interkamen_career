@@ -26,6 +26,7 @@ from .support_modules.standart_functions import (
 
 LOGGER = Logs().give_logger(__name__)
 
+
 class CareerStatusS(BasF_S):
     """Current career status."""
 
@@ -42,6 +43,7 @@ class CareerStatusS(BasF_S):
     ]
 
     def __init__(self, user):
+        """Create status."""
         self.user = user
         self.date = {
             "today": str(date.today()),
@@ -517,21 +519,31 @@ class Statuses(BasF_S):
             print(self.car_stat_file[status])
             calendar = input(
                 "\n[k] - показать календарь пересменок."
+                "\n[d] - показать шпурометры бурильщика"
                 "\n[m] - разослать отчет подписчикам."
                 "\n[ENTER] - выйти: "
             )
             if calendar.lower() in ['k', 'к']:
                 print(self.car_stat_file[status].give_shift_calendar())
-                input('\n[ENTER] - выйти.')
-            elif (calendar.lower() in ['m', 'M'] and
-                  self.user.accesse == 'admin'):
+            elif calendar.lower() in ['d', 'д']:
+                meters = DrillPassports(self.user).count_param_from_passports(
+                    driller=super().choise_from_list(
+                        Reports(self.user).drillers,
+                        message='Выберете бурильщика:'
+                    ),
+                    rep_date=self.car_stat_file[status].date['today'][:-3],
+                    parametr='totall_meters'
+                )
+                print(f"набурено метров: {meters}")
+            elif (calendar.lower() in ['m', 'M']
+                  and self.user.accesse == 'admin'):
                 self.car_stat_file[status].check_if_report_comlete(
                     user=self.user,
                     manualy_complete=True
                 )
             elif calendar.lower() in ['m', 'M']:
                 print("Доступно только пользователям с правами администратора")
-                input("[ENTER] - выйти")
+            input("[ENTER] - выйти")
         else:
             print("Ежедневные отчеты отсутствуют.")
             input("[ENTER] - выйти")

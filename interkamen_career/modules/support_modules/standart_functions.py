@@ -54,8 +54,10 @@ class BasicFunctionsS:
         time.sleep(1)
 
     @classmethod
-    def choise_from_list(cls, variants_list, none_option=False):
+    def choise_from_list(cls, variants_list, none_option=False, message=None):
         """Chose variant from list."""
+        if message:
+            print(message)
         sort_list = sorted(variants_list)
         for index, item in enumerate(sort_list, 1):
             print("\t[{}] - {}".format(index, item))

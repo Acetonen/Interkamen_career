@@ -407,8 +407,9 @@ class Reports(BasF_S):
             if isinstance(report.result[item], dict):
                 for sub_item in report.result[item]:
                     print(sub_item, end='')
-                    report.result[item][sub_item] = (super()
-                                                     .float_input(msg=': '))
+                    report.result[item][sub_item] = (
+                        super().float_input(msg=': ')
+                    )
             elif item == 'шпурометры':
                 drill_meters = self._give_drill_meters(report)
                 print(item + f": {drill_meters} м.")
