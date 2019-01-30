@@ -1,5 +1,5 @@
 # Interkamen Program
-### ver 1.18.0 
+### ver 1.18.1 
 
 
 This is corporative program of mining company to work with statistic and financial reports.
@@ -36,7 +36,7 @@ password: admin
 
 ## Built With
 
-* [python3.6](https://www.python.org/) - Programming Language.
+* [python3.7+](https://www.python.org/ - Programming Language.
 * [pandas](https://pandas.pydata.org/) - Python Data Analysis Library.
 * [matplotlib](https://matplotlib.org/) - Python 2D plotting library.
 * [openpyxl](https://openpyxl.readthedocs.io/en/stable/#) - A Python library to read/write Excel 2010 xlsx/xlsm files.
@@ -51,6 +51,10 @@ Please email to acetonen@gmail.com for details on our code of conduct, and the p
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
+### what's new in 1.18.1:
+PATCH:
+1. Fix mech report bug.
+2. Show meters in career status.
 ### what's new in 1.18.0:
 MINOR:
 1. Add empty path creation in dump to exel module.
