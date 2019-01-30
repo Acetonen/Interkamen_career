@@ -445,7 +445,7 @@ class MechReports(BasF_S):
                 continue
             elif not choise.isdigit():
                 continue
-            elif int(choise) > self.temp_df.shape()[0]:
+            elif int(choise) > self.temp_df.shape[0]:
                 continue
             select_mach = self._select_machine(choise, self.temp_df)
             hours_data = self._input_hours()

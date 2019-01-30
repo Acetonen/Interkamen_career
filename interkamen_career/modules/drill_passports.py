@@ -42,6 +42,7 @@ class DPassportS(BasF_S):
     horizonds = ['+108', '+114', '+120', '+126', '+132']
 
     def __init__(self, pass_number, master, empty_df, massive_type, rep_date):
+        """Create drill passport."""
         self.pass_number = pass_number
         self.master = master
         self.params = empty_df
@@ -51,36 +52,46 @@ class DPassportS(BasF_S):
             self.params[item] = rep_date[item]
 
     def __repr__(self):
+        """Print drill passport."""
         bareholes_table = '\nдлина, м  количество, шт'
         for key in self.bareholes:
-            bareholes_table = (bareholes_table +
-                               f"\n  {key}    -    {int(self.bareholes[key])}")
+            bareholes_table = (
+                bareholes_table
+                + f"\n  {key}    -    {int(self.bareholes[key])}"
+            )
         output = (
             "Дата паспорта: {}"
             .format('.'.join(map(str, [
-                self.params.year, self.params.month, self.params.day]))) +
-            "\nНомер паспорта: {}; Тип взрыва: {}".format(
+                self.params.year,
+                self.params.month,
+                self.params.day
+            ])))
+            + "\nНомер паспорта: {}; Тип взрыва: {}".format(
                 int(self.params.number),
-                str(self.params.massive_type)) +
-            "\nГорный мастер: {}".format(str(self.params.master)) +
-            "\nБурильщик: {}".format(str(self.params.driller)) +
-            "\nГоризонт: {}".format(str(self.params.horizond)) +
-            "\n\nПараметры блока:" +
-            "\nОбъем блока: {}м.кб.".format(float(self.params.block_vol)) +
-            "\nГабариты: {}м x {}м x {}м".format(*map(float, [
+                str(self.params.massive_type)
+              )
+            + "\nГорный мастер: {}".format(str(self.params.master))
+            + "\nБурильщик: {}".format(str(self.params.driller))
+            + "\nГоризонт: {}".format(str(self.params.horizond))
+            + "\n\nПараметры блока:"
+            + "\nОбъем блока: {}м.кб.".format(float(self.params.block_vol))
+            + "\nГабариты: {}м x {}м x {}м".format(*map(float, [
                 self.params.block_width,
                 self.params.block_height,
-                self.params.block_depth])) +
-            "\n\nПараметры взрывания:\n" +
-            "Расход пороха: {}г/м.куб".format(int(self.params.pownd_consump)) +
-            "\nКоличество пороха: {}кг".format(float(self.params.pownder)) +
-            "\nКоличество ДШ: {}м".format(int(self.params.d_sh)) +
-            "\nКоличество ЭД: {}шт.".format(int(self.params.detonators)) +
-            "\n\nПараметры шпуров:" +
-            "\nПробурено метров: {}м".format(round(
-                float(self.params.totall_meters), 1)) +
-            "\nКоличество шпуров: {}шт.".format(int(round(
-                (self.params.block_width - 0.4) / 0.35, 0)))
+                self.params.block_depth
+              ]))
+            + "\n\nПараметры взрывания:\n"
+            + "Расход пороха: {}г/м.куб".format(int(self.params.pownd_consump))
+            + "\nКоличество пороха: {}кг".format(float(self.params.pownder))
+            + "\nКоличество ДШ: {}м".format(int(self.params.d_sh))
+            + "\nКоличество ЭД: {}шт.".format(int(self.params.detonators))
+            + "\n\nПараметры шпуров:"
+            + "\nПробурено метров: {}м".format(round(
+                float(self.params.totall_meters), 1
+              ))
+            + "\nКоличество шпуров: {}шт.".format(int(round(
+                (self.params.block_width - 0.4) / 0.35, 0
+              )))
             )
         output += bareholes_table
         output += "\n\nКоронки в скале: {}".format(
@@ -89,9 +100,11 @@ class DPassportS(BasF_S):
 
     @classmethod
     def _round_to_half(cls, number):
-        number = (number // 0.5 * 0.5
-                  if number % 0.5 < 0.29
-                  else number // 0.5 * 0.5 + 0.5)
+        number = (
+            number // 0.5 * 0.5
+            if number % 0.5 < 0.29
+            else number // 0.5 * 0.5 + 0.5
+        )
         return number
 
     def _input_bareholes(self):
@@ -154,8 +167,8 @@ class DPassportS(BasF_S):
         print("Выберете бурильщика:")
         self.params.driller = super().choise_from_list(drillers)
 
-    def _set_block_parametrs(self, bareholes_number):
-        """Block parametrs (height, width, volume)"""
+    def _set_block_parametrs(self, bareholes_number: int):
+        """Block parametrs (height, width, volume)."""
         block_height = super().float_input(msg="Введите высоту блока: ")
         self.params.block_height = block_height
         block_width = round(bareholes_number * 0.35 + 0.4, 1)
@@ -166,7 +179,7 @@ class DPassportS(BasF_S):
         self.params.block_vol = block_vol
 
     def _set_bits_in_rock(self):
-        """Number of drill bits in rock."""
+        """Count number of drill bits in rock."""
         bits_in_rock = input("Коронки в скале: ")
         if bits_in_rock:
             self.params.bits_in_rock = int(bits_in_rock)
@@ -186,7 +199,9 @@ class DPassportS(BasF_S):
 
     def _bareholes_and_dependencies(self):
         """Count bareholes parametrs and dependenses.
-        (block param, expl vol)"""
+
+        (block param, expl vol)
+        """
         bareholes_number = self._input_bareholes()
         self._set_block_parametrs(bareholes_number)
         self._count_expl_volume(bareholes_number)
@@ -232,6 +247,7 @@ class NPassportS(DPassportS):
     __slots__ = ['nk_count']
 
     def __init__(self, *args, **kwargs):
+        """Create nongabarite passports."""
         super().__init__(*args, **kwargs)
         self.nk_count = self._input_count()
 
@@ -242,6 +258,7 @@ class NPassportS(DPassportS):
         return count
 
     def __repr__(self):
+        """Print non gabarite."""
         output = super().__repr__()
         output = output.replace(
             "\nГорный мастер:",
@@ -269,6 +286,7 @@ class DrillPassports(BasF_S):
     ]
 
     def __init__(self, user):
+        """Load passports base."""
         self.drill_pass_path = (
             super().get_root_path() / 'data' / 'drill_passports')
         self.user = user
@@ -321,15 +339,19 @@ class DrillPassports(BasF_S):
             index=self.pass_columns
         )
 
-    def _check_if_report_exist(self,
-                               rep_date: Dict[str, int],
-                               number: str) -> bool:
-        """Check if report exist in base"""
+    def _check_if_report_exist(
+            self,
+            rep_date: Dict[str, int],
+            number: str
+    ) -> bool:
+        """Check if report exist in base."""
         check = True
         rep_date = self._crerate_pass_date(**rep_date)
         for report in self.drill_pass_file:
-            if (rep_date == report.split(' ')[0] and
-                    number == report.split(' ')[-1].split('-')[0][1:]):
+            if (
+                    rep_date == report.split(' ')[0]
+                    and number == report.split(' ')[-1].split('-')[0][1:]
+            ):
                 check = False
                 print("Паспорт с этим номером уже существует.")
         return check
@@ -422,8 +444,10 @@ class DrillPassports(BasF_S):
         paramert_totall = 0
         for passport in self.drill_pass_file:
             pas_file = self.drill_pass_file[passport]
-            if (str(pas_file.params.driller) == driller and
-                    passport.startswith(rep_date)):
+            if (
+                    str(pas_file.params.driller) == driller
+                    and passport.startswith(rep_date)
+            ):
                 paramert_totall += round(float(pas_file.params[parametr]), 1)
         return paramert_totall
 
