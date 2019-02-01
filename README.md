@@ -1,5 +1,5 @@
 # Interkamen Program
-### ver 1.18.1 
+### ver 1.18.2
 
 
 This is corporative program of mining company to work with statistic and financial reports.
@@ -51,6 +51,9 @@ Please email to acetonen@gmail.com for details on our code of conduct, and the p
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
+### what's new in 1.18.2:
+PATCH:
+1. Fix barehole depth in exel.
 ### what's new in 1.18.1:
 PATCH:
 1. Fix mech report bug.
