@@ -156,7 +156,10 @@ class DumpToExl(BasF_S):
         # Block params.
         height = float(passport.params.block_height)
         worksheet['H25'] = height
-        depth = float(passport.params.block_depth)
+        if float(passport.params.block_depth) > 5:
+            depth = 5
+        else:
+            depth = float(passport.params.block_depth)
         worksheet['P25'] = depth
         worksheet['L25'] = round(volume / height / depth, 1)
         worksheet['M8'] = round((worksheet['L25'].value - 0.4) / int(round(
