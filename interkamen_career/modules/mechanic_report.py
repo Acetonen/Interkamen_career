@@ -591,17 +591,18 @@ class MechReports(BasF_S):
         """
         header = ''
         for machine in set(self.maint_file.mach_name):
+            add_hours = None
             if not self.temp_df.empty:
                 temp_mach = self.temp_df.mach_name == machine
                 add_hours = self.temp_df.loc[temp_mach, 'work']
             maint_mach = self.maint_file.mach_name == machine
             check = self.maint_file.loc[maint_mach, 'last_maintain_date']
             counter = self.maint_file.loc[maint_mach, 'hours_pass']
-            if oper:
+            if oper and add_hours:
                 self._add_hours_to_maint_counter(
                     oper, check, add_hours, maint_mach
                 )
-            else:
+            elif not oper:
                 header += self._check_maintenance_alarm(
                     check, machine, counter
                 )
