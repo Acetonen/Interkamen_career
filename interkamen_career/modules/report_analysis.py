@@ -21,6 +21,7 @@ class ReportAnalysis(Reports):
     __slots__ = [
         'base',
         'shifts',
+        'year_reports'
     ]
 
     Statistic = namedtuple('Statistic', ['result', 'title1', 'title2'])
@@ -78,11 +79,11 @@ class ReportAnalysis(Reports):
             'Смена 2': [],
             }
     }
-    year_reports = {}
 
     def __init__(self, user):
         """Prepare data."""
         super().__init__(user)
+        self.year_reports = {}
         self.shifts = ['Смена 1', 'Смена 2']
         self.base = super().load_data(
             data_path=self.data_path,
@@ -209,6 +210,33 @@ class ReportAnalysis(Reports):
         ]
         return result
 
+    @classmethod
+    def _add_analyse_option(cls):
+        """Add analyse to brigade salary."""
+        choose = input(
+            "\n[a] - Добавить анализ."
+            "\n[s] - Только статистика."
+            "\n[ENTER] - выйти в меню: "
+        )
+        if not choose:
+            raise MainMenu
+        elif choose.lower() == 'a':
+            analyse = namedtuple('Analyse', [
+                'up_shift',
+                'min_salary',
+                'up_salary',
+                'bonus'
+            ])
+            sal_anal = analyse(
+                int(input("Введите верхнюю границу: ")),
+                int(input("Введите минимальный оклад: ")),
+                int(input("Введите з/п верхней границы: ")),
+                int(input("Введите приработок 'специалистов': ")),
+            )
+        else:
+            sal_anal = None
+        return sal_anal
+
     def _make_rock_mass_statistic(self):
         """Make horisont and shift statistic by month."""
         result = {}
@@ -322,11 +350,16 @@ class ReportAnalysis(Reports):
             )
             return month_res
 
+    @classmethod
+    def _give_report_month(cls, report):
+        """Return month from report name."""
+        report_month = report.split(' ')[0].split('-')[1]
+        return(report_month)
+
     def _count_shifts_results(self, report, month, shift):
         """Give data from reports of current month."""
-        report_month = report.split(' ')[0].split('-')[1]
         report_shift = self.base[report].status['shift']
-        if shift == report_shift and report_month == month:
+        if shift == report_shift and self._give_report_month(report) == month:
             month_res = self.ShiftResults(
                 self.base[report].count_result(),
                 self.base[report].count_rock_mass()
@@ -355,12 +388,15 @@ class ReportAnalysis(Reports):
                 all_months_res = [
                     self._count_horizont_results(report, month, horizont)
                     for report in self.year_reports
-                    if self._count_horizont_results(report, month, horizont)
+                    if self._give_report_month(report) == month
                 ]
-                all_month = self.HorizontResults(*map(
-                    sum,
-                    zip(*all_months_res)
-                ))
+                if all_months_res:
+                    all_month = self.HorizontResults(*map(
+                        sum,
+                        zip(*all_months_res)
+                    ))
+                else:
+                    all_month = self.HorizontResults(0, 0, 0, 0)
                 result_lists = self._fill_result_list(
                     result_lists,
                     rock_mass=all_month.rock_mass_horizont,
@@ -383,8 +419,12 @@ class ReportAnalysis(Reports):
                 for report in self.year_reports:
                     results = self._count_shifts_results(report, month, shift)
                     if results:
+                        # When we find month, no need iter.
                         all_month = results
                         break
+                else:
+                    # If no result for current month.
+                    all_month = self.ShiftResults(0, 0)
                 result_lists = self._fill_result_list(
                     result_lists,
                     rock_mass=all_month.rock_mass_shift,
@@ -468,30 +508,3 @@ class ReportAnalysis(Reports):
                 fin_stat,
                 title="Финансовые показатели."
             )
-
-    @classmethod
-    def _add_analyse_option(cls):
-        """Add analyse to brigade salary."""
-        choose = input(
-            "\n[a] - Добавить анализ."
-            "\n[s] - Только статистика."
-            "\n[ENTER] - выйти в меню: "
-        )
-        if not choose:
-            raise MainMenu
-        elif choose.lower() == 'a':
-            analyse = namedtuple('Analyse', [
-                'up_shift',
-                'min_salary',
-                'up_salary',
-                'bonus'
-            ])
-            sal_anal = analyse(
-                int(input("Введите верхнюю границу: ")),
-                int(input("Введите минимальный оклад: ")),
-                int(input("Введите з/п верхней границы: ")),
-                int(input("Введите приработок 'специалистов': ")),
-            )
-        else:
-            sal_anal = None
-        return sal_anal
