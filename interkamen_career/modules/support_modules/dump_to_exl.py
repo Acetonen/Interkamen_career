@@ -126,7 +126,8 @@ class DumpToExl(BasF_S):
         worksheet = workbook.active
         if negab:
             img = Image(
-                super().get_root_path() / 'exl_blancs' / 'scheme_ng.png')
+                super().get_root_path() / 'exl_blancs' / 'scheme_ng.png'
+            )
             worksheet['F4'] = 'колличество негабаритов:'
             worksheet['K4'] = int(negab)
         else:
@@ -150,7 +151,7 @@ class DumpToExl(BasF_S):
         # Volume
         volume = round(
             float(passport.params.pownder) * 5
-            + float(passport.params.d_sh) / 10, 1
+            + (float(passport.params.d_sh) / 10), 1
         )
         worksheet['K27'] = volume
         # Block params.
@@ -162,8 +163,12 @@ class DumpToExl(BasF_S):
             depth = float(passport.params.block_depth)
         worksheet['P25'] = depth
         worksheet['L25'] = round(volume / height / depth, 1)
-        worksheet['M8'] = round((worksheet['L25'].value - 0.4) / int(round(
-            (passport.params.block_width - 0.4) / 0.35, 0)), 3) * 1000
+        worksheet['M8'] = (
+            round(
+                (worksheet['L25'].value - 0.4)
+                / ((passport.params.block_width - 0.4) / 0.35), 3
+            ) * 1000
+        )
         # Master.
         master = super().make_name_short(str(passport.params.master))
         worksheet['J47'] = master
@@ -220,7 +225,7 @@ class DumpToExl(BasF_S):
         name = report.status['date'] + ' ' + report.status['shift']
         find = None
         for file in salary_path.iterdir():
-            if name in file:
+            if name in str(file):
                 find = name
                 break
         if find:
