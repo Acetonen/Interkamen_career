@@ -221,7 +221,7 @@ class CareerStatusS(BasF_S):
         self.works_plan["expl_work"] = work_list
 
     def _plan_works(self, directions):
-        """Input rock or expl work"""
+        """Input rock or expl work."""
         quol = ['разборка', 'пассир.', 'бурение']
         horizonds = ['+108', '+114', '+120', '+126', '+132']
         work_list = []
@@ -260,13 +260,15 @@ class CareerStatusS(BasF_S):
         self.storage["sale"] = super().float_input(msg='На продажу: ')
 
     def _input_current_result(self):
-        """Add current \result."""
+        """Add current result."""
         self.res["shift"] = super().float_input(msg="Введите добычу вахты: ")
         if self.cur["brig"] == 'Бригада 1':
             self.res["month"] = self.res["shift"]
         else:
             shift1_res = Reports(self.user).give_main_results(
-                *str(date.today()).split('-')[:-1], 'Смена 1')[1]
+                *str(date.today()).split('-')[:-1],
+                'Смена 1'
+            )[1]
             self.res["month"] = (round(shift1_res, 1) + self.res["shift"])
 
     def _add_mechanic_info(self, user_id):
@@ -312,8 +314,8 @@ class CareerStatusS(BasF_S):
     ):
         """Check mechanics and master data."""
         report_completion = (
-            self.mach["to_repare"] and
-            self.works_plan["rock_work"]
+            self.mach["to_repare"]
+            and self.works_plan["rock_work"]
         )
         if report_completion:
             html = self._create_html_status()
@@ -421,8 +423,11 @@ class CareerStatusS(BasF_S):
         return table
 
     def _ask_for_recreate(self):
-        """If daily career status already exist and comlate.
-        But user want to make changes."""
+        """Ask for recreate career status.
+
+        If daily career status already exist and comlate.
+        But user want to make changes.
+        """
         super().clear_screen()
         ask = input("Ежедневный отчет уже сформирован и разослан руководству,"
                     "\nВы уверены, что хоти внести корректировки? Y/N: ")
@@ -482,6 +487,7 @@ class Statuses(BasF_S):
     ]
 
     def __init__(self, user):
+        """Load statuses from data file."""
         self.car_stat_path = super().get_root_path() / 'data' / 'carer_status'
         self.user = user
         if self.car_stat_path.exists():
