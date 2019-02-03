@@ -1,5 +1,5 @@
 # Interkamen Program
-### ver 1.18.2
+### ver 1.18.7
 
 
 This is corporative program of mining company to work with statistic and financial reports.
