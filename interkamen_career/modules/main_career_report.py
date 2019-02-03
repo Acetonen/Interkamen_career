@@ -39,7 +39,7 @@ class Reports:
 
 from __future__ import annotations
 
-
+from collections import namedtuple
 from threading import Thread
 from typing import List, Dict
 from pprint import pprint
@@ -360,6 +360,8 @@ class Reports(BasF_S):
         'brigadiers',
         'data_base',
     ]
+
+    ShiftResults = namedtuple('ShiftRes', ('drill_meters result rock_mass'))
 
     def __init__(self, user):
         """Load reports data."""
@@ -800,10 +802,10 @@ class Reports(BasF_S):
     def give_main_results(self, year: str, month: str, shift: str):
         """Return drill meters, result and rock_mass.
 
-        Return None, if report not exist.
+        Return empty tuple, if report not exist.
         """
         report_name = year + '-' + month + ' ' + shift
-        result_tuplet = ()
+        result_tuplet = self.ShiftResults(0, 0, 0)
         for report in self.data_base:
             if (
                     report_name in report
@@ -812,7 +814,11 @@ class Reports(BasF_S):
                 drill_meters = self.data_base[report].result['шпурометры']
                 result = self.data_base[report].count_result()
                 rock_mass = self.data_base[report].count_rock_mass()
-                result_tuplet = drill_meters, result, rock_mass
+                result_tuplet = self.ShiftResults(
+                    drill_meters if drill_meters else 0,
+                    result if result else 0,
+                    rock_mass if rock_mass else 0
+                )
         return result_tuplet
 
     def give_avaliable_to_edit(self, *statuses) -> List[str]:
