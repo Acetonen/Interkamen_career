@@ -216,7 +216,7 @@ class DPassportS(BasF_S):
         self._bareholes_and_dependencies()
         self._set_bits_in_rock()
 
-    def change_parametrs(self):
+    def change_parametrs(self, user):
         """Change passport parametrs."""
         edit_menu_dict = {
             'Изменить горизонт': self._set_horizond,
@@ -238,7 +238,7 @@ class DPassportS(BasF_S):
                     self.params.number = None
                     break
             else:
-                edit_menu_dict[action_name]()
+                (lambda *user: edit_menu_dict[action_name](*user))(user)
 
 
 class NPassportS(DPassportS):
@@ -489,7 +489,7 @@ class DrillPassports(BasF_S):
         if not passport_name:
             raise MainMenu
         passport = self.drill_pass_file[passport_name]
-        passport.change_parametrs()
+        passport.change_parametrs(self.user)
         if not passport.params.number:
             self.drill_pass_file.pop(passport_name)
             super().dump_data(
