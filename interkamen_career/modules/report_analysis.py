@@ -162,12 +162,11 @@ class ReportAnalysis(Reports):
             for salary in brig_salary
         ]
         result['cost']['cost'] = [
-            int(round(salary/result, 0))
+            int(round(salary/result, 0)) if result else 0
             for salary, result in zip(
                 brig_salary,
                 result['indicators']['res']
             )
-            if result != 0
         ]
         if sal_anal:
             result = self._create_analise_data(result, sal_anal)

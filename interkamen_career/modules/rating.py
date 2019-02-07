@@ -36,9 +36,13 @@ class Rating(BasF_S):
     brig_columns = ['year', 'month', 'shift', 'cleanness', 'discipline',
                     'roads', 'maintain', 'user']
     shifts = ['Смена 1', 'Смена 2']
-
+    month_numbers = [
+        '', '01', '02', '03', '04', '05', '06',
+        '07', '08', '09', '10', '11', '12'
+        ]
 
     def __init__(self, user):
+        """Load data."""
         self.temp_res = {
             'критерий': [],
             'Смена 1': [],
@@ -148,7 +152,8 @@ class Rating(BasF_S):
         self.totl_res['критерий'].extend(['result', 'rock_mass'])
         for shift in self.shifts:
             brig_results = Reports(self.user).give_main_results(
-                str(year), str(month), shift)
+                str(year), self.month_numbers[int(month)], shift
+            )
             if brig_results:
                 self.totl_res[shift].extend(brig_results[1:])
             else:
